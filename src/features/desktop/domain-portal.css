@@ -1,0 +1,553 @@
+.domain-portal {
+  min-height: 100%;
+  padding: 24px 26px 44px;
+  color: #d9d4e2;
+  background: radial-gradient(circle at 88% 0%, rgb(55 37 79 / 34%), transparent 33%), #211f27;
+}
+
+.domain-portal-loading {
+  padding: 32px;
+  color: #c7bfd3;
+}
+
+.domain-hero,
+.domain-search-panel,
+.domain-section {
+  max-width: 1180px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.domain-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 2px 24px;
+  border-bottom: 1px solid #4a4351;
+}
+
+.domain-kicker {
+  margin: 0 0 8px;
+  color: #b590dc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.domain-hero h1,
+.domain-section h2 {
+  margin: 0;
+  color: #f5eff9;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.domain-hero h1 {
+  max-width: 650px;
+  font-size: clamp(25px, 3vw, 38px);
+}
+
+.domain-hero p:not(.domain-kicker) {
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: #aaa0b4;
+  line-height: 1.6;
+}
+
+.domain-balance {
+  min-width: 150px;
+  padding: 13px 15px;
+  border: 1px solid #51485d;
+  border-radius: 7px;
+  background: #292530;
+  text-align: right;
+}
+
+.domain-balance span,
+.domain-balance strong {
+  display: block;
+}
+
+.domain-balance span {
+  color: #a89daf;
+  font-size: 11px;
+}
+
+.domain-balance strong {
+  margin-top: 4px;
+  color: #b9e2b2;
+  font-size: 21px;
+}
+
+.domain-search-panel {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #615270;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #302839, #28242f);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 18%);
+}
+
+.domain-search-line,
+.domain-organization,
+.domain-owned-actions,
+.domain-owned-tools,
+.domain-inline-control,
+.domain-whois-search,
+.domain-offer-row,
+.domain-result-footer,
+.domain-result-topline,
+.domain-owned-heading,
+.domain-section-heading {
+  display: flex;
+  align-items: center;
+}
+
+.domain-search-line {
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.domain-search-panel label,
+.domain-owned-tools label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  color: #b8adbf;
+  font-size: 11px;
+}
+
+.domain-search-panel input,
+.domain-search-panel select,
+.domain-owned-card input,
+.domain-owned-card select,
+.domain-offer-row input,
+.domain-whois-search input {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #665a72;
+  border-radius: 4px;
+  background: #211e27;
+  color: #eee7f3;
+  font: inherit;
+}
+
+.domain-query {
+  flex: 1.5 !important;
+}
+
+.domain-search-panel button,
+.domain-result-card button,
+.domain-owned-card button,
+.domain-offer-row button,
+.domain-whois-search button,
+.domain-suggestions button {
+  border: 1px solid #716080;
+  border-radius: 4px;
+  background: #393044;
+  color: #ede5f2;
+  cursor: pointer;
+  font: inherit;
+}
+
+.domain-search-panel button,
+.domain-result-card button,
+.domain-owned-card button,
+.domain-offer-row button,
+.domain-whois-search button {
+  padding: 9px 12px;
+  white-space: nowrap;
+}
+
+.domain-search-panel button:hover,
+.domain-result-card button:hover,
+.domain-owned-card button:hover,
+.domain-offer-row button:hover,
+.domain-whois-search button:hover,
+.domain-suggestions button:hover {
+  border-color: #b899d4;
+  background: #493b59;
+}
+
+.domain-search-panel button:disabled,
+.domain-result-card button:disabled,
+.domain-owned-card button:disabled,
+.domain-offer-row button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.domain-search-panel .domain-primary,
+.domain-result-card.is-recommended button {
+  border-color: #a77ccf;
+  background: #68428a;
+}
+
+.domain-organization {
+  align-items: stretch;
+  margin-top: 12px;
+}
+
+.domain-message {
+  max-width: 1180px;
+  margin: 14px auto 0;
+  padding: 9px 12px;
+  border-left: 3px solid #ad8ad0;
+  background: #302a38;
+  color: #e6d9ef;
+}
+
+.domain-section {
+  margin-top: 30px;
+}
+
+.domain-section-heading {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.domain-section h2 {
+  font-size: 21px;
+}
+
+.domain-count {
+  color: #a79bad;
+  font-size: 12px;
+}
+
+.domain-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: 10px;
+}
+
+.domain-result-card,
+.domain-owned-card,
+.domain-offer-row,
+.domain-whois-card,
+.domain-empty {
+  border: 1px solid #443e4b;
+  border-radius: 6px;
+  background: #2a272f;
+}
+
+.domain-result-card {
+  position: relative;
+  display: flex;
+  min-height: 188px;
+  flex-direction: column;
+  padding: 15px;
+}
+
+.domain-result-card.is-recommended {
+  border-color: #80639a;
+  box-shadow: inset 0 2px 0 #a276c6;
+}
+
+.domain-recommended {
+  position: absolute;
+  top: -9px;
+  right: 10px;
+  padding: 3px 7px;
+  border-radius: 10px;
+  background: #8d62ad;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.domain-result-topline {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.domain-result-topline strong,
+.domain-offer-row strong,
+.domain-whois-card strong {
+  overflow-wrap: anywhere;
+  color: #f4eefa;
+  font-size: 16px;
+}
+
+.domain-result-card p {
+  flex: 1;
+  margin: 10px 0 5px;
+  color: #b4aabb;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.domain-result-card > small {
+  color: #c9bad2;
+  line-height: 1.35;
+}
+
+.domain-result-footer {
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.domain-result-footer div > strong,
+.domain-result-footer small {
+  display: block;
+}
+
+.domain-result-footer div > strong {
+  color: #c9efbd;
+}
+
+.domain-result-footer small {
+  color: #94899e;
+  font-size: 10px;
+}
+
+.domain-result-footer .domain-premium {
+  display: inline-block;
+  margin-top: 4px;
+  color: #e8c28c;
+  font-weight: 700;
+}
+
+.domain-restriction {
+  display: block;
+  margin-top: 9px;
+  color: #e5a5af !important;
+}
+
+.domain-status,
+.domain-primary-badge {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 3px 6px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-available,
+.status-active {
+  background: #294936;
+  color: #a8e4b3;
+}
+
+.status-expiring {
+  background: #59451f;
+  color: #f1cd85;
+}
+
+.status-expired,
+.status-restricted {
+  background: #562f3a;
+  color: #eda8b6;
+}
+
+.domain-primary-badge {
+  background: #40325a;
+  color: #d8b8f5;
+}
+
+.domain-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: #a59aa9;
+  font-size: 11px;
+}
+
+.domain-suggestions button {
+  padding: 4px 7px;
+  color: #cbb2dd;
+  font-size: 11px;
+}
+
+.domain-empty {
+  padding: 20px;
+  color: #aaa0af;
+}
+
+.domain-owned-list,
+.domain-offers {
+  display: grid;
+  gap: 10px;
+}
+
+.domain-owned-card {
+  padding: 15px;
+}
+
+.domain-owned-heading {
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.domain-owned-heading p {
+  margin: 6px 0 0;
+  color: #9e94a5;
+  font-size: 11px;
+}
+
+.link-button {
+  border: 0 !important;
+  background: transparent !important;
+  color: #c9a6e5 !important;
+  font-size: 11px;
+}
+
+.domain-owned-actions {
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 13px;
+}
+
+.domain-owned-actions input {
+  width: 130px;
+}
+
+.domain-owned-tools {
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.domain-inline-control {
+  gap: 5px;
+}
+
+.domain-inline-control input,
+.domain-inline-control select {
+  flex: 1;
+  min-width: 0;
+}
+
+.domain-owned-tools .domain-inline-control button {
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
+.domain-subdomains {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: #9e94a5;
+  font-size: 11px;
+}
+
+.domain-subdomains code {
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #1f1c24;
+  color: #c7afd8;
+}
+
+.domain-offer-row {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.domain-offer-row > div:first-child span {
+  display: block;
+  margin-top: 4px;
+  color: #aaa0af;
+  font-size: 11px;
+}
+
+.domain-offer-row b {
+  color: #c8edbd;
+}
+
+.domain-offer-row .domain-inline-control {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.domain-offer-row input {
+  width: 112px;
+}
+
+.domain-whois-search {
+  max-width: 600px;
+  gap: 6px;
+}
+
+.domain-whois-search input {
+  flex: 1;
+}
+
+.domain-whois-card {
+  max-width: 760px;
+  margin-top: 12px;
+  padding: 15px;
+}
+
+.domain-whois-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.domain-whois-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 15px 0 0;
+}
+
+.domain-whois-card dl div {
+  padding-top: 8px;
+  border-top: 1px solid #403b46;
+}
+
+.domain-whois-card dt {
+  color: #8f8495;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.domain-whois-card dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  color: #d3c7db;
+  font-size: 12px;
+}
+
+@media (width <= 720px) {
+  .domain-portal {
+    padding: 18px 14px 36px;
+  }
+
+  .domain-hero,
+  .domain-search-line,
+  .domain-owned-tools,
+  .domain-offer-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .domain-balance {
+    text-align: left;
+  }
+
+  .domain-owned-actions input {
+    flex: 1;
+    width: auto;
+  }
+
+  .domain-whois-card dl {
+    grid-template-columns: 1fr;
+  }
+}

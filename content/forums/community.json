@@ -1,0 +1,155 @@
+{
+  "groups": [
+    { "id": "general", "name": "Geral" },
+    { "id": "code", "name": "Programação" },
+    { "id": "network", "name": "Redes" },
+    { "id": "gaming", "name": "Jogos" },
+    { "id": "jobs", "name": "Trabalhos" }
+  ],
+  "categories": [
+    {
+      "id": "announcements",
+      "group": "general",
+      "name": "Anúncios",
+      "description": "Novidades da comunidade, regras e avisos da equipe.",
+      "icon": "announce",
+      "readOnly": true
+    },
+    {
+      "id": "introductions",
+      "group": "general",
+      "name": "Apresentações",
+      "description": "Todo nickname tem uma história. Conte a sua.",
+      "icon": "members",
+      "readOnly": false
+    },
+    {
+      "id": "digital",
+      "group": "general",
+      "name": "Mundo digital",
+      "description": "Software, privacidade e o que está acontecendo por aí.",
+      "icon": "globe",
+      "readOnly": false
+    },
+    {
+      "id": "lounge",
+      "group": "general",
+      "name": "Café da madrugada",
+      "description": "Conversas sem pressa entre uma linha e outra.",
+      "icon": "chat",
+      "readOnly": false
+    },
+    {
+      "id": "scripts",
+      "group": "code",
+      "name": "Scripts & desenvolvimento",
+      "description": "Compartilhe código, dúvidas e pequenas descobertas.",
+      "icon": "code",
+      "readOnly": false
+    },
+    {
+      "id": "linux",
+      "group": "code",
+      "name": "Linux & sistemas",
+      "description": "Terminal, arquivos, serviços e configurações.",
+      "icon": "terminal",
+      "readOnly": false
+    },
+    {
+      "id": "networks",
+      "group": "network",
+      "name": "Redes & laboratório",
+      "description": "Conectividade, análise de tráfego e ambientes de estudo.",
+      "icon": "network",
+      "readOnly": false
+    },
+    {
+      "id": "gaming",
+      "group": "gaming",
+      "name": "Jogos & modificações",
+      "description": "Cyber Siege, projetos da comunidade e atualizações.",
+      "icon": "game",
+      "readOnly": false
+    },
+    {
+      "id": "work",
+      "group": "jobs",
+      "name": "Pedidos & colaborações",
+      "description": "Uma segunda opinião, um projeto ou um trabalho novo.",
+      "icon": "briefcase",
+      "readOnly": false
+    }
+  ],
+  "members": [
+    {
+      "name": "SYSOP",
+      "rank": "Administrador",
+      "color": "gold",
+      "joined": "2025-03-02",
+      "reputation": 320,
+      "signature": "Preserve o sinal. Respeite quem está do outro lado.",
+      "bio": "Cuida da casa e mantém as luzes do servidor acesas.",
+      "avatar": "signal"
+    },
+    {
+      "name": "PATCH",
+      "rank": "Moderador",
+      "color": "blue",
+      "joined": "2025-05-18",
+      "reputation": 184,
+      "signature": "Primeiro o log. Depois a hipótese.",
+      "bio": "Administração de sistemas, documentação e café sem açúcar.",
+      "avatar": "cube"
+    },
+    {
+      "name": "BYTE",
+      "rank": "Veterano",
+      "color": "purple",
+      "joined": "2025-07-09",
+      "reputation": 127,
+      "signature": "Os detalhes também contam uma história.",
+      "bio": "Curioso por arquivos, metadados e código bem explicado.",
+      "avatar": "orbit"
+    },
+    {
+      "name": "NULL",
+      "rank": "Membro",
+      "color": "teal",
+      "joined": "2025-11-17",
+      "reputation": 91,
+      "signature": "...",
+      "bio": "Este membro ainda não escreveu uma apresentação.",
+      "avatar": "ghost"
+    },
+    {
+      "name": "VEX",
+      "rank": "Membro",
+      "color": "teal",
+      "joined": "2026-01-23",
+      "reputation": 46,
+      "signature": "Disponível para projetos e colaborações.",
+      "bio": "Pequenos servidores, grandes ideias e alguns chamados abertos.",
+      "avatar": "cube"
+    },
+    {
+      "name": "R4ZOR",
+      "rank": "Membro",
+      "color": "red",
+      "joined": "2026-04-12",
+      "reputation": 12,
+      "signature": "Always in beta.",
+      "bio": "Jogos, modificações e projetos de fim de semana.",
+      "avatar": "signal"
+    },
+    {
+      "name": "Gregory",
+      "rank": "Membro",
+      "color": "teal",
+      "joined": "2026-06-08",
+      "reputation": 18,
+      "signature": "Mais uma partida e eu saio.",
+      "bio": "Chegou pelos jogos, ficou pelas conversas.",
+      "avatar": "orbit"
+    }
+  ]
+}

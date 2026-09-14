@@ -1,0 +1,116 @@
+.desktop-context-menu {
+  position: fixed;
+  z-index: 20000;
+  width: 290px;
+  max-width: calc(100vw - 8px);
+  max-height: calc(100vh - 8px);
+  overflow: auto;
+  padding: 3px;
+  border: 1px solid #aaa;
+  border-radius: 2px;
+  background: #fafafa;
+  color: #50535b;
+  box-shadow: 2px 3px 9px #0006;
+  font:
+    12px/1.3 'Segoe UI',
+    sans-serif;
+  color-scheme: light;
+}
+
+.desktop-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 25px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  white-space: nowrap;
+  transition: none;
+}
+
+.desktop-context-menu button:not(:disabled):is(:hover, :focus, .context-expanded) {
+  outline: none;
+  background: #912cbd;
+  color: #fff;
+}
+
+.desktop-context-menu button:disabled {
+  opacity: 0.4;
+}
+
+.desktop-context-menu button > span:nth-child(2) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.desktop-context-menu [role='separator'] {
+  height: 1px;
+  margin: 4px 2px;
+  background: #ddd;
+}
+
+.context-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.context-arrow {
+  margin-left: auto;
+}
+
+.desktop-create-backdrop {
+  position: fixed;
+  z-index: 20001;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #0004;
+}
+
+.desktop-create-dialog {
+  width: min(430px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  background: #24272a;
+  border: 1px solid #596575;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px #0008;
+}
+
+.desktop-create-dialog h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.desktop-create-dialog p {
+  font-size: 12px;
+  margin: 0;
+}
+
+.desktop-create-dialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.desktop .desktop-shortcuts button.desktop-icon-selected {
+  background: #2777ff33;
+  border-color: #2777ff;
+}
+
+.file-root-banner {
+  padding: 7px 12px;
+  background: #663719;
+  color: #ffdfbd;
+  font-size: 12px;
+}

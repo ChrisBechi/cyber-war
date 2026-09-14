@@ -1,0 +1,20 @@
+node_modules
+dist
+coverage
+src-tauri/target
+target
+pnpm-lock.yaml
+*.db
+.tools
+.pnpm-store
+artifacts
+specs
+skills
+docs/assets
+docs/Game_Hacker_Documentacao_Consolidada_v3_2
+docs/Sessão 3
+docs/*.txt
+docs/GAME_HACKER*.md
+src-tauri/gen
+Cargo.lock
+*.tsbuildinfo

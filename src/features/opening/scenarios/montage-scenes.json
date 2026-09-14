@@ -1,0 +1,22 @@
+[
+  { "id": "launch-terminals", "duration": 6.4, "frames": 96, "transition": "wipeleft" },
+  { "id": "forum", "duration": 4.2, "frames": 60, "transition": "cut" },
+  { "id": "conversation", "duration": 5.6, "frames": 84, "transition": "smoothup" },
+  { "id": "wireless", "duration": 4.2, "frames": 60, "transition": "wiperight" },
+  { "id": "deep-web", "duration": 4.8, "frames": 72, "transition": "dissolve" },
+  { "id": "network-terminals", "duration": 4.8, "frames": 72, "transition": "wipeleft" },
+  { "id": "news", "duration": 4.2, "frames": 60, "transition": "cut" },
+  { "id": "traffic", "duration": 4.8, "frames": 72, "transition": "smoothdown" },
+  { "id": "files", "duration": 4.8, "frames": 54, "transition": "wiperight" },
+  { "id": "root-operation", "duration": 5.6, "frames": 72, "transition": "cut" },
+  { "id": "archive", "duration": 4.2, "frames": 36, "transition": "wipeleft" },
+  { "id": "codelab", "duration": 4.8, "frames": 72, "transition": "smoothup" },
+  { "id": "processes", "duration": 4.2, "frames": 36, "transition": "wiperight" },
+  { "id": "null", "duration": 4.8, "frames": 60, "transition": "cut" },
+  { "id": "hash-compare", "duration": 4.8, "frames": 60, "transition": "dissolve" },
+  { "id": "routes", "duration": 4.8, "frames": 48, "transition": "wipeleft" },
+  { "id": "encoded-session", "duration": 4.8, "frames": 54, "transition": "smoothdown" },
+  { "id": "receipts", "duration": 4.2, "frames": 48, "transition": "cut" },
+  { "id": "permissions", "duration": 4.8, "frames": 36, "transition": "wiperight" },
+  { "id": "swarm", "duration": 5.6, "frames": 96, "transition": "wipeleft" }
+]

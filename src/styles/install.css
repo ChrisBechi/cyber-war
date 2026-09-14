@@ -1,0 +1,888 @@
+.setup-menu {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 20% 20%, #1762a51f, transparent 35%), #050a12;
+}
+
+/* Original 640 × 480 artwork, framed to match the slightly cropped reference capture. */
+.kali-installer-boot {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  container-type: size;
+  background: #2876c5 url('/assets/kali/installer-boot.png') top left / 100.8677% 100.7678%
+    no-repeat;
+  color: #b1c6dc;
+  font-family: Consolas, 'Liberation Mono', monospace;
+  font-weight: 400;
+  text-shadow: 0 0 1px #c7d9ec40;
+}
+
+.kali-installer-title {
+  position: absolute;
+  top: 31.25%;
+  left: 0.4338%;
+  width: 100%;
+  margin: 0;
+  font-size: 1.15cqw;
+  line-height: 2.3cqh;
+  text-align: center;
+}
+
+.kali-installer-options {
+  position: absolute;
+  top: 39.06%;
+  left: 13.9%;
+  display: grid;
+  width: 73.85%;
+  grid-auto-rows: 5.6cqh;
+}
+
+.kali-installer-options button {
+  height: 5cqh;
+  border: 0;
+  border-radius: 0.35cqw;
+  padding: 0 0.75cqw;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.15cqw;
+  font-weight: 400;
+  line-height: 5cqh;
+  text-align: left;
+  text-shadow: inherit;
+  transition: none;
+}
+
+.kali-installer-options button.is-selected {
+  background: linear-gradient(#b2d6ff1f, #b2d6ff29);
+  box-shadow: inset 0 1px 0 #cce5ff12;
+}
+
+.kali-installer-options button:focus-visible {
+  outline: none;
+}
+
+.kali-installer-shortcuts {
+  position: absolute;
+  bottom: 2.95%;
+  left: 13.9%;
+  display: grid;
+  grid-template-columns: 23.4cqw auto;
+  grid-template-rows: repeat(2, 2.3cqh);
+  font-size: 1.15cqw;
+  line-height: 2.3cqh;
+}
+
+.kali-installer-shortcuts > span {
+  display: grid;
+  grid-template-columns: 4.45cqw auto;
+  white-space: pre;
+}
+
+.kali-installer-select {
+  grid-area: 1 / 1;
+}
+
+.kali-installer-edit {
+  grid-area: 2 / 1;
+}
+
+.kali-installer-command {
+  grid-area: 2 / 2;
+  grid-template-columns: 4.55cqw auto;
+}
+
+.kali-system-boot {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  container-type: size;
+  background: #182330 url('/assets/kali/system-boot.png') 0 0.7663dvh / 100.8639% 100.5747%
+    no-repeat;
+  color: #b1c6dc;
+  font-family: Consolas, 'Liberation Mono', monospace;
+  font-weight: 400;
+  text-shadow: 0 0 1px #c7d9ec40;
+}
+
+.kali-system-options {
+  position: absolute;
+  top: 25.86%;
+  left: 25.16%;
+  display: grid;
+  width: 50.4%;
+  grid-auto-rows: 5.73cqh;
+}
+
+.kali-system-options button {
+  height: 5cqh;
+  border: 0;
+  border-radius: 0.35cqw;
+  padding: 0 1.19cqw;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.15cqw;
+  font-weight: 400;
+  line-height: 5cqh;
+  text-align: left;
+  text-shadow: inherit;
+  transition: none;
+}
+
+.kali-system-options button.is-selected {
+  background: linear-gradient(#b2d6ff1f, #b2d6ff29);
+  box-shadow: inset 0 1px 0 #cce5ff12;
+}
+
+.kali-system-options button:focus-visible {
+  outline: none;
+}
+
+/* The installer follows the 928 × 522 reference canvas. Only the original
+   banner portion of the supplied image is visible; all controls are live. */
+@font-face {
+  font-family: 'Installer Sans';
+  src: url('/assets/kali/DejaVuSans.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Installer Sans';
+  src: url('/assets/kali/DejaVuSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Installer Sans';
+  src: url('/assets/kali/DejaVuSans-Oblique.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+.kali-setup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  container-type: size;
+  background: #e9e9e9;
+  color: #252525;
+  color-scheme: light;
+  font-family: 'Installer Sans', Arial, sans-serif;
+  font-size: 1.075cqw;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.installer-banner {
+  flex: 0 0 10.72cqh;
+  background: #153762 url('/assets/kali/installer-reference.png') top left / 100cqw 100cqh no-repeat;
+}
+
+.kali-setup .installer-title {
+  display: flex;
+  align-items: center;
+  flex: 0 0 6.25cqh;
+  margin: 0;
+  padding: 0 1.25cqw;
+  font: inherit;
+  letter-spacing: normal;
+}
+
+.installer-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0 0.85cqw;
+  padding: 0.9cqh 0.6cqw 0.6cqh;
+  overflow: auto;
+  border: 1px solid #bebebe;
+  box-shadow: 0 0 1px #aaa;
+}
+
+.installer-body p {
+  flex-shrink: 0;
+  margin: 0 0 2cqh;
+  line-height: inherit;
+}
+
+.installer-body p:has(+ .installer-label),
+.installer-body p:has(+ .installer-field) {
+  margin-bottom: 0.6cqh;
+}
+
+.kali-setup .installer-label,
+.kali-setup .installer-field > span {
+  display: block;
+  margin-bottom: 1cqh;
+  color: #383838;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.kali-setup .installer-label:empty {
+  display: none;
+}
+
+.installer-list {
+  flex: 1;
+  min-height: 10cqh;
+  overflow: auto;
+  border: 1px solid #bcbcbc;
+  background: #e7e7e7;
+  outline: none;
+}
+
+.installer-list [role='option'] {
+  min-height: 3.22cqh;
+  padding: 0.45cqh 0.27cqw;
+  white-space: pre-wrap;
+  cursor: default;
+}
+
+.installer-list .is-selected,
+.installer-software .installer-check:focus-within {
+  background: linear-gradient(#6e9bdd, #3975d8);
+  color: #eef4fc;
+}
+
+.installer-list:focus-visible {
+  outline: 1px solid #7c9bc0;
+  outline-offset: -1px;
+}
+
+.kali-setup label {
+  color: inherit;
+  font: inherit;
+}
+
+.kali-setup .installer-field {
+  display: block;
+  flex-shrink: 0;
+  margin: 0 0 1.3cqh;
+}
+
+.kali-setup .installer-field input,
+.kali-setup .installer-field select {
+  width: 100%;
+  height: 4.1cqh;
+  padding: 0 0.55cqw;
+  border: 1px solid #aaa;
+  border-radius: 0.9cqw;
+  background: #e7e7e7;
+  box-shadow: inset 0 1px 1px #0002;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.kali-setup .installer-field input:focus,
+.kali-setup .installer-field select:focus {
+  border-color: #6288bc;
+  box-shadow: 0 0 1px 1px #789ccc;
+}
+
+.kali-setup .installer-check,
+.kali-setup .installer-radio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5cqw;
+  margin: 0 0 2cqh;
+  font: inherit;
+}
+
+.kali-setup .installer-radio {
+  margin-bottom: 1.6cqh;
+}
+
+.kali-setup input[type='checkbox'],
+.kali-setup input[type='radio'] {
+  width: 1.05cqw;
+  height: 1.05cqw;
+  margin: 0;
+  padding: 0;
+  accent-color: #7595bf;
+}
+
+.kali-setup .installer-software .installer-check {
+  min-height: 3.22cqh;
+  margin: 0;
+  padding: 0 0.27cqw;
+}
+
+.kali-setup .installer-explanation {
+  margin-bottom: 1cqh;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.kali-setup[data-stage='overview'] .installer-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.installer-format-list {
+  margin-bottom: 0.6cqh;
+}
+
+.installer-footer {
+  display: flex;
+  flex: 0 0 8.25cqh;
+  align-items: end;
+  gap: 0.65cqw;
+  padding: 0 0.85cqw 0.75cqh;
+}
+
+.installer-footer > span {
+  flex: 1;
+}
+
+.kali-setup button {
+  min-width: 7.95cqw;
+  height: 4.4cqh;
+  padding: 0 0.9cqw;
+  border: 1px solid #a4a4a4;
+  border-radius: 0.95cqw;
+  background: linear-gradient(#f5f5f5, #d0d0d0);
+  box-shadow:
+    0 1px 1px #0002,
+    inset 0 1px #fffa;
+  color: #292929;
+  font: inherit;
+  letter-spacing: 0.01em;
+}
+
+.kali-setup button:hover {
+  background: linear-gradient(#fff, #dadada);
+}
+
+.kali-setup button:active {
+  background: linear-gradient(#c5c5c5, #e1e1e1);
+}
+
+.kali-setup button:focus-visible,
+.kali-setup .installer-continue {
+  border-color: #7297c8;
+  outline: none;
+  box-shadow: 0 0 1px 1px #7c9ec755;
+}
+
+.installer-progress {
+  flex: 1;
+  min-height: 0;
+  padding: 8.15cqh 5.5cqw 0;
+}
+
+.installer-progress-track {
+  position: relative;
+  width: 100%;
+  height: 3.4cqh;
+  overflow: hidden;
+  border: 1px solid #aaa;
+  border-radius: 0.9cqw;
+  background: #d2d2d2;
+  box-shadow: inset 0 1px 1px #0002;
+}
+
+.installer-progress-fill {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(125deg, #fff0 0 15px, #fff1 19px 27px, #fff0 31px 42px),
+    linear-gradient(#6a9de5, #2a73df);
+  color: #edf3fc;
+}
+
+.installer-progress-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+}
+
+.installer-progress > p {
+  margin: 1.2cqh 0 0;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.installer-complete {
+  display: flex;
+  align-items: start;
+  gap: 0.65cqw;
+}
+
+.installer-info {
+  display: grid;
+  flex: 0 0 3.85cqw;
+  height: 3.85cqw;
+  place-items: center;
+  border: 1px solid #5276a6;
+  border-radius: 50%;
+  background: #407fe0;
+  color: #fff;
+  font:
+    400 3.3cqw Georgia,
+    serif;
+}
+
+.kali-setup .installer-complete .installer-label {
+  margin-bottom: 0.4cqh;
+}
+
+.kali-setup .installer-error {
+  margin: 1.5cqh 0 0;
+  color: #a41616;
+}
+
+.installer-help-backdrop {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #0004;
+}
+
+.installer-help {
+  width: 65cqw;
+  max-height: 80cqh;
+  overflow: auto;
+  padding: 2cqw;
+  border: 1px solid #aaa;
+  border-radius: 0.5cqw;
+  background: #e9e9e9;
+  box-shadow: 0 0.5cqh 2cqw #0005;
+}
+
+.installer-help h3 {
+  font-size: 1.3em;
+}
+
+.installer-help dt {
+  margin-bottom: 0.4em;
+}
+
+.installer-help dd {
+  margin: 0 0 1.2em;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.login-screen {
+  --login-font-size: 14px;
+  --login-surface: #f6f6f6;
+  --login-text: #5c616c;
+  --login-border: #d5d9dd;
+
+  position: relative;
+  display: grid;
+  width: 100vw;
+  height: 100dvh;
+  place-items: center;
+  overflow: hidden;
+  background: url('/assets/kali-cubes2.jpg') center / cover;
+  color: var(--login-text);
+  font-family: Arial, sans-serif;
+  font-size: var(--login-font-size);
+  color-scheme: light;
+}
+
+.login-card {
+  position: relative;
+  width: min(346px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid #dce1e5;
+  border-radius: 3px;
+  background: #f1f3f5ed;
+  box-shadow:
+    0 2px 0 #b7bec2,
+    0 3px 7px #00112e33;
+}
+
+.login-card-body {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 32px;
+  padding: 28px 23px 12px;
+}
+
+.login-card-logo {
+  width: 64px;
+  height: 64px;
+  align-self: center;
+  object-fit: contain;
+  border-radius: 50%;
+  clip-path: circle(49.5%);
+}
+
+.login-card-fields {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.login-card-fields label {
+  display: grid;
+  gap: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.login-card-fields input {
+  width: 100%;
+  height: 36px;
+  min-width: 0;
+  border: 1px solid #d9dde1;
+  border-radius: 4px;
+  padding: 7px 9px;
+  background: #fff;
+  color: #444;
+  font: inherit;
+  box-shadow: 0 1px 2px #0000000d;
+}
+
+.login-card-fields input::placeholder {
+  color: #858585;
+  opacity: 1;
+}
+
+.login-card-fields input:focus {
+  border-color: #b7cbdc;
+  box-shadow: inset 0 0 0 1px #e6edf3;
+  outline: 0;
+}
+
+.login-error {
+  margin: 0 12px 12px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  background: #ffe5e1;
+  color: #9d2921;
+  font-size: var(--login-font-size);
+}
+
+.login-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 23px 22px;
+  background: #ffffffed;
+}
+
+.login-actions button,
+.login-panel button {
+  min-height: 28px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 3px 12px;
+  color: var(--login-text);
+  background: #ededed;
+  font: inherit;
+  line-height: 20px;
+}
+
+.login-actions button:first-child {
+  width: 75px;
+  min-width: 75px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.login-actions .login-submit-button {
+  min-width: 70px;
+  border-color: #236bc2;
+  background: #3386f5;
+  box-shadow: inset 0 0 0 2px #72aaff;
+  color: white;
+}
+
+.login-actions button:hover {
+  background: #dfe3e6;
+}
+
+.login-actions .login-submit-button:hover {
+  background: #2475e6;
+}
+
+.login-topbar {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 auto;
+  display: flex;
+  height: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 0 6px;
+  background: #edf2f8f5;
+  color: var(--login-text);
+  font-size: var(--login-font-size);
+}
+
+.login-topbar-host {
+  overflow: hidden;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.login-topbar-tray {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.login-topbar .login-tray-button {
+  display: grid;
+  min-width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  padding: 0 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+}
+
+.login-topbar .login-tray-button:hover,
+.login-topbar .login-tray-button[aria-expanded='true'] {
+  background: #d4dde7;
+}
+
+.login-topbar .login-tray-language {
+  font-size: 12px;
+}
+
+.login-topbar .login-tray-clock {
+  padding: 0 3px;
+}
+
+.login-topbar time {
+  white-space: nowrap;
+}
+
+.login-session-icon,
+.login-accessibility-icon,
+.login-power-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentcolor;
+}
+
+.login-session-icon {
+  width: 14px;
+  height: 15px;
+  background: repeating-linear-gradient(to bottom, currentcolor 0 1px, transparent 1px 3px);
+}
+
+.login-accessibility-icon {
+  mask: url('/assets/kali/login-accessibility.svg') center / contain no-repeat;
+}
+
+.login-power-icon {
+  mask: url('/assets/kali/login-power.svg') center / contain no-repeat;
+}
+
+.login-panel {
+  position: absolute;
+  top: 26px;
+  right: 4px;
+  width: min(310px, calc(100vw - 8px));
+  max-height: calc(100dvh - 32px);
+  padding: 8px;
+  overflow-y: auto;
+  border: 1px solid var(--login-border);
+  border-radius: 3px;
+  background: var(--login-surface);
+  color: var(--login-text);
+  box-shadow: 0 3px 12px #0003;
+  font-size: var(--login-font-size);
+  line-height: 1.45;
+}
+
+.login-panel-heading {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 8px;
+  margin-bottom: 4px;
+}
+
+.login-panel-heading button {
+  padding: 0 8px;
+  background: transparent;
+  font-size: 20px;
+}
+
+.login-panel p {
+  margin: 10px 8px;
+}
+
+.login-panel .login-panel-action {
+  display: block;
+  width: 100%;
+  padding: 7px 8px;
+  background: transparent;
+  text-align: left;
+}
+
+.login-panel button:hover,
+.login-panel-option:hover {
+  background: #dbe7f6;
+}
+
+.login-panel-option {
+  display: flex;
+  flex-direction: row;
+  min-height: 36px;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.login-panel-option input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #367bf0;
+}
+
+.login-regional-details {
+  margin: 12px 8px;
+}
+
+.login-regional-details dt {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.login-regional-details dd {
+  margin: 2px 0 0;
+}
+
+.login-panel-note {
+  font-size: calc(var(--login-font-size) - 1px);
+}
+
+.login-panel .login-clock-time {
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.login-panel-confirm {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+}
+
+.login-screen button:focus-visible,
+.login-panel-option input:focus-visible {
+  outline: 2px solid #367bf0;
+  outline-offset: -2px;
+}
+
+.login-large-text {
+  --login-font-size: 18px;
+}
+
+.login-large-text .login-card {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.login-large-text .login-card-fields input {
+  height: 44px;
+}
+
+.login-large-text .login-actions button:first-child {
+  width: auto;
+}
+
+.login-large-text .login-topbar,
+.login-large-text .login-tray-button {
+  height: 30px;
+}
+
+.login-large-text .login-panel {
+  top: 32px;
+}
+
+.login-large-text .login-tray-language {
+  font-size: 16px;
+}
+
+.login-high-contrast {
+  --login-surface: #fff;
+  --login-text: #171717;
+  --login-border: #222;
+}
+
+.login-high-contrast .login-card,
+.login-high-contrast .login-actions,
+.login-high-contrast .login-topbar {
+  background: var(--login-surface);
+  color: var(--login-text);
+}
+
+.login-high-contrast .login-card-fields input,
+.login-high-contrast .login-actions button {
+  border-color: var(--login-border);
+}
+
+.login-high-contrast .login-card-fields input::placeholder {
+  color: #555;
+}
+
+.login-high-contrast .login-submit-button {
+  background: #0754b7;
+  box-shadow: none;
+}
+
+.login-power-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #080c12;
+  color: #eee;
+  font:
+    16px Consolas,
+    monospace;
+}

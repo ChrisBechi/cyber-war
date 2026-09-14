@@ -1,0 +1,756 @@
+[
+  {
+    "id": "first-boot",
+    "title": "First Boot",
+    "description": "Um sistema novo. Um cursor esperando. Organize uma nota antes de começar.",
+    "contact": "LifeOS",
+    "session": 0,
+    "requirements": [],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Instalou? Olha primeiros-passos.txt nos Documentos. Depois bora jogar."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Crie Documents/notes.txt.",
+        "hint": "Terminal: echo \"Finalmente.\" > Documents/notes.txt. Abra o mesmo arquivo no gerenciador.",
+        "conditions": [
+          {
+            "kind": "fileContains",
+            "path": "/home/kali/Documents/notes.txt",
+            "text": ""
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "FIRST_BOOT_COMPLETE"
+      },
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Sistema pronto? O Cyber Siege está em archive.org."
+      }
+    ]
+  },
+  {
+    "id": "v1",
+    "title": "Só pra relaxar",
+    "description": "Gregory quer aquele carro no Cyber Siege. Você começa a perguntar de onde vêm os números.",
+    "contact": "Gregory",
+    "session": 0,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "FIRST_BOOT_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "inventory",
+        "key": "cyber-siege"
+      },
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Demora uma vida pra conseguir dinheiro. Você já tentou descobrir como esse jogo funciona?"
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Baixe o manifesto de Cyber Siege.",
+        "hint": "No navegador, abra archive.org e baixe o manifesto. Alternativa: wget https://archive.org.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "GAME_DOWNLOADED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Encontre o endereço do valor na memória.",
+        "hint": "CodeLab: escaneie 100, jogue uma rodada e escaneie 99.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "MEMORY_LOCATED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Compile a V1.",
+        "hint": "CodeLab: compilar V1. O resultado pode ser compartilhado com Gregory.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "V1_BUILT"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "V1_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 0,
+        "reputation": 5
+      },
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "EU TO RICO KKKKK. Mandei pra dois caras. Um postou no fórum..."
+      },
+      {
+        "kind": "message",
+        "contact": "BYTE",
+        "text": "Tem outro nick nos metadados: [NICKNAME]. R4ZOR só repostou."
+      },
+      {
+        "kind": "message",
+        "contact": "NULL",
+        "text": "script kiddie starter pack. amanhã ele descobre if."
+      },
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Security update disponível. A V1 parou: INCOMPATIBLE VERSION."
+      },
+      {
+        "kind": "file",
+        "path": "/home/kali/projects/profile_01.dat",
+        "text": "gold=100\nhp=100\n"
+      },
+      {
+        "kind": "session",
+        "number": 1
+      }
+    ]
+  },
+  {
+    "id": "v2",
+    "title": "Patched / V2",
+    "description": "O patch mudou os endereços. Encontre uma solução que sobreviva.",
+    "contact": "NULL",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "V1_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "NULL",
+        "text": "resolve aí script kid. Olha o que continua existindo depois de fechar o processo."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Faça os recursos do Cyber Siege voltarem.",
+        "hint": "Edite projects/profile_01.dat para gold=999999. Ou CodeLab: analisar rotina e compilar V2.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "V2_SOLVED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "V2_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 0,
+        "reputation": 10
+      },
+      {
+        "kind": "message",
+        "contact": "Mãe",
+        "text": "Chega por hoje. Desliguei o roteador. Seu tio deixou um pendrive para recuperar umas fotos."
+      },
+      {
+        "kind": "connection",
+        "online": false
+      },
+      {
+        "kind": "inventory",
+        "key": "uncle-usb"
+      },
+      {
+        "kind": "file",
+        "path": "/dev/usb.img",
+        "text": "FOTO_01\nFOTO_02\nARQUIVO_PROTEGIDO:pessoal.zip\n"
+      }
+    ]
+  },
+  {
+    "id": "wifi",
+    "title": "Sem Internet",
+    "description": "O roteador foi desligado. O mundo continua do outro lado da conexão.",
+    "contact": "LifeOS",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "V2_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Caiu aí? Confirma com ifconfig e ping. Sua cópia local da Wipédia tem os fundamentos."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Reconheça uma rede próxima e restaure a conexão.",
+        "hint": "lab wifi lista sinais; lab collect coleta amostras; lab analyze interpreta o conjunto; lab connect conecta.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "WIFI_CONNECTED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "WIFI_COMPLETE"
+      },
+      {
+        "kind": "evidence",
+        "key": "WIFI_TRESPASS"
+      },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Tem um post sobre serviço fora do ar. Acho que você resolve."
+      }
+    ]
+  },
+  {
+    "id": "pendrive",
+    "title": "O Pendrive",
+    "description": "Recupere as fotos do seu tio. Ter acesso não significa ter direito de olhar.",
+    "contact": "Mãe",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "V2_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "Mãe",
+        "text": "São fotos antigas. Trabalhe numa cópia do pendrive."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Preserve uma imagem em Documents/usb-backup.img.",
+        "hint": "cp /dev/usb.img Documents/usb-backup.img",
+        "conditions": [
+          {
+            "kind": "fileContains",
+            "path": "/home/kali/Documents/usb-backup.img",
+            "text": "FOTO_01"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Recupere as fotos da cópia.",
+        "hint": "lab recover exige a imagem preservada.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "USB_RECOVERED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Decida o que fazer com o arquivo pessoal.",
+        "hint": "As fotos já foram recuperadas. A investigação é opcional.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "USB_DECIDED"
+          }
+        ],
+        "choices": [
+          {
+            "id": "respect",
+            "label": "Entregar as fotos e respeitar a privacidade",
+            "irreversible": true,
+            "effects": [
+              {
+                "kind": "flag",
+                "key": "USB_DECIDED"
+              },
+              {
+                "kind": "decision",
+                "key": "unclePrivacy",
+                "value": "respected"
+              }
+            ]
+          },
+          {
+            "id": "look",
+            "label": "Investigar o arquivo pessoal",
+            "irreversible": true,
+            "effects": [
+              {
+                "kind": "flag",
+                "key": "USB_DECIDED"
+              },
+              {
+                "kind": "decision",
+                "key": "unclePrivacy",
+                "value": "opened"
+              },
+              {
+                "kind": "message",
+                "contact": "LifeOS",
+                "text": "Reservas e conversas revelam uma amante. É um segredo humano, sem ligação com o submundo."
+              }
+            ]
+          }
+        ],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "PENDRIVE_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 0,
+        "reputation": 3
+      },
+      {
+        "kind": "message",
+        "contact": "Mãe",
+        "text": "Seu tio agradeceu pelas fotos."
+      }
+    ]
+  },
+  {
+    "id": "forum-job",
+    "title": "Voltou",
+    "description": "Um usuário alterou a configuração. O serviço precisa voltar a responder.",
+    "contact": "Fórum",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "WIFI_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Acesso autorizado: ssh vex@vex.local lab-only. Veja /var/log/web.log. Você pode usar sudo neste servidor virtual."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Restaure o serviço web.",
+        "hint": "No SSH: sudo edit /etc/web.conf \"enabled=true\". Depois: sudo service web restart.",
+        "conditions": [
+          {
+            "kind": "hostService",
+            "host": "10.20.4.15",
+            "port": 80,
+            "running": true
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "FORUM_JOB_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 50,
+        "reputation": 10
+      },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "CARALHO voltou. Salva meu contato. Tenho mais coisa aparecendo."
+      }
+    ]
+  },
+  {
+    "id": "vex-setup",
+    "title": "VEX · Do zero",
+    "description": "Configure uma base funcional e compreenda usuários, serviços e logs.",
+    "contact": "VEX",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "FORUM_JOB_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Crie /srv/www/health.txt contendo OK e teste pelo service web status."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Crie a verificação de saúde e valide o serviço.",
+        "hint": "No SSH: sudo edit /srv/www/health.txt OK. Depois: service web status.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "VEX_HEALTH_CHECKED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "VEX_SETUP_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 80,
+        "reputation": 10
+      },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Base pronta. Vamos preparar para produção."
+      }
+    ]
+  },
+  {
+    "id": "vex-production",
+    "title": "VEX · Produção",
+    "description": "Menor privilégio, configuração e uma restauração testada. Suas decisões permanecem.",
+    "contact": "VEX",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "VEX_SETUP_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Faça backup e valide a cópia. Publicar com proteção parcial tem custo."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Crie e valide um backup da configuração.",
+        "hint": "No SSH: cp /etc/web.conf /home/kali/web-backup.conf. Depois: lab verify-backup.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "VEX_BACKUP_VALID"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Defina a política de produção.",
+        "hint": "O hardening mantém serviços necessários e desativa login root.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "VEX_POLICY_CHOSEN"
+          }
+        ],
+        "choices": [
+          {
+            "id": "secure",
+            "label": "Aplicar hardening e validar produção",
+            "irreversible": true,
+            "effects": [
+              {
+                "kind": "flag",
+                "key": "VEX_POLICY_CHOSEN"
+              },
+              {
+                "kind": "flag",
+                "key": "VEX_SECURE"
+              },
+              {
+                "kind": "decision",
+                "key": "vexPolicy",
+                "value": "secure"
+              }
+            ]
+          },
+          {
+            "id": "partial",
+            "label": "Publicar com a proteção parcial atual",
+            "irreversible": true,
+            "effects": [
+              {
+                "kind": "flag",
+                "key": "VEX_POLICY_CHOSEN"
+              },
+              {
+                "kind": "decision",
+                "key": "vexPolicy",
+                "value": "partial"
+              }
+            ]
+          }
+        ],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "VEX_MAIN_COMPLETE"
+      },
+      {
+        "kind": "reward",
+        "money": 120,
+        "reputation": 15
+      }
+    ]
+  },
+  {
+    "id": "vex-incident",
+    "title": "Alguma coisa está errada",
+    "description": "Uma configuração parcial voltou como incidente. Preserve registros e retome o controle.",
+    "contact": "VEX",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "VEX_MAIN_COMPLETE"
+      },
+      {
+        "kind": "decision",
+        "key": "vexPolicy",
+        "value": "partial"
+      }
+    ],
+    "startTriggers": [
+      {
+        "kind": "flag",
+        "key": "VEX_MAIN_COMPLETE"
+      }
+    ],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Tá aí? Deu merda. Uma entrada ficou aberta. Seu backup ainda existe."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Contenha e restaure um estado confiável.",
+        "hint": "No SSH virtual: lab contain. Depois: lab restore.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "VEX_RECOVERED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "VEX_INCIDENT_COMPLETE"
+      },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Voltou. Dessa vez a entrada foi corrigida."
+      }
+    ]
+  },
+  {
+    "id": "girl",
+    "title": "A Garota",
+    "description": "Gregory acredita que a namorada o está traindo. Ele pede que você descubra a verdade.",
+    "contact": "Gregory",
+    "session": 1,
+    "requirements": [
+      {
+        "kind": "flag",
+        "key": "V2_COMPLETE"
+      },
+      {
+        "kind": "flag",
+        "key": "WIFI_COMPLETE"
+      },
+      {
+        "kind": "flag",
+        "key": "PENDRIVE_COMPLETE"
+      },
+      {
+        "kind": "flag",
+        "key": "FORUM_JOB_COMPLETE"
+      },
+      {
+        "kind": "flag",
+        "key": "VEX_MAIN_COMPLETE"
+      }
+    ],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Mano. Preciso de um favor. Acho que ela tá me traindo. O perfil está no FakeBook."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Investigue o perfil e as pistas públicas.",
+        "hint": "Abra fakebook.com no navegador do jogo.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "GIRL_RESEARCHED"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "Correlacione o registro de recuperação da plataforma.",
+        "hint": "Informe o código da pista pública: FOTO-17. É um puzzle fictício de correlação.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "GIRL_ACCESS"
+          }
+        ],
+        "choices": [],
+        "effects": []
+      },
+      {
+        "objective": "As mensagens confirmam a suspeita. Gregory pede o acesso.",
+        "hint": "Entregar o acesso deixa um rastro que retornará no futuro.",
+        "conditions": [
+          {
+            "kind": "flag",
+            "key": "GIRL_SHARED"
+          }
+        ],
+        "choices": [
+          {
+            "id": "share",
+            "label": "Entregar o acesso a Gregory",
+            "irreversible": true,
+            "effects": [
+              {
+                "kind": "flag",
+                "key": "GIRL_SHARED"
+              },
+              {
+                "kind": "evidence",
+                "key": "EVIDENCE_001_GIRL"
+              },
+              {
+                "kind": "message",
+                "contact": "Gregory",
+                "text": "Entrei. Eu tava certo."
+              },
+              {
+                "kind": "message",
+                "contact": "LifeOS",
+                "text": "Gregory publica uma humilhação no perfil. Você pede que apague. A privacidade dela já foi violada. Um rastro correlacionável permanece."
+              }
+            ]
+          }
+        ],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      {
+        "kind": "flag",
+        "key": "SESSION_1_COMPLETE"
+      },
+      {
+        "kind": "session",
+        "number": 2
+      },
+      {
+        "kind": "message",
+        "contact": "Gregory",
+        "text": "Foi uma merda. Eu sei. Não devia ter feito aquilo."
+      },
+      {
+        "kind": "message",
+        "contact": "Mãe",
+        "text": "Liguei o modem de novo. Fica de olho no horário. E suas notas já não estão aquelas coisas."
+      },
+      {
+        "kind": "message",
+        "contact": "LifeOS",
+        "text": "Fim do recorte jogável da Sessão 1. REPUTATION continua na documentação canônica; seu mundo permanece disponível."
+      }
+    ]
+  }
+]

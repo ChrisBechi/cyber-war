@@ -1,0 +1,37 @@
+[package]
+name = "game-hacker"
+version = "0.4.2"
+description = "Cyber War simulation core"
+authors = ["Cyber War Team"]
+edition = "2021"
+
+[lib]
+name = "game_hacker_lib"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "game-hacker"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+parking_lot = "0.12"
+regex = "1.13.1"
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tauri = { version = "2", features = [] }
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

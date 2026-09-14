@@ -1,0 +1,51 @@
+{
+  "network": {
+    "ssid": "ORION-CORP",
+    "bssid": "02:00:00:00:20:04",
+    "channel": 11,
+    "signal": -48,
+    "encryption": "WPA2",
+    "clients": 8,
+    "access": false
+  },
+  "organization": "Orion · operações corporativas",
+  "capturePath": "/home/kali/Downloads/orion.capture.json",
+  "packets": [
+    {
+      "number": 1,
+      "time": "23:17:04.012",
+      "source": "10.44.2.18",
+      "destination": "10.44.2.30",
+      "protocol": "CHAT",
+      "stream": 4,
+      "text": "Conselho aprovou."
+    },
+    {
+      "number": 2,
+      "time": "23:17:05.340",
+      "source": "10.44.2.30",
+      "destination": "10.44.2.18",
+      "protocol": "CHAT",
+      "stream": 4,
+      "text": "Não menciona Orion aqui."
+    },
+    {
+      "number": 3,
+      "time": "23:17:07.901",
+      "source": "10.44.2.18",
+      "destination": "10.44.2.30",
+      "protocol": "CHAT",
+      "stream": 4,
+      "text": "Assinatura sexta."
+    },
+    {
+      "number": 4,
+      "time": "23:17:09.114",
+      "source": "10.44.2.30",
+      "destination": "10.44.2.18",
+      "protocol": "CHAT",
+      "stream": 4,
+      "text": "US$ 2.4B"
+    }
+  ]
+}

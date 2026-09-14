@@ -1,0 +1,182 @@
+[
+  {
+    "id": "release",
+    "title": "[RELEASE] Cyber Siege — de onde veio esse arquivo?",
+    "author": "R4ZOR",
+    "category": "gaming",
+    "createdAt": "2026-09-13T23:17:00Z",
+    "tag": "RELEASE",
+    "requiredFlag": "V1_COMPLETE",
+    "body": "Hack novo funcionando. Dinheiro + vida.",
+    "replies": [
+      {
+        "author": "BYTE",
+        "text": "Olhei os metadados. Tem outro nickname ali."
+      },
+      {
+        "author": "NULL",
+        "text": "vocês tão discutindo autoria de cheat de joguinho."
+      },
+      {
+        "author": "NULL",
+        "text": "script kiddie."
+      }
+    ]
+  },
+  {
+    "id": "server",
+    "title": "alguém consegue me ajudar com um servidor?",
+    "author": "VEX",
+    "category": "work",
+    "createdAt": "2026-09-14T00:04:00Z",
+    "tag": "PEDIDO",
+    "requiredFlag": "WIFI_COMPLETE",
+    "body": "Fiz uma alteração e o serviço parou. Acesso autorizado ao laboratório.",
+    "replies": [
+      {
+        "author": "PATCH",
+        "text": "Começa pelo log. O erro costuma dizer o que mudou."
+      }
+    ]
+  },
+  {
+    "id": "welcome",
+    "title": "Bem-vindo ao Terminal Board — leia antes de postar",
+    "author": "SYSOP",
+    "category": "announcements",
+    "createdAt": "2026-09-10T18:30:00Z",
+    "tag": "IMPORTANTE",
+    "pinned": true,
+    "locked": true,
+    "body": "Uma comunidade começa com gente disposta a compartilhar o que aprendeu. Esta é a nossa.\n\n**Antes de abrir um tópico**\nPesquise, escolha a seção certa e escreva um título que explique sua dúvida. Um bom relato mostra o que você esperava, o que aconteceu e o que já tentou.\n\n**Código e arquivos**\nPreserve os originais. Use blocos de código para comandos e logs. Não publique senhas, dados pessoais ou conteúdo de terceiros sem autorização. Os laboratórios discutidos aqui fazem parte do nosso ambiente de estudo.\n\n**Respeito faz parte do conhecimento**\nDiscorde da ideia, não ataque a pessoa. Créditos importam. Spam e assédio não têm espaço aqui. Use Sinalizar para registrar um problema na comunidade.\n\nLeia, experimente, documente. Nos vemos nos tópicos.",
+    "replies": []
+  },
+  {
+    "id": "introduce-yourself",
+    "title": "Qual foi o seu primeiro contato com o terminal?",
+    "author": "BYTE",
+    "category": "introductions",
+    "createdAt": "2026-09-11T16:40:00Z",
+    "pinned": true,
+    "body": "O meu foi tentando descobrir onde um arquivo tinha ido parar. Aprendi pwd e ls antes de aprender a sair do editor.\n\nE você? Pode se apresentar por aqui. Nickname, interesses e o que quer aprender já são um bom começo.",
+    "replies": [
+      {
+        "author": "PATCH",
+        "text": "Um servidor que parou de responder. Desde então, sempre começo pelos logs."
+      },
+      {
+        "author": "Gregory",
+        "text": "Um amigo me mostrou. Ainda estou na fase de abrir o terminal e achar que fiz alguma coisa importante."
+      },
+      {
+        "author": "VEX",
+        "text": "Precisava colocar um site no ar. Descobri que manter funcionando é a parte interessante."
+      }
+    ]
+  },
+  {
+    "id": "keep-originals",
+    "title": "Antes de analisar um arquivo, preserve uma cópia",
+    "author": "PATCH",
+    "category": "digital",
+    "createdAt": "2026-09-12T19:12:00Z",
+    "tag": "GUIA",
+    "body": "Uma cópia de trabalho evita perder a referência do que você recebeu. Isso vale para uma configuração, um log ou uma evidência do laboratório.\n\n**Meu checklist**\n1. Identificar a origem e anotar o caminho.\n2. Preservar o arquivo original.\n3. Conferir a integridade da cópia.\n4. Registrar o que mudou depois da análise.\n\nNão é um procedimento complicado. É só o tipo de cuidado que você agradece a si mesmo mais tarde.",
+    "replies": [
+      {
+        "author": "BYTE",
+        "text": "E nomes de arquivo que façam sentido. final-final-agora-vai não ajuda muito na comparação."
+      }
+    ]
+  },
+  {
+    "id": "night-shift",
+    "title": "Plantão da madrugada: no que vocês estão trabalhando?",
+    "author": "Gregory",
+    "category": "lounge",
+    "createdAt": "2026-09-13T22:45:00Z",
+    "body": "Luz apagada, uma playlist repetindo e mais abas do que eu gostaria de admitir.\n\nVale projeto, jogo ou só uma dúvida que não sai da cabeça.",
+    "replies": [
+      {
+        "author": "BYTE",
+        "text": "Organizando meus arquivos antes que eles organizem a minha vida."
+      },
+      { "author": "NULL", "text": "observando." }
+    ]
+  },
+  {
+    "id": "script-notes",
+    "title": "Um script pequeno também merece um bom README",
+    "author": "BYTE",
+    "category": "scripts",
+    "createdAt": "2026-09-13T17:20:00Z",
+    "tag": "DISCUSSÃO",
+    "body": "Se alguém precisa perguntar o que o script faz, onde executá-lo e o que ele altera, falta documentação.\n\nGosto de deixar três coisas junto do arquivo:\n\n```text\nObjetivo: o problema que este script resolve\nEntrada: os arquivos e argumentos esperados\nSaída: o que será criado ou modificado\n```\n\nQual informação vocês sempre procuram antes de executar algo de outra pessoa?",
+    "replies": [
+      {
+        "author": "PATCH",
+        "text": "Como voltar atrás. Um exemplo de uso e um plano de recuperação economizam muito tempo."
+      }
+    ]
+  },
+  {
+    "id": "linux-first-steps",
+    "title": "Primeiros passos: encontre seus arquivos pelo terminal",
+    "author": "PATCH",
+    "category": "linux",
+    "createdAt": "2026-09-12T21:05:00Z",
+    "tag": "TUTORIAL",
+    "pinned": true,
+    "body": "Antes de decorar comandos, entenda onde você está. O caminho que aparece no prompt é um bom ponto de partida.\n\n**Três comandos para começar**\n\n```sh\npwd\nls -la\ncd Documents\n```\n\npwd mostra o diretório atual. ls lista o conteúdo. cd muda de diretório. Abra também o gerenciador de arquivos e compare os dois caminhos.\n\n**Uma anotação para guardar**\n\n```sh\necho \"Minha primeira anotação\" > notes.txt\ncat notes.txt\n```\n\nAbra notes.txt no editor para continuar. O terminal e o gerenciador enxergam os mesmos arquivos locais.",
+    "replies": [
+      {
+        "author": "Gregory",
+        "text": "A comparação com o gerenciador ajudou mais do que decorar uma lista. Valeu!"
+      },
+      {
+        "author": "BYTE",
+        "text": "Outro hábito útil: olhar o caminho antes de criar ou mover qualquer arquivo."
+      }
+    ]
+  },
+  {
+    "id": "network-notes",
+    "title": "Conectado não significa que o serviço está respondendo",
+    "author": "VEX",
+    "category": "networks",
+    "createdAt": "2026-09-13T20:35:00Z",
+    "tag": "DISCUSSÃO",
+    "body": "Aprendi isso do jeito demorado: a interface pode estar conectada e um serviço continuar indisponível.\n\nAgora separo as perguntas: tenho conexão? O nome aponta para o host esperado? A porta está disponível? O serviço está ativo?\n\nFica mais fácil investigar quando cada teste responde uma pergunta só.",
+    "replies": [
+      {
+        "author": "PATCH",
+        "text": "Exatamente. Registre também o horário de cada teste para comparar com o log."
+      }
+    ]
+  },
+  {
+    "id": "siege-chat",
+    "title": "Cyber Siege: espaço para dúvidas e projetos",
+    "author": "Gregory",
+    "category": "gaming",
+    "createdAt": "2026-09-11T22:10:00Z",
+    "body": "Um tópico para reunir as conversas sobre Cyber Siege. Projetos, mudanças entre versões e descobertas do laboratório são bem-vindos.\n\nSe compartilhar o trabalho de alguém, deixe os créditos. Parece óbvio, mas é bom lembrar.",
+    "replies": [
+      {
+        "author": "BYTE",
+        "text": "E anotem a versão. Nem toda descoberta continua valendo depois de uma atualização."
+      }
+    ]
+  },
+  {
+    "id": "asking-for-help",
+    "title": "Como escrever um pedido de ajuda que alguém consiga responder",
+    "author": "PATCH",
+    "category": "work",
+    "createdAt": "2026-09-12T15:00:00Z",
+    "pinned": true,
+    "tag": "GUIA",
+    "body": "Explique o objetivo, o que deixou de funcionar e quais mudanças aconteceram antes do problema. Inclua apenas os trechos de log necessários.\n\n**Um pedido bem organizado**\n\n```text\nObjetivo:\nComportamento esperado:\nO que aconteceu:\nÚltima alteração:\nTestes já realizados:\n```\n\nSe for um trabalho, descreva o escopo e confirme a autorização de acesso. Não coloque credenciais no tópico.",
+    "replies": []
+  }
+]

@@ -1,0 +1,1840 @@
+{
+  "commands": {
+    "base64 /home/kali/projects/session.json": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "ewogICJzZXNzaW9uIjogIm9yaW9uLTIzMTciLAogICJvcmlnaW4iOiAiYXJjaGl2ZS5sb2NhbCIsCiAgInJlY2VpdmVkIjogIjIzOjE3OjA5IiwKICAiaW50ZWdyaXR5IjogInZlcmlmaWVkIiwKICAicHJlc2VydmVfb3JpZ2luYWwiOiB0cnVlCn0K\n",
+      "user": "root"
+    },
+    "cat /home/kali/projects/session.json": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "{\n  \"session\": \"orion-2317\",\n  \"origin\": \"archive.org\",\n  \"received\": \"23:17:09\",\n  \"integrity\": \"verified\",\n  \"preserve_original\": true\n}\n",
+      "user": "root"
+    },
+    "chmod 600 /home/kali/Downloads/recebidos/registro.txt": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "",
+      "user": "root"
+    },
+    "curl https://archive.org": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "CYBER SIEGE\nManifesto P2P fictício. Peers: 14 · Seeds: 7\nTodos os blocos estão disponíveis no mundo do jogo.\n",
+      "user": "root"
+    },
+    "dig vex.local": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "vex.local A 10.20.4.15\n",
+      "user": "root"
+    },
+    "find /home/kali": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "/home/kali/Desktop/\n/home/kali/Documents/\n/home/kali/Downloads/\n/home/kali/Music/\n/home/kali/Pictures/\n/home/kali/Videos/\n/home/kali/projects/\n/home/kali/tools/\n/home/kali/tools/node.trace\n/home/kali/projects/notas.txt\n/home/kali/projects/orion.signal.json\n/home/kali/projects/session.json\n/home/kali/Downloads/recebidos/\n/home/kali/Downloads/recebidos/registro.txt\n/home/kali/Documents/primeiros-passos.txt\n/home/kali/Desktop/Arquivos.desktop\n/home/kali/Desktop/CodeLab.desktop\n/home/kali/Desktop/HackPad.desktop\n/home/kali/Desktop/Mensagens.desktop\n/home/kali/Desktop/Navegador.desktop\n/home/kali/Desktop/Terminal.desktop\n",
+      "user": "root"
+    },
+    "ip addr": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "wlan0: UP\ninet 10.20.4.2/24\ngateway 10.20.4.1\n",
+      "user": "root"
+    },
+    "lab inspect": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "LOAD gold → SUB 1 → STORE gold. A save file also persists gold.\n",
+      "user": "root"
+    },
+    "lab scan 100": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "Candidates: [4096, 8192, 12288]\n",
+      "user": "root"
+    },
+    "lab trace": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "node discovered\nroute established\nsession opened\npacket received\naccess granted\n0x00AF21  01001001  10.20.4.15  vex.local\n0x00AF40  01001001  10.20.4.20  archive.org\n",
+      "user": "root"
+    },
+    "nmap archive.org": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "443/tcp open https Archive 1.0\n",
+      "user": "root"
+    },
+    "nmap vex.local": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "22/tcp open ssh LifeSSH 1.0\n",
+      "user": "root"
+    },
+    "ps": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "1 kali lifeos-session\n",
+      "user": "root"
+    },
+    "sha256sum /home/kali/Downloads/recebidos/registro.txt": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "faadb91c7b507103118dd88ed19be3a341ad2492bdc20f48ed37f6dbd3a75aa8  /home/kali/Downloads/recebidos/registro.txt\n",
+      "user": "root"
+    },
+    "sha256sum /home/kali/projects/session.json": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "e62465bbbc9138166e4d9b0474b9e2ef400f7a4c4b84314a9b1e124f4c2c7bcb  /home/kali/projects/session.json\n",
+      "user": "root"
+    },
+    "ss": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "No virtual sessions.\n",
+      "user": "root"
+    },
+    "ssh vex@vex.local lab-only": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "10.20.4.15",
+      "stderr": "",
+      "stdout": "Connected to virtual host. exit returns to your computer.\n",
+      "user": "vex"
+    },
+    "stat /home/kali/Downloads/recebidos/registro.txt": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "File: /home/kali/Downloads/recebidos/registro.txt\nType: file\nSize: 68\nMode: 600\nOwner: kali\nModified: 34\n",
+      "user": "root"
+    },
+    "sudo cat /var/log/web.log": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "10.20.4.15",
+      "stderr": "",
+      "stdout": "ERROR: service disabled in /etc/web.conf\n",
+      "user": "vex"
+    },
+    "sudo edit /etc/web.conf enabled=true": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "10.20.4.15",
+      "stderr": "",
+      "stdout": "",
+      "user": "vex"
+    },
+    "sudo id": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "10.20.4.15",
+      "stderr": "",
+      "stdout": "uid=0(root) gid=0(root)\n",
+      "user": "vex"
+    },
+    "sudo service web restart": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "10.20.4.15",
+      "stderr": "",
+      "stdout": "web: active\n",
+      "user": "vex"
+    },
+    "traceroute archive.org": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "1 10.20.4.1 1ms\n2 10.20.4.20 4ms\n",
+      "user": "root"
+    },
+    "tree /home/kali": {
+      "cwd": "/home/kali",
+      "exitCode": 0,
+      "host": "game-hacker",
+      "stderr": "",
+      "stdout": "/home/kali/Desktop/\n/home/kali/Documents/\n/home/kali/Downloads/\n/home/kali/Music/\n/home/kali/Pictures/\n/home/kali/Videos/\n/home/kali/projects/\n/home/kali/tools/\n/home/kali/tools/node.trace\n/home/kali/projects/notas.txt\n/home/kali/projects/orion.signal.json\n/home/kali/projects/session.json\n/home/kali/Downloads/recebidos/\n/home/kali/Downloads/recebidos/registro.txt\n/home/kali/Documents/primeiros-passos.txt\n/home/kali/Desktop/Arquivos.desktop\n/home/kali/Desktop/CodeLab.desktop\n/home/kali/Desktop/HackPad.desktop\n/home/kali/Desktop/Mensagens.desktop\n/home/kali/Desktop/Navegador.desktop\n/home/kali/Desktop/Terminal.desktop\n",
+      "user": "root"
+    }
+  },
+  "evidence": {
+    "capturePath": "/home/kali/Downloads/orion.capture.json",
+    "detail": "Estação corporativa · fluxo 4 preservado\nConversa interna encontrada na evidência do sinal.",
+    "organization": "Orion · operações corporativas"
+  },
+  "labCandidates": [4096, 8192, 12288],
+  "packets": [
+    {
+      "destination": "10.44.2.30",
+      "number": 1,
+      "protocol": "CHAT",
+      "source": "10.44.2.18",
+      "stream": 4,
+      "text": "Conselho aprovou.",
+      "time": "23:17:04.012"
+    },
+    {
+      "destination": "10.44.2.18",
+      "number": 2,
+      "protocol": "CHAT",
+      "source": "10.44.2.30",
+      "stream": 4,
+      "text": "Não menciona Orion aqui.",
+      "time": "23:17:05.340"
+    },
+    {
+      "destination": "10.44.2.30",
+      "number": 3,
+      "protocol": "CHAT",
+      "source": "10.44.2.18",
+      "stream": 4,
+      "text": "Assinatura sexta.",
+      "time": "23:17:07.901"
+    },
+    {
+      "destination": "10.44.2.18",
+      "number": 4,
+      "protocol": "CHAT",
+      "source": "10.44.2.30",
+      "stream": 4,
+      "text": "US$ 2.4B",
+      "time": "23:17:09.114"
+    }
+  ],
+  "pages": {
+    "archive.org": {
+      "action": "download",
+      "body": "CYBER SIEGE\nManifesto P2P fictício. Peers: 14 · Seeds: 7\nTodos os blocos estão disponíveis no mundo do jogo.",
+      "title": "Archive · Cyber Siege"
+    },
+    "b1.tech": {
+      "action": null,
+      "body": "Privacidade: invasões de perfis voltam ao debate\nVítimas procuram respostas sobre histórico de login e dispositivos desconhecidos.\n\nOrion investiga falha em sua rede corporativa\nA empresa confirmou uma revisão de acessos após relatos de tráfego incomum. A apuração continua.\n\nComunidades preservam registros para investigação\nEspecialistas recomendam manter os arquivos originais e conferir a integridade das cópias.",
+      "title": "B1 · Notícias"
+    },
+    "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion": {
+      "action": null,
+      "body": "Rede de espelhos · sessão anônima\n\nORION / 23:17\nO mesmo horário aparece em três registros. Ninguém publicou a origem.\n\nARQUIVO / integridade\nPreserve o arquivo original. Compare os hashes antes de confiar em uma cópia.\n\nNULL / mensagem fixada\nSe encontrou o espelho, alguém deixou o caminho aberto.",
+      "title": "BLACKWIRE / índice"
+    },
+    "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion/archive": {
+      "action": null,
+      "body": "Índice recuperado · 3 registros\n\n23:17:04 / sessão aberta\nOrigem: orion-edge · estado: preservado\n\n23:17:09 / transferência registrada\nObjeto: registro.enc · destino: não identificado\n\n23:17:12 / trilha interrompida\nA cópia termina antes do encerramento da conexão.",
+      "title": "BLACKWIRE / arquivo"
+    },
+    "wipedia.org": {
+      "action": null,
+      "body": "ARQUIVOS\npwd mostra onde você está; ls lista; cd navega. echo texto > arquivo cria uma nota. cp preserva uma cópia; mv move; cat lê.\n\nREDE\nifconfig mostra sua interface. ping verifica se um host responde. Consultas usam nomes presentes no mundo: vex.local, archive.org.\n\nP2P\nPeers compartilham blocos; seeds possuem o arquivo completo.\n\nADMINISTRAÇÃO\nLeia logs antes de alterar configuração. No servidor de VEX, sudo administra o ambiente. Backup só vale se a restauração for validada.\n\nTECHNICAL JOURNEY\nConhecimento não é bloqueado por nível. Uma técnica conta quando produz resultado válido.",
+      "title": "Wipédia · Biblioteca local"
+    }
+  },
+  "wireless": [
+    {
+      "access": true,
+      "bssid": "02:00:00:00:00:01",
+      "channel": 6,
+      "clients": 2,
+      "encryption": "WPA2",
+      "signal": -35,
+      "ssid": "Casa"
+    },
+    {
+      "access": false,
+      "bssid": "02:00:00:00:00:02",
+      "channel": 1,
+      "clients": 1,
+      "encryption": "WEP",
+      "signal": -67,
+      "ssid": "Oficina antiga"
+    },
+    {
+      "access": false,
+      "bssid": "02:00:00:00:20:04",
+      "channel": 11,
+      "clients": 8,
+      "encryption": "WPA2",
+      "signal": -48,
+      "ssid": "ORION-CORP"
+    }
+  ],
+  "world": {
+    "contacts": ["Gregory", "Mãe", "NULL", "VEX"],
+    "decisions": {},
+    "events": ["mission_start:signal-no-ar"],
+    "evidence": [],
+    "flags": ["GAME_DOWNLOADED", "SESSION_1_COMPLETE", "V1_COMPLETE", "WIFI_COMPLETE"],
+    "heat": 0,
+    "hostname": "game-hacker",
+    "inventory": [],
+    "memoryCandidates": [4096, 8192, 12288],
+    "memoryValue": 100,
+    "messages": [],
+    "missions": {
+      "signal-no-ar": {
+        "attempts": 1,
+        "stage": 0,
+        "status": "active"
+      }
+    },
+    "money": 0,
+    "network": {
+      "connected": true,
+      "dns": {
+        "archive.org": "10.20.4.20",
+        "vex.local": "10.20.4.15"
+      },
+      "gateway": "10.20.4.1",
+      "hosts": {
+        "10.20.4.15": {
+          "address": "10.20.4.15",
+          "credentials": {
+            "root": "lab-only",
+            "vex": "lab-only"
+          },
+          "files": {
+            "clock": 34,
+            "nodes": {
+              "/": {
+                "content": "",
+                "createdAt": 1,
+                "group": "root",
+                "id": "/",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 1,
+                "name": "",
+                "owner": "root",
+                "parentId": null
+              },
+              "/bin": {
+                "content": "",
+                "createdAt": 2,
+                "group": "root",
+                "id": "/bin",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 2,
+                "name": "bin",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/boot": {
+                "content": "",
+                "createdAt": 3,
+                "group": "root",
+                "id": "/boot",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 3,
+                "name": "boot",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/dev": {
+                "content": "",
+                "createdAt": 4,
+                "group": "root",
+                "id": "/dev",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 4,
+                "name": "dev",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/etc": {
+                "content": "",
+                "createdAt": 5,
+                "group": "root",
+                "id": "/etc",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 5,
+                "name": "etc",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/etc/os-release": {
+                "content": "NAME=LifeOS\nVERSION=1.0\n",
+                "createdAt": 24,
+                "group": "root",
+                "id": "/etc/os-release",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 24,
+                "name": "os-release",
+                "owner": "root",
+                "parentId": "/etc"
+              },
+              "/etc/web.conf": {
+                "content": "enabled=false\nroot_login=true\nfirewall=partial\n",
+                "createdAt": 32,
+                "group": "root",
+                "id": "/etc/web.conf",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 32,
+                "name": "web.conf",
+                "owner": "root",
+                "parentId": "/etc"
+              },
+              "/home": {
+                "content": "",
+                "createdAt": 6,
+                "group": "root",
+                "id": "/home",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 6,
+                "name": "home",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/home/kali": {
+                "content": "",
+                "createdAt": 7,
+                "group": "vex",
+                "id": "/home/kali",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 7,
+                "name": "kali",
+                "owner": "vex",
+                "parentId": "/home"
+              },
+              "/home/kali/Desktop": {
+                "content": "",
+                "createdAt": 16,
+                "group": "vex",
+                "id": "/home/kali/Desktop",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 16,
+                "name": "Desktop",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Desktop/Arquivos.desktop": {
+                "content": "files",
+                "createdAt": 27,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Arquivos.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "files"
+                },
+                "mode": 420,
+                "modifiedAt": 27,
+                "name": "Arquivos.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/CodeLab.desktop": {
+                "content": "codelab",
+                "createdAt": 31,
+                "group": "vex",
+                "id": "/home/kali/Desktop/CodeLab.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "codelab"
+                },
+                "mode": 420,
+                "modifiedAt": 31,
+                "name": "CodeLab.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/HackPad.desktop": {
+                "content": "editor",
+                "createdAt": 30,
+                "group": "vex",
+                "id": "/home/kali/Desktop/HackPad.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "editor"
+                },
+                "mode": 420,
+                "modifiedAt": 30,
+                "name": "HackPad.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Mensagens.desktop": {
+                "content": "messages",
+                "createdAt": 29,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Mensagens.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "messages"
+                },
+                "mode": 420,
+                "modifiedAt": 29,
+                "name": "Mensagens.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Navegador.desktop": {
+                "content": "browser",
+                "createdAt": 28,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Navegador.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "browser"
+                },
+                "mode": 420,
+                "modifiedAt": 28,
+                "name": "Navegador.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Terminal.desktop": {
+                "content": "terminal",
+                "createdAt": 26,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Terminal.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "terminal"
+                },
+                "mode": 420,
+                "modifiedAt": 26,
+                "name": "Terminal.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Documents": {
+                "content": "",
+                "createdAt": 17,
+                "group": "vex",
+                "id": "/home/kali/Documents",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 17,
+                "name": "Documents",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Documents/primeiros-passos.txt": {
+                "content": "Bem-vindo ao LifeOS.\nExplore seus arquivos com pwd, ls e cd.\nCrie uma nota: echo \"Finalmente.\" > Documents/notes.txt\nAbra o mensageiro: Gregory está por aqui.\n",
+                "createdAt": 25,
+                "group": "vex",
+                "id": "/home/kali/Documents/primeiros-passos.txt",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 25,
+                "name": "primeiros-passos.txt",
+                "owner": "vex",
+                "parentId": "/home/kali/Documents"
+              },
+              "/home/kali/Downloads": {
+                "content": "",
+                "createdAt": 18,
+                "group": "vex",
+                "id": "/home/kali/Downloads",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 18,
+                "name": "Downloads",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Music": {
+                "content": "",
+                "createdAt": 19,
+                "group": "vex",
+                "id": "/home/kali/Music",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 19,
+                "name": "Music",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Pictures": {
+                "content": "",
+                "createdAt": 20,
+                "group": "vex",
+                "id": "/home/kali/Pictures",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 20,
+                "name": "Pictures",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Videos": {
+                "content": "",
+                "createdAt": 21,
+                "group": "vex",
+                "id": "/home/kali/Videos",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 21,
+                "name": "Videos",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/projects": {
+                "content": "",
+                "createdAt": 22,
+                "group": "vex",
+                "id": "/home/kali/projects",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 22,
+                "name": "projects",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/tools": {
+                "content": "",
+                "createdAt": 23,
+                "group": "vex",
+                "id": "/home/kali/tools",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 23,
+                "name": "tools",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/opt": {
+                "content": "",
+                "createdAt": 8,
+                "group": "root",
+                "id": "/opt",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 8,
+                "name": "opt",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/root": {
+                "content": "",
+                "createdAt": 9,
+                "group": "root",
+                "id": "/root",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 448,
+                "modifiedAt": 9,
+                "name": "root",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/srv": {
+                "content": "",
+                "createdAt": 14,
+                "group": "root",
+                "id": "/srv",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 14,
+                "name": "srv",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/srv/www": {
+                "content": "",
+                "createdAt": 15,
+                "group": "root",
+                "id": "/srv/www",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 15,
+                "name": "www",
+                "owner": "root",
+                "parentId": "/srv"
+              },
+              "/srv/www/index.txt": {
+                "content": "Serviço VEX restaurado.\n",
+                "createdAt": 34,
+                "group": "root",
+                "id": "/srv/www/index.txt",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 34,
+                "name": "index.txt",
+                "owner": "root",
+                "parentId": "/srv/www"
+              },
+              "/tmp": {
+                "content": "",
+                "createdAt": 10,
+                "group": "root",
+                "id": "/tmp",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 511,
+                "modifiedAt": 10,
+                "name": "tmp",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/usr": {
+                "content": "",
+                "createdAt": 11,
+                "group": "root",
+                "id": "/usr",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 11,
+                "name": "usr",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/var": {
+                "content": "",
+                "createdAt": 12,
+                "group": "root",
+                "id": "/var",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 12,
+                "name": "var",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/var/log": {
+                "content": "",
+                "createdAt": 13,
+                "group": "root",
+                "id": "/var/log",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 13,
+                "name": "log",
+                "owner": "root",
+                "parentId": "/var"
+              },
+              "/var/log/web.log": {
+                "content": "ERROR: service disabled in /etc/web.conf\n",
+                "createdAt": 33,
+                "group": "root",
+                "id": "/var/log/web.log",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 33,
+                "name": "web.log",
+                "owner": "root",
+                "parentId": "/var/log"
+              }
+            }
+          },
+          "firewall": [22, 80],
+          "hostname": "vex.local",
+          "online": true,
+          "patched": false,
+          "services": [
+            {
+              "body": "",
+              "name": "ssh",
+              "port": 22,
+              "running": true,
+              "version": "LifeSSH 1.0"
+            },
+            {
+              "body": "VEX · serviço online",
+              "name": "http",
+              "port": 80,
+              "running": false,
+              "version": "LifeWeb 1.0"
+            }
+          ]
+        },
+        "10.20.4.20": {
+          "address": "10.20.4.20",
+          "credentials": {},
+          "files": {
+            "clock": 34,
+            "nodes": {
+              "/": {
+                "content": "",
+                "createdAt": 1,
+                "group": "root",
+                "id": "/",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 1,
+                "name": "",
+                "owner": "root",
+                "parentId": null
+              },
+              "/bin": {
+                "content": "",
+                "createdAt": 2,
+                "group": "root",
+                "id": "/bin",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 2,
+                "name": "bin",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/boot": {
+                "content": "",
+                "createdAt": 3,
+                "group": "root",
+                "id": "/boot",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 3,
+                "name": "boot",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/dev": {
+                "content": "",
+                "createdAt": 4,
+                "group": "root",
+                "id": "/dev",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 4,
+                "name": "dev",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/etc": {
+                "content": "",
+                "createdAt": 5,
+                "group": "root",
+                "id": "/etc",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 5,
+                "name": "etc",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/etc/os-release": {
+                "content": "NAME=LifeOS\nVERSION=1.0\n",
+                "createdAt": 24,
+                "group": "root",
+                "id": "/etc/os-release",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 24,
+                "name": "os-release",
+                "owner": "root",
+                "parentId": "/etc"
+              },
+              "/etc/web.conf": {
+                "content": "enabled=false\nroot_login=true\nfirewall=partial\n",
+                "createdAt": 32,
+                "group": "root",
+                "id": "/etc/web.conf",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 32,
+                "name": "web.conf",
+                "owner": "root",
+                "parentId": "/etc"
+              },
+              "/home": {
+                "content": "",
+                "createdAt": 6,
+                "group": "root",
+                "id": "/home",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 6,
+                "name": "home",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/home/kali": {
+                "content": "",
+                "createdAt": 7,
+                "group": "vex",
+                "id": "/home/kali",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 7,
+                "name": "kali",
+                "owner": "vex",
+                "parentId": "/home"
+              },
+              "/home/kali/Desktop": {
+                "content": "",
+                "createdAt": 16,
+                "group": "vex",
+                "id": "/home/kali/Desktop",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 16,
+                "name": "Desktop",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Desktop/Arquivos.desktop": {
+                "content": "files",
+                "createdAt": 27,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Arquivos.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "files"
+                },
+                "mode": 420,
+                "modifiedAt": 27,
+                "name": "Arquivos.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/CodeLab.desktop": {
+                "content": "codelab",
+                "createdAt": 31,
+                "group": "vex",
+                "id": "/home/kali/Desktop/CodeLab.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "codelab"
+                },
+                "mode": 420,
+                "modifiedAt": 31,
+                "name": "CodeLab.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/HackPad.desktop": {
+                "content": "editor",
+                "createdAt": 30,
+                "group": "vex",
+                "id": "/home/kali/Desktop/HackPad.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "editor"
+                },
+                "mode": 420,
+                "modifiedAt": 30,
+                "name": "HackPad.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Mensagens.desktop": {
+                "content": "messages",
+                "createdAt": 29,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Mensagens.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "messages"
+                },
+                "mode": 420,
+                "modifiedAt": 29,
+                "name": "Mensagens.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Navegador.desktop": {
+                "content": "browser",
+                "createdAt": 28,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Navegador.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "browser"
+                },
+                "mode": 420,
+                "modifiedAt": 28,
+                "name": "Navegador.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Desktop/Terminal.desktop": {
+                "content": "terminal",
+                "createdAt": 26,
+                "group": "vex",
+                "id": "/home/kali/Desktop/Terminal.desktop",
+                "kind": "file",
+                "metadata": {
+                  "app": "terminal"
+                },
+                "mode": 420,
+                "modifiedAt": 26,
+                "name": "Terminal.desktop",
+                "owner": "vex",
+                "parentId": "/home/kali/Desktop"
+              },
+              "/home/kali/Documents": {
+                "content": "",
+                "createdAt": 17,
+                "group": "vex",
+                "id": "/home/kali/Documents",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 17,
+                "name": "Documents",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Documents/primeiros-passos.txt": {
+                "content": "Bem-vindo ao LifeOS.\nExplore seus arquivos com pwd, ls e cd.\nCrie uma nota: echo \"Finalmente.\" > Documents/notes.txt\nAbra o mensageiro: Gregory está por aqui.\n",
+                "createdAt": 25,
+                "group": "vex",
+                "id": "/home/kali/Documents/primeiros-passos.txt",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 25,
+                "name": "primeiros-passos.txt",
+                "owner": "vex",
+                "parentId": "/home/kali/Documents"
+              },
+              "/home/kali/Downloads": {
+                "content": "",
+                "createdAt": 18,
+                "group": "vex",
+                "id": "/home/kali/Downloads",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 18,
+                "name": "Downloads",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Music": {
+                "content": "",
+                "createdAt": 19,
+                "group": "vex",
+                "id": "/home/kali/Music",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 19,
+                "name": "Music",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Pictures": {
+                "content": "",
+                "createdAt": 20,
+                "group": "vex",
+                "id": "/home/kali/Pictures",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 20,
+                "name": "Pictures",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/Videos": {
+                "content": "",
+                "createdAt": 21,
+                "group": "vex",
+                "id": "/home/kali/Videos",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 21,
+                "name": "Videos",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/projects": {
+                "content": "",
+                "createdAt": 22,
+                "group": "vex",
+                "id": "/home/kali/projects",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 22,
+                "name": "projects",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/home/kali/tools": {
+                "content": "",
+                "createdAt": 23,
+                "group": "vex",
+                "id": "/home/kali/tools",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 23,
+                "name": "tools",
+                "owner": "vex",
+                "parentId": "/home/kali"
+              },
+              "/opt": {
+                "content": "",
+                "createdAt": 8,
+                "group": "root",
+                "id": "/opt",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 8,
+                "name": "opt",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/root": {
+                "content": "",
+                "createdAt": 9,
+                "group": "root",
+                "id": "/root",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 448,
+                "modifiedAt": 9,
+                "name": "root",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/srv": {
+                "content": "",
+                "createdAt": 14,
+                "group": "root",
+                "id": "/srv",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 14,
+                "name": "srv",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/srv/www": {
+                "content": "",
+                "createdAt": 15,
+                "group": "root",
+                "id": "/srv/www",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 15,
+                "name": "www",
+                "owner": "root",
+                "parentId": "/srv"
+              },
+              "/srv/www/index.txt": {
+                "content": "Serviço VEX restaurado.\n",
+                "createdAt": 34,
+                "group": "root",
+                "id": "/srv/www/index.txt",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 34,
+                "name": "index.txt",
+                "owner": "root",
+                "parentId": "/srv/www"
+              },
+              "/tmp": {
+                "content": "",
+                "createdAt": 10,
+                "group": "root",
+                "id": "/tmp",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 511,
+                "modifiedAt": 10,
+                "name": "tmp",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/usr": {
+                "content": "",
+                "createdAt": 11,
+                "group": "root",
+                "id": "/usr",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 11,
+                "name": "usr",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/var": {
+                "content": "",
+                "createdAt": 12,
+                "group": "root",
+                "id": "/var",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 12,
+                "name": "var",
+                "owner": "root",
+                "parentId": "/"
+              },
+              "/var/log": {
+                "content": "",
+                "createdAt": 13,
+                "group": "root",
+                "id": "/var/log",
+                "kind": "directory",
+                "metadata": {},
+                "mode": 493,
+                "modifiedAt": 13,
+                "name": "log",
+                "owner": "root",
+                "parentId": "/var"
+              },
+              "/var/log/web.log": {
+                "content": "ERROR: service disabled in /etc/web.conf\n",
+                "createdAt": 33,
+                "group": "root",
+                "id": "/var/log/web.log",
+                "kind": "file",
+                "metadata": {},
+                "mode": 420,
+                "modifiedAt": 33,
+                "name": "web.log",
+                "owner": "root",
+                "parentId": "/var/log"
+              }
+            }
+          },
+          "firewall": [443],
+          "hostname": "archive.org",
+          "online": true,
+          "patched": true,
+          "services": [
+            {
+              "body": "CYBER SIEGE\nManifesto P2P fictício. Peers: 14 · Seeds: 7\nTodos os blocos estão disponíveis no mundo do jogo.",
+              "name": "https",
+              "port": 443,
+              "running": true,
+              "version": "Archive 1.0"
+            }
+          ]
+        }
+      },
+      "subnet": "10.20.4.0/24",
+      "wifi": [
+        {
+          "access": true,
+          "bssid": "02:00:00:00:00:01",
+          "channel": 6,
+          "clients": 2,
+          "encryption": "WPA2",
+          "signal": -35,
+          "ssid": "Casa"
+        },
+        {
+          "access": false,
+          "bssid": "02:00:00:00:00:02",
+          "channel": 1,
+          "clients": 1,
+          "encryption": "WEP",
+          "signal": -67,
+          "ssid": "Oficina antiga"
+        },
+        {
+          "access": false,
+          "bssid": "02:00:00:00:20:04",
+          "channel": 11,
+          "clients": 8,
+          "encryption": "WPA2",
+          "signal": -48,
+          "ssid": "ORION-CORP"
+        }
+      ]
+    },
+    "nickname": "root",
+    "playtimeSeconds": 0,
+    "processes": [
+      {
+        "name": "lifeos-session",
+        "pid": 1,
+        "running": true,
+        "user": "kali"
+      }
+    ],
+    "reputation": 0,
+    "schemaVersion": 1,
+    "session": 2,
+    "settings": {
+      "fontSize": "16",
+      "wallpaper": "maze"
+    },
+    "techniques": [],
+    "terminal": {
+      "cwd": "/home/kali",
+      "host": null,
+      "user": "root"
+    },
+    "vfs": {
+      "clock": 37,
+      "nodes": {
+        "/": {
+          "content": "",
+          "createdAt": 1,
+          "group": "root",
+          "id": "/",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 1,
+          "name": "",
+          "owner": "root",
+          "parentId": null
+        },
+        "/bin": {
+          "content": "",
+          "createdAt": 2,
+          "group": "root",
+          "id": "/bin",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 2,
+          "name": "bin",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/boot": {
+          "content": "",
+          "createdAt": 3,
+          "group": "root",
+          "id": "/boot",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 3,
+          "name": "boot",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/dev": {
+          "content": "",
+          "createdAt": 4,
+          "group": "root",
+          "id": "/dev",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 4,
+          "name": "dev",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/etc": {
+          "content": "",
+          "createdAt": 5,
+          "group": "root",
+          "id": "/etc",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 5,
+          "name": "etc",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/etc/os-release": {
+          "content": "NAME=LifeOS\nVERSION=1.0\n",
+          "createdAt": 24,
+          "group": "root",
+          "id": "/etc/os-release",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 24,
+          "name": "os-release",
+          "owner": "root",
+          "parentId": "/etc"
+        },
+        "/home": {
+          "content": "",
+          "createdAt": 6,
+          "group": "root",
+          "id": "/home",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 6,
+          "name": "home",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/home/kali": {
+          "content": "",
+          "createdAt": 7,
+          "group": "kali",
+          "id": "/home/kali",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 7,
+          "name": "kali",
+          "owner": "kali",
+          "parentId": "/home"
+        },
+        "/home/kali/Desktop": {
+          "content": "",
+          "createdAt": 16,
+          "group": "kali",
+          "id": "/home/kali/Desktop",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 16,
+          "name": "Desktop",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/Desktop/Arquivos.desktop": {
+          "content": "files",
+          "createdAt": 27,
+          "group": "kali",
+          "id": "/home/kali/Desktop/Arquivos.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "files"
+          },
+          "mode": 420,
+          "modifiedAt": 27,
+          "name": "Arquivos.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Desktop/CodeLab.desktop": {
+          "content": "codelab",
+          "createdAt": 31,
+          "group": "kali",
+          "id": "/home/kali/Desktop/CodeLab.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "codelab"
+          },
+          "mode": 420,
+          "modifiedAt": 31,
+          "name": "CodeLab.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Desktop/HackPad.desktop": {
+          "content": "editor",
+          "createdAt": 30,
+          "group": "kali",
+          "id": "/home/kali/Desktop/HackPad.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "editor"
+          },
+          "mode": 420,
+          "modifiedAt": 30,
+          "name": "HackPad.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Desktop/Mensagens.desktop": {
+          "content": "messages",
+          "createdAt": 29,
+          "group": "kali",
+          "id": "/home/kali/Desktop/Mensagens.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "messages"
+          },
+          "mode": 420,
+          "modifiedAt": 29,
+          "name": "Mensagens.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Desktop/Navegador.desktop": {
+          "content": "browser",
+          "createdAt": 28,
+          "group": "kali",
+          "id": "/home/kali/Desktop/Navegador.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "browser"
+          },
+          "mode": 420,
+          "modifiedAt": 28,
+          "name": "Navegador.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Desktop/Terminal.desktop": {
+          "content": "terminal",
+          "createdAt": 26,
+          "group": "kali",
+          "id": "/home/kali/Desktop/Terminal.desktop",
+          "kind": "file",
+          "metadata": {
+            "app": "terminal"
+          },
+          "mode": 420,
+          "modifiedAt": 26,
+          "name": "Terminal.desktop",
+          "owner": "kali",
+          "parentId": "/home/kali/Desktop"
+        },
+        "/home/kali/Documents": {
+          "content": "",
+          "createdAt": 17,
+          "group": "kali",
+          "id": "/home/kali/Documents",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 17,
+          "name": "Documents",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/Documents/primeiros-passos.txt": {
+          "content": "Bem-vindo ao LifeOS.\nExplore seus arquivos com pwd, ls e cd.\nCrie uma nota: echo \"Finalmente.\" > Documents/notes.txt\nAbra o mensageiro: Gregory está por aqui.\n",
+          "createdAt": 25,
+          "group": "kali",
+          "id": "/home/kali/Documents/primeiros-passos.txt",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 25,
+          "name": "primeiros-passos.txt",
+          "owner": "kali",
+          "parentId": "/home/kali/Documents"
+        },
+        "/home/kali/Downloads": {
+          "content": "",
+          "createdAt": 18,
+          "group": "kali",
+          "id": "/home/kali/Downloads",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 18,
+          "name": "Downloads",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/Downloads/recebidos": {
+          "content": "",
+          "createdAt": 33,
+          "group": "kali",
+          "id": "/home/kali/Downloads/recebidos",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 33,
+          "name": "recebidos",
+          "owner": "kali",
+          "parentId": "/home/kali/Downloads"
+        },
+        "/home/kali/Downloads/recebidos/registro.txt": {
+          "content": "Origem: desconhecida\nArquivo recebido às 23:17\nPreservar original.\n",
+          "createdAt": 34,
+          "group": "kali",
+          "id": "/home/kali/Downloads/recebidos/registro.txt",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 34,
+          "name": "registro.txt",
+          "owner": "kali",
+          "parentId": "/home/kali/Downloads/recebidos"
+        },
+        "/home/kali/Music": {
+          "content": "",
+          "createdAt": 19,
+          "group": "kali",
+          "id": "/home/kali/Music",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 19,
+          "name": "Music",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/Pictures": {
+          "content": "",
+          "createdAt": 20,
+          "group": "kali",
+          "id": "/home/kali/Pictures",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 20,
+          "name": "Pictures",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/Videos": {
+          "content": "",
+          "createdAt": 21,
+          "group": "kali",
+          "id": "/home/kali/Videos",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 21,
+          "name": "Videos",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/projects": {
+          "content": "",
+          "createdAt": 22,
+          "group": "kali",
+          "id": "/home/kali/projects",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 22,
+          "name": "projects",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/projects/notas.txt": {
+          "content": "Conferir os horários.\nO serviço parou depois da alteração.\nLer o log antes de mudar a configuração.\n",
+          "createdAt": 35,
+          "group": "kali",
+          "id": "/home/kali/projects/notas.txt",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 35,
+          "name": "notas.txt",
+          "owner": "kali",
+          "parentId": "/home/kali/projects"
+        },
+        "/home/kali/projects/orion.signal.json": {
+          "content": "{\n  \"network\": {\n    \"ssid\": \"ORION-CORP\",\n    \"bssid\": \"02:00:00:00:20:04\",\n    \"channel\": 11,\n    \"signal\": -48,\n    \"encryption\": \"WPA2\",\n    \"clients\": 8,\n    \"access\": false\n  },\n  \"organization\": \"Orion · operações corporativas\",\n  \"capturePath\": \"/home/kali/Downloads/orion.capture.json\",\n  \"packets\": [\n    {\n      \"number\": 1,\n      \"time\": \"23:17:04.012\",\n      \"source\": \"10.44.2.18\",\n      \"destination\": \"10.44.2.30\",\n      \"protocol\": \"CHAT\",\n      \"stream\": 4,\n      \"text\": \"Conselho aprovou.\"\n    },\n    {\n      \"number\": 2,\n      \"time\": \"23:17:05.340\",\n      \"source\": \"10.44.2.30\",\n      \"destination\": \"10.44.2.18\",\n      \"protocol\": \"CHAT\",\n      \"stream\": 4,\n      \"text\": \"Não menciona Orion aqui.\"\n    },\n    {\n      \"number\": 3,\n      \"time\": \"23:17:07.901\",\n      \"source\": \"10.44.2.18\",\n      \"destination\": \"10.44.2.30\",\n      \"protocol\": \"CHAT\",\n      \"stream\": 4,\n      \"text\": \"Assinatura sexta.\"\n    },\n    {\n      \"number\": 4,\n      \"time\": \"23:17:09.114\",\n      \"source\": \"10.44.2.30\",\n      \"destination\": \"10.44.2.18\",\n      \"protocol\": \"CHAT\",\n      \"stream\": 4,\n      \"text\": \"US$ 2.4B\"\n    }\n  ]\n}\n",
+          "createdAt": 32,
+          "group": "kali",
+          "id": "/home/kali/projects/orion.signal.json",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 32,
+          "name": "orion.signal.json",
+          "owner": "kali",
+          "parentId": "/home/kali/projects"
+        },
+        "/home/kali/projects/session.json": {
+          "content": "{\n  \"session\": \"orion-2317\",\n  \"origin\": \"archive.org\",\n  \"received\": \"23:17:09\",\n  \"integrity\": \"verified\",\n  \"preserve_original\": true\n}\n",
+          "createdAt": 37,
+          "group": "kali",
+          "id": "/home/kali/projects/session.json",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 37,
+          "name": "session.json",
+          "owner": "kali",
+          "parentId": "/home/kali/projects"
+        },
+        "/home/kali/tools": {
+          "content": "",
+          "createdAt": 23,
+          "group": "kali",
+          "id": "/home/kali/tools",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 23,
+          "name": "tools",
+          "owner": "kali",
+          "parentId": "/home/kali"
+        },
+        "/home/kali/tools/node.trace": {
+          "content": "trace.route\nsession.local\n",
+          "createdAt": 36,
+          "group": "kali",
+          "id": "/home/kali/tools/node.trace",
+          "kind": "file",
+          "metadata": {},
+          "mode": 420,
+          "modifiedAt": 36,
+          "name": "node.trace",
+          "owner": "kali",
+          "parentId": "/home/kali/tools"
+        },
+        "/opt": {
+          "content": "",
+          "createdAt": 8,
+          "group": "root",
+          "id": "/opt",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 8,
+          "name": "opt",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/root": {
+          "content": "",
+          "createdAt": 9,
+          "group": "root",
+          "id": "/root",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 448,
+          "modifiedAt": 9,
+          "name": "root",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/srv": {
+          "content": "",
+          "createdAt": 14,
+          "group": "root",
+          "id": "/srv",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 14,
+          "name": "srv",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/srv/www": {
+          "content": "",
+          "createdAt": 15,
+          "group": "root",
+          "id": "/srv/www",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 15,
+          "name": "www",
+          "owner": "root",
+          "parentId": "/srv"
+        },
+        "/tmp": {
+          "content": "",
+          "createdAt": 10,
+          "group": "root",
+          "id": "/tmp",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 511,
+          "modifiedAt": 10,
+          "name": "tmp",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/usr": {
+          "content": "",
+          "createdAt": 11,
+          "group": "root",
+          "id": "/usr",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 11,
+          "name": "usr",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/var": {
+          "content": "",
+          "createdAt": 12,
+          "group": "root",
+          "id": "/var",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 12,
+          "name": "var",
+          "owner": "root",
+          "parentId": "/"
+        },
+        "/var/log": {
+          "content": "",
+          "createdAt": 13,
+          "group": "root",
+          "id": "/var/log",
+          "kind": "directory",
+          "metadata": {},
+          "mode": 493,
+          "modifiedAt": 13,
+          "name": "log",
+          "owner": "root",
+          "parentId": "/var"
+        }
+      }
+    }
+  }
+}

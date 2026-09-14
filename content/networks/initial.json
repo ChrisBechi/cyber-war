@@ -1,0 +1,198 @@
+{
+  "connected": true,
+  "gateway": "10.20.4.1",
+  "subnet": "10.20.4.0/24",
+  "hosts": {
+    "10.20.4.15": {
+      "address": "10.20.4.15",
+      "hostname": "vex.local",
+      "online": true,
+      "services": [
+        { "port": 22, "name": "ssh", "version": "LifeSSH 1.0", "running": true, "body": "" },
+        {
+          "port": 80,
+          "name": "http",
+          "version": "LifeWeb 1.0",
+          "running": false,
+          "body": "VEX · serviço online"
+        }
+      ],
+      "credentials": { "vex": "lab-only", "root": "lab-only" },
+      "firewall": [22, 80],
+      "patched": false,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.20": {
+      "address": "10.20.4.20",
+      "hostname": "archive.org",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "Archive 1.0",
+          "running": true,
+          "body": "CYBER SIEGE\nManifesto P2P fictício. Peers: 14 · Seeds: 7\nTodos os blocos estão disponíveis no mundo do jogo."
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.30": {
+      "address": "10.20.4.30",
+      "hostname": "wipedia.org",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "Wipedia 2.4",
+          "running": true,
+          "body": "Wipédia · Biblioteca virtual\nConteúdo local de referência do Cyber Siege."
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.31": {
+      "address": "10.20.4.31",
+      "hostname": "fakebook.com",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "FakeBook 4.1",
+          "running": true,
+          "body": "FakeBook · Perfil público"
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.32": {
+      "address": "10.20.4.32",
+      "hostname": "b1.tech",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "B1 Press 1.8",
+          "running": true,
+          "body": "B1 · Notícias"
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.33": {
+      "address": "10.20.4.33",
+      "hostname": "mercado.com.br",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "Mercado 3.0",
+          "running": true,
+          "body": "Mercado Aberto · melhorias virtuais"
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.34": {
+      "address": "10.20.4.34",
+      "hostname": "meudominio.com.br",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "MeuDomínio 1.0",
+          "running": true,
+          "body": "MeuDomínio · registro e mercado"
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    },
+    "10.20.4.35": {
+      "address": "10.20.4.35",
+      "hostname": "vigilia.org",
+      "online": true,
+      "services": [
+        {
+          "port": 443,
+          "name": "https",
+          "version": "Vigilia Release 1.0",
+          "running": true,
+          "body": "VIGÍLIA — Protocolo Zero\nDownload Linux virtual · runtime interno do Cyber War"
+        }
+      ],
+      "credentials": {},
+      "firewall": [443],
+      "patched": true,
+      "files": { "nodes": {}, "clock": 0 }
+    }
+  },
+  "dns": {
+    "vex.local": "10.20.4.15",
+    "archive.org": "10.20.4.20",
+    "www.archive.org": "10.20.4.20",
+    "wipedia.org": "10.20.4.30",
+    "www.wipedia.org": "10.20.4.30",
+    "fakebook.com": "10.20.4.31",
+    "www.fakebook.com": "10.20.4.31",
+    "b1.tech": "10.20.4.32",
+    "www.b1.tech": "10.20.4.32",
+    "mercado.com.br": "10.20.4.33",
+    "www.mercado.com.br": "10.20.4.33",
+    "meudominio.com.br": "10.20.4.34",
+    "www.meudominio.com.br": "10.20.4.34",
+    "vigilia.org": "10.20.4.35",
+    "www.vigilia.org": "10.20.4.35"
+  },
+  "wifi": [
+    {
+      "ssid": "Casa",
+      "bssid": "02:00:00:00:00:01",
+      "channel": 6,
+      "signal": -35,
+      "encryption": "WPA2",
+      "clients": 2,
+      "access": true
+    },
+    {
+      "ssid": "Oficina antiga",
+      "bssid": "02:00:00:00:00:02",
+      "channel": 1,
+      "signal": -67,
+      "encryption": "WEP",
+      "clients": 1,
+      "access": false
+    },
+    {
+      "ssid": "Vizinho_5G",
+      "bssid": "02:00:00:00:00:03",
+      "channel": 44,
+      "signal": -73,
+      "encryption": "WPA2",
+      "clients": 4,
+      "access": false
+    }
+  ]
+}

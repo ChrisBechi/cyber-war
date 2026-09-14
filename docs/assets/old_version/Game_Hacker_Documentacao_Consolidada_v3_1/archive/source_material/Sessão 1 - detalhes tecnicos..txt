@@ -1,0 +1,116 @@
+Perfeito! Você trouxe um ótimo direcionamento. Vamos consolidar a Sessão 1 – "Script Kiddie" com exatamente 7 fases (missões), distribuídas em 3 Arcos narrativos, respeitando todas as suas especificações:
+
+· Cheat do jogo: V1 (ASLR/Ponteiro) e V2 (DLL/Shared Object no Linux).
+· Wi-Fi WEP: Especificamente o método PTW (Pyshkin-Tews-Weinmann) – o padrão moderno do aircrack-ng que explora vieses estatísticos fracos do RC4, mais rápido que o FMS/KoreK clássico.
+· Invasão da conta da garota: Feita de forma criativa, combinando engenharia social, força bruta com wordlist e sniffing de sessão (nível baixo/moderado, compatível com um "script kiddie" evoluindo).
+
+Abaixo, as 7 fases:
+
+---
+
+SESSÃO 1 – SCRIPT KIDDIE (7 FASES)
+
+ARCO 1: "O Cheat que Mudou Tudo" (Fases 1–3)
+
+  Contexto: O protagonista está no quarto, jogando "Cyber Siege". Ele quer vencer, mas não tem dinheiro para microtransações. Ele decide "desmontar" o jogo.
+
+
+  FASE 1 – "Varredura de Memória"
+
+    · Descrição: O jogo tem um contador de munição (100). Você precisa descobrir onde esse número está guardado na memória RAM para manipulá-lo. Isso é o básico do básico: encontrar um valor exato.
+    · Objetivo: Encontrar o endereço de memória da munição e travá-lo em 999.
+    · Subobjetivos:
+      1. Abrir o CodeLab (Memory Scanner) e anexar ao processo cyber-siege.exe.
+      2. Fazer uma varredura de valor exato (4 bytes) com "100".
+      3. Atirar (valor cai para 99) e fazer uma varredura de "valor diminuído" (Decreased Value). Repetir até restar 1 endereço.
+      4. Travar (Freeze) o endereço em 999 e ver o jogo bugar. BUILD SUCCESSFUL.
+
+
+  FASE 2 – "Endereços Dançantes (ASLR – V1)"
+
+    · Descrição: O jogo recebeu um Security Update. Agora, ao reiniciar, o endereço da munição muda toda vez (ASLR - Address Space Layout Randomization). O cheat antigo quebrou.
+    · Objetivo: Encontrar um ponteiro estático que aponte para o endereço dinâmico, independente de quantas vezes o jogo reinicie.
+    · Subobjetivos:
+      1. Usar a ferramenta "Pointer Scanner" no CodeLab para escanear o endereço atual.
+      2. Identificar a cadeia de ponteiros (ex: game.exe+0x4F2A8C → 0x18 → 0x04).
+      3. Salvar essa cadeia no código-fonte do cheat. O programa agora funciona mesmo após reiniciar o PC. V1 do cheat está no ar.
+
+
+  FASE 3 – "O Fantasma nos Processos (Injeção – V2)"
+
+    · Descrição: O anti-cheat agora bloqueia escrita externa (não permite que um programa de fora mexa na memória do jogo). A solução é se tornar parte do jogo, injetando código para rodar de dentro.
+    · Objetivo: Compilar um payload injetável e fazê-lo rodar dentro do processo do jogo, seja no Windows (DLL) ou no Linux (Shared Object com LD_PRELOAD).
+    · Subobjetivos:
+      1. Identificar se o alvo é Windows (.exe) ou Linux (ELF).
+      2. No CodeLab, escrever a função de entrada: DllMain (Win) ou __attribute__((constructor)) (Linux).
+      3. Compilar: x86_64-w64-mingw32-gcc -shared -o cheat.dll (Win) ou gcc -shared -fPIC -o libcheat.so (Linux).
+      4. Executar a injeção: injector.exe --pid [PID] cheat.dll (Win) ou LD_PRELOAD=./libcheat.so ./cyber-siege (Linux). O jogo abre com o cheat ativo e o anti-cheat não detecta. V2 é indetectável.
+
+    (Ao final, a comunidade vibra. NULL aparece nos comentários: "Script kiddie com reputação continua sendo script kiddie." O protagonista fica puto.)
+
+
+ARCO 2: "A Primeira Fronteira" (Fase 4)
+
+  Contexto: A mãe desliga o roteador ("Chega de computador!"). O protagonista precisa voltar à internet. Lembra dos tutoriais de redes sem fio e mira no sinal do vizinho (roteador WEP – o elo mais fraco).
+
+  FASE 4 – "A Fábrica de IVs (PTW – Ataque WEP)"
+
+    · Descrição: O vizinho usa WEP. Diferente do WPA, o WEP reutiliza vetores de inicialização (IVs). Você vai usar o método PTW (Pyshkin-Tews-Weinmann), que explora vieses estatísticos no RC4 para quebrar a chave com muito menos IVs que os métodos antigos.
+    · Objetivo: Coletar IVs suficientes e usar o aircrack-ng com o método PTW para descobrir a chave hexadecimal e se conectar à internet.
+    · Subobjetivos:
+      1. Colocar a placa em modo monitor: airmon-ng start wlan0 e escanear alvos com airodump-ng para achar o BSSID e canal do WEP.
+      2. Usar aireplay-ng -3 -b [BSSID] para o ataque ARP Replay, que multiplica o tráfego e gera milhares de IVs por minuto.
+      3. Executar aircrack-ng -z (ou -K - flag que força o método PTW) no arquivo .cap. O algoritmo analisa os primeiros bytes da PRGA e revela a chave em segundos.
+      4. Inserir a chave no gerenciador de redes e obter ACESSO CONCEDIDO. O protagonista volta à internet, mas sente um frio na espinha: entrou na rede dos outros.
+
+  FASE 5 – "O Segredo do Pendrive (Recuperação de Dados)"
+
+    · Descrição: A mãe aparece no quarto. "Seu tio estava organizando os documentos do avô e formatou o pendrive sem querer. Ele perdeu fotos antigas. Você consegue recuperar?" O protagonista concorda. Usa ferramentas de recuperação e consegue restaurar os arquivos. Mas encontra uma pasta compactada (familia.zip) com senha. Curioso, ele tenta quebrar a senha. O que descobre muda sua vida.
+    
+    · Objetivo: Recuperar os dados do pendrive e, em seguida, quebrar a senha do arquivo ZIP para descobrir a verdade.
+    
+    · Subobjetivos:
+      1. Conectar o pendrive (simulado) ao sistema e identificar o dispositivo: lsblk ou fdisk -l.
+      2. Usar o testdisk ou photorec (simulado) para escanear o pendrive e recuperar arquivos deletados. O jogo mostra uma lista de arquivos restaurados (fotos, documentos, etc.).
+      3. Entre os arquivos, aparece uma pasta chamada familia.zip. Ao tentar abrir para conferir se não corrompeu, o sistema pede senha.
+      4. Usar o John the Ripper (simulado) com uma wordlist básica (rockyou.txt) para quebrar a senha do ZIP: john --format=zip --wordlist=rockyou.txt familia.zip.
+      5. A senha é "vovo1945". O protagonista descompacta e encontra: fotos de um homem idoso com uma mulher e uma criança que não é seu avô. Documentos revelam que seu avô teve um filho fora do casamento. O protagonista tem um tio que nunca conheceu, e esse tio é… uma figura misteriosa que aparecerá na Sessão 3 (Deep Web).
+      6. Conclusão: O protagonista faz uma copia usando o terminal das fotos em uma pasta segura e não conta para ninguém. O jogo registra: EVIDÊNCIA #002 – A FAMÍLIA SECRETA.
+
+
+ARCO 3: "O Favor que Saiu do Controle" (Fases 6–8)
+
+  Contexto: O amigo aparece preocupado. Desconfia que a namorada (a garota) está traindo. Pede para o protagonista "dar uma olhada" nas mensagens dela. O protagonista hesita, mas aceita. As 3 fases seguintes mostram diferentes abordagens (baixo nível técnico) para invadir a conta.
+
+
+  FASE 6 – "A Engenharia Social (Phishing)"
+    · Descrição: Ao invés de quebrar senhas, que tal fazer a própria garota te entregar a senha? Você vai clonar a página de login do e-mail/serviço que ela usa e enviar um e-mail dizendo "Alerta de Segurança: faça login para verificar sua conta".
+    · Objetivo: Criar uma página de phishing convincente e capturar a senha dela.
+    · Subobjetivos:
+      1. Usar o HackPad para baixar o código HTML da página de login (CTRL+U / Salvar página).
+      2. Editar o formulário HTML para enviar os dados para seu servidor falso (action="seu_ip/coletor.php").
+      3. Usar um serviço de e-mail falso ou o terminal para enviar o link encurtado para o e-mail da garota.
+      4. Aguardar. Ela clica. A senha aparece no seu terminal. (Se ela cair, a missão acaba aqui. Mas no roteiro, ela NÃO cai, ou o amigo força, levando à próxima fase.)
+
+
+  FASE 7 – "Ataque de Dicionário (Wordlist)"
+
+    · Descrição: O phishing não funcionou ou você quer ter certeza. Você vasculha o perfil público dela (rede social fictícia) e anota: nome do cachorro ("Thor"), data de nascimento (14/03), time de futebol ("Flamengo"). Você vai gerar uma wordlist personalizada e tentar forçar a senha no serviço.
+    · Objetivo: Criar uma wordlist customizada com base nas pistas e usar força bruta (simulada) para achar a senha.
+    · Subobjetivos:
+      1. Usar a ferramenta Crunch (simulada) ou o próprio HackPad para gerar combinações: Thor@2024, Flamengo14, 14Flamengo, Thor14.
+      2. Usar o terminal para executar um ataque de força bruta contra o serviço fictício: hydra -l [email_dela] -P wordlist.txt servico-ficticio.com login.
+      3. A ferramenta retorna a senha correta (ex: Thor@2024). O protagonista anota.
+
+
+
+  FASE 8 – "O Desafio do CTF (Cookie Hijacking)"
+
+    · Descrição: Frustrado com o fracasso do phishing, o protagonista entra em um fórum de CTF (Capture The Flag) para espairecer. Lá, encontra um desafio: "Roube o cookie de sessão do administrador e acesse o painel de controle." O servidor do CTF tem um Wi-Fi público aberto. O protagonista decide usar a técnica que aprendeu em tutoriais: ARP Spoofing + Sniffing de Cookies.
+    · Objetivo: Realizar um ataque Man-in-the-Middle (MiTM) na rede do CTF para capturar o cookie de sessão do admin e completar o desafio.
+    · Subobjetivos:
+      1. Identificar o IP do roteador e da vítima (admin) na rede do CTF usando nmap -sn.
+      2. Executar arpspoof -i wlan0 -t [IP_admin] [IP_roteador] e arpspoof -i wlan0 -t [IP_roteador] [IP_admin] para envenenar a tabela ARP.
+      3. Habilitar o roteamento de pacotes: echo 1 > /proc/sys/net/ipv4/ip_forward (Linux) ou ativar no Windows.
+      4. Usar tcpdump -i wlan0 -A -s 0 | grep -i "cookie" para capturar pacotes HTTP e filtrar por cookies.
+      5. Encontrar o PHPSESSID ou SESSIONID do admin. Abrir o navegador, injetar o cookie (via extensão ou curl -b) e acessar o painel. FLAG CAPTURADA: CTF{miTM_is_fun}. O protagonista se sente um gênio.

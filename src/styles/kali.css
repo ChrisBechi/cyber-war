@@ -1,0 +1,664 @@
+/* Web adaptation of Kali-Dark (kali-themes 83ecd112) and its Xfce panel.
+   Upstream colors and attribution: public/assets/kali/*-copyright.txt. */
+.desktop {
+  --accent: #2777ff;
+  --muted: #a8abb3;
+  --line: #0d0e1166;
+
+  color: #eeeeec;
+}
+
+.desktop .window {
+  background: #23252e;
+  border-color: #0d0e11bf;
+  border-radius: 4px;
+}
+
+.desktop .window.maximized {
+  border-radius: 0;
+}
+
+.desktop .window__titlebar {
+  background: #24272a;
+  color: #fff;
+}
+
+.desktop .window[data-window-app='terminal'] {
+  background: #1a2029;
+  border-color: #59657566;
+  border-radius: 7px;
+}
+
+.desktop .window[data-window-app='terminal'].maximized {
+  border-radius: 0;
+}
+
+.desktop .window[data-window-app='terminal'] .window__titlebar {
+  background: #242c37;
+  color: #d8dee9;
+}
+
+.desktop .primary {
+  background: #2777ff;
+  color: white;
+}
+
+.desktop .primary:hover {
+  background: #3984ff;
+}
+
+.desktop .selected {
+  background: #2777ff33;
+  border-color: #2777ff;
+}
+
+.desktop input,
+.desktop textarea,
+.desktop select {
+  background: #1a1c23;
+  border-color: #0d0e11;
+}
+
+.desktop .window-layer {
+  top: 36px;
+}
+
+.desktop .desktop-shortcuts {
+  top: 40px;
+}
+
+.kali-icon {
+  object-fit: contain;
+  object-position: center;
+}
+
+.kali-icon.symbolic {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.top-panel.kali-panel {
+  --panel-symbol-height: 26px;
+
+  height: 36px;
+  padding: 0 4px 0 0;
+  gap: 0;
+  background: #2c3851;
+  border-top: 2px solid #242630;
+  border-bottom: 1px solid #14171d;
+  box-shadow: 0 2px 7px #0005;
+  font-size: 14px;
+}
+
+.kali-panel button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0;
+  background: transparent;
+  flex-shrink: 0;
+  color: #eeeeec;
+  font-size: 14px;
+  min-width: 32px;
+  height: 100%;
+}
+
+.kali-panel button:hover,
+.kali-panel button[aria-expanded='true'] {
+  background: #ffffff10;
+}
+
+.kali-panel .kali-launcher-button {
+  width: 36px;
+  min-width: 36px;
+}
+
+.kali-launcher-button .kali-icon {
+  width: var(--panel-symbol-height);
+  height: var(--panel-symbol-height);
+}
+
+.kali-panel .kali-launcher-button.selected {
+  background: #2777ff44;
+  box-shadow: inset 0 -2px #2777ff;
+}
+
+.kali-panel .kali-launcher-button[aria-pressed='true'] {
+  background: #2777ff44;
+  box-shadow: inset 0 -2px #2777ff;
+}
+
+.panel-separator {
+  display: block;
+  width: 1px;
+  height: var(--panel-symbol-height);
+  background: #a6a9b6;
+  margin: 0 5px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.panel-launchers {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 1px;
+}
+
+.panel-launchers > button {
+  min-width: 32px;
+}
+
+.panel-launchers .panel-terminal-arrow {
+  min-width: 19px;
+  width: 19px;
+}
+
+.kali-panel .workspaces {
+  margin: 0;
+}
+
+.kali-panel .workspaces button {
+  width: 32px;
+}
+
+.kali-panel .workspaces .selected {
+  color: #eee;
+  background: #1b213140;
+  border-bottom: 2px solid #2777ff;
+}
+
+.kali-panel .panel-tray {
+  gap: 0;
+  margin-left: auto;
+}
+
+.kali-panel .panel-tray > button {
+  width: 34px;
+}
+
+.kali-panel .panel-tray .panel-clock {
+  width: auto;
+  padding: 0 4px;
+}
+
+.kali-panel .panel-tray .panel-activity {
+  width: 132px;
+  margin-right: 5px;
+}
+
+.panel-activity svg {
+  width: 100%;
+  height: 100%;
+}
+
+.notification-dot {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #5ccfff;
+}
+
+.panel-popover {
+  position: absolute;
+  top: 35px;
+  right: 8px;
+  width: 270px;
+  padding: 15px;
+  border: 1px solid #0d0e11;
+  border-radius: 3px;
+  background: #23252e;
+  box-shadow: 0 6px 18px #0006;
+}
+
+.panel-popover h3 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.panel-popover p {
+  margin-bottom: 10px;
+}
+
+.panel-popover > button {
+  display: flex;
+  width: 100%;
+  justify-content: start;
+  padding: 8px;
+  height: auto;
+  gap: 8px;
+  border-radius: 3px;
+}
+
+.panel-popover-terminal {
+  left: 178px;
+  right: auto;
+  width: 262px;
+  padding: 6px;
+}
+
+.panel-popover-audio {
+  right: 156px;
+}
+
+.panel-popover-network {
+  right: 190px;
+}
+
+.panel-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.panel-calendar span,
+.panel-calendar b {
+  padding: 5px;
+}
+
+.panel-calendar .today {
+  background: #2777ff;
+  border-radius: 3px;
+}
+
+.kali-menu {
+  position: absolute;
+  z-index: 100001;
+  left: 0;
+  top: 36px;
+  width: min(566px, 100vw);
+  height: min(682px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px 0;
+  gap: 6px;
+  border: 1px solid #12141a;
+  border-top: 0;
+  background: #23252e;
+  box-shadow: 4px 6px 16px #0006;
+  color: #eeeeec;
+  font-size: 14px;
+}
+
+.kali-search {
+  border: 2px solid #2777ff;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  height: 33px;
+  min-height: 33px;
+  gap: 6px;
+  padding: 0 10px;
+  margin-bottom: 0;
+  background: #1a1c23;
+}
+
+.kali-search svg {
+  flex-shrink: 0;
+  stroke: #b9bcc2;
+  stroke-width: 2;
+  fill: none;
+}
+
+.kali-search input {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  flex: 1;
+  height: 25px;
+  outline: none;
+  border-radius: 0;
+}
+
+.kali-search button {
+  border: 0;
+  padding: 0 4px;
+  background: transparent;
+}
+
+.kali-menu-columns {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.kali-categories {
+  overflow: hidden auto;
+  padding: 0 0 3px;
+  scrollbar-width: thin;
+  scrollbar-color: #626570 transparent;
+}
+
+.kali-categories > button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 4px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.kali-categories > button[aria-selected='true'] {
+  background: #1a1c23;
+}
+
+.kali-categories > button:hover {
+  background: #ffffff08;
+}
+
+.kali-categories > button.category-divider {
+  margin-top: 8px;
+  position: relative;
+}
+
+.kali-categories > button.category-divider::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: -5px;
+  border-top: 1px solid #1a1c2355;
+}
+
+.kali-applications {
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: #626570 transparent;
+  min-width: 0;
+  padding: 7px 4px;
+  border-radius: 6px;
+  background: #1a1c23;
+}
+
+.kali-app-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  padding: 2px 6px;
+  text-align: left;
+}
+
+.kali-app-row > span:not(.submenu-arrow) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kali-app-row:hover,
+.kali-app-row:focus-visible {
+  background: #2777ff;
+  outline: none;
+}
+
+.kali-app-entry {
+  position: relative;
+}
+
+.kali-app-entry .kali-app-row {
+  padding-right: 24px;
+}
+
+.kali-favorite-toggle {
+  position: absolute;
+  right: 2px;
+  top: 5px;
+  border: 0;
+  padding: 3px;
+  background: transparent;
+  opacity: 0;
+  line-height: 18px;
+  font-size: 16px;
+}
+
+.kali-app-entry:hover .kali-favorite-toggle,
+.kali-favorite-toggle:focus-visible {
+  opacity: 1;
+}
+
+.kali-favorite-toggle[aria-pressed='true'] {
+  color: #facd5b;
+}
+
+.submenu-arrow {
+  margin-left: auto;
+  font-size: 22px;
+}
+
+.kali-category-back {
+  width: 100%;
+  border: 0;
+  padding: 8px 6px;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.kali-result-count {
+  padding: 3px 8px 7px;
+  font-size: 11px;
+  color: #a8abb3;
+}
+
+.kali-empty {
+  font-size: 13px;
+  padding: 18px 10px;
+  color: #a8abb3;
+}
+
+.kali-game-apps {
+  border-top: 1px solid #ffffff15;
+  margin-top: 8px;
+  padding-top: 5px;
+}
+
+.kali-menu-footer {
+  height: 35px;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 2px 5px;
+}
+
+.kali-menu-footer > span {
+  flex: 1;
+  padding-left: 6px;
+}
+
+.kali-menu-footer > button {
+  border: 0;
+  background: transparent;
+  padding: 3px 6px;
+}
+
+.tool-workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.tool-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+}
+
+.tool-heading h2 {
+  margin: 0 0 5px;
+  font-size: 22px;
+}
+
+.tool-heading p {
+  margin: 0;
+  color: #a8abb3;
+  font-size: 12px;
+}
+
+.tool-edition {
+  margin-left: auto;
+  white-space: nowrap;
+  padding: 4px 7px;
+  border: 1px solid #2777ff55;
+  color: #84b1ff;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.tool-tabs {
+  display: flex;
+  gap: 5px;
+  border-bottom: 1px solid #0d0e11;
+  padding: 0 14px;
+}
+
+.tool-tabs button {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+}
+
+.tool-tabs button.active {
+  border-bottom-color: #2777ff;
+}
+
+.tool-empty {
+  text-align: center;
+  padding: 30px 10px;
+  color: #a8abb3;
+}
+
+.tool-empty p {
+  margin: 12px 0 0;
+}
+
+.tool-output {
+  background: #1a1c23;
+  color: #d4e3ee;
+  padding: 15px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+  user-select: text;
+}
+
+.tool-save {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+
+.tool-save label {
+  flex: 1;
+}
+
+.tool-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 18px;
+  user-select: text;
+}
+
+.tool-commands code {
+  padding: 4px 7px;
+  background: #1a1c23;
+  border-radius: 3px;
+}
+
+.tool-reference label {
+  margin-bottom: 15px;
+}
+
+.session-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  background: #111721c9;
+  backdrop-filter: blur(18px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.session-lock h1 {
+  margin: 20px 0 8px;
+}
+
+.session-lock button {
+  margin: 6px;
+}
+
+.calculator {
+  width: min(100%, 420px);
+  margin: auto;
+  padding: 22px;
+}
+
+.calculator-display {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  background: #1a1c23;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calculator-display output {
+  font-size: 30px;
+  user-select: text;
+}
+
+.calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.calculator-keys button {
+  padding: 12px;
+  font-size: 19px;
+}
+
+@media (width < 1100px) {
+  .kali-panel .panel-tray .panel-activity {
+    width: 90px;
+  }
+}
+
+@media (width < 600px) {
+  .kali-menu-columns {
+    grid-template-columns: 42% minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .kali-menu {
+    font-size: 12px;
+  }
+
+  .kali-categories > button {
+    white-space: normal;
+    height: auto;
+    min-height: 30px;
+  }
+}

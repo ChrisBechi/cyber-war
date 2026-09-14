@@ -1,0 +1,68 @@
+[
+  {
+    "id": "signal-no-ar",
+    "title": "NO AR",
+    "contact": "VEX",
+    "session": 2,
+    "description": "Uma rede corporativa aparece entre os sinais. VEX quer saber de onde vem uma comunicação esquecida.",
+    "requirements": [{ "kind": "flag", "key": "SESSION_1_COMPLETE" }],
+    "startTriggers": [],
+    "onStart": [
+      { "kind": "session", "number": 2 },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Tenho um trabalho pra você. Olha os sinais próximos. Tem algo fora do lugar naquela empresa."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Identifique a rede corporativa e preserve a evidência.",
+        "hint": "Abra aircrack-ng no menu de aplicativos. Atualize as redes, selecione ORION-CORP e inspecione o sinal.",
+        "conditions": [{ "kind": "flag", "key": "ORION_SIGNAL_FOUND" }],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      { "kind": "flag", "key": "SIGNAL_COMPLETE" },
+      { "kind": "reward", "money": 120, "reputation": 10 },
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "A captura está nos Downloads. Guarda o original. Quero saber o que deixaram em claro."
+      }
+    ]
+  },
+  {
+    "id": "em-claro",
+    "title": "EM CLARO",
+    "contact": "VEX",
+    "session": 2,
+    "description": "Os fragmentos de uma conversa apontam para algo maior do que o contrato de VEX.",
+    "requirements": [{ "kind": "flag", "key": "SIGNAL_COMPLETE" }],
+    "startTriggers": [],
+    "onStart": [
+      {
+        "kind": "message",
+        "contact": "VEX",
+        "text": "Abre a captura no Wireshark. Segue a conversa até o fim."
+      }
+    ],
+    "stages": [
+      {
+        "objective": "Reconstrua a comunicação preservada na captura.",
+        "hint": "No Wireshark, abra /home/kali/Downloads/orion.capture.json e siga o fluxo 4.",
+        "conditions": [{ "kind": "flag", "key": "ORION_STREAM_READ" }],
+        "choices": [],
+        "effects": []
+      }
+    ],
+    "outcomes": [
+      { "kind": "flag", "key": "EM_CLARO_COMPLETE" },
+      { "kind": "evidence", "key": "orion-board-approval" },
+      { "kind": "reward", "money": 180, "reputation": 15 },
+      { "kind": "message", "contact": "NULL", "text": "Te peguei." }
+    ]
+  }
+]

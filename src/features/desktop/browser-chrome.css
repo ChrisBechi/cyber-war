@@ -1,0 +1,498 @@
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']) {
+  border-color: #505057;
+  border-radius: 5px;
+  background: #242428;
+}
+
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']).maximized {
+  border-radius: 0;
+}
+
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']) .window__titlebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 93px;
+  height: 34px;
+  padding: 0;
+  z-index: 5;
+  background: #252529;
+}
+
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']) .window__titlebar > span {
+  display: none;
+}
+
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']) .window__titlebar button {
+  width: 30px;
+  color: #c6c4cb;
+}
+
+.browser-shell {
+  --accent: #bb6bd9;
+
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #2c2b30;
+  color: #dddbe3;
+  font:
+    11px/1.4 'Segoe UI',
+    sans-serif;
+  container-type: inline-size;
+  color-scheme: dark;
+}
+
+.browser-shell.tor-browser {
+  --accent: #8d6bd9;
+}
+
+.browser-shell.tor-browser .browser-tab.is-active {
+  box-shadow: inset 0 2px #8d6bd9;
+}
+
+.browser-shell .chrome-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.browser-shell button {
+  color: inherit;
+  font: inherit;
+  transition: none;
+}
+
+.browser-tabstrip {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 96px 0 3px;
+  background: #252529;
+  flex-shrink: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+.window:is([data-window-app='browser'], [data-window-app='tor-browser']):has(
+    .browser-tabstrip.is-dragging
+  ) {
+  transition: none;
+}
+
+.browser-tabs {
+  display: flex;
+  min-width: 0;
+  overflow: auto;
+  scrollbar-width: none;
+  gap: 2px;
+}
+
+.browser-tab {
+  flex: 0 1 205px;
+  min-width: 95px;
+  max-width: 230px;
+  display: flex;
+  height: 29px;
+  color: #a8a5b0;
+  border-radius: 4px 4px 0 0;
+}
+
+.browser-tab.is-active {
+  background: #3b3a41;
+  box-shadow: inset 0 2px #bf73d7;
+  color: #efedf2;
+}
+
+.browser-tab button {
+  border: 0;
+  background: none;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+}
+
+.browser-tab [role='tab'] {
+  min-width: 0;
+  flex: 1;
+}
+
+.browser-tab span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-tab-close {
+  width: 23px;
+  flex-shrink: 0;
+}
+
+.browser-tab-close .chrome-icon {
+  width: 10px;
+  height: 10px;
+}
+
+.browser-shell .browser-icon-button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.browser-shell button:not(:disabled):hover {
+  background: #ffffff15;
+}
+
+.browser-shell button:disabled {
+  opacity: 0.3;
+}
+
+.browser-navigation {
+  height: 35px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 5px;
+  background: #323137;
+  flex-shrink: 0;
+}
+
+.browser-address-box {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  margin: 0 6px;
+}
+
+.browser-url {
+  height: 27px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 2px;
+  background: #222126;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #9996a3;
+}
+
+.browser-url:focus-within {
+  border-color: #ae65cc;
+}
+
+.browser-url input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  padding: 2px 0;
+  color: #e8e3ec;
+  font: inherit;
+}
+
+.browser-url .browser-icon-button {
+  width: 23px;
+  height: 23px;
+}
+
+.browser-url .browser-zoom-badge {
+  border: 0;
+  border-radius: 2px;
+  font-size: 9px;
+  padding: 1px 4px;
+  background: #46434b;
+}
+
+.browser-star.is-bookmarked {
+  color: #c88ae2;
+}
+
+.browser-star.is-bookmarked svg {
+  fill: currentcolor;
+}
+
+.browser-security-button.is-insecure {
+  color: #f0b46e;
+}
+
+.browser-security-button.is-tor {
+  color: #b99bf0;
+}
+
+.browser-tor-badge {
+  flex-shrink: 0;
+  color: #c2a7ff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.browser-insecure-label {
+  flex-shrink: 0;
+  color: #f0b46e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.browser-bookmarks {
+  height: 26px;
+  padding: 0 5px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  overflow: auto;
+  scrollbar-width: thin;
+  background: #323137;
+  border-bottom: 1px solid #151519;
+  flex-shrink: 0;
+}
+
+.browser-bookmarks button {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  border: 0;
+  padding: 2px 4px;
+  background: none;
+  border-radius: 3px;
+  max-width: 180px;
+  flex-shrink: 0;
+}
+
+.browser-bookmarks span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-viewport {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  background: #232327;
+}
+
+.browser-zoom-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.browser-loading {
+  padding: 30px;
+  color: #bab6c1;
+}
+
+.browser-shell .browser-page {
+  overflow: visible;
+}
+
+.browser-shell .browser-home {
+  color: #d4cedd;
+  background: #25232b;
+  margin: -24px;
+  padding: 40px 20px;
+  min-height: 350px;
+}
+
+.browser-shell .browser-start-page {
+  background: #25232b;
+  color: #d4cedd;
+}
+
+.browser-shell .browser-home h1 {
+  color: #eee9f2;
+}
+
+.browser-popup,
+.browser-suggestions {
+  position: absolute;
+  z-index: 10;
+  border: 1px solid #5d5565;
+  border-radius: 5px;
+  background: #302c37;
+  box-shadow: 0 8px 24px #0008;
+  padding: 8px;
+  color: #e5deed;
+  overflow: auto;
+}
+
+.browser-popup {
+  top: 69px;
+  right: 5px;
+  width: min(310px, calc(100% - 10px));
+  max-height: calc(100% - 76px);
+}
+
+.browser-popup-tabs {
+  top: 33px;
+  left: 3px;
+  right: auto;
+}
+
+.browser-popup-security {
+  right: auto;
+  left: 5px;
+}
+
+.browser-popup strong {
+  display: block;
+  padding: 5px 7px 8px;
+  font-size: 12px;
+}
+
+.browser-popup p {
+  padding: 4px 7px;
+  overflow-wrap: anywhere;
+  color: #bfb5cb;
+  margin: 5px 0;
+}
+
+.browser-popup button,
+.browser-suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  border: 0;
+  background: none;
+  border-radius: 3px;
+  text-align: left;
+  padding: 7px;
+  overflow-wrap: anywhere;
+}
+
+.browser-popup kbd {
+  margin-left: auto;
+  color: #a499b0;
+  font: inherit;
+}
+
+.browser-popup hr {
+  border: 0;
+  border-top: 1px solid #524b5a;
+  margin: 5px;
+}
+
+.browser-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 7px;
+}
+
+.browser-zoom-controls span {
+  margin-right: auto;
+}
+
+.browser-zoom-controls button {
+  width: auto;
+  justify-content: center;
+}
+
+.browser-popup label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px 7px;
+}
+
+.browser-popup input {
+  font: inherit;
+  width: 100%;
+  padding: 5px;
+  background: #211e27;
+  border: 1px solid #665a73;
+}
+
+.browser-popup .browser-checkbox {
+  flex-direction: row;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.browser-checkbox input {
+  width: auto;
+}
+
+.browser-bookmark-row {
+  display: flex;
+  align-items: center;
+}
+
+.browser-bookmark-row button:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.browser-bookmark-row button:not(:first-child) {
+  width: 29px;
+  flex-shrink: 0;
+}
+
+.browser-form-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.browser-form-actions button {
+  width: auto;
+  border: 1px solid #63586e;
+}
+
+.browser-suggestions {
+  top: 30px;
+  left: 0;
+  right: 0;
+  max-height: 230px;
+}
+
+.browser-suggestions span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-suggestions small {
+  display: block;
+  color: #a699b3;
+}
+
+.browser-preference-error {
+  color: #f3aab5 !important;
+}
+
+@container (width < 560px) {
+  .browser-navigation {
+    gap: 0;
+  }
+
+  .browser-secondary-control {
+    display: none !important;
+  }
+
+  .browser-address-box {
+    margin: 0 2px;
+  }
+
+  .browser-url > .chrome-icon {
+    display: none;
+  }
+
+  .browser-tab {
+    min-width: 75px;
+  }
+}

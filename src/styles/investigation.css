@@ -1,0 +1,147 @@
+.instrument-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-size: 13px;
+}
+
+.instrument-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff04;
+}
+
+.instrument-toolbar > span {
+  margin-left: auto;
+  color: var(--muted);
+  font:
+    12px Consolas,
+    monospace;
+}
+
+.instrument-toolbar input {
+  flex: 1;
+}
+
+.instrument-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+  font:
+    12px / 1.5 Consolas,
+    monospace;
+}
+
+.instrument-table th {
+  text-align: left;
+  font-weight: 500;
+  color: #b4bbc4;
+  background: #ffffff06;
+}
+
+.instrument-table td,
+.instrument-table th {
+  padding: 9px 10px;
+  border-bottom: 1px solid #ffffff0a;
+}
+
+.instrument-table tr {
+  cursor: pointer;
+}
+
+.instrument-table td button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.instrument-empty {
+  padding: 24px;
+  color: var(--muted);
+}
+
+.signal-evidence {
+  margin: 20px 14px;
+  padding: 20px;
+  background: #14171d;
+  border: 1px solid #3b4557;
+}
+
+.signal-evidence p {
+  white-space: pre-line;
+}
+
+.instrument-path {
+  color: #b2d1f8;
+  font:
+    12px Consolas,
+    monospace;
+}
+
+.traffic-inspector > .toolbar {
+  justify-content: space-between;
+}
+
+.traffic-inspector > .toolbar label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.traffic-inspector > .toolbar input {
+  width: 100%;
+}
+
+.packet-detail {
+  padding: 20px;
+  margin: 0;
+  color: #c2c6cd;
+  font:
+    13px / 1.7 Consolas,
+    monospace;
+}
+
+.stream-view {
+  margin: 16px;
+  background: #191b20;
+  border: 1px solid #434953;
+}
+
+.stream-view > header {
+  padding: 10px 16px;
+  background: #2b2e36;
+  color: #c9d4e6;
+  font-size: 12px;
+}
+
+.stream-view [role='log'] {
+  min-height: 235px;
+  padding: 4px 18px;
+}
+
+.stream-view p {
+  margin: 12px 0;
+  color: #95caff;
+  font:
+    16px / 1.4 Consolas,
+    monospace;
+}
+
+.stream-view p.stream-reply {
+  color: #e7a8a4;
+}
+
+.stream-view small {
+  display: block;
+  margin-bottom: 5px;
+  color: #8b939f;
+  font-size: 10px;
+}

