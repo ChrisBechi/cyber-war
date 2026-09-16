@@ -12,6 +12,33 @@ const path = text.refine(
 const variant = (kind, shape) => z.strictObject({ kind: z.literal(kind), ...shape });
 const key = { key: text };
 export const conditionSchema = z.discriminatedUnion('kind', [
+  variant('packageInstalled', { name: text, version: text.nullish() }),
+  variant('packageEvent', {
+    event: z.enum([
+      'PACKAGE_INSTALLED',
+      'PACKAGE_REMOVED',
+      'PACKAGE_PURGED',
+      'PACKAGE_UPGRADED',
+      'PACKAGE_BROKEN',
+      'PACKAGE_REPAIRED',
+      'APT_UPDATED',
+      'REPOSITORY_ADDED',
+      'REPOSITORY_REMOVED',
+    ]),
+    package: text.nullish(),
+  }),
+  variant('archiveEvent', {
+    event: z.enum([
+      'ARCHIVE_CREATED',
+      'ARCHIVE_EXTRACTED',
+      'ARCHIVE_OPENED',
+      'ARCHIVE_PASSWORD_SUCCESS',
+      'ARCHIVE_PASSWORD_FAILED',
+      'ARCHIVE_CORRUPTED',
+      'ARCHIVE_ENTRY_READ',
+    ]),
+    path,
+  }),
   variant('flag', key),
   variant('technique', key),
   variant('inventory', key),
@@ -22,6 +49,12 @@ export const conditionSchema = z.discriminatedUnion('kind', [
   variant('hostService', { host: text, port: z.int().min(1).max(65535), running: z.boolean() }),
 ]);
 export const effectSchema = z.discriminatedUnion('kind', [
+  variant('repository', {
+    id: z.enum(['https://mirror.kali.game/kali', 'https://repo.blackwire.net/tools']),
+    available: z.boolean(),
+    trusted: z.boolean(),
+    release: z.int().positive(),
+  }),
   variant('flag', key),
   variant('inventory', key),
   variant('evidence', key),

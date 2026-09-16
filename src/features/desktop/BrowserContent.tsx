@@ -98,7 +98,25 @@ export function BrowserContent({
             <>
               <div className="eyebrow">{address}</div>
               <h1>{page.title}</h1>
-              <p className="page-body">{page.body}</p>
+              {page.title === 'Virtual Software Repository' ? (
+                <div className="page-body">
+                  {page.body
+                    .split('\n\n')
+                    .filter(Boolean)
+                    .map((item) => {
+                      const [name, url] = item.split('\n');
+                      return (
+                        <p key={url}>
+                          <button disabled={busy} onClick={() => navigate(url)}>
+                            {name}
+                          </button>
+                        </p>
+                      );
+                    })}
+                </div>
+              ) : (
+                <p className="page-body">{page.body}</p>
+              )}
             </>
           )}
           {!isVigilia && page.action === 'recover' && (
@@ -113,11 +131,17 @@ export function BrowserContent({
           )}
           {!isVigilia && page.action && (
             <button className="primary" disabled={busy} onClick={action}>
-              {page.action === 'download'
-                ? 'Baixar Cyber Siege'
-                : page.action === 'recover'
-                  ? 'Recuperar acesso'
-                  : 'Comprar melhoria'}
+              {page.action.startsWith('package-download:')
+                ? 'Baixar pacote .deb'
+                : page.action === 'firmware-download'
+                  ? 'Baixar firmware_AXR550_v1.4.tar.gz'
+                  : page.action === 'source-download'
+                    ? 'Baixar tool-2.1.tar.gz'
+                    : page.action === 'download'
+                      ? 'Baixar Cyber Siege'
+                      : page.action === 'recover'
+                        ? 'Recuperar acesso'
+                        : 'Comprar melhoria'}
             </button>
           )}
         </>

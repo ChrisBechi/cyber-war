@@ -1,0 +1,148 @@
+.browser-network-error {
+  container-type: inline-size;
+  display: grid;
+  flex: 1;
+  min-height: 100%;
+  background: #fff;
+  color: #15141a;
+  color-scheme: light;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.browser-network-error-layout {
+  display: grid;
+  grid-template-columns: 244px minmax(0, 610px);
+  align-items: start;
+  gap: 48px;
+  width: min(100%, 998px);
+  margin: auto;
+  padding: 48px;
+}
+
+.browser-network-error-layout > img {
+  width: 244px;
+  max-width: 100%;
+  height: auto;
+  margin-top: 14px;
+}
+
+.browser-network-error-content h1 {
+  margin: 0 0 24px;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.browser-network-error-address {
+  margin: 0 0 24px;
+  line-height: inherit;
+}
+
+.browser-network-error-address strong {
+  overflow-wrap: anywhere;
+}
+
+.browser-network-error-content h2 {
+  margin: 0 0 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.browser-network-error-content ul {
+  margin: 0 0 48px;
+  padding-left: 28px;
+}
+
+.browser-network-error-content li {
+  margin-bottom: 12px;
+}
+
+.browser-network-error-content button {
+  font-family: inherit;
+  font-size: 18px;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.browser-network-error-content .browser-network-error-help {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #06f;
+  text-decoration: underline;
+}
+
+.browser-network-error-details {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid #06f;
+  background: #f0f6ff;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.browser-network-error-details p {
+  margin: 0 0 8px;
+}
+
+.browser-network-error-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.browser-network-error-content .browser-network-error-retry {
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #06f;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.browser-network-error-content .browser-network-error-retry:hover {
+  background: #0250bb;
+}
+
+.browser-network-error-content button:focus-visible {
+  outline: 2px solid #06f;
+  outline-offset: 4px;
+}
+
+@container (max-width: 960px) {
+  .browser-network-error-layout {
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 32px;
+    padding: 40px;
+    font-size: 16px;
+  }
+
+  .browser-network-error-content h1 {
+    font-size: 28px;
+  }
+
+  .browser-network-error-content h2 {
+    font-size: 19px;
+  }
+}
+
+@container (max-width: 620px) {
+  .browser-network-error-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 32px 24px;
+  }
+
+  .browser-network-error-layout > img {
+    width: 132px;
+    margin-top: 0;
+  }
+
+  .browser-network-error-content ul {
+    margin-bottom: 28px;
+  }
+}

@@ -5,7 +5,6 @@ import type { SaveSlot } from '../../lib/api';
 import { perform, useGame } from '../../lib/game-store';
 import { audioManager } from '../../lib/audio-manager';
 import { saveAppSettings, useAppSettings } from '../../lib/app-settings';
-import { gameLogo } from '../boot/boot-assets';
 import { FadeTransition } from '../boot/FadeTransition';
 import { SettingsScreen } from './SettingsScreen';
 import { HowToPlay } from './HowToPlay';
@@ -184,7 +183,12 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
     <div className="front-home">
       <div className="front-home-content">
         <p className="front-kicker">STUDIO BECHI GAMES APRESENTA</p>
-        <img className="front-wordmark" src={gameLogo} alt="CYBER WAR" />
+        <h1 className="front-wordmark">
+          CYBER WAR
+          <span className="game-title-cursor" aria-hidden="true">
+            _
+          </span>
+        </h1>
         <p className="front-tagline">Todo sistema deixa um vestígio.</p>
         <nav
           className="front-actions"

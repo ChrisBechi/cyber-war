@@ -32,6 +32,29 @@ pub struct VfsNode {
 pub struct VirtualFileSystem {
     pub nodes: BTreeMap<String, VfsNode>,
     clock: u64,
+    #[serde(default = "default_disk_capacity")]
+    pub capacity_bytes: u64,
+}
+
+fn default_disk_capacity() -> u64 {
+    64 * 1024 * 1024 * 1024
+}
+impl VfsNode {
+    pub fn storage_size(&self) -> u64 {
+        self.blob
+            .as_ref()
+            .map_or(self.content.len() as u64, |b| b.size as u64)
+    }
+    pub fn logical_size(&self) -> u64 {
+        if self.kind == "directory" {
+            return 0;
+        }
+        self.metadata
+            .get("logicalSize")
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or_else(|| self.storage_size())
+            .max(self.storage_size())
+    }
 }
 
 pub fn domain(message: impl Into<String>) -> GameError {
@@ -42,9 +65,8 @@ pub fn normalize(path: &str, cwd: &str) -> GameResult<String> {
     if path.len() > 4096 || path.contains(['\\', ':']) || path.chars().any(char::is_control) {
         return Err(domain("invalid virtual path"));
     }
-    let expanded = if path == "~" || path.starts_with("~/") {
-        format!("{HOME}{}", &path[1..])
-    } else if path.starts_with('/') {
+    // Tilde expansion belongs to the shell, where quote information exists.
+    let expanded = if path.starts_with('/') {
         path.to_owned()
     } else {
         format!("{cwd}/{path}")
@@ -73,6 +95,7 @@ impl Default for VirtualFileSystem {
         let mut fs = Self {
             nodes: BTreeMap::new(),
             clock: 0,
+            capacity_bytes: default_disk_capacity(),
         };
         for path in [
             "/", "/bin", "/boot", "/dev", "/etc", "/home", HOME, "/opt", "/root", "/tmp", "/usr",
@@ -180,6 +203,45 @@ impl Default for VirtualFileSystem {
 }
 
 impl VirtualFileSystem {
+    fn check_projection(&self, path: &str) -> GameResult<()> {
+        let prefix = format!("{path}/");
+        if self
+            .nodes
+            .get(path)
+            .is_some_and(|n| n.metadata.contains_key("packageProjection"))
+            || self
+                .nodes
+                .range(prefix.clone()..)
+                .take_while(|(p, _)| p.starts_with(&prefix))
+                .any(|(_, n)| n.metadata.contains_key("packageProjection"))
+        {
+            return Err(domain(
+                "package database projection is read-only; use apt/dpkg",
+            ));
+        }
+        Ok(())
+    }
+    pub fn used_bytes(&self) -> u64 {
+        self.nodes
+            .values()
+            .fold(0u64, |n, e| n.saturating_add(e.logical_size()))
+    }
+    pub fn check_space(&self, path: &str, size: u64) -> GameResult<()> {
+        let old = self.nodes.get(path).map_or(0, VfsNode::logical_size);
+        if self.used_bytes().saturating_sub(old).saturating_add(size) > self.capacity_bytes {
+            return Err(domain("No space left on virtual device"));
+        }
+        Ok(())
+    }
+    pub fn symlink(&mut self, path: &str, target: &str, actor: &str) -> GameResult<()> {
+        crate::archive::ArchiveSafetyLimits::default().path(target)?;
+        if self.nodes.contains_key(path) {
+            return Err(domain("file exists"));
+        }
+        self.write(path, target, actor)?;
+        self.nodes.get_mut(path).unwrap().kind = "symlink".into();
+        Ok(())
+    }
     pub fn ensure_trash(&mut self) {
         for path in [
             "/home/kali/.local",
@@ -251,6 +313,9 @@ impl VirtualFileSystem {
                 .nodes
                 .get(ancestor)
                 .ok_or_else(|| domain("parent does not exist"))?;
+            if n.kind != "directory" {
+                return Err(domain("not a directory (symlink traversal is not allowed)"));
+            }
             if !Self::allowed(n, actor, 1) {
                 return Err(domain("permission denied"));
             }
@@ -289,6 +354,22 @@ impl VirtualFileSystem {
             self.directory(&current, actor)?;
         }
         Ok(self.nodes.contains_key(path))
+    }
+
+    /// Names only, in byte order; shell globbing must not clone file bodies.
+    pub fn child_names(&self, path: &str, actor: &str) -> GameResult<Vec<String>> {
+        self.directory(path, actor)?;
+        if !Self::allowed(self.stat(path, actor)?, actor, 4) {
+            return Err(domain("permission denied"));
+        }
+        let prefix = format!("{}/", path.trim_end_matches('/'));
+        Ok(self
+            .nodes
+            .range(prefix.clone()..)
+            .take_while(|(key, _)| key.starts_with(&prefix))
+            .filter(|(_, node)| node.parent_id.as_deref() == Some(path))
+            .map(|(key, _)| key[prefix.len()..].to_string())
+            .collect())
     }
 
     pub fn list(&self, path: &str, actor: &str) -> GameResult<Vec<VfsNode>> {
@@ -353,6 +434,8 @@ impl VirtualFileSystem {
     }
 
     pub fn write(&mut self, path: &str, content: &str, actor: &str) -> GameResult<()> {
+        self.check_projection(path)?;
+        self.check_space(path, content.len() as u64)?;
         if content.len() > MAX_CONTENT {
             return Err(domain("virtual file limit: 1 MiB"));
         }
@@ -370,6 +453,9 @@ impl VirtualFileSystem {
                 n.blob = None;
                 n.metadata.remove("mediaSource");
                 n.metadata.remove("mime");
+                n.metadata.remove("logicalSize");
+                n.metadata.remove("archiveOriginalSize");
+                n.metadata.remove("archiveDepth");
                 n.modified_at = self.clock;
             }
         } else {
@@ -389,6 +475,7 @@ impl VirtualFileSystem {
         actor: &str,
     ) -> GameResult<()> {
         blob.validate()?;
+        self.check_space(path, blob.size as u64)?;
         self.write(path, "", actor)?;
         if let Some(node) = self.nodes.get_mut(path) {
             node.metadata.insert("mime".into(), blob.mime.clone());
@@ -410,6 +497,7 @@ impl VirtualFileSystem {
     }
 
     pub fn remove(&mut self, path: &str, actor: &str, recursive: bool) -> GameResult<()> {
+        self.check_projection(path)?;
         if path == "/" {
             return Err(domain("cannot remove virtual root"));
         }
@@ -525,6 +613,166 @@ impl VirtualFileSystem {
         Ok(())
     }
 
+    /// Pick an unused sibling name, preserving normal and compound extensions.
+    pub fn available_path(&self, path: &str, directory: bool) -> String {
+        if !self.nodes.contains_key(path) {
+            return path.into();
+        }
+        let name = path.rsplit('/').next().unwrap_or(path);
+        let prefix = &path[..path.len() - name.len()];
+        let extension_at = if directory {
+            name.len()
+        } else {
+            [".tar.gz", ".tar.bz2", ".tar.xz"]
+                .iter()
+                .find(|suffix| name.to_ascii_lowercase().ends_with(**suffix))
+                .map(|suffix| name.len() - suffix.len())
+                .unwrap_or_else(|| {
+                    name.rfind('.')
+                        .filter(|&index| index > 0)
+                        .unwrap_or(name.len())
+                })
+        };
+        let (stem, extension) = name.split_at(extension_at);
+        let stem = stem
+            .rsplit_once(" (")
+            .filter(|(_, count)| {
+                count.strip_suffix(')').is_some_and(|count| {
+                    !count.is_empty() && count.bytes().all(|byte| byte.is_ascii_digit())
+                })
+            })
+            .map(|(base, _)| base)
+            .unwrap_or(stem);
+        for count in 1..=self.nodes.len() + 1 {
+            let candidate = format!("{prefix}{stem} ({count}){extension}");
+            if !self.nodes.contains_key(&candidate) {
+                return candidate;
+            }
+        }
+        unreachable!("there are more candidate names than existing nodes")
+    }
+
+    pub fn copy_unique(&mut self, source: &str, destination: &str, actor: &str) -> GameResult<()> {
+        let node = self.stat(source, actor)?;
+        let target = if self
+            .nodes
+            .get(destination)
+            .is_some_and(|node| node.kind == "directory")
+        {
+            format!("{}/{}", destination.trim_end_matches('/'), node.name)
+        } else {
+            destination.into()
+        };
+        if target.starts_with(&format!("{source}/")) || source == "/" {
+            return Err(domain("invalid copy/move destination"));
+        }
+        let target = self.available_path(&target, node.kind == "directory");
+        self.transfer(source, &target, actor, false, true)
+    }
+
+    /// Copy one regular file or link to an exact path. CLI directory traversal
+    /// lives above this layer; GUI collision naming keeps using copy_unique.
+    pub(crate) fn copy_entry(&mut self, source: &str, target: &str, actor: &str) -> GameResult<()> {
+        let original = self.stat(source, actor)?.clone();
+        if original.kind == "file" {
+            self.readable(source, actor)?;
+        } else if original.kind != "symlink" {
+            return Err(domain("unsupported file type"));
+        }
+        self.check_projection(target)?;
+        let existing = self.nodes.get(target).cloned();
+        if let Some(existing) = &existing {
+            self.stat(target, actor)?;
+            if existing.kind == "directory" || (original.kind == "file" && existing.kind != "file")
+            {
+                return Err(domain("destination is not a regular file"));
+            }
+            if original.kind == "symlink" {
+                self.writable_parent(target, actor)?;
+            } else if !Self::allowed(existing, actor, 2) {
+                return Err(domain("permission denied"));
+            }
+        } else {
+            self.writable_parent(target, actor)?;
+            if self.nodes.len() >= 10000 {
+                return Err(domain("virtual filesystem capacity reached"));
+            }
+        }
+        self.check_space(target, original.logical_size())?;
+        self.clock += 1;
+        let mut copied = original;
+        let existing = existing.filter(|_| copied.kind == "file");
+        copied.id = target.into();
+        copied.parent_id = Some(parent(target).into());
+        copied.name = target.rsplit('/').next().unwrap_or("").into();
+        copied.owner = existing
+            .as_ref()
+            .map_or_else(|| actor.into(), |n| n.owner.clone());
+        copied.group = existing
+            .as_ref()
+            .map_or_else(|| actor.into(), |n| n.group.clone());
+        copied.mode = existing.as_ref().map_or(copied.mode & !0o022, |n| n.mode);
+        copied.created_at = existing.as_ref().map_or(self.clock, |n| n.created_at);
+        copied.modified_at = self.clock;
+        copied.metadata.remove("packageProjection");
+        copied.metadata.remove("packageOwner");
+        self.nodes.insert(target.into(), copied);
+        Ok(())
+    }
+
+    /// Rename within one virtual filesystem. Like rename(2), permissions are
+    /// checked on parents, not on the contents of the moved file/directory.
+    /// Validate everything before removing an existing destination.
+    pub(crate) fn rename_entry(
+        &mut self,
+        source: &str,
+        target: &str,
+        actor: &str,
+    ) -> GameResult<()> {
+        if source == "/"
+            || target == "/"
+            || source == target
+            || target.starts_with(&format!("{source}/"))
+        {
+            return Err(domain("invalid copy/move destination"));
+        }
+        let original = self.stat(source, actor)?;
+        self.check_projection(source)?;
+        self.check_projection(target)?;
+        self.writable_parent(source, actor)?;
+        self.writable_parent(target, actor)?;
+        if let Some(existing) = self.nodes.get(target) {
+            if (original.kind == "directory") != (existing.kind == "directory") {
+                return Err(domain("incompatible source and destination types"));
+            }
+            if existing.kind == "directory"
+                && self
+                    .nodes
+                    .keys()
+                    .any(|p| p.starts_with(&format!("{target}/")))
+            {
+                return Err(domain("Directory not empty"));
+            }
+        }
+        let prefix = format!("{source}/");
+        let entries: Vec<_> = self
+            .nodes
+            .iter()
+            .filter(|(path, _)| path.as_str() == source || path.starts_with(&prefix))
+            .map(|(path, node)| (path.clone(), node.clone()))
+            .collect();
+        self.nodes.remove(target);
+        for (old, mut node) in entries {
+            let path = format!("{target}{}", &old[source.len()..]);
+            node.id = path.clone();
+            node.parent_id = Some(parent(&path).into());
+            node.name = path.rsplit('/').next().unwrap_or("").into();
+            self.nodes.remove(&old);
+            self.nodes.insert(path, node);
+        }
+        Ok(())
+    }
+
     pub fn transfer(
         &mut self,
         source: &str,
@@ -533,6 +781,9 @@ impl VirtualFileSystem {
         moving: bool,
         recursive: bool,
     ) -> GameResult<()> {
+        if moving {
+            self.check_projection(source)?;
+        }
         let source_node = self.stat(source, actor)?.clone();
         let target = if self
             .nodes
@@ -579,6 +830,8 @@ impl VirtualFileSystem {
             if !moving {
                 n.owner = actor.into();
                 n.group = actor.into();
+                n.metadata.remove("packageProjection");
+                n.metadata.remove("packageOwner");
             }
             self.nodes.insert(new_path, n);
         }
@@ -589,6 +842,7 @@ impl VirtualFileSystem {
     }
 
     pub fn chmod(&mut self, path: &str, actor: &str, mode: u16) -> GameResult<()> {
+        self.check_projection(path)?;
         let n = self.stat(path, actor)?;
         if mode > 0o777 || (actor != "root" && actor != n.owner) {
             return Err(domain("invalid mode or permission denied"));
@@ -600,6 +854,7 @@ impl VirtualFileSystem {
     }
 
     pub fn chown(&mut self, path: &str, actor: &str, owner: &str) -> GameResult<()> {
+        self.check_projection(path)?;
         self.stat(path, actor)?;
         if actor != "root" || !["root", "kali", "vex"].contains(&owner) {
             return Err(domain("permission denied or unknown user"));
@@ -615,6 +870,50 @@ impl VirtualFileSystem {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn copies_get_numbered_names_without_overwriting_or_changing_extensions() {
+        let mut fs = VirtualFileSystem::default();
+        for name in ["notes.txt", "firmware.tar.gz", ".env", "README", "ação.txt"] {
+            let path = format!("{HOME}/{name}");
+            fs.write(&path, "original", "kali").unwrap();
+            fs.copy_unique(&path, HOME, "kali").unwrap();
+            fs.copy_unique(&path, HOME, "kali").unwrap();
+            assert_eq!(fs.read(&path, "kali").unwrap(), "original");
+        }
+        for name in [
+            "notes (1).txt",
+            "notes (2).txt",
+            "firmware (1).tar.gz",
+            ".env (1)",
+            "README (1)",
+            "ação (2).txt",
+        ] {
+            assert_eq!(
+                fs.read(&format!("{HOME}/{name}"), "kali").unwrap(),
+                "original"
+            );
+        }
+        fs.copy_unique(&format!("{HOME}/notes (1).txt"), HOME, "kali")
+            .unwrap();
+        assert!(fs.nodes.contains_key(&format!("{HOME}/notes (3).txt")));
+        fs.mkdir(&format!("{HOME}/folder.v1"), "kali").unwrap();
+        fs.write(&format!("{HOME}/folder.v1/child.txt"), "child", "kali")
+            .unwrap();
+        fs.copy_unique(&format!("{HOME}/folder.v1"), HOME, "kali")
+            .unwrap();
+        assert_eq!(
+            fs.read(&format!("{HOME}/folder.v1 (1)/child.txt"), "kali")
+                .unwrap(),
+            "child"
+        );
+        assert!(fs
+            .copy_unique(
+                &format!("{HOME}/folder.v1"),
+                &format!("{HOME}/folder.v1/nested"),
+                "kali"
+            )
+            .is_err());
+    }
     #[test]
     fn paths_remain_virtual() {
         assert_eq!(normalize("../../../../etc", HOME).expect("path"), "/etc");

@@ -5,7 +5,10 @@ import { audioManager } from '../../lib/audio-manager';
 import { softwareById } from '../../lib/software-catalog';
 import type { SoftwareEntry } from '../../lib/software-catalog';
 import { KaliIcon } from './KaliIcon';
+import { PanelStatusIcon } from './PanelStatusIcon';
 import { useDismissOutside } from '../../lib/use-dismiss-outside';
+import { useVfsDrop } from '../../lib/use-vfs-drop';
+import { useHostBattery } from '../../lib/use-host-battery';
 
 type Props = {
   launcher: boolean;
@@ -17,7 +20,12 @@ type Props = {
 
 export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Props) {
   const { world, revision, busy } = useGame();
-  const { workspace, windows, open } = useWindows();
+  const battery = useHostBattery();
+  const batteryLabel = battery
+    ? `${battery.percent === null ? 'Carga indisponível' : `${battery.percent}%`} · ${battery.charging ? 'Carregando' : battery.pluggedIn ? 'Conectado à tomada' : 'Usando bateria'}`
+    : '';
+  const drop = useVfsDrop();
+  const { workspace, open } = useWindows();
   const [time, setTime] = useState(new Date());
   const [popover, setPopover] = useState('');
   const [volume, setVolume] = useState(Number(world?.settings.volume ?? 70));
@@ -66,16 +74,13 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
   const toggle = (id: string) => setPopover((value) => (value === id ? '' : id));
   const unread = world.messages.filter((message) => !message.read).length;
   const showDesktop = () => {
-    const currentWindows = windows.filter((window) => window.workspace === workspace);
-    const minimize = currentWindows.some((window) => !window.minimized);
-    currentWindows.forEach((window) =>
-      useWindows.getState().update(window.id, { minimized: minimize }),
-    );
+    useWindows.getState().toggleDesktop();
   };
   return (
     <header
       ref={panel}
       className="top-panel kali-panel"
+      {...drop(null)}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           setPopover('');
@@ -108,18 +113,30 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
         <button
           title="File Manager"
           aria-label="File Manager"
+          {...drop({ kind: 'app', app: 'files' })}
           onClick={() => launch('file-manager')}
         >
           <KaliIcon name="system-file-manager" size={24} />
         </button>
-        <button title="Text Editor" aria-label="Text Editor" onClick={() => launch('text-editor')}>
+        <button
+          title="Text Editor"
+          aria-label="Text Editor"
+          onClick={() => launch('text-editor')}
+          {...drop({ kind: 'app', app: 'editor' })}
+        >
           <KaliIcon name="accessories-text-editor" size={24} />
         </button>
-        <button title="Web Browser" aria-label="Web Browser" onClick={() => launch('web-browser')}>
+        <button
+          title="Web Browser"
+          aria-label="Web Browser"
+          onClick={() => launch('web-browser')}
+          {...drop({ kind: 'app', app: 'browser' })}
+        >
           <KaliIcon name="firefox" size={24} />
         </button>
         <button
           title="Tor Browser"
+          {...drop({ kind: 'app', app: 'tor-browser' })}
           aria-label="Tor Browser"
           onClick={() => {
             open('tor-browser');
@@ -130,6 +147,7 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
         </button>
         <button
           title="Terminal Emulator"
+          {...drop({ kind: 'app', app: 'terminal' })}
           aria-label="Terminal Emulator"
           onClick={() => launch('terminal')}
         >
@@ -186,7 +204,7 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
           aria-expanded={popover === 'network'}
           onClick={() => toggle('network')}
         >
-          <KaliIcon name="network-wired-symbolic" symbolic size={18} />
+          <PanelStatusIcon name="network" />
         </button>
         <button
           aria-label="Áudio"
@@ -195,29 +213,27 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
           aria-expanded={popover === 'audio'}
           onClick={() => toggle('audio')}
         >
-          <KaliIcon
-            name={volume ? 'audio-volume-high-symbolic' : 'audio-volume-muted-symbolic'}
-            symbolic
-            size={18}
-          />
+          <PanelStatusIcon name={volume ? 'volume' : 'muted'} />
         </button>
         <button
           aria-label={`Notificações, ${unread} não lidas`}
           title="Notificações"
           onClick={() => open('messages')}
         >
-          <KaliIcon name="notification-symbolic" symbolic size={18} />
+          <PanelStatusIcon name="notifications" />
           {unread > 0 && <i className="notification-dot" />}
         </button>
-        <button
-          aria-label="Energia"
-          data-panel-menu="power"
-          title="Computador virtual · carga completa"
-          aria-expanded={popover === 'power'}
-          onClick={() => toggle('power')}
-        >
-          <KaliIcon name="battery-full-charged-symbolic" symbolic size={16} />
-        </button>
+        {battery && (
+          <button
+            aria-label="Energia"
+            data-panel-menu="power"
+            title={batteryLabel}
+            aria-expanded={popover === 'power'}
+            onClick={() => toggle('power')}
+          >
+            <PanelStatusIcon name="power" />
+          </button>
+        )}
         <button
           className="panel-clock"
           aria-label="Calendário"
@@ -230,7 +246,7 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
         </button>
         <span className="panel-separator" />
         <button aria-label="Bloquear sessão" title="Bloquear sessão" onClick={onLock}>
-          <KaliIcon name="system-lock-screen-symbolic" symbolic size={18} />
+          <PanelStatusIcon name="lock" />
         </button>
         <button
           aria-label="Sair da sessão"
@@ -238,7 +254,7 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
           disabled={busy}
           onClick={onLogout}
         >
-          <KaliIcon name="system-log-out-symbolic" symbolic size={18} />
+          <PanelStatusIcon name="logout" />
         </button>
       </div>
       {popover && (
@@ -301,10 +317,10 @@ export function KaliPanel({ launcher, onToggle, onLaunch, onLock, onLogout }: Pr
               </button>
             </>
           )}
-          {popover === 'power' && (
+          {popover === 'power' && battery && (
             <>
               <h3>Energia</h3>
-              <p>Computador virtual · 100%</p>
+              <p>{batteryLabel}</p>
               <button
                 onClick={() => {
                   open('settings');

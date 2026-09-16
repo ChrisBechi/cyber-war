@@ -1,0 +1,181 @@
+{
+  "repository": "https://github.com/daniruiz/flat-remix",
+  "commit": "e7de6c346da46e008987228f363b0eae6e638637",
+  "theme": "Flat-Remix-Blue-Dark",
+  "assets": [
+    {
+      "file": "folder-blue.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue.svg",
+      "sha256": "7599b47536995c3d228ceb7bbd8d8d9a9eb0b63dd567de5eb6a32aa3604a6a9f"
+    },
+    {
+      "file": "folder-blue-documents.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-documents.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-documents.svg",
+      "sha256": "8d0cf33144825226591c9203c9c6ee556fe14612f592ae56ed66eb473aace29a"
+    },
+    {
+      "file": "folder-blue-download.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-download.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-download.svg",
+      "sha256": "f4a7260b56bbff966c9767b79d3a6108d29c5b8a9e7d6546e87809cad260d5ba"
+    },
+    {
+      "file": "folder-blue-music.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-music.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-music.svg",
+      "sha256": "0a6532d36c1edfbbbc0a51d05678cd0a3629b7cdf75510139ea0aa8a7026b69a"
+    },
+    {
+      "file": "folder-blue-pictures.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-pictures.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-pictures.svg",
+      "sha256": "3a656fd2fdc7f299ab55c2dab67286d1bf591458e746139c6e162e94e3c6e837"
+    },
+    {
+      "file": "folder-blue-videos.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-videos.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-videos.svg",
+      "sha256": "3a67b1c32164441c974d4c12310657a736470db4c51907ab5ff2242ce8b1bb3b"
+    },
+    {
+      "file": "folder-blue-publicshare.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-publicshare.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-publicshare.svg",
+      "sha256": "3931f652908ec8e0160d8950d8db64aebeb36565cc48ced9adc94f3ed48f54fb"
+    },
+    {
+      "file": "folder-blue-templates.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-templates.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-blue-templates.svg",
+      "sha256": "ccca21860b2fe0749260b41c6b2ec238deacc0681428a10446dedad90c8486c0"
+    },
+    {
+      "file": "user-desktop.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/scalable/user-desktop.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/scalable/folder-desktop.svg",
+      "sha256": "672e9e2274f2ccd57fc1d12be5a3e8770bbf41274e9eac63bc851913d7edeb10"
+    },
+    {
+      "file": "user-home-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-home-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-home-symbolic.svg",
+      "sha256": "b4628a6e01fa8909c6f428e6e7a333b2a3a66a056358276808550607e01abd80"
+    },
+    {
+      "file": "user-desktop-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-desktop-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-desktop-symbolic.svg",
+      "sha256": "8c89d8f2a20624b797a5cd18c837bfd5c05be89ebdde76af618d84f9f1b08c18"
+    },
+    {
+      "file": "folder-documents-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-documents-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-documents-symbolic.svg",
+      "sha256": "bed0f57a68f92bd21069345971f792a34cfecfe7ddd3ccf1f6a6700f29cbbefb"
+    },
+    {
+      "file": "folder-download-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-download-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-download-symbolic.svg",
+      "sha256": "61e36e612d775f70d335330fed543efed874b2fe0bca643357177c1a81dec08d"
+    },
+    {
+      "file": "folder-music-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-music-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-music-symbolic.svg",
+      "sha256": "045fd8ed544676305d56225a98a57876edfe1d720e7af6f2c9a4ecce93e7bc39"
+    },
+    {
+      "file": "folder-pictures-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-pictures-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-pictures-symbolic.svg",
+      "sha256": "43cc860ddd661651d2d0add3596f713e5a033a9fe072fe93ad387c9f9f2ece51"
+    },
+    {
+      "file": "folder-videos-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-videos-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-videos-symbolic.svg",
+      "sha256": "8059af15c0cf50500ea4800caf13c27b97699e59c7008ac41c6f340db4a72e4b"
+    },
+    {
+      "file": "folder-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/folder-symbolic.svg",
+      "sha256": "a1446dbf33142c8a0e6b657920b57a7331352874afdc6e3ef9be5032a121cf4d"
+    },
+    {
+      "file": "user-trash-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-trash-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/places/symbolic/user-trash-symbolic.svg",
+      "sha256": "b7063ab0ff57a4553f588140e79598bbddf7b7676f62d4ee6ac955b689dcae16"
+    },
+    {
+      "file": "edit-find-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/edit-find-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/edit-find-symbolic.svg",
+      "sha256": "f793191779d8d71dd7303a3bfc674f29c7e0944517bb56b9332c1e66686e6fa3"
+    },
+    {
+      "file": "go-previous-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-previous-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-previous-symbolic.svg",
+      "sha256": "12cd51bc02e576e099334086ecac8b53338d1aa32b9a300b84de6654858ebca2"
+    },
+    {
+      "file": "go-next-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-next-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-next-symbolic.svg",
+      "sha256": "484536cb9ba733f5aa6aeff1b087a0bc4338ec6f773514f1429430664689a588"
+    },
+    {
+      "file": "go-up-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-up-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/go-up-symbolic.svg",
+      "sha256": "5733bcfefabba919511b2767009abd4d40b74425961b1429f6911240f5a675e0"
+    },
+    {
+      "file": "view-refresh-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-refresh-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-refresh-symbolic.svg",
+      "sha256": "6dbc5ba81b227e29c8cc0c873b636206a2d1911e720582397aef8ea2bd0d8768"
+    },
+    {
+      "file": "view-more-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-more-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-more-symbolic.svg",
+      "sha256": "324175fd790954442d74a33471d2fbd9ab6f621b243b0fde0ff663574ba52aaf"
+    },
+    {
+      "file": "view-list-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-list-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-list-symbolic.svg",
+      "sha256": "7a440c356b6f72092bcdbb2c6bc880a90310c94401f577b8bd2b1f86529ed522"
+    },
+    {
+      "file": "view-grid-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-grid-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/view-grid-symbolic.svg",
+      "sha256": "229d2cafc6bae0ab287366fe10dceacc0fa76721b013977479b86acd03a5c661"
+    },
+    {
+      "file": "pan-down-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/pan-down-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/pan-down-symbolic.svg",
+      "sha256": "14c5cefbcebe458d59cc5d40e8aa972e1780aaaa9cd59d2ccf1d97f144fa7034"
+    },
+    {
+      "file": "window-close-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/actions/symbolic/window-close-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/actions/symbolic/window-close-symbolic.svg",
+      "sha256": "12c71b9cbe8b03d9d98456f5ff8bb074132bb7c84206b614e5e48bdf21343ab2"
+    },
+    {
+      "file": "computer-symbolic.svg",
+      "requestedPath": "Flat-Remix-Blue-Dark/devices/symbolic/computer-symbolic.svg",
+      "resolvedPath": "Flat-Remix-Blue-Dark/devices/symbolic/computer-symbolic.svg",
+      "sha256": "957a42edea790bb4908c8c158d8eae1be0eefdaa05dda14b38c12a2d07ebc436"
+    }
+  ]
+}

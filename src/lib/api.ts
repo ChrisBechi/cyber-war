@@ -6,7 +6,7 @@ export const nodeSchema = z.object({
   id: z.string(),
   parentId: z.string().nullable(),
   name: z.string(),
-  kind: z.enum(['file', 'directory']),
+  kind: z.enum(['file', 'directory', 'symlink']),
   content: z.string(),
   blob: z
     .object({ hash: z.string(), size: z.number().int().nonnegative(), mime: z.string() })
@@ -34,7 +34,12 @@ export const domainRecordSchema = z.object({
   organization: z.string(),
   businessType: z.string(),
   registeredAtSeconds: z.number().int().nonnegative(),
-  expiresAtSeconds: z.number().int().nonnegative(),
+  // Permanent NPC registrations use a Rust u64 sentinel in existing saves.
+  expiresAtSeconds: z
+    .number()
+    .nonnegative()
+    .refine(Number.isInteger)
+    .transform((value) => Math.min(value, Number.MAX_SAFE_INTEGER)),
   autoRenew: z.boolean(),
   primary: z.boolean(),
   redirectTo: z.string().nullable(),
@@ -142,6 +147,12 @@ export const onionServiceInfoSchema = z.object({
 });
 export type OnionServiceInfo = z.infer<typeof onionServiceInfoSchema>;
 export const worldSchema = z.object({
+  packages: z
+    .object({
+      managed: z.array(z.string()),
+      installed: z.record(z.string(), z.object({ status: z.string() })),
+    })
+    .optional(),
   nickname: z.string(),
   hostname: z.string(),
   session: z.number(),
@@ -163,7 +174,13 @@ export const worldSchema = z.object({
   }),
   terminal: z.object({ cwd: z.string(), user: z.string(), host: z.string().nullable() }),
   messages: z.array(
-    z.object({ id: z.string(), contact: z.string(), text: z.string(), read: z.boolean() }),
+    z.object({
+      id: z.string(),
+      contact: z.string(),
+      text: z.string(),
+      read: z.boolean(),
+      attachments: z.array(z.string()).optional(),
+    }),
   ),
   contacts: z.array(z.string()),
   inventory: z.array(z.string()),
@@ -275,6 +292,8 @@ export const nanoLaunchSchema = z.object({
 });
 export type NanoLaunch = z.infer<typeof nanoLaunchSchema>;
 export const commandSchema = z.object({
+  shellIncomplete: z.boolean().optional(),
+  ordered: z.array(z.tuple([z.union([z.literal(1), z.literal(2)]), z.string()])).optional(),
   stdout: z.string(),
   stderr: z.string(),
   cwd: z.string(),
@@ -283,6 +302,8 @@ export const commandSchema = z.object({
   exitCode: z.number(),
   interactive: nanoLaunchSchema.nullable().optional(),
   launchApp: z.string().nullable().optional(),
+  archivePrompt: z.object({ message: z.string(), secret: z.boolean() }).nullable().optional(),
+  archiveJob: z.number().nullable().optional(),
 });
 export const pageSchema = z.object({
   title: z.string(),

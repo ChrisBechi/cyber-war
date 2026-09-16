@@ -2,7 +2,8 @@ import type { VfsNode } from './api';
 
 export type FileKind =
   'text' | 'script' | 'audio' | 'video' | 'image' | 'archive' | 'document' | 'unknown';
-export type FileApplication = 'editor' | 'terminal' | 'media-player' | 'image-viewer';
+export type FileApplication =
+  'editor' | 'terminal' | 'media-player' | 'image-viewer' | 'archive-viewer' | 'package-installer';
 
 export type FileAssociation = {
   kind: FileKind;
@@ -62,7 +63,7 @@ const imageExtensions = new Set([
   'tif',
   'tiff',
 ]);
-const archiveExtensions = new Set(['zip', 'tar', 'gz', 'bz2', 'xz', '7z', 'rar', 'deb', 'iso']);
+const archiveExtensions = new Set(['zip', 'tar', 'gz', 'bz2', 'xz', 'tgz', 'tbz2', 'txz']);
 
 export function extensionOf(path: string): string {
   const name = path.split('/').pop() ?? path;
@@ -77,6 +78,42 @@ export function associationForPath(
   // A renamed binary keeps its declared type; extensions must not override it.
   const extension = node?.blob ? '' : extensionOf(path);
   const mime = node?.blob?.mime ?? node?.metadata.mime ?? '';
+  if (extension === 'deb' || mime === 'application/vnd.debian.binary-package') {
+    return {
+      kind: 'document',
+      application: 'package-installer',
+      label: 'Instalador de pacotes Debian',
+      mime: 'application/vnd.debian.binary-package',
+      support: 'preview-conditional',
+    };
+  }
+  if (
+    archiveExtensions.has(extension) ||
+    [
+      'application/zip',
+      'application/x-tar',
+      'application/gzip',
+      'application/x-bzip2',
+      'application/x-xz',
+    ].includes(mime)
+  ) {
+    return {
+      kind: 'archive',
+      application: 'archive-viewer',
+      label: 'Archive Viewer',
+      mime,
+      support: 'preview-conditional',
+    };
+  }
+  if (['7z', 'rar', 'iso'].includes(extension)) {
+    return {
+      kind: 'archive',
+      application: 'editor',
+      label: 'Formato de archive ainda não suportado',
+      mime,
+      support: 'unsupported',
+    };
+  }
   if (node?.blob && !/^(audio|video|image)\//.test(mime)) {
     return {
       kind: 'unknown',

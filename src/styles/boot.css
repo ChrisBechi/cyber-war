@@ -208,10 +208,18 @@ button.boot-screen:hover {
   padding: 6vh 6vw;
 }
 
-.game-logo {
-  width: min(620px, 68vw);
-  height: auto;
+.press-start-title {
+  font:
+    700 clamp(36px, 8vw, 112px) / 1.1 Consolas,
+    monospace;
+  letter-spacing: -0.055em;
+  color: #e6eee9;
+  white-space: nowrap;
   animation: boot-fade-in 1600ms ease both;
+}
+
+.game-title-cursor {
+  color: var(--boot-green);
 }
 
 .press-start-prompt {
@@ -305,9 +313,13 @@ button.boot-screen:hover {
 }
 
 .front-wordmark {
-  width: min(570px, 100%);
-  height: auto;
-  margin-left: -7px;
+  margin: 0;
+  font:
+    700 clamp(36px, 6.5vw, 88px) / 1.1 Consolas,
+    monospace;
+  letter-spacing: -0.055em;
+  color: #e6eee9;
+  white-space: nowrap;
 }
 
 .front-tagline {
@@ -937,7 +949,7 @@ button.boot-screen:hover {
   }
 
   .front-wordmark {
-    max-width: 440px;
+    font-size: clamp(36px, 6vw, 72px);
   }
 
   .front-tagline {

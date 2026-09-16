@@ -14,10 +14,16 @@ name = "game-hacker"
 path = "src/main.rs"
 
 [build-dependencies]
+embed-resource = "3.0.11"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
 base64 = "0.22"
+bzip2 = "0.6.1"
+flate2 = { version = "1.1.10", default-features = false, features = ["rust_backend"] }
+liblzma = { version = "0.4.8", default-features = false, features = ["static"] }
+tar = { version = "0.4.46", default-features = false }
+zip = { version = "8.6.0", default-features = false, features = ["deflate-flate2", "aes-crypto"] }
 chrono = { version = "0.4", features = ["serde"] }
 parking_lot = "0.12"
 regex = "1.13.1"

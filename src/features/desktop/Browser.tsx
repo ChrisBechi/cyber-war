@@ -6,6 +6,10 @@ import { useDismissOutside } from '../../lib/use-dismiss-outside';
 import { ChromeIcon } from './ChromeIcon';
 import { KaliIcon } from './KaliIcon';
 import { BrowserContent } from './BrowserContent';
+import { BrowserNetworkError } from './BrowserNetworkError';
+import { BrowserLocalContent } from './BrowserLocalContent';
+import { BrowserDeveloperTools } from './BrowserDeveloperTools';
+import type { DeveloperTab } from './BrowserDeveloperTools';
 import { addressKey, canonicalAddress, isOnionAddress, readPreferences } from './browser-model';
 import type { BrowserPreferences } from './browser-model';
 import { useBrowserTabs } from './use-browser-tabs';
@@ -41,6 +45,8 @@ export function Browser({
   const [actionPending, setActionPending] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [panel, setPanel] = useState<Panel>('');
+  const [developerTab, setDeveloperTab] = useState<DeveloperTab>('console');
+  const [developerOpen, setDeveloperOpen] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const [bookmarkDraft, setBookmarkDraft] = useState<{
     index: number;
@@ -50,6 +56,7 @@ export function Browser({
   const [homeDraft, setHomeDraft] = useState(preferences.home);
   const root = useRef<HTMLDivElement>(null);
   const popup = useRef<HTMLDivElement>(null);
+  const pageElement = useRef<HTMLDivElement>(null);
   const addressInput = useRef<HTMLInputElement>(null);
   const addressBox = useRef<HTMLDivElement>(null);
   const mounted = useRef(true);
@@ -118,6 +125,12 @@ export function Browser({
     }
     setPanel((old) => (old === value ? '' : value));
   };
+  const openDeveloper = (tabName: DeveloperTab = 'console') => {
+    setDeveloperTab(tabName);
+    setDeveloperOpen(true);
+    setPanel('');
+    setSuggesting(false);
+  };
   const go = (address: string, tabId = tab.id, index?: number) => {
     setPanel('');
     setSuggesting(false);
@@ -149,6 +162,11 @@ export function Browser({
       return;
     }
     const captured = tab;
+    const finishRequest = browser.beginRequest(
+      captured.id,
+      captured.address,
+      captured.page!.action!,
+    );
     setActionPending(true);
     try {
       await perform(
@@ -156,6 +174,7 @@ export function Browser({
         { action: captured.page!.action, value: captured.value },
         emptySchema,
       );
+      finishRequest('success');
       // An action started in one tab must not replace a later navigation or another tab.
       if (mounted.current) {
         let reload = false;
@@ -170,6 +189,7 @@ export function Browser({
         }
       }
     } catch (error) {
+      finishRequest('error', String(error).replace(/^Error:\s*/, ''));
       if (mounted.current) {
         change((items) =>
           items.map((item) =>
@@ -207,6 +227,31 @@ export function Browser({
       className={`browser browser-shell${torMode ? ' tor-browser' : ''}`}
       ref={root}
       onKeyDown={(event) => {
+        if (
+          event.key === 'F12' ||
+          (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'i')
+        ) {
+          event.preventDefault();
+          setDeveloperOpen((open) => !open);
+          setPanel('');
+          setSuggesting(false);
+        }
+        if (event.ctrlKey && event.key.toLowerCase() === 'u') {
+          event.preventDefault();
+          if (tab.address && !tab.loading) {
+            openDeveloper('source');
+          }
+        }
+        if (event.key === 'F5' || (event.ctrlKey && event.key.toLowerCase() === 'r')) {
+          event.preventDefault();
+          if (tab.address && !tab.loading) {
+            go(tab.address, tab.id, tab.index);
+          }
+        }
+        if (event.ctrlKey && event.key.toLowerCase() === 'h') {
+          event.preventDefault();
+          openPanel('history');
+        }
         if (event.key === 'Escape') {
           setPanel('');
           setSuggesting(false);
@@ -607,6 +652,18 @@ export function Browser({
                 <ChromeIcon name="extensions" />
                 Extensões
               </button>
+              <button aria-label="Modo desenvolvedor" onClick={() => openDeveloper()}>
+                <ChromeIcon name="settings" />
+                Modo desenvolvedor<kbd>F12</kbd>
+              </button>
+              <button
+                aria-label="Exibir código fonte"
+                disabled={!tab.address || tab.loading}
+                onClick={() => openDeveloper('source')}
+              >
+                <ChromeIcon name="settings" />
+                Exibir código fonte<kbd>Ctrl+U</kbd>
+              </button>
             </>
           )}
           {panel === 'tabs' && (
@@ -848,26 +905,63 @@ export function Browser({
             Carregando página virtual…
           </div>
         ) : (
-          <div className="browser-zoom-page" style={{ zoom: `${preferences.zoom}%` }}>
-            <BrowserContent
-              address={addressKey(tab.address)}
-              page={tab.page}
-              error={tab.error}
-              value={tab.value}
-              busy={actionPending}
-              navigate={go}
-              setValue={(value) =>
-                change((items) =>
-                  items.map((item) => (item.id === tab.id ? { ...item, value } : item)),
-                )
-              }
-              action={() => {
-                void action();
-              }}
-            />
+          <div
+            ref={pageElement}
+            className="browser-zoom-page"
+            style={{ zoom: `${preferences.zoom}%` }}
+          >
+            {tab.localFile && tab.page ? (
+              <BrowserLocalContent file={tab.localFile} title={tab.page.title} />
+            ) : /^file:/i.test(tab.address) && tab.error ? (
+              <div className="browser-local-file" role="alert">
+                <h1>Arquivo indisponível</h1>
+                <p>{tab.error}</p>
+                <button onClick={() => go(tab.address, tab.id, tab.index)}>Tentar novamente</button>
+              </div>
+            ) : !tab.page && tab.error && !torOnly ? (
+              <BrowserNetworkError
+                key={`${tab.id}:${tab.request}`}
+                address={tab.address}
+                error={tab.error}
+                retry={() => go(tab.address, tab.id, tab.index)}
+              />
+            ) : (
+              <BrowserContent
+                address={addressKey(tab.address)}
+                page={tab.page}
+                error={tab.error}
+                value={tab.value}
+                busy={actionPending}
+                navigate={go}
+                setValue={(value) =>
+                  change((items) =>
+                    items.map((item) => (item.id === tab.id ? { ...item, value } : item)),
+                  )
+                }
+                action={() => {
+                  void action();
+                }}
+              />
+            )}
           </div>
         )}
       </div>
+      {developerOpen && (
+        <BrowserDeveloperTools
+          activeTab={developerTab}
+          setActiveTab={setDeveloperTab}
+          tab={tab}
+          tabs={tabs}
+          history={browser.history}
+          preferences={preferences}
+          savedPreferences={rawPreferences}
+          clearHistory={browser.clearHistory}
+          requests={browser.requests}
+          clearRequests={browser.clearRequests}
+          pageElement={pageElement}
+          onClose={() => setDeveloperOpen(false)}
+        />
+      )}
     </div>
   );
 }

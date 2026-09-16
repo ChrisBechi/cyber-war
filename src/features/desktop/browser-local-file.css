@@ -1,0 +1,32 @@
+.browser-local-file {
+  min-height: 100%;
+  padding: 20px;
+  background: #f7f7f7;
+  color: #24272a;
+}
+
+.browser-local-file h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.browser-local-file p {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.browser-local-file pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    13px/1.5 Consolas,
+    monospace;
+}
+
+.browser-local-file img,
+.browser-local-file video,
+.browser-local-file audio {
+  display: block;
+  max-width: 100%;
+}

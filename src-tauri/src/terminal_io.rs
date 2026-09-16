@@ -17,6 +17,10 @@ fn output_limit(size: usize) -> GameResult<()> {
 
 #[derive(Default, Debug)]
 pub struct Output {
+    /// Ordered writes used when a shell duplicates stdout/stderr or runs scripts.
+    pub ordered: Vec<(u8, String)>,
+    pub archive_job: Option<u32>,
+    pub binary: Option<Vec<u8>>,
     pub stdout: String,
     pub stderr: String,
     pub status: i32,
@@ -30,9 +34,29 @@ impl Output {
     }
     pub(crate) fn error(&mut self, command: &str, file: &str, error: impl std::fmt::Display) {
         self.stderr
-            .push_str(&format!("{command}: {file}: {error}\n"));
+            .push_str(&format!("{command}: {file}: {}\n", error_reason(error)));
         self.status = 1;
     }
+}
+
+pub(crate) fn error_reason(error: impl std::fmt::Display) -> String {
+    let error = error.to_string();
+    for (ending, message) in [
+        ("no such file or directory", "No such file or directory"),
+        ("parent does not exist", "No such file or directory"),
+        ("permission denied", "Permission denied"),
+        ("is a directory", "Is a directory"),
+        ("not a directory", "Not a directory"),
+        (
+            "not a directory (symlink traversal is not allowed)",
+            "Not a directory",
+        ),
+    ] {
+        if error == ending || error.ends_with(&format!(": {ending}")) {
+            return message.into();
+        }
+    }
+    error
 }
 
 #[derive(Default)]
@@ -67,6 +91,14 @@ pub(crate) fn options(
         } else if arg == "--help" {
             parsed.help = true;
         } else if let Some(long) = arg.strip_prefix("--") {
+            if let Some((_, flag)) = aliases
+                .iter()
+                .find(|(alias, _)| alias.contains('=') && *alias == long)
+            {
+                parsed.flags.push(*flag);
+                index += 1;
+                continue;
+            }
             let (name, attached) = long
                 .split_once('=')
                 .map_or((long, None), |(n, v)| (n, Some(v)));
@@ -76,7 +108,7 @@ pub(crate) fn options(
                 .map(|(_, flag)| *flag)
                 .ok_or_else(|| {
                     domain(format!(
-                        "{command}: option '{arg}' is not supported by the virtual subset"
+                        "{command}: unrecognized option '{arg}'\nTry '{command} --help' for more information."
                     ))
                 })?;
             if values.contains(flag) {
@@ -119,7 +151,7 @@ pub(crate) fn options(
                     parsed.flags.push(flag);
                 } else {
                     return Err(domain(format!(
-                        "{command}: option '-{flag}' is not supported by the virtual subset"
+                        "{command}: invalid option -- '{flag}'\nTry '{command} --help' for more information."
                     )));
                 }
             }
@@ -136,20 +168,20 @@ pub fn manual(command: &str) -> Option<String> {
         "cat" => "cat [-nbEsTu] [--number] [--number-nonblank] [--show-ends] [--show-tabs] [--squeeze-blank] [--] FILE...",
         "head" => "head [-qv] [-n N|-n -N|-c N|-c -N] [--lines=N|--bytes=N] [--] FILE...",
         "tail" => "tail [-qv] [-n N|-n +N|-c N|-c +N] [--lines=N|--bytes=N] [--] FILE...",
-        "cp" => "cp [-rRnv] [--recursive] [--no-clobber] [--verbose] [--] SOURCE DESTINATION",
-        "mv" => "mv [-nv] [--no-clobber] [--verbose] [--] SOURCE DESTINATION",
-        "rm" => "rm [-rRfv] [--recursive] [--force] [--verbose] [--] PATH...",
+        "cp" => "cp [-rRnvfuTP] [-t DIRECTORY] [--recursive] [--no-clobber] [--verbose] [--force] [--no-dereference] [--target-directory=DIRECTORY] [--no-target-directory] [--version] [--] SOURCE... DESTINATION",
+        "mv" => "mv [-nvfuT] [-t DIRECTORY] [--no-clobber] [--verbose] [--force] [--target-directory=DIRECTORY] [--no-target-directory] [--version] [--] SOURCE... DESTINATION",
+        "rm" => "rm [-rRfvd] [--recursive] [--force] [--verbose] [--dir] [--version] [--] PATH...",
         _ => return None,
     };
     let detail = match command {
         "pwd" | "cd" => "-L/-P are equivalent: this VFS has no symbolic links. cd updates PWD/OLDPWD; cd - prints the previous directory. CDPATH is not implemented.",
         "cat" => "-b overrides -n. Numbering continues across files. Newlines and tabs are preserved unless explicitly displayed/transformed. -u is accepted with no buffering effect. -v/-e/-t/-A are not implemented.",
         "head" | "tail" => "Default: 10 lines. -q/--quiet/--silent suppress headers; -v/--verbose always shows headers. Decimal counts only. -n and -c accept attached or separate counts; the last one wins. Legacy -N is accepted only first. No follow mode, suffix multipliers or zero delimiters. Byte slices splitting UTF-8 cannot be represented by this text VFS and return an explicit error.",
-        "cp" | "mv" => "Two operands only. -n skips existing targets; -v reports changes. Existing regular files may be replaced; existing directory merging and interactive prompts are not implemented. Operations are atomic in the game: errors roll back this command. Metadata is virtual, not a complete POSIX inode implementation.",
-        "rm" => "Permanent VFS deletion, never GUI trash. -f ignores missing files but not permissions. -r/-R is required for directories. Virtual root and trash infrastructure are protected. Atomic command rollback on errors.",
+        "cp" | "mv" => "Multiple sources require a destination directory. -t selects it explicitly; -T treats the destination as an exact path. cp -r/-R merges directories; mv replaces only empty destination directories. -n skips existing targets; -u skips targets at least as new; -v reports changes. cp -f retries unwritable destinations; mv uses the last -f/-n. Successful operands survive other operand failures. mv preserves virtual metadata and needs parent permissions, not file read access. cp preserves binary/media content, applies virtual umask 022, and creates fresh timestamps. cp -P and recursive copies preserve links; non-recursive cp follows final source links only. Interactive input, metadata preservation flags, backup flags, symlinked ancestors/destinations and full version banners remain unsupported. Recursion is bounded to 256 levels. A failed force retry is atomic per file.",
+        "rm" => "Permanent VFS deletion, never GUI trash. -f ignores missing files but not permissions. -r/-R traverses directories without following symbolic links; -d removes empty directories. Each entry checks its parent permissions. Successful removals survive errors on other entries. Virtual root, dot/dot-dot and trash infrastructure are protected. Recursion is bounded to 256 levels. Interactive prompts, sticky bits and full version banners remain unsupported. Removing the current directory resets the game session to its virtual home.",
         _ => "",
     };
-    Some(format!("{command}(1) — CYBER WAR virtual subset\n\nSYNOPSIS\n  {syntax}\n\n{detail}\n\nOnly the selected local/SSH virtual filesystem is used.\nInteractive stdin and pipelines are not implemented. Unsupported options return an error.\n"))
+    Some(format!("{command}(1) â€” CYBER WAR virtual subset\n\nSYNOPSIS\n  {syntax}\n\n{detail}\n\nOnly the selected local/SSH virtual filesystem is used.\nText stdin from pipes and input redirections is supported; interactive stdin is not implemented. Unsupported options return an error.\n"))
 }
 
 pub fn execute(
@@ -162,8 +194,10 @@ pub fn execute(
         "pwd" | "cd" => Some(navigation(world, command, args, actor)),
         "cat" => Some(cat(world, args, actor)),
         "head" | "tail" => Some(slice(world, command, args, actor)),
-        "cp" | "mv" => Some(transfer(world, command, args, actor)),
-        "rm" => Some(remove(world, args, actor)),
+        "cp" | "mv" => Some(crate::terminal_transfer::execute(
+            world, command, args, actor,
+        )),
+        "rm" => Some(crate::terminal_remove::execute(world, args, actor)),
         _ => None,
     }
 }
@@ -230,9 +264,9 @@ fn navigation(
 
 fn read(world: &WorldState, file: &str, actor: &str) -> GameResult<String> {
     if file == "-" {
-        return Err(domain(
-            "interactive stdin is not implemented by this virtual terminal",
-        ));
+        return world.terminal.stdin.clone().ok_or_else(|| {
+            domain("interactive stdin is not implemented by this virtual terminal")
+        });
     }
     world
         .fs()?
@@ -240,7 +274,7 @@ fn read(world: &WorldState, file: &str, actor: &str) -> GameResult<String> {
 }
 
 fn cat(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
-    let opts = options(
+    let mut opts = options(
         "cat",
         args,
         "nbEsTu",
@@ -256,63 +290,80 @@ fn cat(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
     if opts.help {
         return Ok(Output::success(manual("cat").unwrap_or_default()));
     }
+    if opts.files.is_empty() && world.terminal.stdin.is_some() {
+        opts.files.push("-".into());
+    }
     if opts.files.is_empty() {
         return Err(domain(
             "cat: interactive stdin is not implemented; provide FILE operands",
         ));
     }
     let mut output = Output::default();
-    let mut text = String::new();
-    for file in &opts.files {
-        match read(world, file, actor) {
-            Ok(content) => {
-                output_limit(text.len() + content.len())?;
-                text.push_str(&content);
-            }
-            Err(error) => output.error("cat", file, error),
-        }
-    }
+    let mut stdin_consumed = false;
     let mut number = 1;
     let mut blank_before = false;
-    for line in text.split_inclusive('\n') {
-        let terminated = line.ends_with('\n');
-        let body = if terminated {
-            &line[..line.len() - 1]
-        } else {
-            line
-        };
-        let blank = body.is_empty();
-        if opts.has('s') && blank && blank_before {
-            continue;
-        }
-        blank_before = blank;
-        if (opts.has('b') && !blank) || (opts.has('n') && !opts.has('b')) {
-            output.stdout.push_str(&format!("{number:>6}\t"));
-            number += 1;
-        }
-        let mut body = if opts.has('T') {
-            body.replace('\t', "^I")
-        } else {
-            body.into()
-        };
-        if opts.has('E') && terminated && body.ends_with('\r') {
-            body.pop();
-            body.push_str("^M");
-        }
-        output.stdout.push_str(&body);
-        if terminated {
-            if opts.has('E') {
-                output.stdout.push('$');
+    let mut line_start = true;
+    for file in &opts.files {
+        if file == "-" {
+            if stdin_consumed {
+                continue;
             }
-            output.stdout.push('\n');
+            stdin_consumed = true;
         }
-        output_limit(output.stdout.len())?;
+        let text = match read(world, file, actor) {
+            Ok(text) => text,
+            Err(error) => {
+                let offset = output.stderr.len();
+                output.error("cat", file, error);
+                output.ordered.push((2, output.stderr[offset..].to_owned()));
+                continue;
+            }
+        };
+        let offset = output.stdout.len();
+        for line in text.split_inclusive('\n') {
+            let terminated = line.ends_with('\n');
+            let body = if terminated {
+                &line[..line.len() - 1]
+            } else {
+                line
+            };
+            let blank = line_start && body.is_empty();
+            if opts.has('s') && blank && blank_before {
+                continue;
+            }
+            blank_before = blank;
+            if line_start && ((opts.has('b') && !blank) || (opts.has('n') && !opts.has('b'))) {
+                output.stdout.push_str(&format!("{number:>6}\t"));
+                number += 1;
+            }
+            let mut body = if opts.has('T') {
+                body.replace('\t', "^I")
+            } else {
+                body.into()
+            };
+            if opts.has('E') && terminated && body.ends_with('\r') {
+                body.pop();
+                body.push_str("^M");
+            }
+            output.stdout.push_str(&body);
+            if terminated {
+                if opts.has('E') {
+                    output.stdout.push('$');
+                }
+                output.stdout.push('\n');
+            }
+            line_start = terminated;
+            output_limit(output.stdout.len())?;
+        }
+        if output.stdout.len() > offset {
+            output.ordered.push((1, output.stdout[offset..].to_owned()));
+        }
     }
     Ok(output)
 }
 
 fn slice(world: &WorldState, command: &str, args: &[String], actor: &str) -> GameResult<Output> {
-    let opts = options(
+    let mut opts = options(
         command,
         args,
         "qv",
@@ -327,6 +378,9 @@ fn slice(world: &WorldState, command: &str, args: &[String], actor: &str) -> Gam
     )?;
     if opts.help {
         return Ok(Output::success(manual(command).unwrap_or_default()));
+    }
+    if opts.files.is_empty() && world.terminal.stdin.is_some() {
+        opts.files.push("-".into());
     }
     if opts.files.is_empty() {
         return Err(domain(format!(
@@ -353,7 +407,14 @@ fn slice(world: &WorldState, command: &str, args: &[String], actor: &str) -> Gam
         .map_or(opts.files.len() > 1, |flag| *flag == 'v');
     let mut output = Output::default();
     let mut emitted_header = false;
+    let mut stdin_consumed = false;
     for file in &opts.files {
+        if file == "-" {
+            if stdin_consumed {
+                continue;
+            }
+            stdin_consumed = true;
+        }
         let result = read(world, file, actor).and_then(|content| {
             let lines: Vec<&str> = content.split_inclusive('\n').collect();
             let length = if unit == 'n' {
@@ -387,183 +448,27 @@ fn slice(world: &WorldState, command: &str, args: &[String], actor: &str) -> Gam
         });
         match result {
             Ok(text) => {
+                let offset = output.stdout.len();
                 output_limit(output.stdout.len() + text.len() + file.len() + 12)?;
                 if headers {
                     if emitted_header {
                         output.stdout.push('\n');
                     }
-                    output.stdout.push_str(&format!("==> {file} <==\n"));
+                    output.stdout.push_str(&format!(
+                        "==> {} <==\n",
+                        if file == "-" { "standard input" } else { file }
+                    ));
                     emitted_header = true;
                 }
                 output.stdout.push_str(&text);
+                output.ordered.push((1, output.stdout[offset..].to_owned()));
             }
-            Err(error) => output.error(command, file, error),
+            Err(error) => {
+                let offset = output.stderr.len();
+                output.error(command, file, error);
+                output.ordered.push((2, output.stderr[offset..].to_owned()));
+            }
         }
     }
     Ok(output)
-}
-
-fn transfer(
-    world: &mut WorldState,
-    command: &str,
-    args: &[String],
-    actor: &str,
-) -> GameResult<Output> {
-    let mut aliases = vec![("no-clobber", 'n'), ("verbose", 'v')];
-    if command == "cp" {
-        aliases.push(("recursive", 'r'));
-    }
-    let opts = options(
-        command,
-        args,
-        if command == "cp" { "rRnv" } else { "nv" },
-        "",
-        &aliases,
-    )?;
-    if opts.help {
-        return Ok(Output::success(manual(command).unwrap_or_default()));
-    }
-    if opts.files.len() != 2 {
-        return Err(domain(format!(
-            "{command}: this subset requires SOURCE and DESTINATION"
-        )));
-    }
-    let source = normalize(&opts.files[0], &world.terminal.cwd)?;
-    let destination = normalize(&opts.files[1], &world.terminal.cwd)?;
-    let original = world.fs()?.stat(&source, actor)?.clone();
-    if command == "cp" && original.kind == "directory" && !opts.has('r') && !opts.has('R') {
-        return Err(domain("cp: omitting directory; use -r"));
-    }
-    let target = if world
-        .fs()?
-        .stat(&destination, actor)
-        .is_ok_and(|node| node.kind == "directory")
-    {
-        format!("{}/{}", destination.trim_end_matches('/'), original.name)
-    } else {
-        destination.clone()
-    };
-    if source == target || target.starts_with(&format!("{source}/")) {
-        return Err(domain(format!(
-            "{command}: source and destination must be different and not nested"
-        )));
-    }
-    let existing = world.fs()?.nodes.get(&target).cloned();
-    if existing.is_some() {
-        world.fs()?.stat(&target, actor)?;
-    }
-    if existing.is_some() && opts.has('n') {
-        return Ok(Output::default());
-    }
-    if let Some(existing) = existing {
-        if existing.kind != "file" || original.kind != "file" {
-            return Err(domain(format!(
-                "{command}: replacing or merging existing directories is not implemented"
-            )));
-        }
-        world.fs()?.readable(&source, actor)?;
-        if command == "cp" {
-            if let Some(blob) = &original.blob {
-                world.fs_mut()?.write_blob(&target, blob.clone(), actor)?;
-            } else {
-                world.fs_mut()?.write(&target, &original.content, actor)?;
-            }
-            if let Some(node) = world.fs_mut()?.nodes.get_mut(&target) {
-                node.metadata = original.metadata;
-            }
-        } else {
-            world.fs_mut()?.remove(&target, actor, false)?;
-            world
-                .fs_mut()?
-                .transfer(&source, &target, actor, true, false)?;
-        }
-    } else {
-        world.fs_mut()?.transfer(
-            &source,
-            &target,
-            actor,
-            command == "mv",
-            opts.has('r') || opts.has('R'),
-        )?;
-    }
-    Ok(Output::success(if opts.has('v') {
-        let display_target = if target != destination {
-            format!("{}/{}", opts.files[1].trim_end_matches('/'), original.name)
-        } else {
-            opts.files[1].clone()
-        };
-        format!(
-            "{}'{}' -> '{}'\n",
-            if command == "mv" { "renamed " } else { "" },
-            opts.files[0],
-            display_target
-        )
-    } else {
-        String::new()
-    }))
-}
-
-fn remove(world: &mut WorldState, args: &[String], actor: &str) -> GameResult<Output> {
-    let opts = options(
-        "rm",
-        args,
-        "rRfv",
-        "",
-        &[("recursive", 'r'), ("force", 'f'), ("verbose", 'v')],
-    )?;
-    if opts.help {
-        return Ok(Output::success(manual("rm").unwrap_or_default()));
-    }
-    if opts.files.is_empty() && !opts.has('f') {
-        return Err(domain("rm: missing operand"));
-    }
-    let mut output = String::new();
-    for file in &opts.files {
-        let path = normalize(file, &world.terminal.cwd)?;
-        if crate::vfs::VirtualFileSystem::is_trash_container(&path) {
-            return Err(domain("rm: virtual trash infrastructure is protected"));
-        }
-        // Check traversal even under -f, which must not turn permission errors into success.
-        if opts.has('f') && !world.fs()?.path_exists(&path, actor)? {
-            continue;
-        }
-        let node = world.fs()?.stat(&path, actor)?.clone();
-        let recursive = opts.has('r') || opts.has('R');
-        if node.kind == "directory" && !recursive {
-            return Err(domain(format!(
-                "rm: cannot remove '{file}': Is a directory"
-            )));
-        }
-        let mut removed = if opts.has('v') {
-            world
-                .fs()?
-                .nodes
-                .values()
-                .filter(|node| node.id == path || node.id.starts_with(&format!("{path}/")))
-                .map(|node| (node.id.clone(), node.kind == "directory"))
-                .collect::<Vec<_>>()
-        } else {
-            Vec::new()
-        };
-        world.fs_mut()?.remove(&path, actor, recursive)?;
-        removed.sort_by(|a, b| {
-            b.0.matches('/')
-                .count()
-                .cmp(&a.0.matches('/').count())
-                .then_with(|| a.0.cmp(&b.0))
-        });
-        for (item, directory) in removed {
-            output.push_str(&format!(
-                "removed {}'{}{}'\n",
-                if directory { "directory " } else { "" },
-                file,
-                &item[path.len()..]
-            ));
-        }
-    }
-    if world.fs()?.directory(&world.terminal.cwd, actor).is_err() {
-        world.terminal.cwd = HOME.into();
-        world.terminal.env.insert("PWD".into(), HOME.into());
-    }
-    Ok(Output::success(output))
 }

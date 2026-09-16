@@ -1,78 +1,1056 @@
-import{GameWorld,LEVELS,WEAPONS,clamp}from'./engine.js?v=13';
-import{Renderer,loadAssets,INVENTORY}from'./render.js?v=13';
-import{AudioSystem}from'./audio.js?v=13';
-import{CHARACTERS,getCharacter,selectCharacter}from'./characters.js?v=13';
-import{POSES,RUN_FRAMES}from'./animation.js?v=13';
-import{ITEMS,loadProfile,saveProfile,purchase,equip}from'./store.js?v=13';
+import { GameWorld, LEVELS, WEAPONS, clamp } from './engine.js?v=13';
+import { Renderer, loadAssets, INVENTORY } from './render.js?v=13';
+import { AudioSystem } from './audio.js?v=13';
+import { CHARACTERS, getCharacter, selectCharacter } from './characters.js?v=13';
+import { POSES, RUN_FRAMES } from './animation.js?v=13';
+import { ITEMS, loadProfile, saveProfile, purchase, equip } from './store.js?v=13';
 
-const $=id=>document.getElementById(id),audio=new AudioSystem(),profile=loadProfile();
-let state='loading',screen='menu',world=null,renderer=null,assets=null,introTime=0,introSlide=-1,menuTime=0,lastTime=0,accumulator=0,shopReturn='menu',shopCategory='roupas',chapterTimer=0,radioTimer=0,toastTimer=0,hudElapsed=0;
-let selectionIntro=true,entryCarry={};
-let keys=new Set(),edges=new Set(),mouseDown=false,mouseInside=false,mousePoint={x:0,y:0},touch=new Set(),touchEdges=new Set(),isTouch=false,konami=[];
-const INTRO=[
- {tag:'TRANSMISSÃO INTERCEPTADA // 04:17',title:'A CIDADE APAGOU.<br>AS MÁQUINAS NÃO.',text:'Há seis horas, a inteligência HELIX cortou todas as comunicações. Dez milhões de pessoas desapareceram do sinal.'},
- {tag:'ARQUIVO DA AGENTE // KAIA 09',title:'UMA AGENTE.<br>UM SINAL RESTANTE.',text:'Você é Kaia, a última operadora fora da rede. Lira encontrou uma frequência de emergência. Ela leva direto ao Núcleo Zero.'},
- {tag:'PROTOCOLO VIGÍLIA // INICIADO',title:'DEVOLVA A CIDADE<br>AO AMANHECER.',text:'Recupere a torre. Desative a usina. Derrube o NEXUS. E não se esqueça: mesmo na noite mais longa, alguém precisa ficar de vigília.'}
+const $ = (id) => document.getElementById(id),
+  audio = new AudioSystem(),
+  profile = loadProfile();
+let state = 'loading',
+  screen = 'menu',
+  world = null,
+  renderer = null,
+  assets = null,
+  introTime = 0,
+  introSlide = -1,
+  menuTime = 0,
+  lastTime = 0,
+  accumulator = 0,
+  shopReturn = 'menu',
+  shopCategory = 'roupas',
+  chapterTimer = 0,
+  radioTimer = 0,
+  toastTimer = 0,
+  hudElapsed = 0;
+let selectionIntro = true,
+  entryCarry = {};
+let keys = new Set(),
+  edges = new Set(),
+  mouseDown = false,
+  mouseInside = false,
+  mousePoint = { x: 0, y: 0 },
+  touch = new Set(),
+  touchEdges = new Set(),
+  isTouch = false,
+  konami = [];
+const INTRO = [
+  {
+    tag: 'TRANSMISSÃO INTERCEPTADA // 04:17',
+    title: 'A CIDADE APAGOU.<br>AS MÁQUINAS NÃO.',
+    text: 'Há seis horas, a inteligência HELIX cortou todas as comunicações. Dez milhões de pessoas desapareceram do sinal.',
+  },
+  {
+    tag: 'ARQUIVO DA AGENTE // KAIA 09',
+    title: 'UMA AGENTE.<br>UM SINAL RESTANTE.',
+    text: 'Você é Kaia, a última operadora fora da rede. Lira encontrou uma frequência de emergência. Ela leva direto ao Núcleo Zero.',
+  },
+  {
+    tag: 'PROTOCOLO VIGÍLIA // INICIADO',
+    title: 'DEVOLVA A CIDADE<br>AO AMANHECER.',
+    text: 'Recupere a torre. Desative a usina. Derrube o NEXUS. E não se esqueça: mesmo na noite mais longa, alguém precisa ficar de vigília.',
+  },
 ];
-const pad=n=>String(Math.floor(n)).padStart(2,'0'),formatTime=n=>pad(n/60)+':'+pad(n%60),scoreText=n=>String(Math.floor(n)).padStart(6,'0');
-function persist(){const ok=saveProfile(profile);if($('saveStatus'))$('saveStatus').textContent=ok?'Progresso salvo neste navegador.':'Armazenamento indisponível. Compras valem nesta sessão.';updateCredits();}
-function showScreen(id){document.querySelectorAll('.screen').forEach(el=>el.classList.toggle('hidden',el.id!==id));screen=id;$('app').classList.toggle('in-game',id==='play');$('pauseBtn').classList.toggle('hidden',id!=='play');$('brandHome').setAttribute('aria-label',id==='menu'?'Vigília, tela inicial':'Voltar ao menu');}
-function clearInputs(){keys.clear();edges.clear();touch.clear();touchEdges.clear();mouseDown=false;document.querySelectorAll('[data-touch]').forEach(b=>b.classList.remove('active'));}
-function soundUI(){$('soundLabel').textContent=audio.enabled?'SOM ON':'SOM OFF';$('pauseSoundBtn').textContent=audio.enabled?'SOM ON':'SOM OFF';$('pauseSoundBtn').setAttribute('aria-pressed',String(audio.enabled));$('pauseSoundBtn').setAttribute('aria-label',audio.enabled?'Silenciar áudio':'Ativar áudio');$('soundBtn').setAttribute('aria-label',audio.enabled?'Desativar som':'Ativar som');$('soundBtn').setAttribute('aria-pressed',String(audio.enabled));}
-async function activateAudio(){await audio.unlock();audio.setVolume(profile.settings.volume);audio.setMusicVolume(profile.settings.music);audio.setEffectsVolume(profile.settings.effects);audio.setEnabled(profile.settings.sound);soundUI();}
-function toast(message){const inGame=screen==='play',el=inGame?$('toast'):$('statusToast');el.textContent=message;el.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.add('hidden'),3200);}
-function radio(text,duration=6){$('radioText').textContent=text;$('radio').classList.remove('hidden');radioTimer=duration;}
-function updateIdentity(){const agent=getCharacter(profile.character),label=agent.name+' // '+agent.number;for(const id of ['menuAgent','shopAgent','hudAgent'])$(id).textContent=label;$('menuAgentRole').textContent=agent.role;INTRO[1]={tag:'ARQUIVO DE CAMPO // '+label,title:'SUA HISTÓRIA.<br>O ÚLTIMO SINAL.',text:'Você é '+agent.intro+'. Lira encontrou uma frequência de emergência. Ela leva direto ao Núcleo Zero.'};}
-function chooseCharacter(withIntro=true){if(!assets)return;selectionIntro=withIntro;clearInputs();state='selection';showScreen('selection');audio.setScene('menu');renderCharacters();$('selectionTitle').setAttribute('tabindex','-1');$('selectionTitle').focus({preventScroll:true});}
-function renderCharacters(){const grid=$('characterGrid');if(!grid.children.length){for(const character of CHARACTERS){const card=document.createElement('button');card.className='character-card';card.dataset.character=character.id;card.style.setProperty('--agent-color',character.color);card.innerHTML='<span class=character-index>'+character.number+' / '+character.gender+'</span><canvas width=260 height=290 aria-hidden=true></canvas><span class=character-name>'+character.name+'</span><span class=character-role>'+character.role+'</span><span class=character-status></span>';card.addEventListener('click',()=>{selectCharacter(profile,character.id);persist();updateIdentity();renderCharacters();audio.effect('ui');});grid.append(card);}}for(const card of grid.children){const active=card.dataset.character===profile.character;card.classList.toggle('selected',active);card.setAttribute('aria-pressed',String(active));card.setAttribute('aria-label',getCharacter(card.dataset.character).name+', '+getCharacter(card.dataset.character).gender.toLowerCase()+(active?', selecionado':''));card.querySelector('.character-status').textContent=active?'✓ SELECIONADO':'SELECIONAR';}const agent=getCharacter(profile.character);$('characterSignature').textContent=agent.signature;$('characterBio').textContent=agent.bio;$('confirmCharacter').innerHTML='JOGAR COM '+agent.name+' <span>↗</span>';}
-function drawCharacters(t){for(const card of $('characterGrid').children){const c=card.querySelector('canvas').getContext('2d'),active=card.dataset.character===profile.character;c.clearRect(0,0,260,290);c.imageSmoothingEnabled=false;const g=c.createRadialGradient(130,160,4,130,160,130);g.addColorStop(0,getCharacter(card.dataset.character).color+(active?'30':'15'));g.addColorStop(1,'#00000000');c.fillStyle=g;c.fillRect(0,0,260,290);c.strokeStyle=getCharacter(card.dataset.character).color+'50';c.beginPath();c.ellipse(130,272,83,9,0,0,Math.PI*2);c.stroke();renderer.drawAgent(c,card.dataset.character,profile.loadout.outfit,active&&!renderer.reduced?Math.floor(t*7)%RUN_FRAMES:POSES.idle,35,16,190,255);}}
-function menu(){updateIdentity();document.querySelectorAll('dialog[open]').forEach(d=>d.close());state='menu';world=null;clearInputs();showScreen('menu');audio.setScene('menu');$('loadStatus').textContent=profile.best?'MELHOR SINAL: '+scoreText(profile.best)+' · '+profile.secrets.length+'/6 SEGREDOS':'SISTEMAS ONLINE · PRONTO PARA INFILTRAÇÃO';}
-async function startCampaign(withIntro=true){if(!assets)return;clearInputs();await activateAudio();if(withIntro){state='intro';introTime=0;introSlide=-1;showScreen('intro');$('intro').classList.add('active');audio.setScene('intro');}else beginLevel(0);}
-function beginLevel(index,carry={}){entryCarry={...carry};updateIdentity();document.querySelectorAll('dialog[open]').forEach(d=>d.close());world=new GameWorld(index,{...carry,profile});world.viewWidth=renderer.width;state='playing';showScreen('play');clearInputs();accumulator=0;renderer.resize();audio.setScene('play',index);$('bossHud').classList.add('hidden');$('damageFlash').style.opacity='0';$('chapterSmall').textContent='OPERAÇÃO '+pad(index+1)+' // '+LEVELS[index].chapter;$('chapterTitle').textContent=LEVELS[index].name;$('chapterDescription').textContent=LEVELS[index].objective;$('chapterBanner').classList.remove('hidden');chapterTimer=3.1;radioTimer=7;$('radio').classList.remove('hidden');$('radioText').textContent=index===0?'A/D para mover. S/↓ para agachar. Espaço duas vezes para salto duplo. Mire com o mouse e mantenha o disparo.':LEVELS[index].brief;handleEvents(world.takeEvents());updateHud();$('gameCanvas').focus({preventScroll:true});}
-function pause(showDialog=true){if(state!=='playing')return;state='paused';clearInputs();updatePause();audio.setScene('pause',world.levelIndex);if(showDialog)$('pauseDialog').showModal();}
-function updatePause(){if(!world)return;updateHud();$('pauseCredits').textContent=profile.credits.toLocaleString('pt-BR');$('pauseTime').textContent=formatTime(world.totalTime);$('pauseSecrets').textContent=profile.secrets.length+' / 6';$('pausePulse').textContent=world.player.pulseCd>0?'PULSO EM '+world.player.pulseCd.toFixed(1)+'s':'PULSO PRONTO';$('radio').classList.remove('hidden');}
-function resume(){$('pauseDialog').close();if(!world)return;showScreen('play');state='playing';clearInputs();accumulator=0;audio.setScene('play',world.levelIndex);$('gameCanvas').focus({preventScroll:true});}
-function finishStage(){if(!world||state!=='clearWait')return;if(world.levelIndex===2){finish(true);return;}state='intermission';showScreen('intermission');audio.setScene('menu',world.levelIndex);$('clearNumber').textContent=pad(world.levelIndex+1);$('clearTitle').textContent=world.level.clear;$('clearStory').textContent=world.level.story;$('clearScore').textContent=scoreText(world.score);$('clearKills').textContent=pad(world.stageKills);$('clearTime').textContent=formatTime(world.time);const unlocked=WEAPONS[world.levelIndex+1];if(!profile.owned.includes(unlocked.id))profile.owned.push(unlocked.id);profile.loadout.weapon=unlocked.id;$('unlockName').textContent=unlocked.name;$('unlockInfo').textContent=world.levelIndex===0?'Dispersão de cinco projéteis. Integridade restaurada na próxima operação.':'Energia concentrada com dano em área. A próxima transmissão é a última.';persist();audio.effect('clear');}
-function finish(victory){if(!world)return;state='ending';showScreen('ending');audio.setScene('menu',victory?2:0);profile.best=Math.max(profile.best,world.score);persist();const ratio=world.score/(world.totalTime+80);const rank=victory?(ratio>43?'S':ratio>28?'A':'B'):'—';$('endEyebrow').textContent=victory?'TODOS OS CANAIS RESTABELECIDOS':'CONEXÃO DA UNIDADE PERDIDA';$('endTitle').innerHTML=victory?'O AMANHECER<br>É NOSSO.':'O SINAL<br>NÃO TERMINA AQUI.';$('endStory').textContent=victory?'O NEXUS caiu. Pela primeira vez em horas, a cidade responde. Lira: “Bom trabalho, '+getCharacter(profile.character).name+'. Já podemos apagar as luzes.”':'A operação foi interrompida, mas seus créditos e equipamentos estão seguros. Ajuste o arsenal e tente novamente.';$('rankLetter').textContent=rank;$('rankName').textContent=victory?(rank==='S'?'SINAL INQUEBRÁVEL':rank==='A'?'OPERAÇÃO EXEMPLAR':'MISSÃO CUMPRIDA'):'UMA NOVA TENTATIVA';$('rankLetter').style.color=victory?'var(--mint)':'var(--pink)';$('endScore').textContent=scoreText(world.score);$('endKills').textContent=pad(world.kills);$('endTime').textContent=formatTime(world.totalTime);audio.effect(victory?'clear':'dead');}
-function award(n){profile.credits+=n;persist();}
-function handleEvents(events){for(const{type,data}of events){switch(type){case'radio':radio(data);break;case'hurt':$('damageFlash').style.opacity='.8';setTimeout(()=>$('damageFlash').style.opacity='0',100);audio.effect(type,data);break;case'kill':award(data.credits);audio.effect(type,data);break;case'crate':award(data.credits);audio.effect('kill');break;case'secret':award(data.credits);if(!profile.secrets.includes(data.id))profile.secrets.push(data.id);persist();toast('SEGREDO: '+data.name+' · +125 CRÉDITOS');radio(data.text,7);audio.effect(type);break;case'checkpoint':toast('PONTO SEGURO ATUALIZADO');audio.effect('checkpoint');break;case'boss':$('bossName').textContent=data;$('bossHud').classList.remove('hidden');toast('ASSINATURA HOSTIL DETECTADA');audio.effect('boss');break;case'bossDown':$('bossHud').classList.add('hidden');$('objectiveText').textContent='Entre no portal de extração.';radio('Alvo neutralizado. O canal de extração está aberto. Continue à direita.',7);break;case'clear':award(data.credits);state='clearWait';setTimeout(finishStage,1000);break;case'dead':state='dying';clearInputs();audio.effect('dead');setTimeout(()=>{if(state==='dying')finish(false);},900);break;case'weapon':toast(data);audio.effect('ui');break;default:audio.effect(type,data);}}}
-function updateHud(){if(!world)return;const p=world.player,w=WEAPONS[p.weapon];$('healthText').textContent=Math.ceil(p.hp);$('healthFill').style.width=(p.hp/p.maxHp*100)+'%';$('healthFill').style.background=p.hp<30?'var(--pink)':'var(--mint)';$('dashStatus').textContent=p.dashCd>0?'RECARGA '+p.dashCd.toFixed(1)+'s':'IMPULSO PRONTO';$('levelNumber').textContent='OPERAÇÃO '+pad(world.levelIndex+1)+' / 03';$('levelName').textContent=world.level.name;if(!world.bossDefeated)$('objectiveText').textContent=world.boss?.alive?'Neutralize '+world.level.boss.split(' / ')[0]+'.':world.level.objective;$('scoreText').textContent=scoreText(world.score);$('comboText').textContent=world.combo>=2?'SEQUÊNCIA '+world.combo+' / ×'+Math.min(4,1+Math.floor(world.combo/4)):'◇ '+profile.credits+' CRÉDITOS';$('ammoText').textContent=p.reloading>0?'…':p.ammo;$('magText').textContent=w.mag;$('weaponName').textContent=w.name;$('weaponSlot').textContent=pad(p.weapon+1);$('reloadFill').style.width=(p.reloading>0?(1-p.reloading/p.reloadTotal)*100:0)+'%';$('progressFill').style.width=Math.min(100,p.x/world.level.length*100)+'%';if(world.boss?.alive){$('bossFill').style.width=(world.boss.hp/world.boss.maxHp*100)+'%';$('bossPhase').textContent='FASE '+pad(world.boss.phase);}}
-function consume(...codes){const yes=codes.some(code=>edges.has(code));codes.forEach(code=>edges.delete(code));return yes;}
-function consumeTouch(id){const yes=touchEdges.has(id);touchEdges.delete(id);return yes;}
-function getInput(){let input={left:keys.has('KeyA')||keys.has('ArrowLeft')||touch.has('left'),right:keys.has('KeyD')||keys.has('ArrowRight')||touch.has('right'),crouch:keys.has('KeyS')||keys.has('ArrowDown')||keys.has('KeyC')||touch.has('crouch'),jump:consume('Space','KeyW','ArrowUp')||consumeTouch('jump'),dash:consume('ShiftLeft','ShiftRight','KeyK')||consumeTouch('dash'),pulse:consume('KeyQ')||consumeTouch('pulse'),reload:consume('KeyR'),shoot:mouseDown||keys.has('KeyJ')||touch.has('shoot'),autoAim:touch.has('shoot')||keys.has('KeyJ')};for(let i=0;i<4;i++)if(consume('Digit'+(i+1)))input.weapon=i;if(mouseInside&&!input.autoAim)input.aim={x:mousePoint.x+world.cameraX,y:mousePoint.y};return input;}
-function updateIntro(dt){introTime+=dt;const index=Math.min(2,Math.floor(introTime/6.5));if(index!==introSlide){introSlide=index;const s=INTRO[index];$('introEyebrow').textContent=s.tag;$('introTitle').innerHTML=s.title;document.querySelectorAll('.intro-segments i').forEach((i,n)=>i.classList.toggle('active',n<=index));}const text=INTRO[index].text,elapsed=introTime-index*6.5;$('introText').textContent=text.slice(0,Math.floor(elapsed*44));if(introTime>=19.5)beginLevel(0);}
+const pad = (n) => String(Math.floor(n)).padStart(2, '0'),
+  formatTime = (n) => pad(n / 60) + ':' + pad(n % 60),
+  scoreText = (n) => String(Math.floor(n)).padStart(6, '0');
+function persist() {
+  const ok = saveProfile(profile);
+  if ($('saveStatus'))
+    $('saveStatus').textContent = ok
+      ? 'Progresso salvo neste navegador.'
+      : 'Armazenamento indisponível. Compras valem nesta sessão.';
+  updateCredits();
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach((el) => el.classList.toggle('hidden', el.id !== id));
+  screen = id;
+  $('app').classList.toggle('in-game', id === 'play');
+  $('pauseBtn').classList.toggle('hidden', id !== 'play');
+  $('brandHome').setAttribute(
+    'aria-label',
+    id === 'menu' ? 'Vigília, tela inicial' : 'Voltar ao menu',
+  );
+}
+function clearInputs() {
+  keys.clear();
+  edges.clear();
+  touch.clear();
+  touchEdges.clear();
+  mouseDown = false;
+  document.querySelectorAll('[data-touch]').forEach((b) => b.classList.remove('active'));
+}
+function soundUI() {
+  $('soundLabel').textContent = audio.enabled ? 'SOM ON' : 'SOM OFF';
+  $('pauseSoundBtn').textContent = audio.enabled ? 'SOM ON' : 'SOM OFF';
+  $('pauseSoundBtn').setAttribute('aria-pressed', String(audio.enabled));
+  $('pauseSoundBtn').setAttribute('aria-label', audio.enabled ? 'Silenciar áudio' : 'Ativar áudio');
+  $('soundBtn').setAttribute('aria-label', audio.enabled ? 'Desativar som' : 'Ativar som');
+  $('soundBtn').setAttribute('aria-pressed', String(audio.enabled));
+}
+async function activateAudio() {
+  await audio.unlock();
+  audio.setVolume(profile.settings.volume);
+  audio.setMusicVolume(profile.settings.music);
+  audio.setEffectsVolume(profile.settings.effects);
+  audio.setEnabled(profile.settings.sound);
+  soundUI();
+}
+function toast(message) {
+  const inGame = screen === 'play',
+    el = inGame ? $('toast') : $('statusToast');
+  el.textContent = message;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+function radio(text, duration = 6) {
+  $('radioText').textContent = text;
+  $('radio').classList.remove('hidden');
+  radioTimer = duration;
+}
+function updateIdentity() {
+  const agent = getCharacter(profile.character),
+    label = agent.name + ' // ' + agent.number;
+  for (const id of ['menuAgent', 'shopAgent', 'hudAgent']) $(id).textContent = label;
+  $('menuAgentRole').textContent = agent.role;
+  INTRO[1] = {
+    tag: 'ARQUIVO DE CAMPO // ' + label,
+    title: 'SUA HISTÓRIA.<br>O ÚLTIMO SINAL.',
+    text:
+      'Você é ' +
+      agent.intro +
+      '. Lira encontrou uma frequência de emergência. Ela leva direto ao Núcleo Zero.',
+  };
+}
+function chooseCharacter(withIntro = true) {
+  if (!assets) return;
+  selectionIntro = withIntro;
+  clearInputs();
+  state = 'selection';
+  showScreen('selection');
+  audio.setScene('menu');
+  renderCharacters();
+  $('selectionTitle').setAttribute('tabindex', '-1');
+  $('selectionTitle').focus({ preventScroll: true });
+}
+function renderCharacters() {
+  const grid = $('characterGrid');
+  if (!grid.children.length) {
+    for (const character of CHARACTERS) {
+      const card = document.createElement('button');
+      card.className = 'character-card';
+      card.dataset.character = character.id;
+      card.style.setProperty('--agent-color', character.color);
+      card.innerHTML =
+        '<span class=character-index>' +
+        character.number +
+        ' / ' +
+        character.gender +
+        '</span><canvas width=260 height=290 aria-hidden=true></canvas><span class=character-name>' +
+        character.name +
+        '</span><span class=character-role>' +
+        character.role +
+        '</span><span class=character-status></span>';
+      card.addEventListener('click', () => {
+        selectCharacter(profile, character.id);
+        persist();
+        updateIdentity();
+        renderCharacters();
+        audio.effect('ui');
+      });
+      grid.append(card);
+    }
+  }
+  for (const card of grid.children) {
+    const active = card.dataset.character === profile.character;
+    card.classList.toggle('selected', active);
+    card.setAttribute('aria-pressed', String(active));
+    card.setAttribute(
+      'aria-label',
+      getCharacter(card.dataset.character).name +
+        ', ' +
+        getCharacter(card.dataset.character).gender.toLowerCase() +
+        (active ? ', selecionado' : ''),
+    );
+    card.querySelector('.character-status').textContent = active ? '✓ SELECIONADO' : 'SELECIONAR';
+  }
+  const agent = getCharacter(profile.character);
+  $('characterSignature').textContent = agent.signature;
+  $('characterBio').textContent = agent.bio;
+  $('confirmCharacter').innerHTML = 'JOGAR COM ' + agent.name + ' <span>↗</span>';
+}
+function drawCharacters(t) {
+  for (const card of $('characterGrid').children) {
+    const c = card.querySelector('canvas').getContext('2d'),
+      active = card.dataset.character === profile.character;
+    c.clearRect(0, 0, 260, 290);
+    c.imageSmoothingEnabled = false;
+    const g = c.createRadialGradient(130, 160, 4, 130, 160, 130);
+    g.addColorStop(0, getCharacter(card.dataset.character).color + (active ? '30' : '15'));
+    g.addColorStop(1, '#00000000');
+    c.fillStyle = g;
+    c.fillRect(0, 0, 260, 290);
+    c.strokeStyle = getCharacter(card.dataset.character).color + '50';
+    c.beginPath();
+    c.ellipse(130, 272, 83, 9, 0, 0, Math.PI * 2);
+    c.stroke();
+    renderer.drawAgent(
+      c,
+      card.dataset.character,
+      profile.loadout.outfit,
+      active && !renderer.reduced ? Math.floor(t * 7) % RUN_FRAMES : POSES.idle,
+      35,
+      16,
+      190,
+      255,
+    );
+  }
+}
+function menu() {
+  updateIdentity();
+  document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+  state = 'menu';
+  world = null;
+  clearInputs();
+  showScreen('menu');
+  audio.setScene('menu');
+  $('loadStatus').textContent = profile.best
+    ? 'MELHOR SINAL: ' + scoreText(profile.best) + ' · ' + profile.secrets.length + '/6 SEGREDOS'
+    : 'SISTEMAS ONLINE · PRONTO PARA INFILTRAÇÃO';
+}
+async function startCampaign(withIntro = true) {
+  if (!assets) return;
+  clearInputs();
+  await activateAudio();
+  if (withIntro) {
+    state = 'intro';
+    introTime = 0;
+    introSlide = -1;
+    showScreen('intro');
+    $('intro').classList.add('active');
+    audio.setScene('intro');
+  } else beginLevel(0);
+}
+function beginLevel(index, carry = {}) {
+  entryCarry = { ...carry };
+  updateIdentity();
+  document.querySelectorAll('dialog[open]').forEach((d) => d.close());
+  world = new GameWorld(index, { ...carry, profile });
+  world.viewWidth = renderer.width;
+  state = 'playing';
+  showScreen('play');
+  clearInputs();
+  accumulator = 0;
+  renderer.resize();
+  audio.setScene('play', index);
+  $('bossHud').classList.add('hidden');
+  $('damageFlash').style.opacity = '0';
+  $('chapterSmall').textContent = 'OPERAÇÃO ' + pad(index + 1) + ' // ' + LEVELS[index].chapter;
+  $('chapterTitle').textContent = LEVELS[index].name;
+  $('chapterDescription').textContent = LEVELS[index].objective;
+  $('chapterBanner').classList.remove('hidden');
+  chapterTimer = 3.1;
+  radioTimer = 7;
+  $('radio').classList.remove('hidden');
+  $('radioText').textContent =
+    index === 0
+      ? 'A/D para mover. S/↓ para agachar. Espaço duas vezes para salto duplo. Mire com o mouse e mantenha o disparo.'
+      : LEVELS[index].brief;
+  handleEvents(world.takeEvents());
+  updateHud();
+  $('gameCanvas').focus({ preventScroll: true });
+}
+function pause(showDialog = true) {
+  if (state !== 'playing') return;
+  state = 'paused';
+  clearInputs();
+  updatePause();
+  audio.setScene('pause', world.levelIndex);
+  if (showDialog) $('pauseDialog').showModal();
+}
+function updatePause() {
+  if (!world) return;
+  updateHud();
+  $('pauseCredits').textContent = profile.credits.toLocaleString('pt-BR');
+  $('pauseTime').textContent = formatTime(world.totalTime);
+  $('pauseSecrets').textContent = profile.secrets.length + ' / 6';
+  $('pausePulse').textContent =
+    world.player.pulseCd > 0 ? 'PULSO EM ' + world.player.pulseCd.toFixed(1) + 's' : 'PULSO PRONTO';
+  $('radio').classList.remove('hidden');
+}
+function resume() {
+  $('pauseDialog').close();
+  if (!world) return;
+  showScreen('play');
+  state = 'playing';
+  clearInputs();
+  accumulator = 0;
+  audio.setScene('play', world.levelIndex);
+  $('gameCanvas').focus({ preventScroll: true });
+}
+function finishStage() {
+  if (!world || state !== 'clearWait') return;
+  if (world.levelIndex === 2) {
+    finish(true);
+    return;
+  }
+  state = 'intermission';
+  showScreen('intermission');
+  audio.setScene('menu', world.levelIndex);
+  $('clearNumber').textContent = pad(world.levelIndex + 1);
+  $('clearTitle').textContent = world.level.clear;
+  $('clearStory').textContent = world.level.story;
+  $('clearScore').textContent = scoreText(world.score);
+  $('clearKills').textContent = pad(world.stageKills);
+  $('clearTime').textContent = formatTime(world.time);
+  const unlocked = WEAPONS[world.levelIndex + 1];
+  if (!profile.owned.includes(unlocked.id)) profile.owned.push(unlocked.id);
+  profile.loadout.weapon = unlocked.id;
+  $('unlockName').textContent = unlocked.name;
+  $('unlockInfo').textContent =
+    world.levelIndex === 0
+      ? 'Dispersão de cinco projéteis. Integridade restaurada na próxima operação.'
+      : 'Energia concentrada com dano em área. A próxima transmissão é a última.';
+  persist();
+  audio.effect('clear');
+}
+function finish(victory) {
+  if (!world) return;
+  state = 'ending';
+  showScreen('ending');
+  audio.setScene('menu', victory ? 2 : 0);
+  profile.best = Math.max(profile.best, world.score);
+  persist();
+  const ratio = world.score / (world.totalTime + 80);
+  const rank = victory ? (ratio > 43 ? 'S' : ratio > 28 ? 'A' : 'B') : '—';
+  $('endEyebrow').textContent = victory
+    ? 'TODOS OS CANAIS RESTABELECIDOS'
+    : 'CONEXÃO DA UNIDADE PERDIDA';
+  $('endTitle').innerHTML = victory ? 'O AMANHECER<br>É NOSSO.' : 'O SINAL<br>NÃO TERMINA AQUI.';
+  $('endStory').textContent = victory
+    ? 'O NEXUS caiu. Pela primeira vez em horas, a cidade responde. Lira: “Bom trabalho, ' +
+      getCharacter(profile.character).name +
+      '. Já podemos apagar as luzes.”'
+    : 'A operação foi interrompida, mas seus créditos e equipamentos estão seguros. Ajuste o arsenal e tente novamente.';
+  $('rankLetter').textContent = rank;
+  $('rankName').textContent = victory
+    ? rank === 'S'
+      ? 'SINAL INQUEBRÁVEL'
+      : rank === 'A'
+        ? 'OPERAÇÃO EXEMPLAR'
+        : 'MISSÃO CUMPRIDA'
+    : 'UMA NOVA TENTATIVA';
+  $('rankLetter').style.color = victory ? 'var(--mint)' : 'var(--pink)';
+  $('endScore').textContent = scoreText(world.score);
+  $('endKills').textContent = pad(world.kills);
+  $('endTime').textContent = formatTime(world.totalTime);
+  audio.effect(victory ? 'clear' : 'dead');
+}
+function award(n) {
+  profile.credits += n;
+  persist();
+}
+function handleEvents(events) {
+  for (const { type, data } of events) {
+    switch (type) {
+      case 'radio':
+        radio(data);
+        break;
+      case 'hurt':
+        $('damageFlash').style.opacity = '.8';
+        setTimeout(() => ($('damageFlash').style.opacity = '0'), 100);
+        audio.effect(type, data);
+        break;
+      case 'kill':
+        award(data.credits);
+        audio.effect(type, data);
+        break;
+      case 'crate':
+        award(data.credits);
+        audio.effect('kill');
+        break;
+      case 'secret':
+        award(data.credits);
+        if (!profile.secrets.includes(data.id)) profile.secrets.push(data.id);
+        persist();
+        toast('SEGREDO: ' + data.name + ' · +125 CRÉDITOS');
+        radio(data.text, 7);
+        audio.effect(type);
+        break;
+      case 'checkpoint':
+        toast('PONTO SEGURO ATUALIZADO');
+        audio.effect('checkpoint');
+        break;
+      case 'boss':
+        $('bossName').textContent = data;
+        $('bossHud').classList.remove('hidden');
+        toast('ASSINATURA HOSTIL DETECTADA');
+        audio.effect('boss');
+        break;
+      case 'bossDown':
+        $('bossHud').classList.add('hidden');
+        $('objectiveText').textContent = 'Entre no portal de extração.';
+        radio('Alvo neutralizado. O canal de extração está aberto. Continue à direita.', 7);
+        break;
+      case 'clear':
+        award(data.credits);
+        state = 'clearWait';
+        setTimeout(finishStage, 1000);
+        break;
+      case 'dead':
+        state = 'dying';
+        clearInputs();
+        audio.effect('dead');
+        setTimeout(() => {
+          if (state === 'dying') finish(false);
+        }, 900);
+        break;
+      case 'weapon':
+        toast(data);
+        audio.effect('ui');
+        break;
+      default:
+        audio.effect(type, data);
+    }
+  }
+}
+function updateHud() {
+  if (!world) return;
+  const p = world.player,
+    w = WEAPONS[p.weapon];
+  $('healthText').textContent = Math.ceil(p.hp);
+  $('healthFill').style.width = (p.hp / p.maxHp) * 100 + '%';
+  $('healthFill').style.background = p.hp < 30 ? 'var(--pink)' : 'var(--mint)';
+  $('dashStatus').textContent =
+    p.dashCd > 0 ? 'RECARGA ' + p.dashCd.toFixed(1) + 's' : 'IMPULSO PRONTO';
+  $('levelNumber').textContent = 'OPERAÇÃO ' + pad(world.levelIndex + 1) + ' / 03';
+  $('levelName').textContent = world.level.name;
+  if (!world.bossDefeated)
+    $('objectiveText').textContent = world.boss?.alive
+      ? 'Neutralize ' + world.level.boss.split(' / ')[0] + '.'
+      : world.level.objective;
+  $('scoreText').textContent = scoreText(world.score);
+  $('comboText').textContent =
+    world.combo >= 2
+      ? 'SEQUÊNCIA ' + world.combo + ' / ×' + Math.min(4, 1 + Math.floor(world.combo / 4))
+      : '◇ ' + profile.credits + ' CRÉDITOS';
+  $('ammoText').textContent = p.reloading > 0 ? '…' : p.ammo;
+  $('magText').textContent = w.mag;
+  $('weaponName').textContent = w.name;
+  $('weaponSlot').textContent = pad(p.weapon + 1);
+  $('reloadFill').style.width =
+    (p.reloading > 0 ? (1 - p.reloading / p.reloadTotal) * 100 : 0) + '%';
+  $('progressFill').style.width = Math.min(100, (p.x / world.level.length) * 100) + '%';
+  if (world.boss?.alive) {
+    $('bossFill').style.width = (world.boss.hp / world.boss.maxHp) * 100 + '%';
+    $('bossPhase').textContent = 'FASE ' + pad(world.boss.phase);
+  }
+}
+function consume(...codes) {
+  const yes = codes.some((code) => edges.has(code));
+  codes.forEach((code) => edges.delete(code));
+  return yes;
+}
+function consumeTouch(id) {
+  const yes = touchEdges.has(id);
+  touchEdges.delete(id);
+  return yes;
+}
+function getInput() {
+  let input = {
+    left: keys.has('KeyA') || keys.has('ArrowLeft') || touch.has('left'),
+    right: keys.has('KeyD') || keys.has('ArrowRight') || touch.has('right'),
+    crouch: keys.has('KeyS') || keys.has('ArrowDown') || keys.has('KeyC') || touch.has('crouch'),
+    jump: consume('Space', 'KeyW', 'ArrowUp') || consumeTouch('jump'),
+    dash: consume('ShiftLeft', 'ShiftRight', 'KeyK') || consumeTouch('dash'),
+    pulse: consume('KeyQ') || consumeTouch('pulse'),
+    reload: consume('KeyR'),
+    shoot: mouseDown || keys.has('KeyJ') || touch.has('shoot'),
+    autoAim: touch.has('shoot') || keys.has('KeyJ'),
+  };
+  for (let i = 0; i < 4; i++) if (consume('Digit' + (i + 1))) input.weapon = i;
+  if (mouseInside && !input.autoAim)
+    input.aim = { x: mousePoint.x + world.cameraX, y: mousePoint.y };
+  return input;
+}
+function updateIntro(dt) {
+  introTime += dt;
+  const index = Math.min(2, Math.floor(introTime / 6.5));
+  if (index !== introSlide) {
+    introSlide = index;
+    const s = INTRO[index];
+    $('introEyebrow').textContent = s.tag;
+    $('introTitle').innerHTML = s.title;
+    document
+      .querySelectorAll('.intro-segments i')
+      .forEach((i, n) => i.classList.toggle('active', n <= index));
+  }
+  const text = INTRO[index].text,
+    elapsed = introTime - index * 6.5;
+  $('introText').textContent = text.slice(0, Math.floor(elapsed * 44));
+  if (introTime >= 19.5) beginLevel(0);
+}
 
 // Store uses the same persistent loadout as the simulation and animated preview.
-function updateCredits(){if($('shopCredits'))$('shopCredits').textContent=profile.credits.toLocaleString('pt-BR');if($('headerCredits'))$('headerCredits').textContent=profile.credits.toLocaleString('pt-BR');}
-function iconCanvas(id,width=210,height=115){const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.setAttribute('aria-hidden','true');const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;const rect=INVENTORY[id];if(rect){const ratio=Math.min((width-20)/rect[2],(height-10)/rect[3]);const w=rect[2]*ratio,h=rect[3]*ratio;ctx.drawImage(assets.inventory,...rect,(width-w)/2,(height-h)/2,w,h);}return canvas;}
-function renderShop(){updateCredits();document.querySelectorAll('[data-category]').forEach(b=>{const on=b.dataset.category===shopCategory;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});$('shopGrid').replaceChildren();for(const item of ITEMS.filter(i=>i.category===shopCategory)){const owned=profile.owned.includes(item.id),equipped=profile.loadout[item.slot]===item.id,card=document.createElement('article');card.className='item-card'+(equipped?' equipped':'');const tag=document.createElement('span');tag.className='item-tag';tag.textContent=equipped?'EM USO':item.tag;card.append(tag,iconCanvas(item.icon));const name=document.createElement('h3');name.textContent=item.name;const desc=document.createElement('p');desc.textContent=item.description;const effect=document.createElement('strong');effect.className='item-effect';effect.textContent=item.effect;const button=document.createElement('button');button.className='button '+(equipped?'secondary':'primary');button.disabled=equipped;button.textContent=equipped?'EQUIPADO':owned?'EQUIPAR':'ADQUIRIR · ◇ '+item.price;button.setAttribute('aria-label',(owned?'Equipar ':'Comprar ')+item.name);button.addEventListener('click',()=>{if(owned){equip(profile,item.id);$('shopNotice').textContent=item.name+' equipado.';audio.effect('ui');}else{const result=purchase(profile,item.id);if(!result.ok){$('shopNotice').textContent=result.reason;$('shopNotice').classList.add('warning');audio.effect('hurt');return;}$('shopNotice').textContent=item.name+' adquirido e equipado.';audio.effect('purchase');}$('shopNotice').classList.remove('warning');persist();if(world)world.applyLoadout(profile);renderShop();});card.append(name,desc,effect,button);$('shopGrid').append(card);}
- const labels={outfit:'TRAJE',accessory:'ACESSÓRIO',equipment:'EQUIPAMENTO',weapon:'ARMA'};$('loadoutList').replaceChildren();for(const[slot,label]of Object.entries(labels)){const row=document.createElement('div'),small=document.createElement('small'),strong=document.createElement('strong');small.textContent=label;strong.textContent=ITEMS.find(i=>i.id===profile.loadout[slot])?.name||'NENHUM';row.append(small,strong);$('loadoutList').append(row);}}
-function openShop(){if(!assets||['intro','clearWait','dying'].includes(state))return;shopReturn=state==='playing'||state==='paused'?'pause':screen;if(state==='playing')pause(false);$('pauseDialog').close();clearInputs();state='shop';showScreen('shop');audio.setScene('menu');$('shopNotice').textContent='Cada crédito tem uma história. Escolha o seu equipamento.';renderShop();}
-function closeShop(){if(world)world.applyLoadout(profile);if(shopReturn==='pause'){showScreen('play');state='paused';updatePause();$('pauseDialog').showModal();audio.setScene('pause');}else{showScreen(shopReturn);state=shopReturn;if(state==='selection')renderCharacters();}}
-function drawLoadout(t){if(!assets||!renderer)return;const canvas=$('loadoutCanvas'),c=canvas.getContext('2d');c.clearRect(0,0,280,300);c.imageSmoothingEnabled=false;let g=c.createRadialGradient(140,170,10,140,170,125);g.addColorStop(0,'#6ef5d01c');g.addColorStop(1,'#6ef5d000');c.fillStyle=g;c.fillRect(0,0,280,300);c.strokeStyle='#6ef5d02a';c.beginPath();c.ellipse(140,274,80,16,0,0,Math.PI*2);c.stroke();const frame=renderer.reduced?POSES.idle:Math.floor(t*7)%RUN_FRAMES;renderer.drawAgent(c,profile.character,profile.loadout.outfit,frame,51,32,178,232);if(profile.loadout.accessory==='drone'){const r=INVENTORY.drone;c.drawImage(assets.inventory,...r,14,90+Math.sin(t*3)*8,65,65);}if(profile.loadout.accessory==='scarf'){const r=INVENTORY.scarf;c.drawImage(assets.inventory,...r,80,100,38,55);}if(profile.loadout.equipment==='shield'){c.strokeStyle='#89ceef55';c.beginPath();c.ellipse(140,155,91,123,0,0,Math.PI*2);c.stroke();}}
+function updateCredits() {
+  if ($('shopCredits')) $('shopCredits').textContent = profile.credits.toLocaleString('pt-BR');
+  if ($('headerCredits')) $('headerCredits').textContent = profile.credits.toLocaleString('pt-BR');
+}
+function iconCanvas(id, width = 210, height = 115) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  canvas.setAttribute('aria-hidden', 'true');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const rect = INVENTORY[id];
+  if (rect) {
+    const ratio = Math.min((width - 20) / rect[2], (height - 10) / rect[3]);
+    const w = rect[2] * ratio,
+      h = rect[3] * ratio;
+    ctx.drawImage(assets.inventory, ...rect, (width - w) / 2, (height - h) / 2, w, h);
+  }
+  return canvas;
+}
+function renderShop() {
+  updateCredits();
+  document.querySelectorAll('[data-category]').forEach((b) => {
+    const on = b.dataset.category === shopCategory;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  $('shopGrid').replaceChildren();
+  for (const item of ITEMS.filter((i) => i.category === shopCategory)) {
+    const owned = profile.owned.includes(item.id),
+      equipped = profile.loadout[item.slot] === item.id,
+      card = document.createElement('article');
+    card.className = 'item-card' + (equipped ? ' equipped' : '');
+    const tag = document.createElement('span');
+    tag.className = 'item-tag';
+    tag.textContent = equipped ? 'EM USO' : item.tag;
+    card.append(tag, iconCanvas(item.icon));
+    const name = document.createElement('h3');
+    name.textContent = item.name;
+    const desc = document.createElement('p');
+    desc.textContent = item.description;
+    const effect = document.createElement('strong');
+    effect.className = 'item-effect';
+    effect.textContent = item.effect;
+    const button = document.createElement('button');
+    button.className = 'button ' + (equipped ? 'secondary' : 'primary');
+    button.disabled = equipped;
+    button.textContent = equipped ? 'EQUIPADO' : owned ? 'EQUIPAR' : 'ADQUIRIR · ◇ ' + item.price;
+    button.setAttribute('aria-label', (owned ? 'Equipar ' : 'Comprar ') + item.name);
+    button.addEventListener('click', () => {
+      if (owned) {
+        equip(profile, item.id);
+        $('shopNotice').textContent = item.name + ' equipado.';
+        audio.effect('ui');
+      } else {
+        const result = purchase(profile, item.id);
+        if (!result.ok) {
+          $('shopNotice').textContent = result.reason;
+          $('shopNotice').classList.add('warning');
+          audio.effect('hurt');
+          return;
+        }
+        $('shopNotice').textContent = item.name + ' adquirido e equipado.';
+        audio.effect('purchase');
+      }
+      $('shopNotice').classList.remove('warning');
+      persist();
+      if (world) world.applyLoadout(profile);
+      renderShop();
+    });
+    card.append(name, desc, effect, button);
+    $('shopGrid').append(card);
+  }
+  const labels = {
+    outfit: 'TRAJE',
+    accessory: 'ACESSÓRIO',
+    equipment: 'EQUIPAMENTO',
+    weapon: 'ARMA',
+  };
+  $('loadoutList').replaceChildren();
+  for (const [slot, label] of Object.entries(labels)) {
+    const row = document.createElement('div'),
+      small = document.createElement('small'),
+      strong = document.createElement('strong');
+    small.textContent = label;
+    strong.textContent = ITEMS.find((i) => i.id === profile.loadout[slot])?.name || 'NENHUM';
+    row.append(small, strong);
+    $('loadoutList').append(row);
+  }
+}
+function openShop() {
+  if (!assets || ['intro', 'clearWait', 'dying'].includes(state)) return;
+  shopReturn = state === 'playing' || state === 'paused' ? 'pause' : screen;
+  if (state === 'playing') pause(false);
+  $('pauseDialog').close();
+  clearInputs();
+  state = 'shop';
+  showScreen('shop');
+  audio.setScene('menu');
+  $('shopNotice').textContent = 'Cada crédito tem uma história. Escolha o seu equipamento.';
+  renderShop();
+}
+function closeShop() {
+  if (world) world.applyLoadout(profile);
+  if (shopReturn === 'pause') {
+    showScreen('play');
+    state = 'paused';
+    updatePause();
+    $('pauseDialog').showModal();
+    audio.setScene('pause');
+  } else {
+    showScreen(shopReturn);
+    state = shopReturn;
+    if (state === 'selection') renderCharacters();
+  }
+}
+function drawLoadout(t) {
+  if (!assets || !renderer) return;
+  const canvas = $('loadoutCanvas'),
+    c = canvas.getContext('2d');
+  c.clearRect(0, 0, 280, 300);
+  c.imageSmoothingEnabled = false;
+  let g = c.createRadialGradient(140, 170, 10, 140, 170, 125);
+  g.addColorStop(0, '#6ef5d01c');
+  g.addColorStop(1, '#6ef5d000');
+  c.fillStyle = g;
+  c.fillRect(0, 0, 280, 300);
+  c.strokeStyle = '#6ef5d02a';
+  c.beginPath();
+  c.ellipse(140, 274, 80, 16, 0, 0, Math.PI * 2);
+  c.stroke();
+  const frame = renderer.reduced ? POSES.idle : Math.floor(t * 7) % RUN_FRAMES;
+  renderer.drawAgent(c, profile.character, profile.loadout.outfit, frame, 51, 32, 178, 232);
+  if (profile.loadout.accessory === 'drone') {
+    const r = INVENTORY.drone;
+    c.drawImage(assets.inventory, ...r, 14, 90 + Math.sin(t * 3) * 8, 65, 65);
+  }
+  if (profile.loadout.accessory === 'scarf') {
+    const r = INVENTORY.scarf;
+    c.drawImage(assets.inventory, ...r, 80, 100, 38, 55);
+  }
+  if (profile.loadout.equipment === 'shield') {
+    c.strokeStyle = '#89ceef55';
+    c.beginPath();
+    c.ellipse(140, 155, 91, 123, 0, 0, Math.PI * 2);
+    c.stroke();
+  }
+}
 
 // Controls are released on blur/cancel to prevent stuck movement or firing.
-document.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement)return;if(!e.repeat){edges.add(e.code);if(state==='menu'){konami.push(e.code);konami=konami.slice(-10);if(konami.join(',')==='ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,KeyB,KeyA'&&!profile.konami){profile.konami=true;award(100);toast('PROTOCOLO CLÁSSICO ENCONTRADO · +100 CRÉDITOS');audio.effect('secret');}}}keys.add(e.code);if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)&&['playing','intro','paused'].includes(state))e.preventDefault();if(e.repeat)return;if(e.code==='KeyM')$('soundBtn').click();if((e.code==='Escape'||e.code==='KeyP')&&!$('helpDialog').open){if(state==='playing'){e.preventDefault();pause();}else if(state==='paused'){e.preventDefault();resume();}else if(state==='shop'){e.preventDefault();closeShop();}}if(e.code==='KeyB'&&state==='playing')openShop();if(state==='intro'&&(e.code==='Space'||e.code==='Enter')){e.preventDefault();beginLevel(0);}else if(state==='menu'&&e.code==='Enter'&&e.target===document.body)chooseCharacter();});
-document.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{clearInputs();if(state==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInputs();if(state==='playing')pause();}});
-const canvas=$('gameCanvas');$('arenaWrap').append(document.querySelector('.hud'),document.querySelector('.bottom-hud'),$('pauseBtn'));$('pauseBtn').classList.add('pause-floating');canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;const r=canvas.getBoundingClientRect();mousePoint.x=(e.clientX-r.left)/r.width*renderer.width;mousePoint.y=(e.clientY-r.top)/r.height*540;mouseInside=true;$('crosshair').style.display='block';$('crosshair').style.left=(e.clientX-r.left)+'px';$('crosshair').style.top=(e.clientY-r.top)+'px';});canvas.addEventListener('pointerleave',()=>{mouseInside=false;$('crosshair').style.display='none';});canvas.addEventListener('pointerdown',e=>{if(state!=='playing'||e.button!==0)return;e.preventDefault();canvas.focus({preventScroll:true});if(e.pointerType==='touch'){isTouch=true;touch.add('shoot');}else mouseDown=true;canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointerup',()=>{mouseDown=false;touch.delete('shoot');});canvas.addEventListener('pointercancel',()=>{mouseDown=false;touch.delete('shoot');});canvas.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('pointerup',()=>{mouseDown=false;});
-document.querySelectorAll('[data-touch]').forEach(button=>{const id=button.dataset.touch;button.addEventListener('pointerdown',e=>{e.preventDefault();if(state!=='playing')return;isTouch=true;button.setPointerCapture(e.pointerId);touch.add(id);touchEdges.add(id);button.classList.add('active');});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>{touch.delete(id);button.classList.remove('active');});});
-$('startBtn').addEventListener('click',()=>chooseCharacter());$('selectionBack').addEventListener('click',menu);$('confirmCharacter').addEventListener('click',()=>startCampaign(selectionIntro));$('skipIntro').addEventListener('click',()=>beginLevel(0));$('helpBtn').addEventListener('click',()=>{$('helpDialog').showModal();audio.effect('ui');});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));$('soundBtn').addEventListener('click',async()=>{await audio.unlock();audio.setVolume(profile.settings.volume);audio.setMusicVolume(profile.settings.music);audio.setEffectsVolume(profile.settings.effects);audio.setEnabled(!audio.enabled);profile.settings.sound=audio.enabled;persist();soundUI();});$('fullBtn').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if($('app').requestFullscreen)await $('app').requestFullscreen();else toast('A tela cheia não está disponível neste navegador.');}catch{toast('A tela cheia não está disponível agora.');}});$('pauseBtn').addEventListener('click',()=>pause());$('resumeBtn').addEventListener('click',resume);$('pauseHelpBtn').addEventListener('click',()=>$('helpDialog').showModal());$('pauseFullBtn').addEventListener('click',()=>$('fullBtn').click());$('pauseSoundBtn').addEventListener('click',()=>$('soundBtn').click());$('restartLevelBtn').addEventListener('click',()=>{const i=world.levelIndex;beginLevel(i,entryCarry);});$('pauseMenuBtn').addEventListener('click',menu);$('endMenuBtn').addEventListener('click',menu);$('replayBtn').addEventListener('click',()=>chooseCharacter(false));$('brandHome').addEventListener('click',e=>{e.preventDefault();if(state==='playing')pause();else if(state==='shop')closeShop();else if(assets)menu();});$('nextLevelBtn').addEventListener('click',()=>beginLevel(world.levelIndex+1,{score:world.score,kills:world.kills,totalTime:world.totalTime}));$('volumeSlider').value=profile.settings.volume*100;$('volumeSlider').addEventListener('input',e=>{profile.settings.volume=Number(e.target.value)/100;audio.setVolume(profile.settings.volume);audio.setMusicVolume(profile.settings.music);audio.setEffectsVolume(profile.settings.effects);persist();});for(const [id,setting,method]of [['musicSlider','music','setMusicVolume'],['effectsSlider','effects','setEffectsVolume']]){$(id).value=profile.settings[setting]*100;$(id).addEventListener('input',e=>{profile.settings[setting]=Number(e.target.value)/100;audio[method](profile.settings[setting]);persist();});}$('pauseDialog').addEventListener('cancel',e=>{e.preventDefault();resume();});$('shopClose').addEventListener('click',closeShop);document.querySelectorAll('[data-category]').forEach(b=>b.addEventListener('click',()=>{shopCategory=b.dataset.category;renderShop();audio.effect('ui');}));
-const storeBtn=document.createElement('button');storeBtn.id='storeBtn';storeBtn.className='icon-button store-button';storeBtn.innerHTML='LOJA <span>◇ <b id="headerCredits">400</b></span>';storeBtn.setAttribute('aria-label','Abrir loja de roupas, acessórios, equipamentos e armas');storeBtn.addEventListener('click',openShop);document.querySelector('.system-actions').prepend(storeBtn);
-for(const parent of [document.querySelector('.menu-buttons'),document.querySelector('.debrief'),document.querySelector('.end-buttons')]){const button=document.createElement('button');button.className='button secondary shop-entry';button.innerHTML=(parent.classList.contains('menu-buttons')?'LOJA':'LOJA DE SUPRIMENTOS')+' <span>◇</span>';button.addEventListener('click',openShop);parent.append(button);}
-const pauseShop=document.createElement('button');pauseShop.className='button secondary';pauseShop.textContent='LOJA DE SUPRIMENTOS';pauseShop.addEventListener('click',openShop);$('pauseMenuBtn').parentElement.insertBefore(pauseShop,$('pauseMenuBtn'));
-const statusToast=document.createElement('div');statusToast.id='statusToast';statusToast.className='status-toast hidden';statusToast.setAttribute('role','status');document.body.append(statusToast);updateCredits();
-window.addEventListener('resize',()=>{renderer?.resize();clearInputs();});
-function frame(timestamp){try{const dt=Math.min((timestamp-lastTime)/1000||0,.1);lastTime=timestamp;menuTime+=dt;if(state==='intro')updateIntro(dt);if(state==='playing'&&world){accumulator=Math.min(.08,accumulator+dt);let input=getInput();while(accumulator>=1/60&&state==='playing'){world.update(1/60,input);handleEvents(world.takeEvents());accumulator-=1/60;input={...input,jump:false,dash:false,pulse:false,reload:false,weapon:undefined};}chapterTimer-=dt;radioTimer-=dt;if(chapterTimer<=0)$('chapterBanner').classList.add('hidden');hudElapsed+=dt;if(hudElapsed>.08){updateHud();hudElapsed=0;}}if(world&&screen==='play')renderer.draw(world);if(state==='shop')drawLoadout(menuTime);if(state==='selection')drawCharacters(menuTime);requestAnimationFrame(frame);}catch(error){console.error(error);clearInputs();state='error';$('fatalText').textContent='A renderização foi interrompida: '+(error?.message||String(error))+' Recarregue para retomar a operação.';$('fatalError').classList.remove('hidden');}}
-async function initialize(){try{assets=await loadAssets();renderer=new Renderer(canvas,assets);$('startBtn').disabled=false;$('startLabel').textContent='ESCOLHER PERSONAGEM';menu();requestAnimationFrame(frame);}catch(error){$('fatalText').textContent='Um arquivo do jogo não chegou. Verifique sua conexão e tente novamente.';$('fatalError').classList.remove('hidden');console.error(error);}}
+document.addEventListener('keydown', (e) => {
+  if (e.target instanceof HTMLInputElement) return;
+  if (!e.repeat) {
+    edges.add(e.code);
+    if (state === 'menu') {
+      konami.push(e.code);
+      konami = konami.slice(-10);
+      if (
+        konami.join(',') ===
+          'ArrowUp,ArrowUp,ArrowDown,ArrowDown,ArrowLeft,ArrowRight,ArrowLeft,ArrowRight,KeyB,KeyA' &&
+        !profile.konami
+      ) {
+        profile.konami = true;
+        award(100);
+        toast('PROTOCOLO CLÁSSICO ENCONTRADO · +100 CRÉDITOS');
+        audio.effect('secret');
+      }
+    }
+  }
+  keys.add(e.code);
+  if (
+    ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code) &&
+    ['playing', 'intro', 'paused'].includes(state)
+  )
+    e.preventDefault();
+  if (e.repeat) return;
+  if (e.code === 'KeyM') $('soundBtn').click();
+  if ((e.code === 'Escape' || e.code === 'KeyP') && !$('helpDialog').open) {
+    if (state === 'playing') {
+      e.preventDefault();
+      pause();
+    } else if (state === 'paused') {
+      e.preventDefault();
+      resume();
+    } else if (state === 'shop') {
+      e.preventDefault();
+      closeShop();
+    }
+  }
+  if (e.code === 'KeyB' && state === 'playing') openShop();
+  if (state === 'intro' && (e.code === 'Space' || e.code === 'Enter')) {
+    e.preventDefault();
+    beginLevel(0);
+  } else if (state === 'menu' && e.code === 'Enter' && e.target === document.body)
+    chooseCharacter();
+});
+document.addEventListener('keyup', (e) => keys.delete(e.code));
+window.addEventListener('blur', () => {
+  clearInputs();
+  if (state === 'playing') pause();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearInputs();
+    if (state === 'playing') pause();
+  }
+});
+const canvas = $('gameCanvas');
+$('arenaWrap').append(
+  document.querySelector('.hud'),
+  document.querySelector('.bottom-hud'),
+  $('pauseBtn'),
+);
+$('pauseBtn').classList.add('pause-floating');
+canvas.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return;
+  const r = canvas.getBoundingClientRect();
+  mousePoint.x = ((e.clientX - r.left) / r.width) * renderer.width;
+  mousePoint.y = ((e.clientY - r.top) / r.height) * 540;
+  mouseInside = true;
+  $('crosshair').style.display = 'block';
+  $('crosshair').style.left = e.clientX - r.left + 'px';
+  $('crosshair').style.top = e.clientY - r.top + 'px';
+});
+canvas.addEventListener('pointerleave', () => {
+  mouseInside = false;
+  $('crosshair').style.display = 'none';
+});
+canvas.addEventListener('pointerdown', (e) => {
+  if (state !== 'playing' || e.button !== 0) return;
+  e.preventDefault();
+  canvas.focus({ preventScroll: true });
+  if (e.pointerType === 'touch') {
+    isTouch = true;
+    touch.add('shoot');
+  } else mouseDown = true;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointerup', () => {
+  mouseDown = false;
+  touch.delete('shoot');
+});
+canvas.addEventListener('pointercancel', () => {
+  mouseDown = false;
+  touch.delete('shoot');
+});
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('pointerup', () => {
+  mouseDown = false;
+});
+document.querySelectorAll('[data-touch]').forEach((button) => {
+  const id = button.dataset.touch;
+  button.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (state !== 'playing') return;
+    isTouch = true;
+    button.setPointerCapture(e.pointerId);
+    touch.add(id);
+    touchEdges.add(id);
+    button.classList.add('active');
+  });
+  for (const event of ['pointerup', 'pointercancel', 'lostpointercapture'])
+    button.addEventListener(event, () => {
+      touch.delete(id);
+      button.classList.remove('active');
+    });
+});
+$('startBtn').addEventListener('click', () => chooseCharacter());
+$('selectionBack').addEventListener('click', menu);
+$('confirmCharacter').addEventListener('click', () => startCampaign(selectionIntro));
+$('skipIntro').addEventListener('click', () => beginLevel(0));
+$('helpBtn').addEventListener('click', () => {
+  $('helpDialog').showModal();
+  audio.effect('ui');
+});
+document
+  .querySelectorAll('[data-close]')
+  .forEach((b) => b.addEventListener('click', () => $(b.dataset.close).close()));
+$('soundBtn').addEventListener('click', async () => {
+  await audio.unlock();
+  audio.setVolume(profile.settings.volume);
+  audio.setMusicVolume(profile.settings.music);
+  audio.setEffectsVolume(profile.settings.effects);
+  audio.setEnabled(!audio.enabled);
+  profile.settings.sound = audio.enabled;
+  persist();
+  soundUI();
+});
+$('fullBtn').addEventListener('click', async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else if ($('app').requestFullscreen) await $('app').requestFullscreen();
+    else toast('A tela cheia não está disponível neste navegador.');
+  } catch {
+    toast('A tela cheia não está disponível agora.');
+  }
+});
+$('pauseBtn').addEventListener('click', () => pause());
+$('resumeBtn').addEventListener('click', resume);
+$('pauseHelpBtn').addEventListener('click', () => $('helpDialog').showModal());
+$('pauseFullBtn').addEventListener('click', () => $('fullBtn').click());
+$('pauseSoundBtn').addEventListener('click', () => $('soundBtn').click());
+$('restartLevelBtn').addEventListener('click', () => {
+  const i = world.levelIndex;
+  beginLevel(i, entryCarry);
+});
+$('pauseMenuBtn').addEventListener('click', menu);
+$('endMenuBtn').addEventListener('click', menu);
+$('replayBtn').addEventListener('click', () => chooseCharacter(false));
+$('brandHome').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (state === 'playing') pause();
+  else if (state === 'shop') closeShop();
+  else if (assets) menu();
+});
+$('nextLevelBtn').addEventListener('click', () =>
+  beginLevel(world.levelIndex + 1, {
+    score: world.score,
+    kills: world.kills,
+    totalTime: world.totalTime,
+  }),
+);
+$('volumeSlider').value = profile.settings.volume * 100;
+$('volumeSlider').addEventListener('input', (e) => {
+  profile.settings.volume = Number(e.target.value) / 100;
+  audio.setVolume(profile.settings.volume);
+  audio.setMusicVolume(profile.settings.music);
+  audio.setEffectsVolume(profile.settings.effects);
+  persist();
+});
+for (const [id, setting, method] of [
+  ['musicSlider', 'music', 'setMusicVolume'],
+  ['effectsSlider', 'effects', 'setEffectsVolume'],
+]) {
+  $(id).value = profile.settings[setting] * 100;
+  $(id).addEventListener('input', (e) => {
+    profile.settings[setting] = Number(e.target.value) / 100;
+    audio[method](profile.settings[setting]);
+    persist();
+  });
+}
+$('pauseDialog').addEventListener('cancel', (e) => {
+  e.preventDefault();
+  resume();
+});
+$('shopClose').addEventListener('click', closeShop);
+document.querySelectorAll('[data-category]').forEach((b) =>
+  b.addEventListener('click', () => {
+    shopCategory = b.dataset.category;
+    renderShop();
+    audio.effect('ui');
+  }),
+);
+const storeBtn = document.createElement('button');
+storeBtn.id = 'storeBtn';
+storeBtn.className = 'icon-button store-button';
+storeBtn.innerHTML = 'LOJA <span>◇ <b id="headerCredits">400</b></span>';
+storeBtn.setAttribute('aria-label', 'Abrir loja de roupas, acessórios, equipamentos e armas');
+storeBtn.addEventListener('click', openShop);
+document.querySelector('.system-actions').prepend(storeBtn);
+for (const parent of [
+  document.querySelector('.menu-buttons'),
+  document.querySelector('.debrief'),
+  document.querySelector('.end-buttons'),
+]) {
+  const button = document.createElement('button');
+  button.className = 'button secondary shop-entry';
+  button.innerHTML =
+    (parent.classList.contains('menu-buttons') ? 'LOJA' : 'LOJA DE SUPRIMENTOS') +
+    ' <span>◇</span>';
+  button.addEventListener('click', openShop);
+  parent.append(button);
+}
+const pauseShop = document.createElement('button');
+pauseShop.className = 'button secondary';
+pauseShop.textContent = 'LOJA DE SUPRIMENTOS';
+pauseShop.addEventListener('click', openShop);
+$('pauseMenuBtn').parentElement.insertBefore(pauseShop, $('pauseMenuBtn'));
+const statusToast = document.createElement('div');
+statusToast.id = 'statusToast';
+statusToast.className = 'status-toast hidden';
+statusToast.setAttribute('role', 'status');
+document.body.append(statusToast);
+updateCredits();
+window.addEventListener('resize', () => {
+  renderer?.resize();
+  clearInputs();
+});
+function frame(timestamp) {
+  try {
+    const dt = Math.min((timestamp - lastTime) / 1000 || 0, 0.1);
+    lastTime = timestamp;
+    menuTime += dt;
+    if (state === 'intro') updateIntro(dt);
+    if (state === 'playing' && world) {
+      accumulator = Math.min(0.08, accumulator + dt);
+      let input = getInput();
+      while (accumulator >= 1 / 60 && state === 'playing') {
+        world.update(1 / 60, input);
+        handleEvents(world.takeEvents());
+        accumulator -= 1 / 60;
+        input = {
+          ...input,
+          jump: false,
+          dash: false,
+          pulse: false,
+          reload: false,
+          weapon: undefined,
+        };
+      }
+      chapterTimer -= dt;
+      radioTimer -= dt;
+      if (chapterTimer <= 0) $('chapterBanner').classList.add('hidden');
+      hudElapsed += dt;
+      if (hudElapsed > 0.08) {
+        updateHud();
+        hudElapsed = 0;
+      }
+    }
+    if (world && screen === 'play') renderer.draw(world);
+    if (state === 'shop') drawLoadout(menuTime);
+    if (state === 'selection') drawCharacters(menuTime);
+    requestAnimationFrame(frame);
+  } catch (error) {
+    console.error(error);
+    clearInputs();
+    state = 'error';
+    $('fatalText').textContent =
+      'A renderização foi interrompida: ' +
+      (error?.message || String(error)) +
+      ' Recarregue para retomar a operação.';
+    $('fatalError').classList.remove('hidden');
+  }
+}
+async function initialize() {
+  try {
+    assets = await loadAssets();
+    renderer = new Renderer(canvas, assets);
+    $('startBtn').disabled = false;
+    $('startLabel').textContent = 'ESCOLHER PERSONAGEM';
+    menu();
+    requestAnimationFrame(frame);
+  } catch (error) {
+    $('fatalText').textContent =
+      'Um arquivo do jogo não chegou. Verifique sua conexão e tente novamente.';
+    $('fatalError').classList.remove('hidden');
+    console.error(error);
+  }
+}
 initialize();
 
 // Bridge used by the Cyber War trainer. It changes only the virtual Vigília
 // profile/world and never touches the host filesystem or the parent game state.
-const trainerSnapshot=()=>({ready:!!assets,screen,state,profile:{character:profile.character,credits:profile.credits,owned:[...profile.owned],loadout:{...profile.loadout},secrets:[...profile.secrets],best:profile.best},world:world?{levelIndex:world.levelIndex,levelName:world.level.name,status:world.status,hp:Math.ceil(world.player.hp),maxHp:Math.ceil(world.player.maxHp),ammo:world.player.ammo,mag:WEAPONS[world.player.weapon].mag,weapon:WEAPONS[world.player.weapon].name,score:Math.floor(world.score),time:Math.floor(world.totalTime),x:Math.floor(world.player.x)}:null});
-const trainerPublish=()=>window.parent!==window&&window.parent.postMessage({type:'sector-ix-trainer-state',state:trainerSnapshot()},'*');
-const trainerRefresh=()=>{updateCredits();if(world){updateHud();if(state==='paused')updatePause();}trainerPublish();};
-const trainerCommand=(action,value)=>{const numeric=Number(value);switch(action){case'setCredits':if(Number.isFinite(numeric))profile.credits=Math.max(0,Math.floor(numeric));persist();break;case'addCredits':if(Number.isFinite(numeric))profile.credits=Math.max(0,Math.floor(profile.credits+numeric));persist();break;case'setHealth':if(world&&Number.isFinite(numeric)){world.player.hp=Math.max(0,Math.min(world.player.maxHp,Math.floor(numeric)));if(world.player.hp>0&&world.status==='dead')world.status='playing';}break;case'setAmmo':if(world&&Number.isFinite(numeric))world.player.ammo=Math.max(0,Math.floor(numeric));break;case'setScore':if(world&&Number.isFinite(numeric))world.score=Math.max(0,Math.floor(numeric));break;case'unlockAll':profile.owned=[...new Set(ITEMS.map(item=>item.id))];persist();if(world)world.applyLoadout(profile);break;case'setGodMode':if(world){world.player.invuln=value===true||value==='true'?999999:0;world.trainerGodMode=value===true||value==='true';}break;case'setLevel':if(Number.isInteger(numeric)&&numeric>=0&&numeric<LEVELS.length)beginLevel(numeric);break;case'finishLevel':if(world){world.bossDefeated=true;if(world.boss)world.boss.alive=false;world.player.x=world.level.length-90;}break;default:return{ok:false,reason:'Comando de trainer desconhecido.'};}trainerRefresh();return{ok:true,state:trainerSnapshot()};};
-window.SECTOR_IX_TRAINER={getState:trainerSnapshot,command:trainerCommand};
-window.addEventListener('message',event=>{const message=event.data;if(!message||message.type!=='sector-ix-trainer-command')return;const result=trainerCommand(message.action,message.value);event.source?.postMessage({type:'sector-ix-trainer-response',requestId:message.requestId,result},'*');});
+const trainerSnapshot = () => ({
+  ready: !!assets,
+  screen,
+  state,
+  profile: {
+    character: profile.character,
+    credits: profile.credits,
+    owned: [...profile.owned],
+    loadout: { ...profile.loadout },
+    secrets: [...profile.secrets],
+    best: profile.best,
+  },
+  world: world
+    ? {
+        levelIndex: world.levelIndex,
+        levelName: world.level.name,
+        status: world.status,
+        hp: Math.ceil(world.player.hp),
+        maxHp: Math.ceil(world.player.maxHp),
+        ammo: world.player.ammo,
+        mag: WEAPONS[world.player.weapon].mag,
+        weapon: WEAPONS[world.player.weapon].name,
+        score: Math.floor(world.score),
+        time: Math.floor(world.totalTime),
+        x: Math.floor(world.player.x),
+      }
+    : null,
+});
+const trainerPublish = () =>
+  window.parent !== window &&
+  window.parent.postMessage({ type: 'sector-ix-trainer-state', state: trainerSnapshot() }, '*');
+const trainerRefresh = () => {
+  updateCredits();
+  if (world) {
+    updateHud();
+    if (state === 'paused') updatePause();
+  }
+  trainerPublish();
+};
+const trainerCommand = (action, value) => {
+  const numeric = Number(value);
+  switch (action) {
+    case 'setCredits':
+      if (Number.isFinite(numeric)) profile.credits = Math.max(0, Math.floor(numeric));
+      persist();
+      break;
+    case 'addCredits':
+      if (Number.isFinite(numeric))
+        profile.credits = Math.max(0, Math.floor(profile.credits + numeric));
+      persist();
+      break;
+    case 'setHealth':
+      if (world && Number.isFinite(numeric)) {
+        world.player.hp = Math.max(0, Math.min(world.player.maxHp, Math.floor(numeric)));
+        if (world.player.hp > 0 && world.status === 'dead') world.status = 'playing';
+      }
+      break;
+    case 'setAmmo':
+      if (world && Number.isFinite(numeric)) world.player.ammo = Math.max(0, Math.floor(numeric));
+      break;
+    case 'setScore':
+      if (world && Number.isFinite(numeric)) world.score = Math.max(0, Math.floor(numeric));
+      break;
+    case 'unlockAll':
+      profile.owned = [...new Set(ITEMS.map((item) => item.id))];
+      persist();
+      if (world) world.applyLoadout(profile);
+      break;
+    case 'setGodMode':
+      if (world) {
+        world.player.invuln = value === true || value === 'true' ? 999999 : 0;
+        world.trainerGodMode = value === true || value === 'true';
+      }
+      break;
+    case 'setLevel':
+      if (Number.isInteger(numeric) && numeric >= 0 && numeric < LEVELS.length) beginLevel(numeric);
+      break;
+    case 'finishLevel':
+      if (world) {
+        world.bossDefeated = true;
+        if (world.boss) world.boss.alive = false;
+        world.player.x = world.level.length - 90;
+      }
+      break;
+    default:
+      return { ok: false, reason: 'Comando de trainer desconhecido.' };
+  }
+  trainerRefresh();
+  return { ok: true, state: trainerSnapshot() };
+};
+window.SECTOR_IX_TRAINER = { getState: trainerSnapshot, command: trainerCommand };
+window.addEventListener('message', (event) => {
+  const message = event.data;
+  if (!message || message.type !== 'sector-ix-trainer-command') return;
+  const result = trainerCommand(message.action, message.value);
+  event.source?.postMessage(
+    { type: 'sector-ix-trainer-response', requestId: message.requestId, result },
+    '*',
+  );
+});
 trainerPublish();
-const trainerReadyTimer=setInterval(()=>{if(assets){trainerPublish();clearInterval(trainerReadyTimer);}},100);
+const trainerReadyTimer = setInterval(() => {
+  if (assets) {
+    trainerPublish();
+    clearInterval(trainerReadyTimer);
+  }
+}, 100);

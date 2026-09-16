@@ -525,7 +525,7 @@ label {
   grid-template-rows: repeat(auto-fill, minmax(72px, 1fr));
   grid-auto-columns: 76px;
   justify-content: start;
-  gap: 2px 4px;
+  gap: 2px;
   overflow: auto hidden;
   pointer-events: none;
 }
@@ -534,7 +534,7 @@ label {
   width: 76px;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: auto;
   background: transparent;
   border: 1px solid transparent;
@@ -543,7 +543,7 @@ label {
   align-content: center;
   justify-items: center;
   font-size: 11px;
-  gap: 4px;
+  gap: 2px;
   padding: 0 1px;
   text-shadow: 0 1px 4px #000;
 }
@@ -553,7 +553,53 @@ label {
   border-color: #c1d5ef33;
 }
 
-.desktop-shortcuts button.desktop-trash.is-over {
+.desktop [data-drop-active='true'] {
+  outline: 2px solid #78b2ff;
+  outline-offset: -2px;
+}
+
+.vfs-drag-preview {
+  position: fixed;
+  top: 0;
+  left: -1000px;
+  display: grid;
+  grid-template-columns: 40px auto;
+  align-items: center;
+  gap: 8px;
+  max-width: 264px;
+  padding: 8px 12px;
+  border: 1px solid #a9cef080;
+  border-radius: 8px;
+  background: #182635e6;
+  color: #fff;
+  font-size: 12px;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.vfs-drag-preview > :is(.app-icon, .archive-icon, svg, img) {
+  width: 40px;
+  height: 40px;
+}
+
+.vfs-drag-preview__name {
+  overflow-wrap: anywhere;
+}
+
+.vfs-drag-preview__count {
+  position: absolute;
+  top: -4px;
+  left: 34px;
+  min-width: 18px;
+  padding: 2px 4px;
+  border-radius: 10px;
+  background: #2e79d7;
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+}
+
+.desktop-shortcuts button.desktop-trash[data-drop-active='true'] {
   background: #2777ff66;
   border-color: #b9dbff99;
   box-shadow:
@@ -586,6 +632,10 @@ label {
   overflow: hidden;
   overflow-wrap: anywhere;
   line-height: 11px;
+
+  /* Leave room for descenders without changing the icon grid spacing. */
+  padding-block: 2px;
+  margin-block: -2px;
   max-width: 72px;
   text-align: center;
 }
@@ -637,7 +687,7 @@ label {
 
 .window-layer {
   position: absolute;
-  inset: 32px 0 37px;
+  inset: 32px 0 0;
   pointer-events: none;
 }
 
@@ -661,10 +711,6 @@ label {
   transform: translate(0, 0) scale(1);
   transform-origin: center;
   transition:
-    left 240ms var(--window-easing),
-    top 240ms var(--window-easing),
-    width 240ms var(--window-easing),
-    height 240ms var(--window-easing),
     border-radius 240ms var(--window-easing),
     transform 220ms var(--window-easing),
     opacity 220ms ease,
@@ -696,7 +742,12 @@ label {
   opacity: 0;
   visibility: hidden;
   transform: translate(var(--minimize-x, 0), var(--minimize-y, 80px)) scale(0.16, 0.06);
-  transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 220ms;
+  transition-delay: 0s, 0s, 0s, 220ms;
+}
+
+.window[data-window-sizing='true'] {
+  will-change: transform;
+  transition: none;
 }
 
 .window.is-interacting {
@@ -887,7 +938,7 @@ label {
 .terminal-body {
   height: 100%;
   padding: 10px 7px;
-  background: #151a20;
+  background: transparent;
 }
 
 .app-scroll {
@@ -1144,100 +1195,6 @@ label {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-
-.file-layout {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-.file-layout aside {
-  width: 145px;
-  padding: 10px 6px;
-  background: #10172055;
-  flex-shrink: 0;
-}
-
-.file-layout aside button {
-  border: 0;
-  display: block;
-  width: 100%;
-  text-align: left;
-  font-size: 12px;
-  padding: 10px;
-}
-
-.files-main {
-  padding: 10px;
-  flex: 1;
-  overflow: auto;
-}
-
-.file-sort-toolbar {
-  align-items: center;
-  gap: 10px;
-  padding: 0 0 8px;
-}
-
-.file-sort-toolbar label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin: 0;
-  max-width: none;
-}
-
-.file-sort-toolbar input[type='checkbox'] {
-  accent-color: #69b5ff;
-}
-
-.file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-  align-content: start;
-  gap: 5px;
-}
-
-.file {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 12px 4px;
-  background: transparent;
-  border-color: transparent;
-  min-width: 0;
-}
-
-.file.selected {
-  background: #80c8ff20;
-  border-color: #80c8ff44;
-}
-
-.file > .app-icon {
-  display: block;
-  margin: 0;
-}
-
-.file > span:last-child {
-  display: block;
-  font-size: 11px;
-  overflow-wrap: anywhere;
-  text-align: center;
-}
-
-.file-details {
-  border-top: 1px solid var(--line);
-  padding: 8px 12px 0;
-  font-size: 10px;
-  color: #a2b5c7;
-}
-
-.file-details .toolbar {
-  padding-left: 0;
-  padding-right: 0;
 }
 
 .editor-app textarea {

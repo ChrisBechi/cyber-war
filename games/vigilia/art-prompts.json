@@ -4,41 +4,23 @@
     "prompt": "Use case: stylized-concept\nAsset type: cinematic pixel-art title-screen key art and district parallax background for an original 2D shooter, VIGÍLIA: Protocolo Zero.\nPrimary request: Create one original wide 1536x1024 image. Dark indigo rain-soaked cyberpunk industrial city, cyan lights, orange sparks, lone armored female operative with ivory jacket and cyan visor holding a compact rifle on the RIGHT third. Restrained dark skyline and generous quiet negative space across the LEFT HALF, reserved for title UI that will be drawn later.\nStyle/medium: sophisticated crisp pixel art, intentional hard square pixels and readable silhouettes, detailed 16-bit/32-bit videogame atmosphere, layered architecture and rain, no blur or photorealism.\nComposition: wide cinematic side-oriented city vista. The operative belongs exclusively to the right third, fully readable in a strong pose. Keep the left half subdued and uncluttered. Moody industrial roofs, distant towers and lit windows add depth.\nColor palette: midnight navy, deep indigo, charcoal steel, selective electric cyan, warm ember orange, ivory jacket.\nConstraints: NO text, NO letters, NO typography, NO logos, NO watermarks, NO UI, NO border. Output exactly 1536x1024 pixels.",
     "file": "C:/Users/chris/.codex/visualizations/2026/09/10/01a089c0-fa2f-7f92-bd8c-255a6b7fe528/vigilia-assets/vigilia-key-art.png",
     "generation_mode": "built-in image_gen",
-    "requested_dimensions": [
-      1536,
-      1024
-    ],
-    "actual_dimensions": [
-      1536,
-      1024
-    ]
+    "requested_dimensions": [1536, 1024],
+    "actual_dimensions": [1536, 1024]
   },
   {
     "id": "vigilia-environments",
     "prompt": "Use case: stylized-concept\nAsset type: two-scene environment atlas for the original side-view 2D shooter VIGÍLIA: Protocolo Zero.\nPrimary request: Create one original wide 1536x1024 pixel-art image divided into exactly TWO equal, full-width horizontal scenes. Each scene is exactly 1536x512; clean horizontal division at y=512, no border or gutter. TOP HALF: abandoned industrial foundry with amber furnace light, distant steel platforms, pipes, charcoal metal structures. BOTTOM HALF: deep-indigo orbital reactor interior with magenta and cyan core machinery and distant windows.\nStyle/medium: detailed crisp intentional pixel art, strong hard pixel clusters, layered environmental scenery and readable industrial forms. Strict orthographic SIDE VIEW suitable for a side-scrolling 2D game background plate; no isometric or top-down perspective.\nComposition: scenery and distant structures only, open visual space in front for game actors. No ground or solid foreground floor, no foreground collisions, no characters. Top and bottom have exactly equal height and each fills the entire width independently.\nColor palette: midnight navy, deep indigo, charcoal steel, cyan light and amber orange for the foundry; magenta/cyan reactor glow below. Cohesive palette across both scenes.\nConstraints: NO text, NO letters, NO typography, NO labels, NO logos, NO watermarks, NO UI, NO grid lines. Do not add a third scene. Output exactly 1536x1024 pixels.",
     "file": "C:/Users/chris/.codex/visualizations/2026/09/10/01a089c0-fa2f-7f92-bd8c-255a6b7fe528/vigilia-assets/vigilia-environments.png",
     "generation_mode": "built-in image_gen",
-    "requested_dimensions": [
-      1536,
-      1024
-    ],
-    "actual_dimensions": [
-      1536,
-      1024
-    ]
+    "requested_dimensions": [1536, 1024],
+    "actual_dimensions": [1536, 1024]
   },
   {
     "id": "vigilia-sprites",
     "prompt": "Use case: stylized-concept\nAsset type: production sprite atlas for the original side-view 2D shooter VIGÍLIA: Protocolo Zero.\nPrimary request: Create one original TRANSPARENT PNG image, exactly 1024x1024 pixels. Exact 4-column by 4-row atlas, sixteen equal 256x256 cells. No visible grid lines. Every sprite must remain entirely inside its own cell with empty transparent margins and no overlap. Genuine alpha transparency everywhere behind and between subjects, not a painted checkerboard.\nROW 1, cells left to right: four animation frames of the SAME armored human female operative wearing an ivory jacket, dark armor and cyan visor, holding a compact rifle and facing RIGHT. Cell 1 idle, cells 2-4 three distinct running frames. Identical character size, design, equipment and registration across the four frames. Feet baseline at the same relative y coordinate. Full body visible.\nROW 2, left to right: four animation frames of the SAME compact hostile flying drone, red/orange armor with dark metal, facing LEFT. Identical scale and centered position; small readable rotor/engine animation differences.\nROW 3, left to right: four distinct walking animation frames of the SAME dark armored hostile humanoid robot with a magenta visor, facing LEFT. Identical scale and design, aligned foot baseline, full body visible.\nROW 4: column 1 one large red/cyan mechanical boss walker; column 2 one seamless square dark industrial metal floor tile centered within the cell; column 3 one orange-striped industrial crate; column 4 one cyan glowing energy pickup crystal.\nStyle/medium: clean crisp pixel art with intentional square pixel clusters, readable silhouettes and clear outlines, cohesive midnight navy/charcoal palette with ivory/cyan hero, red/orange drone and magenta robot highlights. Avoid blurry realistic rendering.\nComposition: centers of columns at x=128,384,640,896; centers of rows at y=128,384,640,896. All character feet aligned consistently inside their respective row. Generous empty transparent margins within each cell.\nConstraints: exact 4x4 layout and exact subject ordering, no extra sprites, no cell labels, no text, no watermarks, no grid lines, no opaque backdrop, no checkerboard painted into pixels. Preserve actual alpha transparency. Output exactly 1024x1024 pixels as transparent PNG.",
     "file": "C:/Users/chris/.codex/visualizations/2026/09/10/01a089c0-fa2f-7f92-bd8c-255a6b7fe528/vigilia-assets/vigilia-sprites.png",
     "generation_mode": "built-in image_gen",
-    "requested_dimensions": [
-      1024,
-      1024
-    ],
-    "actual_dimensions": [
-      1254,
-      1254
-    ]
+    "requested_dimensions": [1024, 1024],
+    "actual_dimensions": [1254, 1254]
   }
 ]

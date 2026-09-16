@@ -26,13 +26,10 @@ fn quote_expansion_preserves_arguments_without_reparsing_operators() {
     );
     assert_eq!(execute(&mut w, "false").exit_code, 1);
     assert_eq!(execute(&mut w, "echo $?").stdout, "1\n");
-    for text in [
-        "echo $(whoami)",
-        "echo \"`whoami`\"",
-        "echo ${VALUE:-fallback}",
-    ] {
+    for text in ["echo \"`whoami`\"", "echo ${VALUE:-fallback}"] {
         assert_ne!(execute(&mut w, text).exit_code, 0);
     }
+    assert_eq!(execute(&mut w, "echo $(whoami)").stdout, "kali\n");
 }
 
 #[test]
@@ -169,7 +166,7 @@ fn service_flags_return_statuses_and_processes_follow_real_virtual_events() {
         0
     );
     for command in [
-        "sudo apt --fix-broken install nmap",
+        "sudo apt --unsupported-option install nmap",
         "systemctl --failed",
         "journalctl -f",
         "kill -STOP 1",

@@ -9,9 +9,21 @@ use crate::{
 };
 use parking_lot::Mutex;
 use serde::Serialize;
-use tauri::State;
+use tauri::{Manager, State};
 
 type Service<'a> = State<'a, Mutex<GameService>>;
+
+#[tauri::command]
+pub fn attachment_download(
+    message_id: String,
+    index: usize,
+    service: Service<'_>,
+) -> GameResult<String> {
+    service.lock().mutate(
+        |_, w, _| crate::archive::downloads::attachment(w, &message_id, index),
+        false,
+    )
+}
 
 #[tauri::command]
 pub fn task_manager_snapshot(service: Service<'_>) -> GameResult<crate::task_manager::Snapshot> {
@@ -76,6 +88,7 @@ pub fn settings_global_save(
 }
 #[tauri::command]
 pub fn quit_game(app: tauri::AppHandle, service: Service<'_>) -> GameResult<()> {
+    crate::shell::control::cancel_all();
     service.lock().end_session()?;
     app.exit(0);
     Ok(())
@@ -119,6 +132,7 @@ pub fn session_start(service: Service<'_>) -> GameResult<WorldState> {
 }
 #[tauri::command]
 pub fn end_session(service: Service<'_>) -> GameResult<()> {
+    crate::shell::control::cancel_all();
     service.lock().end_session()
 }
 #[tauri::command]
@@ -147,6 +161,7 @@ pub fn terminal_open(
 }
 #[tauri::command]
 pub fn terminal_close(session_id: String, service: Service<'_>) -> GameResult<()> {
+    crate::shell::control::cancel(&session_id);
     let mut game = service.lock();
     if let Some(active) = game.active.as_mut() {
         crate::terminal_sessions::close(&mut active.world, &session_id)?;
@@ -159,6 +174,7 @@ pub fn system_setup_complete(service: Service<'_>) -> GameResult<()> {
 }
 #[tauri::command]
 pub fn load_slot(slot_index: i64, manual: bool, service: Service<'_>) -> GameResult<WorldState> {
+    crate::shell::control::cancel_all();
     service.lock().load(slot_index, manual)
 }
 #[tauri::command]
@@ -170,6 +186,7 @@ pub fn list_checkpoints(
 }
 #[tauri::command]
 pub fn restore_checkpoint(checkpoint_id: String, service: Service<'_>) -> GameResult<WorldState> {
+    crate::shell::control::cancel_all();
     service.lock().restore(&checkpoint_id)
 }
 #[tauri::command]
@@ -191,19 +208,51 @@ pub fn create_mission_checkpoint(mission_id: String, service: Service<'_>) -> Ga
     )
 }
 #[tauri::command]
-pub fn execute_terminal(
+pub async fn execute_terminal(
     command: String,
     session_id: Option<String>,
-    service: Service<'_>,
+    presentation: Option<crate::system_info::Presentation>,
+    output: Option<tauri::ipc::JavaScriptChannelId>,
+    webview: tauri::Webview,
+    app: tauri::AppHandle,
 ) -> GameResult<terminal::CommandResult> {
-    service.lock().mutate(
-        |_, world, _| {
-            crate::terminal_sessions::with_session(world, session_id.as_deref(), |world| {
-                Ok(terminal::execute(world, &command))
-            })
-        },
-        false,
-    )
+    let output = output.map(|channel| channel.channel_on(webview));
+    let control =
+        crate::shell::control::register_output(session_id.as_deref().unwrap_or("default"), output);
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::shell::control::run(&control, || {
+            app.state::<Mutex<GameService>>().lock().mutate(
+                |_, world, _| {
+                    crate::terminal_sessions::with_session(world, session_id.as_deref(), |world| {
+                        if let Some(presentation) = presentation {
+                            world.terminal.presentation = presentation;
+                        }
+                        Ok(terminal::execute_interactive(world, &command))
+                    })
+                },
+                false,
+            )
+        })
+    })
+    .await
+    .map_err(|e| domain(e.to_string()))?
+}
+#[tauri::command]
+pub async fn terminal_input(session_id: String, value: Option<String>, cancel: bool) -> bool {
+    if cancel {
+        crate::shell::control::cancel(&session_id);
+        true
+    } else {
+        crate::shell::control::input(&session_id, value)
+    }
+}
+#[tauri::command]
+pub async fn terminal_output_ack(session_id: String, bytes: usize) {
+    crate::shell::control::acknowledge(&session_id, bytes);
+}
+#[tauri::command]
+pub async fn terminal_cancel_all() {
+    crate::shell::control::cancel_all();
 }
 #[tauri::command]
 pub fn terminal_complete(
@@ -524,12 +573,10 @@ pub fn vfs_copy(
 ) -> GameResult<()> {
     service.lock().mutate(
         |_, w, _| {
-            w.vfs.transfer(
+            w.vfs.copy_unique(
                 &normalize(&source, HOME)?,
                 &normalize(&destination, HOME)?,
                 file_actor(as_root),
-                false,
-                true,
             )
         },
         false,
@@ -939,9 +986,10 @@ pub fn domain_renew(
 
 #[tauri::command]
 pub fn domain_set_primary(address: String, service: Service<'_>) -> GameResult<()> {
-    service
-        .lock()
-        .mutate(|_, world, _| crate::domains::set_primary(world, &address), false)
+    service.lock().mutate(
+        |_, world, _| crate::domains::set_primary(world, &address),
+        false,
+    )
 }
 
 #[tauri::command]
@@ -950,9 +998,10 @@ pub fn domain_create_subdomain(
     label: String,
     service: Service<'_>,
 ) -> GameResult<crate::domains::SubdomainRecord> {
-    service
-        .lock()
-        .mutate(|_, world, _| crate::domains::create_subdomain(world, &address, &label), false)
+    service.lock().mutate(
+        |_, world, _| crate::domains::create_subdomain(world, &address, &label),
+        false,
+    )
 }
 
 #[tauri::command]
@@ -973,16 +1022,18 @@ pub fn domain_list_for_sale(
     price: i64,
     service: Service<'_>,
 ) -> GameResult<crate::domains::DomainMarketOffer> {
-    service
-        .lock()
-        .mutate(|_, world, _| crate::domains::list_for_sale(world, &address, price), false)
+    service.lock().mutate(
+        |_, world, _| crate::domains::list_for_sale(world, &address, price),
+        false,
+    )
 }
 
 #[tauri::command]
 pub fn domain_cancel_sale(address: String, service: Service<'_>) -> GameResult<()> {
-    service
-        .lock()
-        .mutate(|_, world, _| crate::domains::cancel_sale(world, &address), false)
+    service.lock().mutate(
+        |_, world, _| crate::domains::cancel_sale(world, &address),
+        false,
+    )
 }
 
 #[tauri::command]

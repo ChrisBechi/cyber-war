@@ -1,18 +1,58 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { pageSchema } from '../../lib/api';
-import { perform } from '../../lib/game-store';
+import { perform, useGame } from '../../lib/game-store';
 import { canonicalAddress, isOnionAddress, newTab, startNavigation } from './browser-model';
 import type { BrowserTab } from './browser-model';
+import type { BrowserRequest } from './browser-inspection';
+import { loadBrowserFile, type BrowserLocalFile } from './browser-local-file';
 
 export function useBrowserTabs(initialAddress?: string, navigationId?: number, torOnly = false) {
   const [tabs, setTabs] = useState<BrowserTab[]>(() => [newTab(1)]);
   const [activeId, setActiveId] = useState(1);
   const [history, setHistory] = useState<{ address: string; title: string }[]>([]);
+  const [requests, setRequests] = useState<BrowserRequest[]>([]);
   const current = useRef(tabs);
   const active = useRef(activeId);
   const nextId = useRef(2);
   const requestId = useRef(0);
+  const inspectionId = useRef(0);
   const mounted = useRef(true);
+  const beginRequest = useCallback((tabId: number, address: string, operation: string) => {
+    const id = ++inspectionId.current;
+    const started = performance.now();
+    setRequests((items) =>
+      [
+        ...items,
+        {
+          id,
+          tabId,
+          address,
+          operation,
+          startedAt: Date.now(),
+          status: 'pending' as const,
+          durationMs: null,
+          error: '',
+        },
+      ].slice(-100),
+    );
+    return (status: BrowserRequest['status'], error = '') => {
+      if (!mounted.current) {
+        return;
+      }
+      setRequests((items) =>
+        items.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status,
+                error,
+                durationMs: Math.max(0, Math.round(performance.now() - started)),
+              }
+            : item,
+        ),
+      );
+    };
+  }, []);
   const change = useCallback((update: (tabs: BrowserTab[]) => BrowserTab[]) => {
     current.current = update(current.current);
     setTabs(current.current);
@@ -39,7 +79,14 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
       if (!normalized) {
         return;
       }
-      if (torOnly && !isOnionAddress(normalized)) {
+      const isFile = /^file:/i.test(normalized);
+      const finishRequest = beginRequest(
+        tabId,
+        normalized,
+        isFile ? 'Arquivo local' : 'Navigation',
+      );
+      if (torOnly && !isFile && !isOnionAddress(normalized)) {
+        finishRequest('blocked', 'Tor Browser só acessa Onion Services v3 (.onion).');
         change((tabs) =>
           tabs.map((tab) =>
             tab.id === tabId
@@ -53,8 +100,15 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
         );
         return;
       }
-      void perform('browser_navigate', { address }, pageSchema)
-        .then((page) => {
+      const loading = isFile
+        ? loadBrowserFile(normalized)
+        : perform('browser_navigate', { address }, pageSchema).then((page) => ({
+            page,
+            localFile: undefined as BrowserLocalFile | undefined,
+          }));
+      void loading
+        .then(({ page, localFile }) => {
+          finishRequest('success');
           if (
             !mounted.current ||
             !current.current.some((tab) => tab.id === tabId && tab.request === token)
@@ -62,7 +116,9 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
             return;
           }
           change((tabs) =>
-            tabs.map((tab) => (tab.id === tabId ? { ...tab, page, loading: false } : tab)),
+            tabs.map((tab) =>
+              tab.id === tabId ? { ...tab, page, localFile, loading: false } : tab,
+            ),
           );
           setHistory((old) =>
             [
@@ -72,6 +128,11 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
           );
         })
         .catch((error: unknown) => {
+          finishRequest('error', String(error).replace(/^Error:\s*/, ''));
+          // Navigation failures belong to their tab, not the desktop-wide toast.
+          if (useGame.getState().error === String(error)) {
+            useGame.getState().clearError();
+          }
           if (mounted.current) {
             change((tabs) =>
               tabs.map((tab) =>
@@ -83,7 +144,7 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
           }
         });
     },
-    [change, torOnly],
+    [change, torOnly, beginRequest],
   );
   const add = useCallback(
     (address = '') => {
@@ -132,6 +193,10 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
     tabs,
     tab,
     history,
+    requests,
+    beginRequest,
+    clearRequests: () =>
+      setRequests((items) => items.filter((item) => item.tabId !== active.current)),
     change,
     select,
     add,

@@ -8,6 +8,17 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const COMMANDS: &[&str] = &[
+    "jobs",
+    "zip",
+    "unzip",
+    "tar",
+    "gzip",
+    "gunzip",
+    "zcat",
+    "bzip2",
+    "bunzip2",
+    "xz",
+    "unxz",
     "help",
     "pwd",
     "cd",
@@ -23,6 +34,8 @@ pub const COMMANDS: &[&str] = &[
     "id",
     "groups",
     "uname",
+    "fastfetch",
+    "neofetch",
     "hostname",
     "date",
     "env",
@@ -48,6 +61,9 @@ pub const COMMANDS: &[&str] = &[
     "realpath",
     "readlink",
     "which",
+    "type",
+    "command",
+    "tee",
     "whereis",
     "df",
     "du",
@@ -109,6 +125,8 @@ pub const COMMANDS: &[&str] = &[
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommandResult {
+    pub shell_incomplete: bool,
+    pub(crate) ordered: Vec<(u8, String)>,
     pub stdout: String,
     pub stderr: String,
     pub cwd: String,
@@ -117,6 +135,8 @@ pub struct CommandResult {
     pub exit_code: i32,
     pub interactive: Option<crate::nano::NanoLaunch>,
     pub launch_app: Option<String>,
+    pub archive_prompt: Option<crate::archive::cli::Prompt>,
+    pub archive_job: Option<u32>,
 }
 
 /// Only lexical parsing. No shell, interpolation, executable lookup or host fallback.
@@ -183,6 +203,41 @@ pub fn tokenize(input: &str) -> GameResult<Vec<String>> {
     Ok(tokens)
 }
 
+pub fn execute_interactive(world: &mut WorldState, line: &str) -> CommandResult {
+    if line == "\x03" {
+        world.terminal.shell.continuation.clear();
+        return execute_with(world, |_| {
+            Ok(crate::terminal_io::Output {
+                status: 130,
+                ..Default::default()
+            })
+        });
+    }
+    let previous = std::mem::take(&mut world.terminal.shell.continuation);
+    let command = if previous.is_empty() {
+        line.into()
+    } else {
+        format!("{previous}\n{line}")
+    };
+    if matches!(
+        crate::shell::syntax::parse(&command),
+        crate::shell::syntax::ParseResult::Incomplete(_)
+    ) {
+        world.terminal.shell.continuation = command;
+        let status = world.terminal.last_status;
+        let mut result = execute_with(world, |_| {
+            Ok(crate::terminal_io::Output {
+                status,
+                ..Default::default()
+            })
+        });
+        result.shell_incomplete = true;
+        return result;
+    }
+    world.terminal.shell.flow = None;
+    execute(world, &command)
+}
+
 pub fn execute(world: &mut WorldState, command: &str) -> CommandResult {
     if !command.trim().is_empty() {
         world.terminal.history.push(command.into());
@@ -190,21 +245,9 @@ pub fn execute(world: &mut WorldState, command: &str) -> CommandResult {
             world.terminal.history.remove(0);
         }
     }
-    let status = world.terminal.last_status;
-    let parts = crate::shell::words(
-        command,
-        &virtual_env(world, &world.terminal.user),
-        "bash",
-        &[],
-        status,
-    );
-    let command_name = parts
-        .as_ref()
-        .ok()
-        .and_then(|items| items.first())
-        .cloned();
-    let mut result = execute_parts(world, parts);
-    if result.exit_code == 0 && command_name.as_deref() == Some("sector-ix") {
+    let command_name = command.split_whitespace().next().unwrap_or("").to_string();
+    let mut result = execute_with(world, |candidate| crate::shell::execute(candidate, command));
+    if result.exit_code == 0 && command_name == "sector-ix" {
         result.launch_app = Some("vigilia".into());
     }
     result
@@ -214,62 +257,22 @@ pub(crate) fn execute_parts(
     world: &mut WorldState,
     parts: GameResult<Vec<String>>,
 ) -> CommandResult {
+    execute_with(world, |candidate| {
+        parts.and_then(|parts| crate::shell_pipeline::run(candidate, &parts))
+    })
+}
+fn execute_with(
+    world: &mut WorldState,
+    work: impl FnOnce(&mut WorldState) -> GameResult<crate::terminal_io::Output>,
+) -> CommandResult {
     let mut candidate = world.clone();
-    let outcome = parts.and_then(|parts| {
-        if parts.is_empty() {
-            return Ok(crate::terminal_io::Output::default());
+    let outcome = work(&mut candidate).map(|mut output| {
+        if crate::shell::control::cancelled() {
+            output.status = 130;
         }
-        let redirect = parts.iter().position(|p| p == "\0>" || p == "\0>>");
-        let end = redirect.unwrap_or(parts.len());
-        if end == 0 {
-            return Err(domain("missing command"));
-        }
-        if let Some(i) = redirect {
-            if parts.len() != i + 2 {
-                return Err(domain("one redirect destination required"));
-            }
-        }
-        let actor = candidate.terminal.user.clone();
-        let destination = if let Some(i) = redirect {
-            let path = normalize(&parts[i + 1], &candidate.terminal.cwd)?;
-            let append = parts[i] == "\0>>";
-            candidate.fs_mut()?.prepare_output(&path, &actor, append)?;
-            Some((path, append, candidate.terminal.host.clone()))
-        } else {
-            None
-        };
-        let mut result = dispatch(&mut candidate, &parts[..end], &actor)?;
-        if result.status == 0 && !["help", "clear", "echo", "lab"].contains(&parts[0].as_str()) {
-            candidate.techniques.insert(parts[0].clone());
-        }
-        if let Some((path, append, host)) = destination {
-            // The shell opened this destination before the command, in its original host.
-            let fs = match host {
-                Some(host) => {
-                    &mut candidate
-                        .network
-                        .hosts
-                        .get_mut(&host)
-                        .ok_or_else(|| domain("redirect host missing"))?
-                        .files
-                }
-                None => &mut candidate.vfs,
-            };
-            let mut content = if append {
-                fs.nodes
-                    .get(&path)
-                    .map(|node| node.content.clone())
-                    .unwrap_or_default()
-            } else {
-                String::new()
-            };
-            content.push_str(&result.stdout);
-            fs.write(&path, &content, &actor)?;
-            result.stdout.clear();
-        }
-        Ok(result)
+        output
     });
-    let (stdout, stderr, code) = match outcome {
+    let (stdout, stderr, code, archive_job, ordered) = match outcome {
         Ok(out) => {
             if candidate.terminal.cwd != world.terminal.cwd
                 || candidate.terminal.host != world.terminal.host
@@ -285,20 +288,23 @@ pub(crate) fn execute_parts(
             }
             observe(&mut candidate);
             *world = candidate;
-            (out.stdout, out.stderr, out.status)
+            (
+                out.stdout,
+                out.stderr,
+                out.status,
+                out.archive_job,
+                out.ordered,
+            )
         }
         Err(e) => {
             let text = e.to_string();
-            let code = if text.contains("command not found") {
-                127
-            } else {
-                1
-            };
-            (String::new(), format!("{text}\n"), code)
+            (String::new(), format!("{text}\n"), 2, None, Vec::new())
         }
     };
     world.terminal.last_status = code;
     CommandResult {
+        shell_incomplete: false,
+        ordered,
         stdout,
         stderr,
         cwd: world.terminal.cwd.clone(),
@@ -331,6 +337,22 @@ pub(crate) fn execute_parts(
             None
         },
         launch_app: None,
+        archive_prompt: world
+            .terminal
+            .archive_pending
+            .as_ref()
+            .map(|p| p.prompt.clone())
+            .or_else(|| {
+                world
+                    .terminal
+                    .package_pending
+                    .as_ref()
+                    .map(|_| crate::archive::cli::Prompt {
+                        message: "Do you want to continue? [Y/n] ".into(),
+                        secret: false,
+                    })
+            }),
+        archive_job,
     }
 }
 
@@ -454,7 +476,9 @@ fn chmod_mode(spec: &str, current: u16) -> GameResult<u16> {
         || !permissions
             .chars()
             .all(|value| matches!(value, 'r' | 'w' | 'x'))
-        || !classes.chars().all(|value| matches!(value, 'u' | 'g' | 'o' | 'a'))
+        || !classes
+            .chars()
+            .all(|value| matches!(value, 'u' | 'g' | 'o' | 'a'))
     {
         return Err(domain("chmod: invalid mode"));
     }
@@ -500,430 +524,6 @@ fn chmod_mode(spec: &str, current: u16) -> GameResult<u16> {
         }
         _ => unreachable!(),
     }
-}
-
-const DEFAULT_PACKAGES: &[(&str, &str, &str)] = &[
-    ("base-files", "13.8", "Debian base system"),
-    ("bash", "5.2.37", "GNU Bourne Again SHell"),
-    ("coreutils", "9.7", "GNU core utilities"),
-    ("curl", "8.14.1", "command line tool for transferring data"),
-    (
-        "iproute2",
-        "6.15.0",
-        "networking and traffic control utilities",
-    ),
-    (
-        "nano",
-        "8.7",
-        "small, friendly text editor inspired by Pico",
-    ),
-    ("nmap", "7.98", "The Network Mapper"),
-    ("openssh-client", "10.0p2", "secure shell client"),
-    (
-        "procps",
-        "4.0.4",
-        "utilities for monitoring system processes",
-    ),
-    ("sudo", "1.9.17p1", "provide limited super user privileges"),
-    ("systemd", "257.5", "system and service manager"),
-    ("wget", "1.25.0", "retrieves files from the web"),
-];
-
-fn package_info(name: &str) -> Option<(String, String, String)> {
-    let normalized = name
-        .trim()
-        .split_once('=')
-        .map(|(package, _)| package)
-        .unwrap_or(name.trim())
-        .to_ascii_lowercase();
-    if let Some((package, version, description)) = DEFAULT_PACKAGES
-        .iter()
-        .find(|(package, _, _)| (*package).eq_ignore_ascii_case(&normalized))
-    {
-        return Some(((*package).into(), (*version).into(), (*description).into()));
-    }
-    crate::software::CATALOG
-        .entries
-        .iter()
-        .find(|entry| {
-            entry.package.eq_ignore_ascii_case(&normalized)
-                || entry.id.eq_ignore_ascii_case(&normalized)
-                || entry.name.eq_ignore_ascii_case(&normalized)
-        })
-        .map(|entry| {
-            (
-                entry.package.clone(),
-                "virtual".into(),
-                entry.description.clone(),
-            )
-        })
-}
-
-fn installed_packages(world: &WorldState) -> Vec<String> {
-    let fallback = DEFAULT_PACKAGES
-        .iter()
-        .map(|(package, _, _)| (*package).to_owned())
-        .collect::<Vec<_>>();
-    let mut packages = world
-        .settings
-        .get("aptInstalled")
-        .and_then(|value| serde_json::from_str::<Vec<String>>(value).ok())
-        .unwrap_or(fallback);
-    packages.sort();
-    packages.dedup();
-    packages
-}
-
-fn save_installed_packages(world: &mut WorldState, mut packages: Vec<String>) -> GameResult<()> {
-    packages.sort();
-    packages.dedup();
-    world
-        .settings
-        .insert("aptInstalled".into(), serde_json::to_string(&packages)?);
-    Ok(())
-}
-
-fn package_operands(args: &[String]) -> Vec<String> {
-    operands_with_values(args, &["-o", "--option", "-t", "--target-release"])
-}
-
-fn package_list_output(world: &WorldState, installed_only: bool) -> String {
-    let installed = installed_packages(world);
-    let mut names = installed.clone();
-    if !installed_only {
-        names.extend(
-            crate::software::CATALOG
-                .entries
-                .iter()
-                .map(|entry| entry.package.clone()),
-        );
-    }
-    names.sort();
-    names.dedup();
-    let mut output = String::from("Listing...\n");
-    for name in names {
-        if let Some((package, version, description)) = package_info(&name) {
-            let marker = if installed.iter().any(|item| item == &package) {
-                "[installed]"
-            } else {
-                "[available]"
-            };
-            output.push_str(&format!(
-                "{package}/{marker} {version} virtual amd64\n  {description}\n"
-            ));
-        }
-    }
-    output
-}
-
-fn package_manager(
-    world: &mut WorldState,
-    command: &str,
-    args: &[String],
-    actor: &str,
-) -> GameResult<String> {
-    let opts = crate::terminal_io::options(
-        command,
-        args,
-        "yiv",
-        "",
-        &[("assume-yes", 'y'), ("installed", 'i'), ("version", 'v')],
-    )?;
-    if world.terminal.host.is_some() {
-        return Err(domain(
-            "apt: remote package inventory is not implemented; local packages were not changed",
-        ));
-    }
-    if opts.help {
-        return Ok(format!("{command} — virtual package subset\nupdate, upgrade, install, reinstall, remove, purge, search, list, show\n-y/--assume-yes; list --installed. No repository downloads, dependency solver or maintainer scripts.\n"));
-    }
-    if has_flag(args, 'v', "--version") {
-        return Ok(format!("{} 2.9.29 (amd64)\n", command));
-    }
-    let values = package_operands(args);
-    let operation = values.first().map(String::as_str).unwrap_or("help");
-    if opts.has('i') && operation != "list" {
-        return Err(domain("apt: --installed is only supported with list"));
-    }
-    let package_args = if values.is_empty() {
-        &[][..]
-    } else {
-        &values[1..]
-    };
-    match operation {
-        "help" | "--help" => Ok(format!(
-            "Uso: {command} [opções] comando\n\nComandos virtuais: update, upgrade, install, reinstall, remove, purge, autoremove, search, list, show\nOpções: -y, --assume-yes; list --installed\nSem resolução real de dependências ou downloads.\n"
-        )),
-        "update" => {
-            if actor != "root" {
-                return Err(domain("E: Could not open lock file /var/lib/apt/lists/lock - Permission denied"));
-            }
-            world
-                .settings
-                .insert("aptUpdatedAt".into(), world.playtime_seconds.to_string());
-            Ok("Hit:1 http://http.kali.org/kali kali-rolling InRelease\nReading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\nAll packages are up to date.\n".into())
-        }
-        "upgrade" | "dist-upgrade" | "full-upgrade" => {
-            if actor != "root" {
-                return Err(domain("E: Could not open lock file /var/lib/dpkg/lock-frontend - Permission denied"));
-            }
-            Ok("Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\n".into())
-        }
-        "install" | "reinstall" => {
-            if actor != "root" {
-                return Err(domain("E: Could not open lock file /var/lib/dpkg/lock-frontend - Permission denied"));
-            }
-            if package_args.is_empty() {
-                return Err(domain(format!("{command}: specify packages to install")));
-            }
-            let mut installed = installed_packages(world);
-            let mut output = String::from("Reading package lists... Done\nBuilding dependency tree... Done\nReading state information... Done\n");
-            let mut new_packages = Vec::new();
-            for package in package_args {
-                let Some((name, version, _)) = package_info(package) else {
-                    return Err(domain(format!("E: Unable to locate package {package}")));
-                };
-                if !installed.iter().any(|item| item == &name) || operation == "reinstall" {
-                    if !new_packages.iter().any(|item: &String| item == &name) {
-                        new_packages.push(name.clone());
-                    }
-                    if !installed.iter().any(|item| item == &name) {
-                        installed.push(name.clone());
-                    }
-                    output.push_str(&format!("Preparing to unpack {name} ({version}) ...\nUnpacking {name} ({version}) ...\n"));
-                } else {
-                    output.push_str(&format!("{name} is already the newest version ({version}).\n"));
-                }
-            }
-            save_installed_packages(world, installed)?;
-            for package in &new_packages {
-                output.push_str(&format!("Setting up {package} ...\n"));
-            }
-            output.push_str(&format!("{} upgraded, {} newly installed, 0 to remove and 0 not upgraded.\n", 0, new_packages.len()));
-            Ok(output)
-        }
-        "remove" | "purge" | "autoremove" => {
-            if actor != "root" {
-                return Err(domain("E: Could not open lock file /var/lib/dpkg/lock-frontend - Permission denied"));
-            }
-            let mut installed = installed_packages(world);
-            if operation == "autoremove" && package_args.is_empty() {
-                return Ok("0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\n".into());
-            }
-            if package_args.is_empty() {
-                return Err(domain(format!("{command}: specify packages to remove")));
-            }
-            for package in package_args {
-                let Some((name, _, _)) = package_info(package) else {
-                    return Err(domain(format!("E: Unable to locate package {package}")));
-                };
-                installed.retain(|item| item != &name);
-            }
-            save_installed_packages(world, installed)?;
-            Ok(format!("Removing {} ...\n0 upgraded, 0 newly installed, {} to remove and 0 not upgraded.\n", package_args.join(" "), package_args.len()))
-        }
-        "list" => Ok(package_list_output(world, has_flag(args, 'i', "--installed"))),
-        "search" => {
-            let query = package_args.join(" ").to_ascii_lowercase();
-            if query.is_empty() {
-                return Err(domain(format!("{command} search: missing search term")));
-            }
-            let mut output = String::new();
-            for package in installed_packages(world) {
-                if let Some((name, version, description)) = package_info(&package) {
-                    if format!("{name} {description}").to_ascii_lowercase().contains(&query) {
-                        output.push_str(&format!("{name} - {description} ({version})\n"));
-                    }
-                }
-            }
-            for entry in &crate::software::CATALOG.entries {
-                if format!("{} {}", entry.package, entry.description)
-                    .to_ascii_lowercase()
-                    .contains(&query)
-                {
-                    output.push_str(&format!("{} - {} (virtual)\n", entry.package, entry.description));
-                }
-            }
-            Ok(output)
-        }
-        "show" | "info" => {
-            let package = package_args
-                .first()
-                .ok_or_else(|| domain(format!("{command} show PACKAGE")))?;
-            let (name, version, description) = package_info(package)
-                .ok_or_else(|| domain(format!("E: No packages found matching {package}")))?;
-            Ok(format!("Package: {name}\nVersion: {version}\nArchitecture: amd64\nPriority: optional\nSection: utils\nInstalled-Size: virtual\nDescription: {description}\n"))
-        }
-        _ => Err(domain(format!("{command}: unknown command '{operation}'"))),
-    }
-}
-
-fn package_cache(world: &WorldState, args: &[String]) -> GameResult<String> {
-    let values = package_operands(args);
-    let operation = values.first().map(String::as_str).unwrap_or("help");
-    let package = values.get(1).map(String::as_str);
-    match operation {
-        "help" | "--help" => Ok("Uso: apt-cache {gencaches, policy, search, show}\n".into()),
-        "gencaches" | "rebuild" => Ok("Reading package lists... Done\n".into()),
-        "search" => {
-            let query = values
-                .get(1)
-                .cloned()
-                .unwrap_or_default()
-                .to_ascii_lowercase();
-            if query.is_empty() {
-                return Err(domain("apt-cache search: missing search term"));
-            }
-            let mut output = String::new();
-            for entry in &crate::software::CATALOG.entries {
-                if format!("{} {}", entry.package, entry.description)
-                    .to_ascii_lowercase()
-                    .contains(&query)
-                {
-                    output.push_str(&format!("{} - {}\n", entry.package, entry.description));
-                }
-            }
-            for name in installed_packages(world) {
-                if let Some((package, _, description)) = package_info(&name) {
-                    if format!("{package} {description}")
-                        .to_ascii_lowercase()
-                        .contains(&query)
-                    {
-                        output.push_str(&format!("{package} - {description}\n"));
-                    }
-                }
-            }
-            Ok(output)
-        }
-        "show" | "showpkg" | "madison" => {
-            let package = package.ok_or_else(|| domain("apt-cache: package name is required"))?;
-            let (name, version, description) = package_info(package)
-                .ok_or_else(|| domain(format!("E: No packages found matching {package}")))?;
-            Ok(format!(
-                "Package: {name}\nVersion: {version}\nDescription: {description}\n"
-            ))
-        }
-        "policy" => {
-            let package =
-                package.ok_or_else(|| domain("apt-cache policy: package name is required"))?;
-            let (name, version, _) = package_info(package)
-                .ok_or_else(|| domain(format!("N: Unable to locate package {package}")))?;
-            let installed = installed_packages(world).iter().any(|item| item == &name);
-            Ok(format!("{name}:\n  Installed: {}\n  Candidate: {version}\n  Version table:\n *** {version} 500\n        500 http://http.kali.org/kali kali-rolling/main amd64 Packages\n", if installed { version.clone() } else { "(none)".into() }))
-        }
-        _ => Err(domain(format!("apt-cache: unknown command '{operation}'"))),
-    }
-}
-
-fn package_mark(world: &mut WorldState, args: &[String], actor: &str) -> GameResult<String> {
-    let values = operands(args);
-    let operation = values.first().map(String::as_str).unwrap_or("showmanual");
-    let mut marked = world
-        .settings
-        .get("aptManual")
-        .and_then(|value| serde_json::from_str::<Vec<String>>(value).ok())
-        .unwrap_or_else(|| installed_packages(world));
-    match operation {
-        "showmanual" => {
-            marked.sort();
-            marked.dedup();
-            Ok(format!("{}\n", marked.join("\n")))
-        }
-        "auto" | "manual" => {
-            if actor != "root" {
-                return Err(domain("apt-mark: permission denied; use sudo"));
-            }
-            let packages = values.iter().skip(1);
-            for package in packages {
-                let Some((name, _, _)) = package_info(package) else {
-                    return Err(domain(format!("E: Unable to locate package {package}")));
-                };
-                marked.retain(|item| item != &name);
-                if operation == "manual" {
-                    marked.push(name);
-                }
-            }
-            world
-                .settings
-                .insert("aptManual".into(), serde_json::to_string(&marked)?);
-            Ok(String::new())
-        }
-        "hold" | "unhold" => {
-            if actor != "root" {
-                return Err(domain("apt-mark: permission denied; use sudo"));
-            }
-            let mut held = world
-                .settings
-                .get("aptHeld")
-                .and_then(|value| serde_json::from_str::<Vec<String>>(value).ok())
-                .unwrap_or_default();
-            for package in values.iter().skip(1) {
-                let Some((name, _, _)) = package_info(package) else {
-                    return Err(domain(format!("E: Unable to locate package {package}")));
-                };
-                held.retain(|item| item != &name);
-                if operation == "hold" {
-                    held.push(name);
-                }
-            }
-            world
-                .settings
-                .insert("aptHeld".into(), serde_json::to_string(&held)?);
-            Ok(String::new())
-        }
-        _ => Err(domain(format!("apt-mark: unknown operation '{operation}'"))),
-    }
-}
-
-fn dpkg_command(world: &WorldState, args: &[String]) -> GameResult<String> {
-    let values = operands(args);
-    if args.iter().any(|arg| arg == "--help") {
-        return Ok("Uso: dpkg -l [PACOTE] · dpkg -s PACOTE · dpkg -L PACOTE\n".into());
-    }
-    let list = args.iter().any(|arg| arg == "-l" || arg == "--list") || values.is_empty();
-    if list {
-        let filter = values.first();
-        let mut output = String::from("Desired=Unknown/Install/Remove/Purge/Hold\n||/ Name                 Version      Architecture Description\n+++-====================-============-============-==============================\n");
-        for name in installed_packages(world) {
-            if filter.is_some_and(|value| !name.contains(value)) {
-                continue;
-            }
-            if let Some((package, version, description)) = package_info(&name) {
-                output.push_str(&format!(
-                    "ii  {package:<20} {version:<12} amd64        {description}\n"
-                ));
-            }
-        }
-        return Ok(output);
-    }
-    let package = values
-        .first()
-        .ok_or_else(|| domain("dpkg: missing package name"))?;
-    let (name, version, description) = package_info(package).ok_or_else(|| {
-        domain(format!(
-            "dpkg-query: no path found matching pattern {package}"
-        ))
-    })?;
-    let installed = installed_packages(world).iter().any(|item| item == &name);
-    if args.iter().any(|arg| arg == "-L" || arg == "--listfiles") {
-        if !installed {
-            return Err(domain(format!(
-                "dpkg-query: package '{name}' is not installed"
-            )));
-        }
-        return Ok(format!(
-            "/usr/bin/{name}\n/usr/share/doc/{name}/README.Debian\n"
-        ));
-    }
-    if args.iter().any(|arg| arg == "-s" || arg == "--status") {
-        if !installed {
-            return Err(domain(format!(
-                "dpkg-query: package '{name}' is not installed"
-            )));
-        }
-        return Ok(format!("Package: {name}\nStatus: install ok installed\nPriority: optional\nSection: utils\nArchitecture: amd64\nVersion: {version}\nDescription: {description}\n"));
-    }
-    Err(domain("dpkg: unsupported virtual option; use -l, -s or -L"))
 }
 
 fn service_defaults() -> BTreeMap<String, String> {
@@ -1637,10 +1237,22 @@ pub(crate) fn virtual_env(world: &WorldState, actor: &str) -> BTreeMap<String, S
         ("USER".into(), actor.into()),
     ]);
     env.extend(world.terminal.env.clone());
+    for key in &world.terminal.shell.unset {
+        env.remove(key);
+    }
     env
 }
 
 fn manual_page(command: &str) -> String {
+    if ["fastfetch", "neofetch"].contains(&command) {
+        return crate::system_info::HELP.into();
+    }
+    if let Some(manual) = crate::packages::cli::manual(command) {
+        return manual;
+    }
+    if let Some(manual) = crate::archive::cli::manual(command) {
+        return manual;
+    }
     if ["bash", "sh", "source"].contains(&command) {
         return crate::shell::HELP.into();
     }
@@ -1648,6 +1260,9 @@ fn manual_page(command: &str) -> String {
         return manual;
     }
     if let Some(manual) = crate::terminal_io::manual(command) {
+        return manual;
+    }
+    if let Some(manual) = crate::terminal_text::manual(command) {
         return manual;
     }
     let synopsis = match command {
@@ -1671,16 +1286,141 @@ fn manual_page(command: &str) -> String {
     format!("{}(1)                 CYBER WAR virtual manual\n\nNAME\n    {command} - {synopsis}\n\nDESCRIPTION\n    Partial game implementation; this synopsis is not a complete GNU/Linux contract.\n    Flags and outputs of this legacy command still require a vertical audit.\n    It never invokes a host executable or touches the real filesystem.\n\nSEE ALSO\n    help(1), nano(1), systemctl(1), apt(8)\n", command)
 }
 
-fn dispatch(
+pub(crate) fn dispatch(
     world: &mut WorldState,
     parts: &[String],
     actor: &str,
 ) -> GameResult<crate::terminal_io::Output> {
     use crate::terminal_io::Output;
+    let original_name = parts[0].as_str();
+    let mut resolved_parts = parts.to_vec();
+    if !original_name.contains('/') && !crate::shell::is_builtin(original_name) {
+        if let Some(path) = crate::shell::path_file(world, original_name, actor) {
+            if !world.packages.ownership.contains_key(&path) {
+                resolved_parts[0] = path;
+                return dispatch(world, &resolved_parts, actor);
+            }
+        }
+    }
+    if world.terminal.host.is_none() {
+        let base = original_name.rsplit('/').next().unwrap_or(original_name);
+        if crate::packages::executables::is_builtin(world, base)
+            && !(crate::shell::is_builtin(original_name) && !original_name.contains('/'))
+        {
+            if crate::packages::executables::resolve(world, original_name, actor).is_none() {
+                return Ok(crate::packages::executables::unavailable(
+                    world,
+                    original_name,
+                    actor,
+                ));
+            }
+            resolved_parts[0] = base.into();
+        } else if let Some(result) =
+            crate::packages::executables::dispatch(world, original_name, &parts[1..], actor)
+        {
+            return result;
+        } else if original_name.contains('/') {
+            let path = normalize(original_name, &world.terminal.cwd)?;
+            if let Ok(node) = world.fs()?.stat(&path, actor) {
+                let mask = if actor == "root" {
+                    0o111
+                } else if node.owner == actor {
+                    0o100
+                } else if node.group == actor {
+                    0o010
+                } else {
+                    0o001
+                };
+                if node.kind != "file" || node.mode & mask == 0 {
+                    return Ok(Output {
+                        stderr: format!("bash: {original_name}: Permission denied\n"),
+                        status: 126,
+                        ..Output::default()
+                    });
+                }
+                if node.content.starts_with("#!") && node.blob.is_none() {
+                    let mut args = vec![path];
+                    args.extend_from_slice(&parts[1..]);
+                    return crate::shell::invoke(world, "bash", &args, actor);
+                }
+                return Ok(Output {
+                    stderr: format!("bash: {original_name}: cannot execute virtual file\n"),
+                    status: 126,
+                    ..Output::default()
+                });
+            }
+        }
+    }
+    let parts = resolved_parts.as_slice();
     let name = parts[0].as_str();
     let args = &parts[1..];
-    if name == "export" {
+    if let Some(result) = crate::packages::cli::execute(world, name, args, actor) {
+        return result;
+    }
+    if name == "jobs" {
+        return Ok(Output::success(crate::archive::jobs::listing(world)));
+    }
+    if name == "env" || name == "printenv" {
+        let mut environment = virtual_env(world, actor);
+        environment.retain(|key, _| {
+            !world.terminal.env.contains_key(key)
+                || world.terminal.exported.contains(key)
+                || ["HOME", "PWD", "OLDPWD", "PATH", "USER", "LANG"].contains(&key.as_str())
+        });
+        if args.iter().any(|s| s.starts_with('-')) {
+            return Ok(Output {
+                status: 2,
+                stderr: format!("{name}: unsupported option\n"),
+                ..Output::default()
+            });
+        }
+        if name == "env" && !args.is_empty() {
+            return Ok(Output {
+                status: 2,
+                stderr: "env: command operands are not implemented\n".into(),
+                ..Output::default()
+            });
+        }
         if args.is_empty() {
+            return Ok(Output::success(
+                environment
+                    .iter()
+                    .map(|(key, value)| format!("{key}={value}\n"))
+                    .collect(),
+            ));
+        }
+        let mut output = Output::default();
+        for key in args {
+            if let Some(value) = environment.get(key) {
+                output.stdout.push_str(value);
+                output.stdout.push('\n');
+            } else {
+                output.status = 1;
+            }
+        }
+        return Ok(output);
+    }
+    if name == "tee" {
+        let options = crate::terminal_io::options("tee", args, "a", "", &[("append", 'a')])?;
+        let text = world.terminal.stdin.clone().unwrap_or_default();
+        for file in options.files {
+            let path = normalize(&file, &world.terminal.cwd)?;
+            let mut content =
+                if options.flags.contains(&'a') && world.fs()?.nodes.contains_key(&path) {
+                    world.fs()?.read(&path, actor)?
+                } else {
+                    String::new()
+                };
+            content.push_str(&text);
+            world.fs_mut()?.write(&path, &content, actor)?;
+        }
+        return Ok(Output::success(text));
+    }
+    if let Some(result) = crate::archive::cli::execute(world, name, args, actor) {
+        return result;
+    }
+    if name == "export" {
+        if args.is_empty() || args == ["-p"] {
             return Ok(Output::success(
                 world
                     .terminal
@@ -1709,23 +1449,75 @@ fn dispatch(
             }
             if let Some(value) = assigned {
                 world.terminal.env.insert(key.into(), value.into());
+                world.terminal.shell.unset.remove(key);
             }
             world.terminal.exported.insert(key.into());
         }
         return Ok(Output::default());
     }
-    if name.contains('=') {
-        if parts.len() != 1 {
-            return Err(domain(
-                "shell: assignment prefixes before a command are not implemented",
-            ));
+    if name == "unset" {
+        for key in args {
+            if !crate::shell::identifier(key) {
+                return Ok(Output {
+                    status: 2,
+                    stderr: "unset: invalid identifier or unsupported option\n".into(),
+                    ..Output::default()
+                });
+            }
+            world.terminal.env.remove(key);
+            world.terminal.exported.remove(key);
+            world.terminal.shell.unset.insert(key.clone());
         }
-        let (key, value) = name.split_once('=').unwrap();
-        if !crate::shell::identifier(key) {
-            return Err(domain("shell: invalid variable name"));
-        }
-        world.terminal.env.insert(key.into(), value.into());
         return Ok(Output::default());
+    }
+    if name == "return" || (name == "exit" && world.terminal.shell_depth > 0) {
+        if name == "return" && world.terminal.shell.source_depth == 0 {
+            return Ok(Output {
+                status: 1,
+                stderr: "return: only valid in a sourced file\n".into(),
+                ..Output::default()
+            });
+        }
+        if args.len() > 1 {
+            return Ok(Output {
+                status: 1,
+                stderr: format!("{name}: too many arguments\n"),
+                ..Output::default()
+            });
+        }
+        let status = match args.first() {
+            None => world.terminal.last_status,
+            Some(s) => match s.parse::<i64>() {
+                Ok(n) => n.rem_euclid(256) as i32,
+                Err(_) => {
+                    return Ok(Output {
+                        status: 2,
+                        stderr: format!("{name}: numeric argument required\n"),
+                        ..Output::default()
+                    })
+                }
+            },
+        };
+        world.terminal.shell.flow = Some(if name == "exit" {
+            crate::shell::Flow::Exit
+        } else {
+            crate::shell::Flow::Return
+        });
+        return Ok(Output {
+            status,
+            ..Output::default()
+        });
+    }
+    if [
+        "set", "if", "then", "fi", "for", "while", "until", "case", "function", "eval", "exec",
+    ]
+    .contains(&name)
+    {
+        return Ok(Output {
+            status: 2,
+            stderr: "shell: control syntax/set is not implemented\n".into(),
+            ..Output::default()
+        });
     }
     if ["bash", "sh", "source", "."].contains(&name) {
         return crate::shell::invoke(world, name, args, actor);
@@ -1735,6 +1527,9 @@ fn dispatch(
     }
     if let Some(result) = crate::terminal_io::execute(world, name, args, actor) {
         return result;
+    }
+    if ["wc", "sort", "uniq"].contains(&name) {
+        return crate::terminal_text::execute(world, name, args, actor);
     }
     if name == "sudo" {
         if args.is_empty() || args[0] == "sudo" || args[0] == "su" {
@@ -1786,6 +1581,7 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             world.flags.insert("SECTOR_IX_LAUNCHED".into());
             Ok("SECTOR IX — Protocolo Zero\nRuntime interno iniciado em modo janela.\nUse Aplicativos > Jogos > SECTOR IX para abrir a janela do jogo.\n".into())
         }
+        "fastfetch" | "neofetch" => crate::system_info::run(world, name, args, actor),
         "whoami" => Ok(format!("{actor}\n")),
         "id" => Ok(format!("uid={}({actor}) gid={}({actor})\n", if actor == "root" { 0 } else { 1000 }, if actor == "root" { 0 } else { 1000 })),
         "groups" => Ok(format!("{actor} : {actor} sudo adm\n")),
@@ -1886,13 +1682,25 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             } else if name == "dirname" {
                 let directory = p.rsplit_once('/').map(|(parent, _)| if parent.is_empty() { "/" } else { parent }).unwrap_or(".");
                 Ok(format!("{directory}\n"))
+            } else if name == "readlink" {
+                let node = world.fs()?.stat(&p, actor)?;
+                if node.kind != "symlink" { return Err(domain("readlink: not a symbolic link")); }
+                Ok(format!("{}\n", node.content))
             } else {
                 world.fs()?.stat(&p, actor)?;
                 Ok(format!("{p}\n"))
             }
         }
-        "which" | "whereis" => {
-            let value = arg(args, 0, &format!("{name} COMMAND"))?;
+        "which" | "whereis" | "type" | "command" => {
+            if name == "command" && args.first().map(String::as_str) != Some("-v") { return Err(domain("usage: command -v COMMAND")); }
+            let value = arg(args, usize::from(name == "command"), &format!("{name} COMMAND"))?;
+            if world.terminal.host.is_none() && (crate::packages::executables::managed(&value) || world.packages.ownership.contains_key(&format!("/usr/bin/{value}"))) {
+                let resolved = crate::packages::executables::resolve(world, &value, actor);
+                return Ok(resolved.map_or_else(String::new, |path| if name == "whereis" {
+                    let man = format!("/usr/share/man/man1/{value}.1");
+                    format!("{value}: {path}{}\n", if world.vfs.nodes.contains_key(&man) { format!(" {man}") } else { String::new() })
+                } else { format!("{path}\n") }));
+            }
             if COMMANDS.contains(&value.as_str()) || crate::software::by_command(&value).is_some() {
                 Ok(if name == "whereis" {
                     format!("{value}: /usr/bin/{value} /usr/share/man/man1/{value}.1.gz\n")
@@ -2004,65 +1812,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             }
             Ok(String::new())
         }
-        "wc" => {
-            let values = operands(args);
-            if values.is_empty() {
-                return Err(domain("usage: wc [OPTION]... [FILE]..."));
-            }
-            let show_lines = has_flag(args, 'l', "--lines");
-            let show_words = has_flag(args, 'w', "--words");
-            let show_bytes = has_flag(args, 'c', "--bytes");
-            let all_counts = !show_lines && !show_words && !show_bytes;
-            let mut output = String::new();
-            for value in &values {
-                let p = path(world, value)?;
-                let content = world.fs()?.read(&p, actor)?;
-                let lines = content.bytes().filter(|byte| *byte == b'\n').count();
-                let words = content.split_whitespace().count();
-                let bytes = content.len();
-                let mut counts = Vec::new();
-                if all_counts || show_lines { counts.push(lines.to_string()); }
-                if all_counts || show_words { counts.push(words.to_string()); }
-                if all_counts || show_bytes { counts.push(bytes.to_string()); }
-                output.push_str(&format!("{} {p}\n", counts.join(" ")));
-            }
-            Ok(output)
-        }
-        "sort" | "uniq" => {
-            let values = operands(args);
-            let value = values.first().ok_or_else(|| domain(format!("usage: {name} [OPTION] FILE")))?;
-            let p = path(world, value)?;
-            let content = world.fs()?.read(&p, actor)?;
-            let mut lines = content.lines().map(str::to_owned).collect::<Vec<_>>();
-            if name == "sort" {
-                lines.sort_by(|left, right| {
-                    if has_flag(args, 'n', "--numeric-sort") {
-                        left.trim().parse::<i64>().unwrap_or(0).cmp(&right.trim().parse::<i64>().unwrap_or(0))
-                    } else {
-                        left.cmp(right)
-                    }
-                });
-                if has_flag(args, 'r', "--reverse") { lines.reverse(); }
-                if has_flag(args, 'u', "--unique") { lines.dedup(); }
-            } else {
-                let mut unique = Vec::new();
-                for line in lines {
-                    if unique.last() != Some(&line) {
-                        unique.push(line);
-                    }
-                }
-                lines = unique;
-                if has_flag(args, 'c', "--count") {
-                    let mut counted = Vec::new();
-                    for line in lines {
-                        let count = content.lines().filter(|candidate| *candidate == line).count();
-                        counted.push(format!("{count:>7} {line}"));
-                    }
-                    lines = counted;
-                }
-            }
-            Ok(if lines.is_empty() { String::new() } else { format!("{}\n", lines.join("\n")) })
-        }
         "cut" => {
             let values = operands_with_values(args, &["-d", "--delimiter", "-f", "--fields"]);
             let value = values.first().ok_or_else(|| domain("usage: cut -d DELIMITER -f LIST FILE"))?;
@@ -2143,14 +1892,12 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
         }
         "sha256sum" => {
             let values = operands(args);
-            if values.is_empty() {
-                return Err(domain("usage: sha256sum FILE..."));
-            }
+            if values.is_empty() { return Err(domain("usage: sha256sum FILE...")); }
             let mut output = String::new();
             for value in values {
                 let p = path(world, &value)?;
-                let content = world.fs()?.read(&p, actor)?;
-                output.push_str(&format!("{:x}  {p}\n", Sha256::digest(content.as_bytes())));
+                let data = crate::archive::bytes(world, &p, actor)?;
+                output.push_str(&format!("{:x}  {p}\n", Sha256::digest(data.as_slice())));
             }
             Ok(output)
         }
@@ -2158,12 +1905,17 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             let value = operands(args).first().cloned().unwrap_or_else(|| "/".into());
             let p = path(world, &value)?;
             world.fs()?.stat(&p, actor)?;
+            let fs = world.fs()?;
+            let capacity = fs.capacity_bytes;
+            let used = fs.used_bytes();
+            let available = capacity.saturating_sub(used);
+            let percent = used.saturating_mul(100).checked_div(capacity).unwrap_or(100);
             if has_flag(args, 'T', "--print-type") {
-                Ok("Filesystem     Type  1024-blocks  Used Available Capacity Mounted on\nvirtual        ext4      1048576  128   1048448       1% /\n".into())
+                Ok(format!("Filesystem Type 1024-blocks Used Available Capacity Mounted on\nvirtual ext4 {} {} {} {percent}% /\n", capacity / 1024, used.div_ceil(1024), available / 1024))
             } else if has_flag(args, 'h', "--human-readable") {
-                Ok("Filesystem      Size  Used Avail Use% Mounted on\nvirtual          1.0G  128K  1.0G   1% /\n".into())
+                Ok(format!("Filesystem Size Used Avail Use% Mounted on\nvirtual {:.1}G {:.1}M {:.1}G {percent}% /\n", capacity as f64 / 1073741824.0, used as f64 / 1048576.0, available as f64 / 1073741824.0))
             } else {
-                Ok("Filesystem     1024-blocks  Used Available Capacity Mounted on\nvirtual              1048576   128   1048448       1% /\n".into())
+                Ok(format!("Filesystem 1024-blocks Used Available Capacity Mounted on\nvirtual {} {} {} {percent}% /\n", capacity / 1024, used.div_ceil(1024), available / 1024))
             }
         }
         "du" => {
@@ -2171,15 +1923,15 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             let p = path(world, &value)?;
             let node = world.fs()?.stat(&p, actor)?.clone();
             let prefix = format!("{p}/");
-            let total = world.fs()?.nodes.iter().filter(|(key, _)| *key == &p || key.starts_with(&prefix)).map(|(_, item)| item.content.len().max(1)).sum::<usize>();
-            let human = |size: usize| if size >= 1024 { format!("{:.1}K", size as f64 / 1024.0) } else { format!("{size}B") };
+            let total = world.fs()?.nodes.iter().filter(|(key, _)| *key == &p || key.starts_with(&prefix)).map(|(_, item)| item.logical_size()).fold(0u64, u64::saturating_add);
+            let human = |size: u64| if size >= 1024 { format!("{:.1}K", size as f64 / 1024.0) } else { format!("{size}B") };
             if node.kind == "file" || has_flag(args, 's', "--summarize") {
                 Ok(format!("{} {}\n", if has_flag(args, 'h', "--human-readable") { human(total) } else { total.div_ceil(1024).to_string() }, p))
             } else {
                 let mut output = String::new();
                 for child in world.fs()?.list(&p, actor)? {
                     let child_prefix = format!("{}/", child.id);
-                    let child_size = world.fs()?.nodes.iter().filter(|(key, _)| *key == &child.id || key.starts_with(&child_prefix)).map(|(_, item)| item.content.len().max(1)).sum::<usize>();
+                    let child_size = world.fs()?.nodes.iter().filter(|(key, _)| *key == &child.id || key.starts_with(&child_prefix)).map(|(_, item)| item.logical_size()).fold(0u64, u64::saturating_add);
                     output.push_str(&format!("{} {}\n", if has_flag(args, 'h', "--human-readable") { human(child_size) } else { child_size.div_ceil(1024).to_string() }, child.id));
                 }
                 output.push_str(&format!("{} {}\n", if has_flag(args, 'h', "--human-readable") { human(total) } else { total.div_ceil(1024).to_string() }, p));
@@ -2188,17 +1940,18 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
         }
         "file" => {
             let values = operands(args);
-            if values.is_empty() {
-                return Err(domain("usage: file FILE..."));
-            }
+            if values.is_empty() { return Err(domain("usage: file FILE...")); }
             let mut output = String::new();
             for value in values {
                 let p = path(world, &value)?;
-                let content = world.fs()?.read(&p, actor)?;
-                output.push_str(&format!(
-                    "{p}: {} text (virtual file)\n",
-                    if content.is_ascii() { "ASCII" } else { "UTF-8" }
-                ));
+                let n = world.fs()?.stat(&p, actor)?;
+                if n.kind != "file" { output.push_str(&format!("{value}: {}\n",n.kind)); continue; }
+                let data = crate::archive::bytes(world, &p, actor)?;
+                let kind = if crate::packages::deb::detected(&data) { "Debian binary package (virtual)" }
+                    else if let Some(format) = crate::archive::detect(&data) { format.description() }
+                    else if std::str::from_utf8(&data).is_ok() { if data.is_ascii() { "ASCII text (virtual file)" } else { "UTF-8 text (virtual file)" } }
+                    else { "data" };
+                output.push_str(&format!("{value}: {kind}\n"));
             }
             Ok(output)
         }
@@ -2222,13 +1975,10 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 ))
             }
         }
-        "apt" | "apt-get" => package_manager(world, name, args, actor),
-        "apt-cache" => package_cache(world, args),
-        "apt-mark" => package_mark(world, args, actor),
-        "dpkg" | "dpkg-query" => dpkg_command(world, args),
         "man" => {
             let values = operands(args);
             let command = values.first().ok_or_else(|| domain("What manual page do you want?"))?;
+            if let Some(result) = crate::packages::executables::manual(world, command, actor) { return result; }
             if !COMMANDS.contains(&command.as_str()) && crate::software::by_command(command).is_none() {
                 return Err(domain(format!("No manual entry for {command}")));
             }
@@ -2378,9 +2128,9 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 world.techniques.insert("whois".into());
                 Ok(output)
             } else if crate::domains::looks_like_onion(target) {
-                return Err(domain(
+                Err(domain(
                     "whois: Onion Service não encontrado ou endereço v3 inválido; .onion não usa DNS tradicional.",
-                ));
+                ))
             } else {
                 let host = world.network.host(target)?;
                 world.techniques.insert("whois".into());
@@ -2415,24 +2165,35 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 .last()
                 .cloned()
                 .ok_or_else(|| domain("usage: curl|wget [OPTION] URL"))?;
+            if crate::archive::downloads::available(&url) {
+                let file = if name == "wget" { option_value(args,'O',"--output-document","wget URL")? }
+                    else { option_value(args,'o',"--output","curl -o FILE URL")? };
+                let file = file.or_else(|| if name=="wget" || has_flag(args,'O',"--remote-name") {url.rsplit('/').next().map(String::from)} else {None})
+                    .ok_or_else(||domain("binary download: specify -o FILE or -O"))?;
+                let file = crate::archive::downloads::download(world,&url,&file,actor)?;
+                return Ok(format!("Saved {file}\n"));
+            }
             let body = world.network.request(&url)?;
             if name == "wget" {
                 let file = option_value(args, 'O', "--output-document", "wget URL")?
                     .or_else(|| url.rsplit('/').next().map(str::to_owned))
                     .unwrap_or_else(|| "download.txt".into());
                 let p = path(world, &file)?;
+                let p = world.fs()?.available_path(&p, false);
                 world.fs_mut()?.write(&p, &body, actor)?;
                 if body.starts_with("CYBER SIEGE") && world.inventory.contains("cyber-siege") { world.flags.insert("GAME_DOWNLOADED".into()); }
                 Ok(format!("Saved {p} ({} bytes)\n", body.len()))
             } else if let Some(file) = option_value(args, 'o', "--output", "curl URL")? {
                 let p = path(world, &file)?;
+                let p = world.fs()?.available_path(&p, false);
                 world.fs_mut()?.write(&p, &body, actor)?;
-                Ok(String::new())
+                Ok(format!("Saved {p}\n"))
             } else if has_flag(args, 'O', "--remote-name") {
                 let file = url.rsplit('/').next().filter(|value| !value.is_empty()).unwrap_or("index.html");
                 let p = path(world, file)?;
+                let p = world.fs()?.available_path(&p, false);
                 world.fs_mut()?.write(&p, &body, actor)?;
-                Ok(String::new())
+                Ok(format!("Saved {p}\n"))
             } else if has_flag(args, 'I', "--head") {
                 Ok("HTTP/1.1 200 OK\nContent-Type: text/plain\n\n".into())
             } else {
@@ -2618,7 +2379,11 @@ mod tests {
         let mut world = WorldState::new("neo", "pc").expect("world");
         world
             .vfs
-            .write("/home/kali/sector-ix-linux.sh", crate::browser::SECTOR_IX_INSTALLER, "kali")
+            .write(
+                "/home/kali/sector-ix-linux.sh",
+                crate::browser::SECTOR_IX_INSTALLER,
+                "kali",
+            )
             .expect("installer");
 
         let result = execute(&mut world, "bash sector-ix-linux.sh");
@@ -2635,7 +2400,15 @@ mod tests {
             "/home/kali/Games/sector-ix/runtime",
             "/home/kali/Games/sector-ix/saves",
         ] {
-            assert_eq!(world.vfs.nodes.get(directory).map(|node| node.kind.as_str()), Some("directory"), "missing {directory}");
+            assert_eq!(
+                world
+                    .vfs
+                    .nodes
+                    .get(directory)
+                    .map(|node| node.kind.as_str()),
+                Some("directory"),
+                "missing {directory}"
+            );
         }
         for placeholder in [
             "/home/kali/Games/sector-ix/bin/sector-ix",
@@ -2649,7 +2422,11 @@ mod tests {
             "/home/kali/Games/sector-ix/runtime/engine.bin",
             "/home/kali/Games/sector-ix/SECTOR-IX.desktop",
         ] {
-            assert_eq!(world.vfs.read(placeholder, "kali").expect("placeholder"), "", "unexpected content in {placeholder}");
+            assert_eq!(
+                world.vfs.read(placeholder, "kali").expect("placeholder"),
+                "",
+                "unexpected content in {placeholder}"
+            );
         }
         let save = world
             .vfs
@@ -2677,7 +2454,6 @@ mod tests {
             "powershell Get-Process",
             "cmd.exe /c dir",
             "bash -c 'cmd.exe /c dir'",
-            "echo $(whoami)",
             "ls; curl external.com",
             "echo x | cmd",
             "cat C:\\Windows\\win.ini",
@@ -2779,20 +2555,27 @@ mod tests {
     #[test]
     fn package_manager_and_services_keep_virtual_state() {
         let mut world = WorldState::new("neo", "pc").expect("world");
+        world.network.connected = true;
         assert_eq!(execute(&mut world, "sudo apt update").exit_code, 0);
-        let install = execute(&mut world, "sudo apt install -y aircrack-ng");
+        let install = crate::archive::jobs::with_deferral(false, || {
+            execute(&mut world, "sudo apt install -y netscan")
+        });
         assert_eq!(install.exit_code, 0);
         assert!(execute(&mut world, "apt list --installed")
             .stdout
-            .contains("aircrack-ng"));
-        assert!(execute(&mut world, "dpkg -s aircrack-ng")
+            .contains("netscan"));
+        assert!(execute(&mut world, "dpkg -s netscan")
             .stdout
             .contains("install ok installed"));
         assert_eq!(
-            execute(&mut world, "sudo apt remove -y aircrack-ng").exit_code,
+            crate::archive::jobs::with_deferral(false, || execute(
+                &mut world,
+                "sudo apt purge -y netscan"
+            ))
+            .exit_code,
             0
         );
-        assert!(execute(&mut world, "dpkg -s aircrack-ng").exit_code != 0);
+        assert!(execute(&mut world, "dpkg -s netscan").exit_code != 0);
 
         assert!(execute(&mut world, "service ssh status")
             .stdout

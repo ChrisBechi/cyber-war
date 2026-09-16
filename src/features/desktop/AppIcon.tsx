@@ -27,9 +27,13 @@ const palettes: Record<IconName, [string, string]> = {
   'media-player': ['#edc16d', '#a45d3a'],
   'image-viewer': ['#88c8a4', '#3b7e69'],
   trash: ['#dbe9f6', '#657d98'],
+  'archive-viewer': ['#d3aa50', '#8a6935'],
+  'package-installer': ['#dda85f', '#89552e'],
 };
 
 const glyphs: Record<IconName, ReactNode> = {
+  'package-installer': <path d="m3 7 9-4 9 4v11l-9 4-9-4Zm0 0 9 4 9-4M12 11v11M7 5l10 4v5" />,
+  'archive-viewer': <path d="M5 3h14v18H5ZM10 3v4h4v4h-4v4h4v4h-4" />,
   folder: <></>,
   file: <></>,
   terminal: <path d="m5 6 6 6-6 6m8 0h6" />,

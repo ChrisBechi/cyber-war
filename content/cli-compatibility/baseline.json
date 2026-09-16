@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 2,
+  "distribution": "LifeOS virtual profile inspired by Kali",
+  "snapshot": null,
+  "architecture": "amd64",
+  "locale": "C.UTF-8",
+  "timezonePolicy": "Virtual clock; no host clock used by CLI",
+  "shell": "bash",
+  "shellVersion": "5.2.37",
+  "terminal": {
+    "isTTY": true,
+    "columns": 80,
+    "rows": 24,
+    "ansiSupport": true,
+    "interactive": true
+  },
+  "notes": "No official Kali snapshot is pinned. Existing package versions are preserved, not evidence of upstream verification."
+}

@@ -68,7 +68,11 @@ pub fn import(
     let reference = BlobRef {
         hash: format!("{:x}", Sha256::digest(&bytes)),
         size: bytes.len(),
-        mime: if mime.is_empty() {
+        mime: if crate::packages::deb::detected(&bytes) {
+            crate::packages::deb::MIME.into()
+        } else if let Some(format) = crate::archive::detect(&bytes) {
+            format.mime().into()
+        } else if mime.is_empty() {
             "application/octet-stream".into()
         } else {
             mime.to_ascii_lowercase()

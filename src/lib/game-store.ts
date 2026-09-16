@@ -37,8 +37,21 @@ export function perform<T>(
   command: string,
   args: Record<string, unknown>,
   schema: z.ZodType<T>,
+  options?: { signal: AbortSignal },
 ): Promise<T> {
+  // Session transitions must reach waiting shells before the mutation queue.
+  const cancellation = [
+    'end_session',
+    'load_slot',
+    'restore_checkpoint',
+    'quit_game',
+    'new_game',
+  ].includes(command)
+    ? request('terminal_cancel_all', {}, emptySchema)
+    : Promise.resolve();
   const result = queue.then(async () => {
+    await cancellation;
+    options?.signal.throwIfAborted();
     useGame.setState({ busy: true, error: '' });
     try {
       const value = await request(command, args, schema);
@@ -51,6 +64,8 @@ export function perform<T>(
       useGame.setState({ busy: false });
     }
   });
+  // A rejected cancellation is reported by result, even while another mutation runs.
+  void cancellation.catch(() => undefined);
   queue = result.then(
     () => undefined,
     () => undefined,

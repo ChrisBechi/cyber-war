@@ -7,6 +7,7 @@ import type { SoftwareEntry } from './software-catalog';
 import { apps, useWindows } from './window-store';
 import type { AppId } from './window-store';
 import { isTrashPath } from './vfs-paths';
+import { launchPackage } from './packages';
 
 export function scriptCommand(path: string): string {
   // Adjacent quoted segments are understood by the virtual tokenizer too.
@@ -32,6 +33,10 @@ export async function openVfsNode(node: VfsNode, asRoot = false) {
   const windows = useWindows.getState();
   if (node.kind === 'directory') {
     windows.newInstance('files', node.id, asRoot);
+    return;
+  }
+  if (node.id.startsWith('/usr/share/applications/') && node.name.endsWith('.desktop')) {
+    await launchPackage(node.id);
     return;
   }
   if (node.metadata.launcherId) {
@@ -66,5 +71,8 @@ export async function openVfsNode(node: VfsNode, asRoot = false) {
     windows.newInstance('editor', node.id, true);
   } else {
     windows.open(association.application, node.id);
+    if (association.application === 'archive-viewer') {
+      windows.update('archive-viewer', { asRoot });
+    }
   }
 }

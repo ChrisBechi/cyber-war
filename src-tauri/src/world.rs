@@ -9,6 +9,8 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
+    #[serde(default)]
+    pub attachments: Vec<String>,
     pub id: String,
     pub contact: String,
     pub text: String,
@@ -28,6 +30,10 @@ pub struct VirtualProcess {
 #[serde(rename_all = "camelCase")]
 pub struct TerminalSession {
     #[serde(skip)]
+    pub shell: crate::shell::Runtime,
+    #[serde(skip)]
+    pub presentation: crate::system_info::Presentation,
+    #[serde(skip)]
     pub shell_depth: usize,
     #[serde(skip)]
     pub last_status: i32,
@@ -44,6 +50,16 @@ pub struct TerminalSession {
     pub history: Vec<String>,
     #[serde(skip)]
     pub foreground: Option<String>,
+    #[serde(skip)]
+    pub archive_pending: Option<crate::archive::cli::Pending>,
+    #[serde(skip)]
+    pub package_pending: Option<crate::packages::model::Pending>,
+    #[serde(skip)]
+    pub package_job: Option<u32>,
+    #[serde(skip)]
+    pub stdin: Option<String>,
+    #[serde(skip)]
+    pub io: crate::shell_pipeline::IoState,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,6 +90,14 @@ pub struct WorldState {
     pub vfs: VirtualFileSystem,
     #[serde(skip)]
     pub blobs: crate::binary::BlobCache,
+    #[serde(default)]
+    pub archive_events: Vec<crate::archive::ArchiveEvent>,
+    #[serde(skip)]
+    pub archive_jobs: Vec<crate::archive::jobs::Job>,
+    #[serde(default)]
+    pub packages: crate::packages::model::PackageState,
+    #[serde(skip)]
+    pub package_lock: Option<String>,
     pub network: VirtualNetwork,
     #[serde(default)]
     pub domains: crate::domains::DomainState,
@@ -103,7 +127,7 @@ impl WorldState {
                 return Err(domain("nome deve ter 1–24 letras ASCII, números, _ ou -"));
             }
         }
-        Ok(Self {
+        let mut world = Self {
             schema_version: 2,
             nickname: nickname.into(),
             hostname: hostname.into(),
@@ -119,9 +143,15 @@ impl WorldState {
             mission_runtime: crate::mission_runtime::MissionRuntime::default(),
             vfs: VirtualFileSystem::default(),
             blobs: crate::binary::BlobCache::new(),
+            archive_events: Vec::new(),
+            archive_jobs: Vec::new(),
+            packages: crate::packages::model::PackageState::default(),
+            package_lock: None,
             network: VirtualNetwork::initial()?,
             domains: crate::domains::DomainState::seeded(),
             terminal: TerminalSession {
+                shell: Default::default(),
+                presentation: Default::default(),
                 shell_depth: 0,
                 last_status: 0,
                 exported: BTreeSet::new(),
@@ -132,9 +162,15 @@ impl WorldState {
                 env: BTreeMap::new(),
                 history: Vec::new(),
                 foreground: None,
+                archive_pending: None,
+                package_pending: None,
+                package_job: None,
+                stdin: None,
+                io: Default::default(),
             },
             terminal_sessions: BTreeMap::new(),
             messages: vec![Message {
+                attachments: Vec::new(),
                 id: "welcome".into(),
                 contact: "Mãe".into(),
                 text: "Filho, vou trabalhar. Tem comida na geladeira ❤️".into(),
@@ -161,7 +197,9 @@ impl WorldState {
                 ("servicesEnabled".into(), "[]".into()),
             ]),
             events: Vec::new(),
-        })
+        };
+        crate::packages::state::initialize(&mut world)?;
+        Ok(world)
     }
 
     pub fn fs(&self) -> GameResult<&VirtualFileSystem> {
@@ -189,6 +227,7 @@ impl WorldState {
     pub fn notify(&mut self, contact: &str, text: &str) {
         self.contacts.insert(contact.into());
         self.messages.push(Message {
+            attachments: Vec::new(),
             id: uuid::Uuid::new_v4().to_string(),
             contact: contact.into(),
             text: text.replace("[NICKNAME]", &self.nickname),
@@ -226,6 +265,7 @@ impl WorldState {
             return Err(domain("invalid progression"));
         }
         self.domains.validate()?;
+        crate::packages::state::validate(self)?;
         Ok(())
     }
 }

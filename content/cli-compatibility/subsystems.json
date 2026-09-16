@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 2,
+  "subsystems": [
+    {
+      "id": "SHELL",
+      "state": "PARTIAL",
+      "reason": "Typed shell foundation is implemented; general jobs and interruptible execution of legacy handlers remain partial.",
+      "implementation": [
+        "src-tauri/src/shell.rs",
+        "src-tauri/src/shell/syntax.rs",
+        "src-tauri/src/shell/expansion.rs",
+        "src-tauri/src/shell/executor.rs",
+        "src-tauri/src/shell/control.rs",
+        "src-tauri/src/shell_pipeline.rs",
+        "src-tauri/src/shell_pipeline/streams.rs"
+      ],
+      "evidenceIds": [
+        "shell_tests::quote_expansion_preserves_arguments_without_reparsing_operators"
+      ],
+      "requiredTests": [
+        "shell/quotes-empty",
+        "shell/literal-operators",
+        "shell/comment-newline",
+        "shell/multiline-quote",
+        "shell/unclosed-quote",
+        "shell/syntax-no-side-effects",
+        "shell/lists",
+        "shell/short-circuit",
+        "shell/status-lazy",
+        "shell/assignment-values",
+        "shell/temporary-environment",
+        "shell/export-inheritance",
+        "shell/unset",
+        "shell/default-ifs",
+        "shell/custom-ifs",
+        "shell/quoted-at",
+        "shell/tilde",
+        "shell/substitution-nested",
+        "shell/substitution-trailing",
+        "shell/substitution-status",
+        "shell/substitution-stderr",
+        "shell/substitution-isolation",
+        "shell/substitution-split",
+        "shell/glob-star",
+        "shell/glob-classes",
+        "shell/glob-quotes",
+        "shell/glob-dot-nomatch",
+        "shell/glob-nested",
+        "shell/glob-pipe",
+        "shell/ambiguous-redirect",
+        "shell/stream-early-close",
+        "shell/stream-three-large",
+        "shell/stream-zero",
+        "shell/stream-eof",
+        "shell/stream-input-overrides-pipe",
+        "shell/stream-last-status",
+        "shell/stream-tty-eof",
+        "shell/stream-cancel",
+        "shell/redirect-order",
+        "shell/redirect-reverse",
+        "shell/redirect-append-input",
+        "shell/redirect-stderr",
+        "shell/redirect-only",
+        "shell/pipeline-child-context",
+        "shell/source-return",
+        "shell/child-exit",
+        "shell/path-script",
+        "shell/not-executable",
+        "shell/not-found"
+      ],
+      "limitations": [
+        "Foreground commands still own the shared world transaction until completion; out-of-band input/cancel/output acknowledgements bypass it.",
+        "Legacy command bodies are bounded aggregate adapters and only yield between handler invocations.",
+        "Background execution is archive-only; no fg/bg/general wait/process groups."
+      ],
+      "capabilities": [
+        {
+          "id": "SHELL.PARSING",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/quotes-empty",
+            "shell/literal-operators",
+            "shell/comment-newline",
+            "shell/multiline-quote",
+            "shell/unclosed-quote",
+            "shell/syntax-no-side-effects"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "No compound commands, arithmetic, here documents or backticks; unsupported forms fail explicitly."
+          ]
+        },
+        {
+          "id": "SHELL.LISTS",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": ["shell/lists", "shell/short-circuit", "shell/status-lazy"],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": ["No pipefail, pipeline negation or compound command groups."]
+        },
+        {
+          "id": "SHELL.EXPANSION",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/assignment-values",
+            "shell/temporary-environment",
+            "shell/export-inheritance",
+            "shell/unset",
+            "shell/default-ifs",
+            "shell/custom-ifs",
+            "shell/quoted-at",
+            "shell/tilde",
+            "shell/substitution-nested",
+            "shell/substitution-trailing",
+            "shell/substitution-status",
+            "shell/substitution-stderr",
+            "shell/substitution-isolation",
+            "shell/substitution-split"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "No advanced parameter operators, arithmetic/brace expansion or tilde-user lookup."
+          ]
+        },
+        {
+          "id": "SHELL.GLOBBING",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/glob-star",
+            "shell/glob-classes",
+            "shell/glob-quotes",
+            "shell/glob-dot-nomatch",
+            "shell/glob-nested",
+            "shell/glob-pipe",
+            "shell/ambiguous-redirect"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "C.UTF-8 byte ordering; no extglob, globstar, locale collating classes or symlink traversal."
+          ]
+        },
+        {
+          "id": "SHELL.PIPELINES",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/stream-early-close",
+            "shell/stream-three-large",
+            "shell/stream-zero",
+            "shell/stream-eof",
+            "shell/stream-input-overrides-pipe",
+            "shell/stream-last-status",
+            "shell/stream-tty-eof",
+            "shell/stream-cancel"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "Incremental yes and stdin cat/head; other handlers use bounded 4 MiB adapters and cannot consume indefinite producers incrementally.",
+            "Pipes carry UTF-8 text; arbitrary binary streams remain unsupported."
+          ]
+        },
+        {
+          "id": "SHELL.REDIRECTION",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/redirect-order",
+            "shell/redirect-reverse",
+            "shell/redirect-append-input",
+            "shell/redirect-stderr",
+            "shell/redirect-only"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "Only supported forms for descriptors 0/1/2; no descriptor close, here documents, binary pipes or binary append."
+          ]
+        },
+        {
+          "id": "SHELL.CONTEXT",
+          "state": "READY",
+          "reason": "Implemented virtual Bash 5.2 subset with current declarative evidence required.",
+          "requiredTests": [
+            "shell/pipeline-child-context",
+            "shell/source-return",
+            "shell/child-exit",
+            "shell/path-script",
+            "shell/not-executable",
+            "shell/not-found"
+          ],
+          "evidenceIds": ["shell::foundation_tests"],
+          "limitations": [
+            "Script exit/source return are implemented; interactive exit retains local/SSH game-session behavior.",
+            "PIDs are virtual; no process groups or OS execution."
+          ]
+        },
+        {
+          "id": "SHELL.JOBS",
+          "state": "PARTIAL",
+          "reason": "Archive jobs coexist with cancellable foreground virtual pipelines.",
+          "requiredTests": [],
+          "evidenceIds": [
+            "archive::tests::background_jobs_cancel_without_partial_output",
+            "shell::foundation_tests::stream_control_has_bounded_input_eof_cancel_and_cleanup"
+          ],
+          "limitations": [
+            "Foreground commands still own the shared world transaction until completion; out-of-band input/cancel/output acknowledgements bypass it.",
+            "Legacy command bodies are bounded aggregate adapters and only yield between handler invocations.",
+            "Background execution is archive-only; no fg/bg/general wait/process groups."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "VFS",
+      "state": "PARTIAL",
+      "reason": "No complete inode, symlink traversal or sticky-bit model.",
+      "implementation": ["src-tauri/src/vfs.rs"],
+      "evidenceIds": ["vfs::tests::permission_and_mutation_semantics"],
+      "requiredTests": [],
+      "limitations": ["No complete inode, symlink traversal or sticky-bit model."]
+    },
+    {
+      "id": "USERS",
+      "state": "PARTIAL",
+      "reason": "Fixed virtual identities; no general user database.",
+      "implementation": ["src-tauri/src/world.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Fixed virtual identities; no general user database."]
+    },
+    {
+      "id": "PERMISSIONS",
+      "state": "PARTIAL",
+      "reason": "Limited mode/owner/group permissions.",
+      "implementation": ["src-tauri/src/vfs.rs"],
+      "evidenceIds": ["vfs::tests::permission_and_mutation_semantics"],
+      "requiredTests": [],
+      "limitations": ["Limited mode/owner/group permissions."]
+    },
+    {
+      "id": "PROCESS",
+      "state": "PARTIAL",
+      "reason": "Virtual process list; no general process lifecycle API.",
+      "implementation": ["src-tauri/src/task_manager.rs", "src-tauri/src/world.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Virtual process list; no general process lifecycle API."]
+    },
+    {
+      "id": "TTY",
+      "state": "PARTIAL",
+      "reason": "Virtual stdin/EOF and bounded acknowledged output reach xterm; raw/cooked terminal discipline remains partial.",
+      "implementation": [
+        "src-tauri/src/cli_contract.rs",
+        "src-tauri/src/shell/control.rs",
+        "src/features/terminal/TerminalWindow.tsx"
+      ],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": [
+        "Interactive stdin is implemented for streaming cat/head adapters.",
+        "No full terminal device or process-group model."
+      ]
+    },
+    {
+      "id": "SIGNALS",
+      "state": "PARTIAL",
+      "reason": "Foreground shell Ctrl+C returns 130; archive cancellation remains supported; general signals/process groups pending.",
+      "implementation": ["src-tauri/src/shell/control.rs", "src-tauri/src/archive/jobs.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": [
+        "Legacy handler bodies are not preempted mid-call.",
+        "No general process groups/job-control signals."
+      ]
+    },
+    {
+      "id": "CLOCK",
+      "state": "PARTIAL",
+      "reason": "Virtual playtime and VFS counter timestamps.",
+      "implementation": ["src-tauri/src/world.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Virtual playtime and VFS counter timestamps."]
+    },
+    {
+      "id": "NETWORK",
+      "state": "PARTIAL",
+      "reason": "Seeded hosts/services; no general sockets/listeners.",
+      "implementation": ["src-tauri/src/network.rs"],
+      "evidenceIds": ["network::tests::only_seeded_hosts_resolve"],
+      "requiredTests": [],
+      "limitations": ["Seeded hosts/services; no general sockets/listeners."]
+    },
+    {
+      "id": "DNS",
+      "state": "PARTIAL",
+      "reason": "Seeded resolver; incomplete DNS protocol.",
+      "implementation": ["src-tauri/src/network.rs"],
+      "evidenceIds": ["network::tests::only_seeded_hosts_resolve"],
+      "requiredTests": [],
+      "limitations": ["Seeded resolver; incomplete DNS protocol."]
+    },
+    {
+      "id": "HTTP",
+      "state": "PARTIAL",
+      "reason": "Virtual routes/downloads; incomplete HTTP semantics.",
+      "implementation": ["src-tauri/src/browser.rs", "src-tauri/src/network.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Virtual routes/downloads; incomplete HTTP semantics."]
+    },
+    {
+      "id": "PACKAGES",
+      "state": "PARTIAL",
+      "reason": "Package DB tested; full native contracts still partial.",
+      "implementation": ["src-tauri/src/packages/model.rs", "src-tauri/src/packages/service.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Package DB tested; full native contracts still partial."]
+    },
+    {
+      "id": "ARCHIVES",
+      "state": "PARTIAL",
+      "reason": "Binary formats tested; full flags/stream semantics partial.",
+      "implementation": ["src-tauri/src/archive/service.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Binary formats tested; full flags/stream semantics partial."]
+    },
+    {
+      "id": "WIFI",
+      "state": "PARTIAL",
+      "reason": "Access-point metadata exists; no frame/handshake engine.",
+      "implementation": ["src-tauri/src/network.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Access-point metadata exists; no frame/handshake engine."]
+    },
+    {
+      "id": "PACKETS",
+      "state": "MISSING",
+      "reason": "No packet capture/frame model.",
+      "implementation": [],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["No packet capture/frame model."]
+    },
+    {
+      "id": "REMOTE_HOSTS",
+      "state": "PARTIAL",
+      "reason": "Seeded SSH contexts; no arbitrary remote lifecycle.",
+      "implementation": ["src-tauri/src/network.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Seeded SSH contexts; no arbitrary remote lifecycle."]
+    },
+    {
+      "id": "SERVICES",
+      "state": "PARTIAL",
+      "reason": "Virtual service state; incomplete service manager.",
+      "implementation": ["src-tauri/src/world.rs", "src-tauri/src/network.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Virtual service state; incomplete service manager."]
+    },
+    {
+      "id": "VIRTUAL_TARGETS",
+      "state": "PARTIAL",
+      "reason": "Mission targets only; no general exploit target engine.",
+      "implementation": ["src-tauri/src/network.rs", "src-tauri/src/investigation.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Mission targets only; no general exploit target engine."]
+    },
+    {
+      "id": "SESSIONS",
+      "state": "PARTIAL",
+      "reason": "Terminal and SSH contexts exist; no general framework sessions.",
+      "implementation": ["src-tauri/src/terminal_sessions.rs"],
+      "evidenceIds": [],
+      "requiredTests": [],
+      "limitations": ["Terminal and SSH contexts exist; no general framework sessions."]
+    }
+  ]
+}

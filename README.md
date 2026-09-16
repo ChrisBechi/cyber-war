@@ -1,5 +1,10 @@
 # Cyber War
 
+No terminal do jogo, execute `fastfetch` (ou `neofetch`) para ver os dados do
+computador virtual com o dragão ASCII Kali e a paleta de cores. `fastfetch --pipe`
+gera apenas texto, útil em pipelines ou em `fastfetch --pipe > Documents/sistema.txt`.
+Use `man fastfetch` para consultar as opções disponíveis.
+
 Jogo desktop Windows em Tauri 2, React/TypeScript e Rust. O LifeOS contém terminal xterm, arquivos, redes e serviços virtuais compartilhados por todas as aplicações. Os saves ficam em SQLite local.
 
 ## Jogar
@@ -64,6 +69,12 @@ Carregar qualquer snapshot descarta a tentativa de missão ainda em andamento, i
 O fórum usa conteúdo e comunidade fictícios locais, não uma rede social online. Terminal, shell, nano, serviços e ferramentas implementam subconjuntos documentados; não equivalem aos executáveis reais do Linux. O [aprofundamento atual](docs/APROFUNDAMENTO-0.4.2.md) inclui importação explícita de arquivos binários (até 32 MiB), armazenamento deduplicado em SQLite e integração com os players. Codecs dependem do WebView2; PDF e arquivos compactados ainda não têm leitor/extrator. Blobs antigos são conservados para proteger checkpoints; a capacidade binária retida do banco é 512 MiB, sem coleta automática nesta etapa.
 
 O banco `game-hacker.db` fica no diretório de dados do aplicativo, normalmente `%APPDATA%/com.gamehacker.desktop/` no Windows. Atualizações usam migrações idempotentes. Cada snapshot inclui SHA-256; gravação e checkpoints pertencem à mesma transação. A memória só muda após o commit. Saves incompatíveis/corrompidos são recusados com erro visível.
+
+## Pacotes do computador virtual
+
+APT e dpkg instalam arquivos no VFS, resolvem dependências, mantêm cache e persistem por save. Arquivos `.deb` abrem no instalador gráfico. Comece com `sudo apt update` e `sudo apt install netscan` no terminal do jogo. Os repositórios e executáveis pertencem à simulação.
+
+Veja a [documentação do Package Management System](docs/specs/package-management/SPEC.md) para comandos, arquitetura, segurança, testes e limites.
 
 ## Organização
 

@@ -1,0 +1,963 @@
+[
+  {
+    "id": "stdin-cat",
+    "reference": "coreutils-9.7:cat; Bash-5.2.37:redirections",
+    "command": "cat",
+    "stdin": "alpha\nbeta\n",
+    "expectedStdout": "alpha\nbeta\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "stdin-once",
+    "reference": "coreutils-9.7:cat",
+    "command": "cat - -",
+    "stdin": "once\n",
+    "expectedStdout": "once\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "cat-number-pipe",
+    "reference": "coreutils-9.7:cat",
+    "command": "echo alpha | cat -n",
+    "expectedStdout": "     1\talpha\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "input-file",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "cat < in",
+    "initialFilesystem": {
+      "/home/kali/in": "alpha\nbeta\n"
+    },
+    "expectedStdout": "alpha\nbeta\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "input-before-command",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "< in cat",
+    "initialFilesystem": {
+      "/home/kali/in": "alpha\n"
+    },
+    "expectedStdout": "alpha\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "stdout-file",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo alpha > out",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "alpha\n"
+    }
+  },
+  {
+    "id": "stdout-append",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo beta >> out",
+    "initialFilesystem": {
+      "/home/kali/out": "alpha\n"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "alpha\nbeta\n"
+    }
+  },
+  {
+    "id": "stderr-only",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo error >&2",
+    "expectedStdout": "",
+    "expectedStderr": "error\n",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "ordered-streams",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "bash -c 'echo first\necho error >&2\necho last' > out 2>&1",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "first\nerror\nlast\n"
+    }
+  },
+  {
+    "id": "duplicate-before-open",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "bash -c 'echo output\necho error >&2' 2>&1 > out",
+    "expectedStdout": "error\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "output\n"
+    }
+  },
+  {
+    "id": "stderr-append",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "bash -c 'echo error >&2' 2>> errors",
+    "initialFilesystem": {
+      "/home/kali/errors": "previous\n"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/errors": "previous\nerror\n"
+    }
+  },
+  {
+    "id": "stderr-truncate",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "bash -c 'echo error >&2' 2> errors",
+    "initialFilesystem": {
+      "/home/kali/errors": "previous\n"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/errors": "error\n"
+    }
+  },
+  {
+    "id": "redirect-only",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "> empty",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/empty": ""
+    }
+  },
+  {
+    "id": "last-output-wins",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo value > first > second",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/first": "",
+      "/home/kali/second": "value\n"
+    }
+  },
+  {
+    "id": "redirect-overrides-pipe",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "echo alpha > out | cat",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "alpha\n"
+    }
+  },
+  {
+    "id": "file-overrides-pipe-input",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "echo ignored | cat < in",
+    "initialFilesystem": {
+      "/home/kali/in": "file\n"
+    },
+    "expectedStdout": "file\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "stderr-to-pipe",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "bash -c 'echo alpha\necho beta >&2' 2>&1 | grep beta",
+    "expectedStdout": "beta\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "stderr-bypasses-pipe",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "bash -c 'echo alpha\necho beta >&2' | grep alpha",
+    "expectedStdout": "alpha\n",
+    "expectedStderr": "beta\n",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "last-stage-status",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "false | true",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "last-stage-failure",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "true | false",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 1
+  },
+  {
+    "id": "quoted-fd-is-argument",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo '2'>out",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "2\n"
+    }
+  },
+  {
+    "id": "expanded-fd-is-argument",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo $FD>out",
+    "environment": {
+      "FD": "2"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "2\n"
+    }
+  },
+  {
+    "id": "spaced-fd-is-argument",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo 2 >out",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/out": "2\n"
+    }
+  },
+  {
+    "id": "quoted-operators",
+    "reference": "Bash-5.2.37:quoting",
+    "command": "echo '2>&1' '>' '<' '|'",
+    "expectedStdout": "2>&1 > < |\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "input-head",
+    "reference": "coreutils-9.7:head",
+    "command": "head -n 1 < in",
+    "initialFilesystem": {
+      "/home/kali/in": "alpha\nbeta\n"
+    },
+    "expectedStdout": "alpha\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "input-tail",
+    "reference": "coreutils-9.7:tail",
+    "command": "tail -n 1 < in",
+    "initialFilesystem": {
+      "/home/kali/in": "alpha\nbeta\n"
+    },
+    "expectedStdout": "beta\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "pipeline-three-stages",
+    "reference": "Bash-5.2.37:pipelines; coreutils-9.7",
+    "command": "cat < in | head -n 2 | tail -n 1",
+    "initialFilesystem": {
+      "/home/kali/in": "alpha\nbeta\ngamma\n"
+    },
+    "expectedStdout": "beta\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "null-sink",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo discarded >/dev/null",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "absentPaths": ["/dev/null"]
+  },
+  {
+    "id": "null-source",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "cat </dev/null",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "tee-stdin",
+    "reference": "coreutils-9.7:tee",
+    "command": "echo alpha | tee saved | cat",
+    "expectedStdout": "alpha\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/saved": "alpha\n"
+    }
+  },
+  {
+    "id": "input-target-truncated",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "cat < same > same",
+    "initialFilesystem": {
+      "/home/kali/same": "old\\n"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/same": ""
+    }
+  },
+  {
+    "id": "failed-stage-keeps-last-status",
+    "reference": "Bash-5.2.37:pipelines",
+    "command": "unknown-cli 2> errors | cat",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/errors": "unknown-cli: command not found\n"
+    }
+  },
+  {
+    "id": "syntax-prevents-early-redirection",
+    "reference": "Bash-5.2.37:redirections",
+    "command": "echo value > early >",
+    "expectedStdout": "",
+    "expectedStderr": "bash: expected redirection target at byte 20\n",
+    "expectedExitCode": 2,
+    "absentPaths": ["/home/kali/early"]
+  },
+  {
+    "id": "cat-order-error-before-output",
+    "reference": "coreutils-9.7:cat ordered file operands",
+    "command": "cat missing present 2>&1",
+    "initialFilesystem": {
+      "/home/kali/present": "data\n"
+    },
+    "expectedStdout": "cat: missing: No such file or directory\ndata\n",
+    "expectedStderr": "",
+    "expectedExitCode": 1
+  },
+  {
+    "id": "cat-order-output-before-error",
+    "reference": "coreutils-9.7:cat ordered file operands",
+    "command": "cat present missing 2>&1",
+    "initialFilesystem": {
+      "/home/kali/present": "data\n"
+    },
+    "expectedStdout": "data\ncat: missing: No such file or directory\n",
+    "expectedStderr": "",
+    "expectedExitCode": 1
+  },
+  {
+    "id": "cp-multiple-with-partial-failure",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp -v a missing b Documents",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "'a' -> 'Documents/a'\n'b' -> 'Documents/b'\n",
+    "expectedStderr": "cp: cannot stat 'missing': No such file or directory\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {
+      "/home/kali/Documents/a": "A",
+      "/home/kali/Documents/b": "B",
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "cp-target-directory-attached",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp a -vtDocuments b",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "'a' -> 'Documents/a'\n'b' -> 'Documents/b'\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/Documents/a": "A",
+      "/home/kali/Documents/b": "B"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "cp-no-target-directory",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp -T a Documents",
+    "initialFilesystem": {
+      "/home/kali/a": "A"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "cp: cannot overwrite directory 'Documents' with non-directory\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {
+      "/home/kali/a": "A"
+    },
+    "absentPaths": ["/home/kali/Documents/a"]
+  },
+  {
+    "id": "cp-target-options-conflict",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp -tDocuments -T a",
+    "initialFilesystem": {
+      "/home/kali/a": "A"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "cp: cannot combine --target-directory (-t) and --no-target-directory (-T)\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {},
+    "absentPaths": ["/home/kali/Documents/a"]
+  },
+  {
+    "id": "cp-multiple-requires-directory",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp a b out",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "cp: target 'out': No such file or directory\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {},
+    "absentPaths": ["/home/kali/out"]
+  },
+  {
+    "id": "cp-explicit-end-options",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp -- -source Documents",
+    "initialFilesystem": {
+      "/home/kali/-source": "A"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/Documents/-source": "A"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "mv-multiple-partial-failure",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "mv -v a missing b Downloads",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "renamed 'a' -> 'Downloads/a'\nrenamed 'b' -> 'Downloads/b'\n",
+    "expectedStderr": "mv: cannot stat 'missing': No such file or directory\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {
+      "/home/kali/Downloads/a": "A",
+      "/home/kali/Downloads/b": "B"
+    },
+    "absentPaths": ["/home/kali/a", "/home/kali/b"]
+  },
+  {
+    "id": "mv-last-no-clobber",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "mv -fn a b",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "mv-last-force",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "mv -nf a b",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/b": "A"
+    },
+    "absentPaths": ["/home/kali/a"]
+  },
+  {
+    "id": "cp-force-no-clobber-precedence",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp -nf a b",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "cp-same-file",
+    "reference": "coreutils-9.7:cp,mv",
+    "command": "cp a a",
+    "initialFilesystem": {
+      "/home/kali/a": "A"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "cp: 'a' and 'a' are the same file\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {
+      "/home/kali/a": "A"
+    },
+    "absentPaths": []
+  },
+  {
+    "id": "rm-partial-operands",
+    "reference": "coreutils-9.7:rm",
+    "command": "rm -v a missing b",
+    "initialFilesystem": {
+      "/home/kali/a": "A",
+      "/home/kali/b": "B"
+    },
+    "expectedStdout": "removed 'a'\nremoved 'b'\n",
+    "expectedStderr": "rm: cannot remove 'missing': No such file or directory\n",
+    "expectedExitCode": 1,
+    "absentPaths": ["/home/kali/a", "/home/kali/b"]
+  },
+  {
+    "id": "rm-force-empty",
+    "reference": "coreutils-9.7:rm",
+    "command": "rm -f",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "rm-force-missing",
+    "reference": "coreutils-9.7:rm",
+    "command": "rm -fv missing",
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0
+  },
+  {
+    "id": "rm-directory-needs-recursion",
+    "reference": "coreutils-9.7:rm",
+    "command": "rm Documents",
+    "expectedStdout": "",
+    "expectedStderr": "rm: cannot remove 'Documents': Is a directory\n",
+    "expectedExitCode": 1
+  },
+  {
+    "id": "wc-stdin-default",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "      1       2       8\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "one two\n"
+  },
+  {
+    "id": "wc-stdin-single-count",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc -l",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "1\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "one\ntwo"
+  },
+  {
+    "id": "wc-chars-vs-bytes",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc -mc",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "      5       7\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "ação\n"
+  },
+  {
+    "id": "wc-files-and-total",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc -l a b",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "a\n",
+      "/home/kali/b": "b\nc\n"
+    },
+    "expectedStdout": "1 a\n2 b\n3 total\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {}
+  },
+  {
+    "id": "wc-total-only-no-padding",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc --total=only a b",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "one\n",
+      "/home/kali/b": "two\n"
+    },
+    "expectedStdout": "2 2 8\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {}
+  },
+  {
+    "id": "wc-partial-read",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc -l a missing b",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "a\n",
+      "/home/kali/b": "b\n"
+    },
+    "expectedStdout": "1 a\n1 b\n2 total\n",
+    "expectedStderr": "wc: missing: No such file or directory\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {}
+  },
+  {
+    "id": "wc-stdin-once",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "wc -l - -",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "      1 -\n      0 -\n      1 total\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "a\n"
+  },
+  {
+    "id": "sort-stdin-byte-collation",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "B\na\nb\r\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "b\r\nB\na"
+  },
+  {
+    "id": "sort-numeric-decimal-prefix",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -n",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "-1.3\n-1.20\n.5\n2 pears\n10 apples\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "10 apples\n2 pears\n-1.20\n-1.3\n.5\n"
+  },
+  {
+    "id": "sort-large-exact-integers",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -n",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "9007199254740992\n9007199254740993\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "9007199254740993\n9007199254740992\n"
+  },
+  {
+    "id": "sort-stable-reverse",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -nrs",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "10 b\n2 z\n2 a\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "2 z\n2 a\n10 b\n"
+  },
+  {
+    "id": "sort-unique-key",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -nu",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "1 b\n2 z\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "2 z\n2 a\n1 b\n"
+  },
+  {
+    "id": "sort-combined-files",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -u a b",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "b\na",
+      "/home/kali/b": "a\nc\n"
+    },
+    "expectedStdout": "a\nb\nc\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {}
+  },
+  {
+    "id": "sort-same-output-file",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -o a a",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "b\na\n"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/a": "a\nb\n"
+    }
+  },
+  {
+    "id": "sort-check-disorder",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -c",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "",
+    "expectedStderr": "sort: -:2: disorder: a\n",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {},
+    "stdin": "b\na\n"
+  },
+  {
+    "id": "sort-check-quiet-disorder",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort --check=quiet",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 1,
+    "expectedFilesystem": {},
+    "stdin": "b\na\n"
+  },
+  {
+    "id": "sort-invalid-flag-status",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort --invented",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "",
+    "expectedStderr": "sort: unrecognized option '--invented'\nTry 'sort --help' for more information.\n",
+    "expectedExitCode": 2,
+    "expectedFilesystem": {}
+  },
+  {
+    "id": "sort-zero-delimited",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "sort -z",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "a\u0000b\u0000",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "b\u0000a\u0000"
+  },
+  {
+    "id": "uniq-count-adjacent-only",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -c",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "      2 a\n      1 b\n      1 a\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "a\na\nb\na\n"
+  },
+  {
+    "id": "uniq-repeated-only",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -d",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "a\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "a\na\nb\na\n"
+  },
+  {
+    "id": "uniq-single-only",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -u",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "b\na\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "a\na\nb\na\n"
+  },
+  {
+    "id": "uniq-ignore-case",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -ic",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "      2 A\n      1 B\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "A\na\nB\n"
+  },
+  {
+    "id": "uniq-skip-fields",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -f1",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "1 same\n3 other\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "1 same\n2 same\n3 other\n"
+  },
+  {
+    "id": "uniq-check-width",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq -s1 -w1",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {},
+    "expectedStdout": "xa1\nzb3\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {},
+    "stdin": "xa1\nya2\nzb3\n"
+  },
+  {
+    "id": "uniq-output-file",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "uniq a b",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "x\nx\ny\n",
+      "/home/kali/b": "old"
+    },
+    "expectedStdout": "",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {
+      "/home/kali/a": "x\nx\ny\n",
+      "/home/kali/b": "x\ny\n"
+    }
+  },
+  {
+    "id": "text-pipeline-chain",
+    "reference": "coreutils-9.7:wc,sort,uniq",
+    "command": "cat a | sort | uniq -c | wc -l",
+    "environment": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "initialFilesystem": {
+      "/home/kali/a": "b\na\nb\n"
+    },
+    "expectedStdout": "2\n",
+    "expectedStderr": "",
+    "expectedExitCode": 0,
+    "expectedFilesystem": {}
+  }
+]

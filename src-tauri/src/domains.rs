@@ -180,6 +180,8 @@ struct ParsedDomain {
     name: String,
     suffix: String,
     subdomain: Option<String>,
+    #[cfg_attr(not(test), allow(dead_code))]
+    // Validated by parser tests; reserved domain metadata.
     jurisdiction: Option<String>,
     government_namespace: bool,
 }
@@ -231,11 +233,15 @@ fn normalize_address(value: &str) -> GameResult<String> {
         .trim_end_matches('.');
     let value = value.strip_prefix("www.").unwrap_or(value);
     if value.is_empty() || value.len() > 253 || value.contains('/') || value.contains(':') {
-        return Err(domain("Domínio inválido: informe somente o endereço, sem protocolo ou caminho."));
+        return Err(domain(
+            "Domínio inválido: informe somente o endereço, sem protocolo ou caminho.",
+        ));
     }
     let labels: Vec<_> = value.split('.').collect();
     if labels.iter().any(|label| !valid_label(label)) {
-        return Err(domain("Domínio inválido: use letras, números e hífens entre os pontos."));
+        return Err(domain(
+            "Domínio inválido: use letras, números e hífens entre os pontos.",
+        ));
     }
     Ok(value.into())
 }
@@ -245,7 +251,7 @@ fn onion_host(value: &str) -> String {
     let value = value
         .strip_prefix("https://")
         .or_else(|| value.strip_prefix("http://"))
-        .unwrap_or(&value);
+        .unwrap_or(value);
     value
         .split('/')
         .next()
@@ -255,7 +261,9 @@ fn onion_host(value: &str) -> String {
 }
 
 pub fn looks_like_onion(value: &str) -> bool {
-    onion_host(value).to_ascii_lowercase().ends_with(ONION_EXTENSION)
+    onion_host(value)
+        .to_ascii_lowercase()
+        .ends_with(ONION_EXTENSION)
 }
 
 pub fn valid_onion_address(value: &str) -> bool {
@@ -264,10 +272,10 @@ pub fn valid_onion_address(value: &str) -> bool {
         return false;
     };
     label.len() == ONION_LABEL_LENGTH
-        && !label
-            .chars()
-            .all(|character| Some(character) == label.chars().next())
-        && label.bytes().all(|byte| ONION_ALPHABET.as_bytes().contains(&byte))
+        && !label.chars().all(|character| label.starts_with(character))
+        && label
+            .bytes()
+            .all(|byte| ONION_ALPHABET.as_bytes().contains(&byte))
 }
 
 fn normalize_onion_address(value: &str) -> GameResult<String> {
@@ -293,7 +301,11 @@ fn onion_availability(record: &OnionServiceRecord, now: u64) -> (&'static str, b
             } else {
                 CYCLE - phase
             };
-            (if online { "online" } else { "offline" }, online, Some(next_change))
+            (
+                if online { "online" } else { "offline" },
+                online,
+                Some(next_change),
+            )
         }
         _ => ("offline", false, None),
     }
@@ -360,13 +372,17 @@ fn parse(address: &str) -> GameResult<ParsedDomain> {
         let suffix_labels = item.suffix.trim_start_matches('.').split('.').count();
         if labels.len() > suffix_labels
             && address.ends_with(&item.suffix)
-            && matched.as_ref().is_none_or(|(_, count)| suffix_labels > *count)
+            && matched
+                .as_ref()
+                .is_none_or(|(_, count)| suffix_labels > *count)
         {
             matched = Some((item.suffix, suffix_labels));
         }
     }
     let Some((suffix, suffix_count)) = matched else {
-        return Err(domain("Extensão inválida ou ainda não disponível no mercado."));
+        return Err(domain(
+            "Extensão inválida ou ainda não disponível no mercado.",
+        ));
     };
     let prefix = &labels[..labels.len() - suffix_count];
     if prefix.is_empty() {
@@ -375,7 +391,10 @@ fn parse(address: &str) -> GameResult<ParsedDomain> {
     let mut government_namespace = false;
     let (name, subdomain, jurisdiction) = if suffix == ".gov.br" {
         let state = prefix.last().copied();
-        let states = ["ac", "al", "ap", "am", "ba", "ce", "df", "es", "go", "ma", "mg", "ms", "mt", "pa", "pb", "pe", "pi", "pr", "rj", "rn", "ro", "rr", "rs", "sc", "se", "sp", "to"];
+        let states = [
+            "ac", "al", "ap", "am", "ba", "ce", "df", "es", "go", "ma", "mg", "ms", "mt", "pa",
+            "pb", "pe", "pi", "pr", "rj", "rn", "ro", "rr", "rs", "sc", "se", "sp", "to",
+        ];
         if prefix.len() == 1 && state.is_some_and(|value| states.contains(&value)) {
             government_namespace = true;
             (prefix[0], None, None)
@@ -410,7 +429,11 @@ fn current(world: &WorldState) -> u64 {
 }
 
 fn status(record: &DomainRecord, now: u64) -> &'static str {
-    if now < record.expires_at_seconds.saturating_sub(EXPIRING_WINDOW_SECONDS) {
+    if now
+        < record
+            .expires_at_seconds
+            .saturating_sub(EXPIRING_WINDOW_SECONDS)
+    {
         "active"
     } else if now < record.expires_at_seconds {
         "expiring"
@@ -426,10 +449,11 @@ fn year(seconds: u64) -> u32 {
 }
 
 fn premium(name: &str) -> bool {
-    matches!(name, "ai" | "car" | "shop" | "bank" | "food" | "app" | "tech")
-        || name.len() <= 3
-        || ["cloud", "pay", "market", "store", "health", "quantum"]
-            .contains(&name)
+    matches!(
+        name,
+        "ai" | "car" | "shop" | "bank" | "food" | "app" | "tech"
+    ) || name.len() <= 3
+        || ["cloud", "pay", "market", "store", "health", "quantum"].contains(&name)
 }
 
 fn price(name: &str, extension: &ExtensionDefinition) -> i64 {
@@ -441,16 +465,14 @@ fn price(name: &str, extension: &ExtensionDefinition) -> i64 {
 }
 
 fn normalized_name(query: &str) -> String {
-    parse(query)
-        .map(|parsed| parsed.name)
-        .unwrap_or_else(|_| {
-            query
-                .trim()
-                .to_lowercase()
-                .chars()
-                .filter(|char| char.is_ascii_alphanumeric() || *char == '-')
-                .collect()
-        })
+    parse(query).map(|parsed| parsed.name).unwrap_or_else(|_| {
+        query
+            .trim()
+            .to_lowercase()
+            .chars()
+            .filter(|char| char.is_ascii_alphanumeric() || *char == '-')
+            .collect()
+    })
 }
 
 fn recommendation(extension: &ExtensionDefinition, business_type: &str) -> String {
@@ -513,13 +535,13 @@ fn offer(world: &WorldState, address: &str, business_type: &str) -> GameResult<D
         restricted,
         restriction_reason,
         premium: premium(&parsed.name),
-        recommended: match (business_type, extension.suffix.as_str()) {
+        recommended: matches!(
+            (business_type, extension.suffix.as_str()),
             ("education", ".edu.br")
-            | ("app", ".app")
-            | ("technology" | "startup", ".io" | ".tech")
-            | (_, ".com" | ".com.br") => true,
-            _ => false,
-        },
+                | ("app", ".app")
+                | ("technology" | "startup", ".io" | ".tech")
+                | (_, ".com" | ".com.br")
+        ),
         recommendation,
         status: if restricted {
             "restricted".into()
@@ -542,7 +564,11 @@ fn candidates(name: &str) -> Vec<String> {
         .collect()
 }
 
-pub fn search(world: &WorldState, query: &str, business_type: &str) -> GameResult<DomainSearchResult> {
+pub fn search(
+    world: &WorldState,
+    query: &str,
+    business_type: &str,
+) -> GameResult<DomainSearchResult> {
     if looks_like_onion(query) {
         return Err(domain(
             "Endereços .onion são serviços Tor v3 e não podem ser pesquisados, comprados ou registrados neste mercado.",
@@ -550,7 +576,9 @@ pub fn search(world: &WorldState, query: &str, business_type: &str) -> GameResul
     }
     let name = normalized_name(query);
     if !valid_label(&name) {
-        return Err(domain("Informe um nome de domínio com letras, números ou hífens."));
+        return Err(domain(
+            "Informe um nome de domínio com letras, números ou hífens.",
+        ));
     }
     let results = candidates(&name)
         .into_iter()
@@ -577,11 +605,16 @@ fn owner_record<'a>(world: &'a WorldState, address: &str) -> GameResult<&'a Doma
         .domains
         .registrations
         .get(&parsed.address)
-        .filter(|record| record.owner_kind == "player" && status(record, current(world)) != "available")
+        .filter(|record| {
+            record.owner_kind == "player" && status(record, current(world)) != "available"
+        })
         .ok_or_else(|| domain("Você não possui este domínio."))
 }
 
-fn owner_record_mut<'a>(world: &'a mut WorldState, address: &str) -> GameResult<&'a mut DomainRecord> {
+fn owner_record_mut<'a>(
+    world: &'a mut WorldState,
+    address: &str,
+) -> GameResult<&'a mut DomainRecord> {
     let parsed = parse(address)?;
     let now = current(world);
     world
@@ -600,11 +633,15 @@ pub fn register(
 ) -> GameResult<DomainRecord> {
     let parsed = parse(address)?;
     if parsed.subdomain.is_some() {
-        return Err(domain("Registre o domínio principal antes de criar subdomínios."));
+        return Err(domain(
+            "Registre o domínio principal antes de criar subdomínios.",
+        ));
     }
     let extension = definition(&parsed.suffix)?;
     if parsed.government_namespace {
-        return Err(domain("Domínios governamentais são reservados a órgãos públicos."));
+        return Err(domain(
+            "Domínios governamentais são reservados a órgãos públicos.",
+        ));
     }
     if let Some(reason) = restriction(&extension, business_type) {
         return Err(domain(reason));
@@ -621,17 +658,19 @@ pub fn register(
     }
     let organization = organization.trim();
     if organization.is_empty() || organization.len() > 80 {
-        return Err(domain("Informe o nome da empresa ou organização (até 80 caracteres)."));
+        return Err(domain(
+            "Informe o nome da empresa ou organização (até 80 caracteres).",
+        ));
     }
     let purchase_price = price(&parsed.name, &extension);
     if world.money < purchase_price {
-        return Err(domain(format!("Saldo insuficiente. Este domínio custa ${purchase_price}.")));
+        return Err(domain(format!(
+            "Saldo insuficiente. Este domínio custa ${purchase_price}."
+        )));
     }
-    let primary = !world
-        .domains
-        .registrations
-        .values()
-        .any(|record| record.owner_kind == "player" && record.primary && status(record, now) != "available");
+    let primary = !world.domains.registrations.values().any(|record| {
+        record.owner_kind == "player" && record.primary && status(record, now) != "available"
+    });
     world.money -= purchase_price;
     let record = DomainRecord {
         address: canonical.clone(),
@@ -651,7 +690,10 @@ pub fn register(
         listed_price: None,
         subdomains: BTreeMap::new(),
     };
-    world.domains.registrations.insert(canonical, record.clone());
+    world
+        .domains
+        .registrations
+        .insert(canonical, record.clone());
     Ok(record)
 }
 
@@ -659,7 +701,9 @@ pub fn renew(world: &mut WorldState, address: &str) -> GameResult<DomainRecord> 
     let now = current(world);
     let record = owner_record(world, address)?.clone();
     if now > record.expires_at_seconds + EXPIRY_GRACE_SECONDS {
-        return Err(domain("O período de renovação terminou; o domínio voltou ao mercado."));
+        return Err(domain(
+            "O período de renovação terminou; o domínio voltou ao mercado.",
+        ));
     }
     let extension = definition(&record.suffix)?;
     if world.money < extension.renewal_price {
@@ -689,13 +733,21 @@ pub fn set_primary(world: &mut WorldState, address: &str) -> GameResult<()> {
     Ok(())
 }
 
-pub fn create_subdomain(world: &mut WorldState, address: &str, label: &str) -> GameResult<SubdomainRecord> {
+pub fn create_subdomain(
+    world: &mut WorldState,
+    address: &str,
+    label: &str,
+) -> GameResult<SubdomainRecord> {
     let label = label.trim().to_lowercase();
     if !valid_label(&label) || label.contains('.') {
-        return Err(domain("Subdomínio inválido: use uma única palavra com letras, números ou hífens."));
+        return Err(domain(
+            "Subdomínio inválido: use uma única palavra com letras, números ou hífens.",
+        ));
     }
     if world.money < SUBDOMAIN_SETUP_COST {
-        return Err(domain("Saldo insuficiente para configurar este subdomínio."));
+        return Err(domain(
+            "Saldo insuficiente para configurar este subdomínio.",
+        ));
     }
     let record = owner_record(world, address)?.clone();
     if record.subdomains.contains_key(&label) {
@@ -707,13 +759,21 @@ pub fn create_subdomain(world: &mut WorldState, address: &str, label: &str) -> G
         created_at_seconds: current(world),
     };
     world.money -= SUBDOMAIN_SETUP_COST;
-    owner_record_mut(world, &record.address)?.subdomains.insert(label, subdomain.clone());
+    owner_record_mut(world, &record.address)?
+        .subdomains
+        .insert(label, subdomain.clone());
     Ok(subdomain)
 }
 
-pub fn set_redirect(world: &mut WorldState, address: &str, target: Option<&str>) -> GameResult<DomainRecord> {
+pub fn set_redirect(
+    world: &mut WorldState,
+    address: &str,
+    target: Option<&str>,
+) -> GameResult<DomainRecord> {
     let record = owner_record(world, address)?.clone();
-    let target = target.map(|value| parse(value).map(|parsed| parsed.address)).transpose()?;
+    let target = target
+        .map(|value| parse(value).map(|parsed| parsed.address))
+        .transpose()?;
     if let Some(target) = &target {
         owner_record(world, target)?;
         if target == &record.address {
@@ -725,7 +785,11 @@ pub fn set_redirect(world: &mut WorldState, address: &str, target: Option<&str>)
     Ok(updated.clone())
 }
 
-pub fn list_for_sale(world: &mut WorldState, address: &str, price: i64) -> GameResult<DomainMarketOffer> {
+pub fn list_for_sale(
+    world: &mut WorldState,
+    address: &str,
+    price: i64,
+) -> GameResult<DomainMarketOffer> {
     if price <= 0 || price > 9_999_999 {
         return Err(domain("Informe um preço de venda entre $1 e $9.999.999."));
     }
@@ -741,7 +805,10 @@ pub fn list_for_sale(world: &mut WorldState, address: &str, price: i64) -> GameR
         counter_price: None,
     };
     owner_record_mut(world, &record.address)?.listed_price = Some(price);
-    world.domains.offers.retain(|item| item.address != record.address || item.status != "pending");
+    world
+        .domains
+        .offers
+        .retain(|item| item.address != record.address || item.status != "pending");
     world.domains.offers.push(offer.clone());
     Ok(offer)
 }
@@ -749,11 +816,19 @@ pub fn list_for_sale(world: &mut WorldState, address: &str, price: i64) -> GameR
 pub fn cancel_sale(world: &mut WorldState, address: &str) -> GameResult<()> {
     let record = owner_record(world, address)?.clone();
     owner_record_mut(world, &record.address)?.listed_price = None;
-    world.domains.offers.retain(|item| item.address != record.address || item.status != "pending");
+    world
+        .domains
+        .offers
+        .retain(|item| item.address != record.address || item.status != "pending");
     Ok(())
 }
 
-pub fn respond_offer(world: &mut WorldState, offer_id: &str, action: &str, counter_price: Option<i64>) -> GameResult<()> {
+pub fn respond_offer(
+    world: &mut WorldState,
+    offer_id: &str,
+    action: &str,
+    counter_price: Option<i64>,
+) -> GameResult<()> {
     let index = world
         .domains
         .offers
@@ -777,7 +852,8 @@ pub fn respond_offer(world: &mut WorldState, offer_id: &str, action: &str, count
             owner_record_mut(world, &offer.address)?.listed_price = None;
         }
         "counter" => {
-            let value = counter_price.filter(|value| *value > offer.amount && *value <= 9_999_999)
+            let value = counter_price
+                .filter(|value| *value > offer.amount && *value <= 9_999_999)
                 .ok_or_else(|| domain("A contraproposta precisa ser maior que a oferta."))?;
             world.domains.offers[index].amount = value;
             world.domains.offers[index].counter_price = Some(value);
@@ -815,7 +891,9 @@ pub fn whois(world: &WorldState, address: &str) -> GameResult<DomainWhois> {
     let parsed = parse(&normalized)?;
     let extension = definition(&parsed.suffix)?;
     let record = world.domains.registrations.get(&parsed.address);
-    let state = record.map(|item| status(item, current(world))).unwrap_or("available");
+    let state = record
+        .map(|item| status(item, current(world)))
+        .unwrap_or("available");
     let ip = world.network.resolve(&parsed.address).ok();
     Ok(DomainWhois {
         address: parsed.address,
@@ -828,7 +906,12 @@ pub fn whois(world: &WorldState, address: &str) -> GameResult<DomainWhois> {
         category: extension.category,
         country: extension.country,
         subdomains: record
-            .map(|item| item.subdomains.values().map(|subdomain| subdomain.address.clone()).collect())
+            .map(|item| {
+                item.subdomains
+                    .values()
+                    .map(|subdomain| subdomain.address.clone())
+                    .collect()
+            })
             .unwrap_or_default(),
         redirect_to: record.and_then(|item| item.redirect_to.clone()),
         network: Some("dns".into()),
@@ -858,21 +941,71 @@ impl DomainState {
 
     fn seed_npcs(&mut self) {
         for (address, owner, organization, category) in [
-            ("flash.com", "Flash Commerce", "Flash Commerce", "commercial"),
-            ("quantum.com", "Quantum Systems", "Quantum Systems", "technology"),
+            (
+                "flash.com",
+                "Flash Commerce",
+                "Flash Commerce",
+                "commercial",
+            ),
+            (
+                "quantum.com",
+                "Quantum Systems",
+                "Quantum Systems",
+                "technology",
+            ),
             ("car.com", "Atlas Motors", "Atlas Motors", "commercial"),
             ("shop.com", "Shop Global", "Shop Global", "commercial"),
             ("bank.com", "Banco Meridian", "Banco Meridian", "commercial"),
-            ("ai.com", "Axiom Intelligence", "Axiom Intelligence", "technology"),
+            (
+                "ai.com",
+                "Axiom Intelligence",
+                "Axiom Intelligence",
+                "technology",
+            ),
             ("food.com", "Food Planet", "Food Planet", "commercial"),
-            ("getquantum.com", "Quantum Systems", "Quantum Systems", "technology"),
-            ("wipedia.org", "Wipedia Foundation", "Wipedia Foundation", "organization"),
-            ("archive.org", "Archive Foundation", "Archive Foundation", "organization"),
-            ("fakebook.com", "FakeBook Networks", "FakeBook Networks", "commercial"),
+            (
+                "getquantum.com",
+                "Quantum Systems",
+                "Quantum Systems",
+                "technology",
+            ),
+            (
+                "wipedia.org",
+                "Wipedia Foundation",
+                "Wipedia Foundation",
+                "organization",
+            ),
+            (
+                "archive.org",
+                "Archive Foundation",
+                "Archive Foundation",
+                "organization",
+            ),
+            (
+                "fakebook.com",
+                "FakeBook Networks",
+                "FakeBook Networks",
+                "commercial",
+            ),
             ("b1.tech", "B1 Media", "B1 Media", "technology"),
-            ("mercado.com.br", "Mercado Aberto Ltda", "Mercado Aberto Ltda", "commercial"),
-            ("meudominio.com.br", "MeuDomínio Registro", "MeuDomínio Registro", "commercial"),
-            ("vigilia.org", "Sector IX Studio", "Sector IX Studio", "technology"),
+            (
+                "mercado.com.br",
+                "Mercado Aberto Ltda",
+                "Mercado Aberto Ltda",
+                "commercial",
+            ),
+            (
+                "meudominio.com.br",
+                "MeuDomínio Registro",
+                "MeuDomínio Registro",
+                "commercial",
+            ),
+            (
+                "vigilia.org",
+                "Sector IX Studio",
+                "Sector IX Studio",
+                "technology",
+            ),
         ] {
             let parsed = parse(address).expect("valid seeded domain");
             self.registrations.insert(
@@ -905,7 +1038,12 @@ impl DomainState {
                 return Err(domain("Registro de domínio inválido."));
             }
             for (label, subdomain) in &record.subdomains {
-                if label != &subdomain.label || !valid_label(label) || !subdomain.address.starts_with(&format!("{label}.{}", record.address)) {
+                if label != &subdomain.label
+                    || !valid_label(label)
+                    || !subdomain
+                        .address
+                        .starts_with(&format!("{label}.{}", record.address))
+                {
                     return Err(domain("Registro de subdomínio inválido."));
                 }
             }
@@ -914,7 +1052,10 @@ impl DomainState {
             if key != &service.address
                 || !valid_onion_address(key)
                 || service.service_name.is_empty()
-                || !matches!(service.availability_mode.as_str(), "always" | "intermittent" | "offline")
+                || !matches!(
+                    service.availability_mode.as_str(),
+                    "always" | "intermittent" | "offline"
+                )
             {
                 return Err(domain("Registro de Onion Service inválido."));
             }
@@ -957,12 +1098,41 @@ mod tests {
         let world = world();
         let result = search(&world, "Minha Empresa", "company").unwrap();
         assert_eq!(result.normalized_name, "minhaempresa");
-        assert!(result.results.iter().any(|item| item.address == "minhaempresa.com.br" && item.available));
-        assert!(result.results.iter().any(|item| item.address == "minhaempresa.com" && item.recommended));
+        assert!(result
+            .results
+            .iter()
+            .any(|item| item.address == "minhaempresa.com.br" && item.available));
+        assert!(result
+            .results
+            .iter()
+            .any(|item| item.address == "minhaempresa.com" && item.recommended));
         let premium = search(&world, "car", "company").unwrap();
-        assert!(premium.results.iter().find(|item| item.address == "car.com").unwrap().premium);
-        assert!(!search(&world, "quantum", "company").unwrap().results.iter().find(|item| item.address == "quantum.com").unwrap().available);
-        assert!(search(&world, "instituto", "company").unwrap().results.iter().find(|item| item.address == "instituto.org.br").unwrap().restricted);
+        assert!(
+            premium
+                .results
+                .iter()
+                .find(|item| item.address == "car.com")
+                .unwrap()
+                .premium
+        );
+        assert!(
+            !search(&world, "quantum", "company")
+                .unwrap()
+                .results
+                .iter()
+                .find(|item| item.address == "quantum.com")
+                .unwrap()
+                .available
+        );
+        assert!(
+            search(&world, "instituto", "company")
+                .unwrap()
+                .results
+                .iter()
+                .find(|item| item.address == "instituto.org.br")
+                .unwrap()
+                .restricted
+        );
         let archive_whois = whois(&world, "https://www.archive.org").unwrap();
         assert_eq!(archive_whois.ip.as_deref(), Some("10.20.4.20"));
         assert_eq!(archive_whois.owner.as_deref(), Some("Archive Foundation"));
@@ -985,7 +1155,9 @@ mod tests {
         assert!(!valid_onion_address(
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0.onion"
         ));
-        assert!(!valid_onion_address(&BLACKWIRE_ONION_ADDRESS.to_ascii_uppercase()));
+        assert!(!valid_onion_address(
+            &BLACKWIRE_ONION_ADDRESS.to_ascii_uppercase()
+        ));
         let mut world = world();
         let info = onion_service(&world, &format!("http://{BLACKWIRE_ONION_ADDRESS}")).unwrap();
         assert_eq!(info.network, "tor");
@@ -1015,7 +1187,10 @@ mod tests {
         assert_eq!(offer.amount, 625);
         respond_offer(&mut world, &offer.id, "counter", Some(700)).unwrap();
         respond_offer(&mut world, &offer.id, "accept", None).unwrap();
-        assert_eq!(world.domains.registrations["cerqbus.com.br"].owner_kind, "npc");
+        assert_eq!(
+            world.domains.registrations["cerqbus.com.br"].owner_kind,
+            "npc"
+        );
         let whois = whois(&world, "cerqbus.io").unwrap();
         assert_eq!(whois.owner.as_deref(), Some("CerqBus"));
     }
@@ -1029,8 +1204,11 @@ mod tests {
         world.money = 0;
         assert!(register(&mut world, "loja.com", "Loja", "company").is_err());
         world.money = 20_000;
-        assert_eq!(world.domains.registrations.len(), DomainState::seeded().registrations.len());
-        assert_eq!(serde_json::to_string(&world).unwrap().contains("loja.com"), false);
+        assert_eq!(
+            world.domains.registrations.len(),
+            DomainState::seeded().registrations.len()
+        );
+        assert!(!serde_json::to_string(&world).unwrap().contains("loja.com"));
         assert!(before.contains("quantum.com"));
     }
 }

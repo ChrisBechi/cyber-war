@@ -1,7 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useWindows } from '../../lib/window-store';
 import { AppWindow } from './AppWindow';
+
+const nativeAnimate = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'animate');
 
 function WindowFixture() {
   const { windows, focus } = useWindows();
@@ -22,6 +24,71 @@ function WindowFixture() {
 }
 
 describe('window transitions', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    if (nativeAnimate) {
+      Object.defineProperty(HTMLElement.prototype, 'animate', nativeAnimate);
+    } else {
+      Reflect.deleteProperty(HTMLElement.prototype, 'animate');
+    }
+  });
+  const mockLayout = () => {
+    for (const [property, style, maximized] of [
+      ['offsetLeft', 'left', 0],
+      ['offsetTop', 'top', 0],
+      ['offsetWidth', 'width', 1280],
+      ['offsetHeight', 'height', 684],
+    ] as const) {
+      vi.spyOn(HTMLElement.prototype, property, 'get').mockImplementation(function (
+        this: HTMLElement,
+      ) {
+        return this.style[style] === '100%' ? maximized : parseFloat(this.style[style]) || 0;
+      });
+    }
+    const animations: Array<{
+      cancel: ReturnType<typeof vi.fn>;
+      effect: { getComputedTiming: () => { progress: number } };
+      playState: string;
+      onfinish?: () => void;
+    }> = [];
+    const animate = vi.fn(() => {
+      const animation = {
+        cancel: vi.fn(),
+        effect: { getComputedTiming: () => ({ progress: 0.4 }) },
+        playState: 'running',
+      };
+      animations.push(animation);
+      return animation;
+    });
+    Object.defineProperty(HTMLElement.prototype, 'animate', { value: animate, configurable: true });
+    return { animate, animations };
+  };
+
+  it('reverses an active maximize animation without remounting content and releases its animation layer', () => {
+    const { animations, animate } = mockLayout();
+    render(<WindowFixture />);
+    const draft = screen.getByRole('textbox');
+    fireEvent.change(draft, { target: { value: 'rascunho preservado' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Maximizar Arquivos' }));
+    expect(animate).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar Arquivos' }));
+    expect(animations[0].cancel).toHaveBeenCalledOnce();
+    expect(animate).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('textbox')).toBe(draft);
+    expect(draft).toHaveValue('rascunho preservado');
+    act(() => animations[1].onfinish?.());
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('data-window-sizing');
+  });
+
+  it('respects reduced motion without changing the final maximized geometry', () => {
+    const { animate } = mockLayout();
+    vi.stubGlobal('matchMedia', () => ({ matches: true }));
+    render(<WindowFixture />);
+    fireEvent.click(screen.getByRole('button', { name: 'Maximizar Arquivos' }));
+    expect(animate).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toHaveStyle({ width: '100%', height: '100%' });
+  });
   it('exits cinematic terminal fullscreen with Escape while preserving its content', () => {
     useWindows.getState().reset();
     useWindows.getState().open('terminal');

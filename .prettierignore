@@ -18,3 +18,8 @@ docs/GAME_HACKER*.md
 src-tauri/gen
 Cargo.lock
 *.tsbuildinfo
+# Preserve the upstream Flat Remix SVG bytes and their source hashes.
+public/assets/flat-remix/*.svg
+public/assets/flat-remix/LICENSE.txt
+public/assets/flat-remix/AUTHORS.txt
+public/assets/fastfetch/*.txt

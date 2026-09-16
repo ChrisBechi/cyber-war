@@ -77,7 +77,7 @@ for (const match of text(join(reference, 'all-tools.html')).matchAll(
     project.packages.add(decode(title[1]));
   }
   if (title?.[2] === 'command') {
-    project.commands.add(decode(title[1]));
+    project.commands.add(decode(title[1].replace(/^Includes /, '')));
   }
   for (const command of match[0].matchAll(/title="Includes (.*?) command"/g)) {
     project.commands.add(decode(command[1]));

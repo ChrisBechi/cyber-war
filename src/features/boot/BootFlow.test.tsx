@@ -140,7 +140,7 @@ describe('PressStartScreen', () => {
   it.each(['click', 'Enter', ' '])('accepts %s once', (input) => {
     const start = vi.fn();
     render(<PressStartScreen onStart={start} />);
-    expect(screen.getByAltText('CYBER WAR_')).toBeInTheDocument();
+    expect(screen.getByText('CYBER WAR')).toBeInTheDocument();
     if (input === 'click') {
       fireEvent.click(screen.getByRole('button', { name: 'Clique para iniciar' }));
     } else {

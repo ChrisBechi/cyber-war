@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { act, useGame } from '../../lib/game-store';
+import { act, perform, useGame } from '../../lib/game-store';
+import { z } from 'zod';
 import { useWindows } from '../../lib/window-store';
 
 export function Messages() {
@@ -9,6 +10,7 @@ export function Messages() {
     () => world?.messages.filter((message) => !message.read).at(-1)?.contact ?? 'Mãe',
   );
   const [draft, setDraft] = useState('');
+  const [downloadStatus, setDownloadStatus] = useState('');
   const hasUnread = world?.messages.some((m) => m.contact === contact && !m.read);
   useEffect(() => {
     if (hasUnread) {
@@ -52,9 +54,22 @@ export function Messages() {
             .map((m) => (
               <p key={m.id} className={m.text.startsWith('Você:') ? 'bubble outgoing' : 'bubble'}>
                 {m.text}
+                {m.attachments?.map((url, index) => (
+                  <button
+                    key={`${m.id}:${index}`}
+                    onClick={() => {
+                      void perform('attachment_download', { messageId: m.id, index }, z.string())
+                        .then((path) => setDownloadStatus(`Salvo em ${path}`))
+                        .catch((e: unknown) => setDownloadStatus(String(e)));
+                    }}
+                  >
+                    Baixar {url.split('/').pop()}
+                  </button>
+                ))}
               </p>
             ))}
         </div>
+        {downloadStatus && <p role="status">{downloadStatus}</p>}
         <form
           className="toolbar"
           onSubmit={(e) => {

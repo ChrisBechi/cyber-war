@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "softwareId": "coreutils",
+  "version": "9.7",
+  "provenance": "DECLARED_EXPECTATIONS",
+  "environmentDigest": null,
+  "caseIds": [
+    "cat/stdin",
+    "cat/file",
+    "cat/missing",
+    "cat/permissions",
+    "cat/pipe",
+    "cat/redirect",
+    "ls/basic",
+    "ls/hidden",
+    "head/stdin",
+    "tail/stdin",
+    "ls/cross-tool"
+  ],
+  "notes": "Versioned declared expectations for existing virtual behavior; not collected from an external Kali reference environment."
+}

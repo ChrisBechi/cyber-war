@@ -13,6 +13,8 @@ import type { SoftwareEntry } from '../../lib/software-catalog';
 import { AppIcon } from './AppIcon';
 import { KaliIcon } from './KaliIcon';
 import { useDismissOutside } from '../../lib/use-dismiss-outside';
+import { useGame } from '../../lib/game-store';
+import { launchPackage, packageDesktopEntries } from '../../lib/packages';
 
 type Props = {
   settings: Record<string, string>;
@@ -45,6 +47,12 @@ export function KaliMenu({
   onLogout,
 }: Props) {
   const [query, setQuery] = useState('');
+  const world = useGame((state) => state.world);
+  const [packageError, setPackageError] = useState('');
+  const packageApps = packageDesktopEntries(
+    world?.vfs.nodes ?? {},
+    world?.packages?.installed,
+  ).filter((entry) => entry.name.toLowerCase().includes(query.toLowerCase()));
   const [category, setCategory] = useState('favorites');
   const container = useRef<HTMLElement>(null);
   const search = useRef<HTMLInputElement>(null);
@@ -59,7 +67,7 @@ export function KaliMenu({
   const children = query
     ? []
     : softwareCatalog.categories.filter((item) => item.parent === category);
-  const entries = query.trim()
+  const catalogEntries = query.trim()
     ? searchSoftware(query)
     : category === 'favorites' || category === 'recent'
       ? (category === 'favorites' ? favorites : recent).flatMap((id) => {
@@ -70,6 +78,11 @@ export function KaliMenu({
         ? softwareCatalog.entries
         : softwareCatalog.entries.filter((entry) => entry.categories.includes(category));
   const current = categoryById.get(category);
+  const entries = catalogEntries.filter(
+    (entry) =>
+      !world?.packages?.managed.includes(entry.package) ||
+      world.packages.installed[entry.package]?.status === 'installed',
+  );
   const isUsual = !query && (category === 'all' || category === 'kali-usual-applications');
   useDismissOutside(
     true,
@@ -245,6 +258,23 @@ export function KaliMenu({
                 <KaliIcon name={child.icon} size={28} />
                 <span>{child.name}</span>
                 <span className="submenu-arrow">›</span>
+              </button>
+            ))}
+          {packageError && <p role="alert">{packageError}</p>}
+          {(query || category === 'all') &&
+            packageApps.map((entry) => (
+              <button
+                className="kali-app-row"
+                data-menu-result
+                key={entry.path}
+                onClick={() => {
+                  void launchPackage(entry.path)
+                    .then(onClose)
+                    .catch((reason: unknown) => setPackageError(String(reason)));
+                }}
+              >
+                <KaliIcon name="utilities-terminal" size={30} />
+                <span>{entry.name}</span>
               </button>
             ))}
           {entries.map((entry) => (

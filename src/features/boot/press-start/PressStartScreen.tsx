@@ -1,5 +1,4 @@
 import { audioManager } from '../../../lib/audio-manager';
-import { pressStartLogo } from '../boot-assets';
 import { useAdvance } from '../use-advance';
 
 export function PressStartScreen({ onStart }: { onStart: () => void }) {
@@ -13,7 +12,12 @@ export function PressStartScreen({ onStart }: { onStart: () => void }) {
   );
   return (
     <button className="boot-screen press-start" onClick={skip} aria-label="Clique para iniciar">
-      <img src={pressStartLogo} className="game-logo" alt="CYBER WAR_" />
+      <span className="press-start-title">
+        CYBER WAR
+        <span className="game-title-cursor" aria-hidden="true">
+          _
+        </span>
+      </span>
       <span className="press-start-prompt">CLIQUE PARA INICIAR</span>
       <span className="press-start-credit">STUDIO BECHI GAMES</span>
     </button>

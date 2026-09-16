@@ -60,6 +60,9 @@ impl GameService {
         db::write_snapshot(&tx, slot, nickname, &world, true)?;
         save::checkpoint(&tx, slot, &checkpoint)?;
         tx.commit()?;
+        if let Some(active) = &mut self.active {
+            crate::archive::jobs::reset(&mut active.world);
+        }
         self.active = Some(ActiveGame {
             slot,
             label: nickname.into(),
@@ -76,6 +79,9 @@ impl GameService {
         let tx = self.connection.transaction()?;
         db::write_snapshot(&tx, slot, &label, &world, false)?;
         tx.commit()?;
+        if let Some(active) = &mut self.active {
+            crate::archive::jobs::reset(&mut active.world);
+        }
         self.active = Some(ActiveGame {
             slot,
             label,
@@ -202,6 +208,7 @@ impl GameService {
         )?;
         world.vfs.ensure_trash();
         if let Some(active) = &mut self.active {
+            crate::archive::jobs::reset(&mut active.world);
             active.world = world.clone();
             active.clock = Instant::now();
             active.session_ended = false;
@@ -229,6 +236,7 @@ fn normalize_entry(
         Err(domain(format!("Não foi possível migrar a tentativa antiga {id}: referência ausente. O save foi preservado.")))
     })?;
     terminal::stop_session_runtime(world)?;
+    crate::packages::state::initialize(world)?;
     world.validate()
 }
 

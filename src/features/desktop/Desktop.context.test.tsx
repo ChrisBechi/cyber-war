@@ -11,6 +11,10 @@ import { DesktopContextMenu } from './DesktopContextMenu';
 const ipc = vi.hoisted(() =>
   vi.fn<(command: string, args: Record<string, unknown>) => Promise<unknown>>(),
 );
+const battery = vi.hoisted(() =>
+  vi.fn((): { percent: number; charging: boolean; pluggedIn: boolean } | null => null),
+);
+vi.mock('../../lib/use-host-battery', () => ({ useHostBattery: battery }));
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc, isTauri: () => true }));
 vi.mock('../../lib/audio-manager', () => ({
   audioManager: {
@@ -54,6 +58,7 @@ const node = (name: string, parent = desktopPath): VfsNode => ({
 let world: World;
 beforeEach(() => {
   vi.clearAllMocks();
+  battery.mockReturnValue(null);
   world = {
     nickname: 'kali',
     hostname: 'lifeos',
@@ -121,7 +126,136 @@ function press(target: Element) {
   fireEvent.click(target);
 }
 
+describe('desktop keyboard shortcuts', () => {
+  it('creates, renames and trashes desktop files with context-aware shortcuts', async () => {
+    render(<Desktop onMenu={() => undefined} />);
+    const desktop = screen.getByTestId('desktop');
+    fireEvent.keyDown(desktop, { key: 'n', ctrlKey: true, shiftKey: true });
+    let dialog = screen.getByRole('dialog', { name: 'Criar pasta' });
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Projeto' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Criar pasta' })).toBeNull());
+    expect(ipc).toHaveBeenCalledWith('vfs_create_directory', {
+      path: `${desktopPath}/Projeto`,
+      asRoot: false,
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Alfa.txt' }));
+    fireEvent.keyDown(desktop, { key: 'F2' });
+    dialog = screen.getByRole('dialog', { name: 'Renomear item' });
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Novo.txt' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Renomear' }));
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Renomear item' })).toBeNull());
+    expect(ipc).toHaveBeenCalledWith('vfs_move', {
+      source: `${desktopPath}/Alfa.txt`,
+      destination: `${desktopPath}/Novo.txt`,
+      asRoot: false,
+    });
+    fireEvent.keyDown(desktop, { key: 'a', ctrlKey: true });
+    fireEvent.keyDown(desktop, { key: 'c', ctrlKey: true });
+    expect(useVfsClipboard.getState().entry?.paths).toHaveLength(2);
+    fireEvent.keyDown(desktop, { key: 'Delete' });
+    await waitFor(() =>
+      expect(ipc).toHaveBeenCalledWith('vfs_remove', {
+        path: `${desktopPath}/Zeta.txt`,
+        recursive: true,
+        asRoot: false,
+      }),
+    );
+    await waitFor(() =>
+      expect(ipc).toHaveBeenCalledWith('vfs_remove', {
+        path: `${desktopPath}/Alfa.txt`,
+        recursive: true,
+        asRoot: false,
+      }),
+    );
+    await waitFor(() => expect(useGame.getState().busy).toBe(false));
+  });
+  it('opens apps before child key handlers, ignores held keys and preserves plain typing', () => {
+    const childKey = vi.fn();
+    render(
+      <>
+        <Desktop onMenu={() => undefined} />
+        <input aria-label="Entrada" onKeyDown={childKey} />
+      </>,
+    );
+    const input = screen.getByRole('textbox', { name: 'Entrada' });
+    fireEvent.keyDown(input, { key: 't', ctrlKey: true, altKey: true });
+    fireEvent.keyDown(input, { key: 't', ctrlKey: true, altKey: true, repeat: true });
+    expect(useWindows.getState().windows.map((item) => item.id)).toEqual(['terminal']);
+    expect(childKey).not.toHaveBeenCalled();
+    fireEvent.keyDown(input, { key: 't' });
+    expect(childKey).toHaveBeenCalledOnce();
+    for (const key of ['e', 'b', 'h', 's', 'p']) {
+      fireEvent.keyDown(input, { key, ctrlKey: true, altKey: true });
+    }
+    expect(useWindows.getState().windows.map((item) => item.id)).toEqual([
+      'terminal',
+      'files',
+      'browser',
+      'editor',
+      'settings',
+      'processes',
+    ]);
+  });
+  it('manages the current window, switches workspaces and opens a dismissible shortcut list', () => {
+    render(<Desktop onMenu={() => undefined} />);
+    const shortcut = (key: string) =>
+      fireEvent.keyDown(window, { key, ctrlKey: true, altKey: true });
+    shortcut('b');
+    shortcut('m');
+    expect(useWindows.getState().windows[0].maximized).toBe(true);
+    shortcut('m');
+    expect(useWindows.getState().windows[0].maximized).toBe(false);
+    shortcut('n');
+    expect(useWindows.getState().windows[0].minimized).toBe(true);
+    fireEvent.keyDown(window, { key: 'PageDown', altKey: true });
+    expect(useWindows.getState().windows[0].minimized).toBe(false);
+    shortcut('2');
+    expect(useWindows.getState().workspace).toBe(2);
+    shortcut('1');
+    fireEvent.keyDown(window, { key: 'F1' });
+    const dialog = screen.getByRole('dialog', { name: 'Atalhos de teclado' });
+    expect(within(dialog).getByText('Ctrl+Alt+T')).toBeVisible();
+    shortcut('e');
+    expect(useWindows.getState().windows).toHaveLength(1);
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Fechar atalhos de teclado' }), {
+      key: 'Escape',
+    });
+    expect(screen.queryByRole('dialog', { name: 'Atalhos de teclado' })).toBeNull();
+  });
+  it('blocks shortcuts while locked, during session transitions and in creation dialogs', () => {
+    render(<Desktop onMenu={() => undefined} />);
+    fireEvent.keyDown(window, { key: 'l', ctrlKey: true, altKey: true });
+    expect(screen.getByRole('dialog', { name: 'Sessão bloqueada' })).toBeVisible();
+    fireEvent.keyDown(window, { key: 'b', ctrlKey: true, altKey: true });
+    expect(useWindows.getState().windows).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Desbloquear' }));
+    act(() => useGame.setState({ sessionPending: true }));
+    fireEvent.keyDown(window, { key: 'b', ctrlKey: true, altKey: true });
+    expect(useWindows.getState().windows).toHaveLength(0);
+    act(() => useGame.setState({ sessionPending: false }));
+    menu();
+    select('Criar pasta…');
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Nome' }), {
+      key: 't',
+      ctrlKey: true,
+      altKey: true,
+    });
+    expect(useWindows.getState().windows).toHaveLength(0);
+  });
+});
+
 describe('desktop context menu', () => {
+  it('hides power on a desktop and shows actual notebook charge', () => {
+    const { rerender } = render(<Desktop onMenu={() => undefined} />);
+    expect(screen.queryByRole('button', { name: 'Energia' })).not.toBeInTheDocument();
+    battery.mockReturnValue({ percent: 64, charging: true, pluggedIn: true });
+    rerender(<Desktop onMenu={() => undefined} />);
+    const power = screen.getByRole('button', { name: 'Energia' });
+    expect(power).toHaveAttribute('title', '64% · Carregando');
+    fireEvent.click(power);
+    expect(screen.getByText('64% · Carregando')).toBeVisible();
+  });
   it.each([
     ['Escolher terminal', 'terminal'],
     ['Rede', 'network'],
@@ -131,6 +265,7 @@ describe('desktop context menu', () => {
   ])(
     'dismisses %s outside its popup and trigger, even when propagation is stopped',
     (label, id) => {
+      battery.mockReturnValue({ percent: 83, charging: false, pluggedIn: true });
       const outsideClick = vi.fn();
       const { container } = render(
         <>

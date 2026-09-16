@@ -2,14 +2,8 @@
   "file": "C:/Users/chris/.codex/visualizations/2026/09/10/01a089c0-fa2f-7f92-bd8c-255a6b7fe528/vigilia-assets/vigilia-inventory.png",
   "generation_mode": "built-in image_gen",
   "generation_calls": 1,
-  "requested_dimensions": [
-    1536,
-    1024
-  ],
-  "actual_dimensions": [
-    1536,
-    1024
-  ],
+  "requested_dimensions": [1536, 1024],
+  "actual_dimensions": [1536, 1024],
   "mode": "RGBA",
   "prompt": "Use case: stylized-concept\nAsset type: transparent inventory item atlas for the shop catalog in the original pixel-art 2D shooter VIGÍLIA: Protocolo Zero.\nPrimary request: Create exactly ONE original PNG image, desired dimensions 1536x1024 pixels, with genuine transparent alpha background. Arrange exactly 12 isolated inventory items in a STRICT 4-column by 3-row equal-cell grid, no visible grid lines. Each item is centered in its own cell with generous empty transparent margins and no overlap.\nROW 1, left to right: 1. ivory tactical jacket; 2. amber tactical jacket; 3. violet tactical jacket; 4. crimson scarf.\nROW 2, left to right: 1. cyan futuristic visor; 2. small friendly cyan hovering drone; 3. white-and-red medkit; 4. cyan personal shield module.\nROW 3, left to right: 1. compact ivory carbine rifle; 2. chunky amber shotgun; 3. violet plasma rifle; 4. long cyan railgun.\nStyle/medium: crisp detailed 2D pixel-art inventory sprites, deliberate sharp square pixel clusters, clean readable silhouettes, clear outlines and restrained highlights. Consistent scale and rendering across all items, suitable for a game shop catalog. Dark navy and indigo outlines/metalwork, selective cyan and amber lights, ivory/amber/violet clothing and weapon variants. Rifles in horizontal side profile with muzzle pointing right.\nComposition: each of the four columns occupies exactly one quarter of the canvas width and each of the three rows exactly one third of the canvas height. Centers of columns x=192,576,960,1344; row centers approximately y=171,512,853. Keep every subject well within its cell; even the long railgun must have transparent margins. Jackets are garment items only, without mannequins, human bodies, heads or hands.\nTransparency: actual alpha transparency behind and between all items. No solid background, no painted checkerboard, no shadow rectangle.\nConstraints: exactly these twelve items in this order, no extra objects, no characters, no cell labels, no text, no typography, no watermark, no UI frame, no grid lines, no blurry or photorealistic rendering. Output one transparent PNG at 1536x1024 pixels."
 }

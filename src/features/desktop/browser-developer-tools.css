@@ -1,0 +1,215 @@
+.browser-developer-tools {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 48%;
+  min-height: 150px;
+  max-height: 70%;
+  min-width: 0;
+  border-top: 1px solid #625c6e;
+  background: #242128;
+  color: #e5deed;
+  font-size: 12px;
+}
+
+.browser-developer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  border-bottom: 1px solid #423a4c;
+}
+
+.browser-developer-heading button {
+  padding: 2px 8px;
+  border: 0;
+  font-size: 16px;
+}
+
+.browser-developer-muted {
+  color: #bfb5cb;
+  font-size: 11px;
+}
+
+.browser-developer-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 0 5px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid #524b5a;
+}
+
+.browser-developer-tabs button {
+  padding: 7px 10px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 0;
+  color: #bfb5cb;
+}
+
+.browser-developer-tabs button[aria-selected='true'] {
+  box-shadow: inset 0 -2px #bf92e6;
+  background: #393041;
+  color: #fff;
+}
+
+.browser-developer-panel {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 8px 12px;
+}
+
+.browser-developer-panel h3 {
+  margin: 5px 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.browser-developer-panel p {
+  margin: 8px 0;
+}
+
+.browser-developer-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.browser-developer-toolbar input {
+  min-width: 0;
+  flex: 1;
+}
+
+.browser-developer-panel button,
+.browser-developer-panel input {
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+.browser-developer-console {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  font:
+    11px/1.5 Consolas,
+    monospace;
+}
+
+.browser-developer-console li {
+  padding: 4px;
+  border-bottom: 1px solid #403849;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.browser-developer-console li[data-status='error'] {
+  color: #ffb4c0;
+}
+
+.browser-developer-console pre,
+.browser-developer-panel details pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.browser-developer-source {
+  display: block;
+  width: 100%;
+  height: max(145px, calc(100% - 35px));
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #51485e;
+  border-radius: 3px;
+  background: #1e1b23;
+  color: #dbe8ff;
+  font:
+    12px/1.5 Consolas,
+    monospace;
+  white-space: pre;
+  overflow: auto;
+}
+
+.browser-developer-storage {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0;
+}
+
+.browser-developer-storage div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.browser-developer-storage dt {
+  color: #bfb5cb;
+}
+
+.browser-developer-storage dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.browser-developer-network {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11px;
+}
+
+.browser-developer-network th,
+.browser-developer-network td {
+  padding: 5px;
+  border-bottom: 1px solid #494151;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.browser-developer-network th:first-child {
+  width: 48%;
+}
+
+.browser-developer-network th {
+  color: #bfb5cb;
+  font-weight: 500;
+}
+
+.browser-developer-panel .browser-developer-request {
+  padding: 0;
+  border: 0;
+  text-align: left;
+  color: #d2b3fa;
+  overflow-wrap: anywhere;
+}
+
+.browser-console-panel:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.browser-console-output {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.browser-console-form {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 0;
+  border-top: 1px solid #403849;
+  background: #242128;
+  align-items: center;
+}
+
+.browser-console-form input {
+  min-width: 0;
+  flex: 1;
+  font-family: Consolas, monospace;
+}

@@ -13,6 +13,7 @@ import { useWindows } from './lib/window-store';
 const ipc = vi.hoisted(() => vi.fn<(command: string) => Promise<unknown>>());
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc, isTauri: () => true }));
 vi.mock('@tauri-apps/api/event', () => ({ listen: () => Promise.resolve(() => undefined) }));
+vi.mock('./lib/use-host-battery', () => ({ useHostBattery: () => null }));
 vi.mock('./lib/app-settings', async (original) => ({
   ...(await original<typeof AppSettingsModule>()),
   loadAppSettings: () => Promise.resolve(),
@@ -113,6 +114,8 @@ beforeEach(() => {
   worldReply = () => Promise.resolve(backendWorld);
   ipc.mockImplementation((command) => {
     switch (command) {
+      case 'terminal_cancel_all':
+        return Promise.resolve(null);
       case 'end_session':
         return endReply();
       case 'session_start':
@@ -265,6 +268,10 @@ function login() {
   fireEvent.click(screen.getByRole('button', { name: /^Entrar$/ }));
 }
 
+function finishSessionIntro() {
+  fireEvent.animationEnd(screen.getByRole('dialog', { name: /^Sessão \d+:/ }));
+}
+
 describe('App session boundaries', () => {
   it.each(['Cancelar', 'Voltar ao menu do jogo'])(
     '%s waits for end_session and blocks on failure',
@@ -334,11 +341,17 @@ describe('App session boundaries', () => {
       await refresh.promise;
     });
     expect(await screen.findByTestId('desktop')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Sessão 1: Script Kiddie' })).toBeInTheDocument();
+    expect(screen.getByTestId('desktop')).toHaveAttribute('inert');
+    fireEvent.keyDown(window, { key: 't', ctrlKey: true, altKey: true });
     expect(useWindows.getState().workspace).toBe(1);
     expect(useWindows.getState().windows.map((w) => w.id)).toEqual(['files', 'terminal']);
     expect(
       useWindows.getState().windows.every((w) => !w.path && !w.minimized && !w.maximized),
     ).toBe(true);
+    finishSessionIntro();
+    expect(screen.queryByRole('dialog', { name: /^Sessão \d+:/ })).not.toBeInTheDocument();
+    expect(screen.getByTestId('desktop')).not.toHaveAttribute('inert');
   });
 
   it('preserves windows and stays at login after session_start fails, then retries', async () => {
@@ -348,6 +361,7 @@ describe('App session boundaries', () => {
     login();
     expect(await screen.findByRole('alert')).toHaveTextContent('start rejected');
     expect(screen.queryByTestId('desktop')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: /^Sessão \d+:/ })).not.toBeInTheDocument();
     expect(useWindows.getState().windows.map((w) => w.id)).toEqual(['editor']);
     startReply = () => Promise.resolve(backendWorld);
     login();
@@ -359,6 +373,7 @@ describe('App session boundaries', () => {
     await showLogin();
     login();
     await screen.findByTestId('desktop');
+    finishSessionIntro();
     act(() => {
       useWindows.getState().open('editor', '/home/kali/old.txt');
       useWindows.getState().newTerminal();
@@ -370,6 +385,7 @@ describe('App session boundaries', () => {
     await screen.findByLabelText('Senha');
     login();
     await screen.findByTestId('desktop');
+    finishSessionIntro();
     expect(useWindows.getState().windows).toEqual([]);
     expect(sessionCommands()).toEqual([
       'end_session',

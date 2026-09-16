@@ -17,7 +17,9 @@ export type BuiltinAppId =
   | 'journey'
   | 'vigilia'
   | 'media-player'
-  | 'image-viewer';
+  | 'image-viewer'
+  | 'archive-viewer'
+  | 'package-installer';
 export type AppId = BuiltinAppId | `tool:${string}`;
 export type WindowId = AppId | `terminal:${number}` | `files:${number}` | `editor:${number}`;
 export const windowApp = (id: WindowId): AppId =>
@@ -48,6 +50,8 @@ export const apps: Record<AppId, { title: string }> = {
   vigilia: { title: 'SECTOR IX — Protocolo Zero' },
   'media-player': { title: 'Parole Media Player' },
   'image-viewer': { title: 'Ristretto Image Viewer' },
+  'archive-viewer': { title: 'Archive Viewer' },
+  'package-installer': { title: 'Instalador de pacotes' },
 };
 export type WindowState = {
   id: WindowId;
@@ -63,6 +67,7 @@ export type WindowState = {
   path?: string;
   asRoot?: boolean;
   cwd?: string;
+  initialCommand?: string;
   navigationId?: number;
 };
 type WindowStore = {
@@ -70,6 +75,9 @@ type WindowStore = {
   top: number;
   workspace: number;
   open: (id: WindowId, path?: string) => void;
+  desktopRestore: Record<number, WindowId[]>;
+  toggleDesktop: () => void;
+  cycle: (direction: 1 | -1) => WindowId | undefined;
   newTerminal: (options?: { cwd?: string; asRoot?: boolean }) => WindowId;
   newInstance: (app: 'files' | 'editor', path: string, asRoot?: boolean) => WindowId;
   close: (id: WindowId) => void;
@@ -81,6 +89,40 @@ export const useWindows = create<WindowStore>((set, get) => ({
   windows: [],
   top: 1,
   workspace: 1,
+  desktopRestore: {},
+  toggleDesktop: () =>
+    set((state) => {
+      const visible = state.windows.filter(
+        (item) => item.workspace === state.workspace && !item.minimized,
+      );
+      const ids = visible.length
+        ? visible.map((item) => item.id)
+        : (state.desktopRestore[state.workspace] ?? []);
+      return {
+        desktopRestore: { ...state.desktopRestore, [state.workspace]: visible.length ? ids : [] },
+        windows: state.windows.map((item) =>
+          item.workspace === state.workspace && ids.includes(item.id)
+            ? { ...item, minimized: visible.length > 0 }
+            : item,
+        ),
+      };
+    }),
+  cycle: (direction) => {
+    const state = get();
+    const list = state.windows.filter((item) => item.workspace === state.workspace);
+    if (!list.length) {
+      return;
+    }
+    const active = list.filter((item) => !item.minimized).sort((a, b) => b.z - a.z)[0];
+    const index = active
+      ? list.findIndex((item) => item.id === active.id)
+      : direction === 1
+        ? -1
+        : 0;
+    const next = list[(index + direction + list.length) % list.length];
+    state.focus(next.id);
+    return next.id;
+  },
   newTerminal: (options) => {
     const windows = get().windows;
     let id: WindowId = 'terminal';
@@ -144,5 +186,5 @@ export const useWindows = create<WindowStore>((set, get) => ({
     })),
   update: (id, patch) =>
     set((s) => ({ windows: s.windows.map((w) => (w.id === id ? { ...w, ...patch } : w)) })),
-  reset: () => set({ windows: [], top: 1, workspace: 1 }),
+  reset: () => set({ windows: [], top: 1, workspace: 1, desktopRestore: {} }),
 }));

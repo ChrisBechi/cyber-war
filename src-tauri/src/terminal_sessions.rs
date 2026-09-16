@@ -9,6 +9,8 @@ use std::collections::BTreeMap;
 
 pub fn fresh_session() -> TerminalSession {
     TerminalSession {
+        shell: Default::default(),
+        presentation: Default::default(),
         shell_depth: 0,
         last_status: 0,
         exported: Default::default(),
@@ -19,6 +21,11 @@ pub fn fresh_session() -> TerminalSession {
         env: BTreeMap::new(),
         history: Vec::new(),
         foreground: None,
+        archive_pending: None,
+        package_pending: None,
+        package_job: None,
+        stdin: None,
+        io: Default::default(),
     }
 }
 fn validate_id(id: &str) -> GameResult<()> {
@@ -45,7 +52,17 @@ pub fn open(world: &mut WorldState, id: &str) -> GameResult<TerminalSession> {
 }
 pub fn close(world: &mut WorldState, id: &str) -> GameResult<()> {
     validate_id(id)?;
-    world.terminal_sessions.remove(id);
+    if let Some(session) = world.terminal_sessions.remove(id) {
+        if let Some(job) = session.package_job {
+            crate::archive::jobs::cancel(job);
+        }
+        if session
+            .package_pending
+            .is_some_and(|p| world.package_lock.as_deref() == Some(&p.plan.id))
+        {
+            world.package_lock = None;
+        }
+    }
     Ok(())
 }
 pub fn open_at(
@@ -67,6 +84,8 @@ pub fn open_at(
     Ok(session)
 }
 pub fn reset(world: &mut WorldState) {
+    world.package_lock = None;
+    crate::archive::jobs::reset(world);
     world.terminal = fresh_session();
     world.terminal_sessions.clear();
     world.settings.retain(|key, _| !key.starts_with("env:"));

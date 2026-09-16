@@ -77,7 +77,7 @@ fn find_predicates_include_root_respect_depth_and_do_not_hide_permissions() {
     w.vfs.chmod("/home/kali/data/nested", "kali", 0).unwrap();
     let r = execute(&mut w, "find data -type f");
     assert_eq!(r.exit_code, 1);
-    assert!(r.stderr.contains("permission"));
+    assert!(r.stderr.contains("Permission denied"));
     assert_ne!(execute(&mut w, "find data -delete").exit_code, 0);
     assert!(w.vfs.nodes.contains_key("/home/kali/data/a.txt"));
 }
@@ -106,7 +106,7 @@ fn chmod_symbolic_recursive_atomic_and_chown_independent_group() {
 fn unknown_options_are_honest_and_query_manuals_are_current() {
     let mut w = world();
     for command in [
-        "ls --color=auto data",
+        "ls --color=invalid data",
         "grep -P a data/a.txt",
         "find data -exec",
         "chmod --reference=data 777 data",

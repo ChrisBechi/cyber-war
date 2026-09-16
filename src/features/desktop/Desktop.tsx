@@ -4,10 +4,14 @@ import { apps, useWindows, windowApp } from '../../lib/window-store';
 import type { AppId, WindowId } from '../../lib/window-store';
 import { audioManager } from '../../lib/audio-manager';
 import { endSession } from '../../lib/session';
-import { isTrashPath, TRASH_FILES_PATH } from '../../lib/vfs-paths';
+import { TRASH_FILES_PATH } from '../../lib/vfs-paths';
 import { inCategory, softwareById, softwareCatalog } from '../../lib/software-catalog';
 import type { SoftwareEntry } from '../../lib/software-catalog';
 import { FileManager } from '../files/FileManager';
+import { ArchiveViewer } from '../files/ArchiveViewer';
+import { PackageInstaller } from '../files/PackageInstaller';
+import { pollArchiveJobs } from '../../lib/archive';
+import { desktopRuntime } from '../../lib/api';
 import { Editor } from '../files/Editor';
 import { ImageViewer } from '../media/ImageViewer';
 import { MediaPlayer } from '../media/MediaPlayer';
@@ -21,6 +25,12 @@ import { Calculator } from './Calculator';
 import { DesktopContextMenu } from './DesktopContextMenu';
 import type { ContextItem } from './DesktopContextMenu';
 import { DesktopCreateDialog } from './DesktopCreateDialog';
+import { DesktopKeyboardHelp } from './DesktopKeyboardHelp';
+import { useDesktopKeyboard } from './use-desktop-keyboard';
+import { dropTargetForNode, startVfsDrag, transferVfsItems } from '../../lib/vfs-drag';
+import { useVfsDrop } from '../../lib/use-vfs-drop';
+import { fileKeyboardAction } from '../../lib/file-keyboard';
+import { FileNameDialog, type FileNameOperation } from '../files/FileNameDialog';
 import type { DesktopItemKind } from './DesktopCreateDialog';
 import { pasteVfs, useVfsClipboard } from '../../lib/vfs-clipboard';
 import { sortVfsNodes } from '../../lib/vfs-order';
@@ -42,19 +52,53 @@ import { VigiliaGame } from './VigiliaGame';
 export function Desktop({
   onMenu,
   presentation = false,
+  inputBlocked = false,
 }: {
   onMenu: () => void;
   presentation?: boolean;
+  inputBlocked?: boolean;
 }) {
   const { world, missions, error, clearError, sessionPending } = useGame();
   const { windows, workspace, open } = useWindows();
   const [launcher, setLauncher] = useState(false);
   const [locked, setLocked] = useState(false);
-  const [trashHover, setTrashHover] = useState(false);
+  const [keyboardHelp, setKeyboardHelp] = useState(false);
+  const drop = useVfsDrop();
   const [context, setContext] = useState<{ x: number; y: number; path?: string } | null>(null);
   const [creating, setCreating] = useState<DesktopItemKind | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
+  const [fileOperation, setFileOperation] = useState<FileNameOperation | null>(null);
   const clipboard = useVfsClipboard((s) => s.entry);
+  useEffect(() => {
+    if (!desktopRuntime || presentation) {
+      return;
+    }
+    let running = false;
+    let completed = '';
+    const timer = setInterval(() => {
+      if (running) {
+        return;
+      }
+      running = true;
+      void pollArchiveJobs()
+        .then((jobs) => {
+          const next = jobs
+            .filter((j) => j.status !== 'Running')
+            .map((j) => `${j.id}:${j.status}`)
+            .join(',');
+          if (next !== completed) {
+            completed = next;
+            void useGame.getState().refresh();
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          running = false;
+        });
+    }, 500);
+    return () => clearInterval(timer);
+  }, [presentation]);
   const closeContext = useCallback(() => setContext(null), []);
   const closeLauncher = useCallback(() => setLauncher(false), []);
   const lock = () => {
@@ -104,40 +148,27 @@ export function Desktop({
       }),
     [],
   );
-  useEffect(() => {
-    if (presentation) {
-      return;
-    }
-    const key = (e: KeyboardEvent) => {
-      if (locked || creating || sessionPending) {
-        return;
-      }
-      if (e.key === 'Meta' || (e.ctrlKey && e.key === 'Escape')) {
-        e.preventDefault();
-        setLauncher((value) => !value);
-        return;
-      }
-      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 't') {
-        e.preventDefault();
-        useWindows.getState().newTerminal();
-      }
-      if (e.key === 'Escape') {
-        setLauncher(false);
-      }
-      if (e.altKey && e.key === 'Tab') {
-        e.preventDefault();
-        const state = useWindows.getState();
-        const list = state.windows
-          .filter((w) => w.workspace === state.workspace)
-          .sort((a, b) => b.z - a.z);
-        if (list.length > 1) {
-          state.focus(list[1].id);
-        }
-      }
-    };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
-  }, [open, locked, presentation, creating, sessionPending]);
+  useDesktopKeyboard({
+    disabled:
+      inputBlocked ||
+      locked ||
+      !!creating ||
+      !!fileOperation ||
+      sessionPending ||
+      keyboardHelp ||
+      !world,
+    presentation,
+    onMenu: () => {
+      setContext(null);
+      setLauncher((value) => !value);
+    },
+    onDismiss: () => {
+      setLauncher(false);
+      setContext(null);
+    },
+    onHelp: () => setKeyboardHelp(true),
+    onLock: lock,
+  });
   if (!world) {
     return null;
   }
@@ -159,6 +190,12 @@ export function Desktop({
   const paste = () => {
     void pasteVfs(desktopPath).catch(() => undefined);
   };
+  const selectedItems = selectedPaths.filter((path) => !!world.vfs.nodes[path]);
+  const trashSelection = () => {
+    void transferVfsItems(selectedItems, { kind: 'trash' }).catch((error: unknown) =>
+      useGame.setState({ error: String(error) }),
+    );
+  };
   const menuItems: ContextItem[] = [
     ...(context?.path
       ? [
@@ -175,13 +212,26 @@ export function Desktop({
           {
             label: 'Copiar',
             icon: 'file' as const,
-            action: () => useVfsClipboard.getState().copy(context.path!),
+            action: () =>
+              useVfsClipboard
+                .getState()
+                .copy(selectedItems.includes(context.path!) ? selectedItems : context.path!),
           },
           {
             label: 'Recortar',
             icon: 'file' as const,
-            action: () => useVfsClipboard.getState().copy(context.path!, true),
+            action: () =>
+              useVfsClipboard
+                .getState()
+                .copy(selectedItems.includes(context.path!) ? selectedItems : context.path!, true),
           },
+          {
+            label: 'Renomear…',
+            icon: 'editor' as const,
+            action: () =>
+              setFileOperation({ kind: 'rename', node: world.vfs.nodes[context.path!] }),
+          },
+          { label: 'Enviar à lixeira', icon: 'trash' as const, action: trashSelection },
           null,
         ]
       : []),
@@ -265,11 +315,15 @@ export function Desktop({
             sessionId={id}
             initialCwd={model?.cwd}
             asRoot={model?.asRoot}
-            initialCommand={path ? scriptCommand(path) : undefined}
+            initialCommand={model?.initialCommand ?? (path ? scriptCommand(path) : undefined)}
           />
         );
       case 'files':
         return <FileManager initialPath={path} asRoot={model?.asRoot} />;
+      case 'archive-viewer':
+        return <ArchiveViewer initialPath={path} asRoot={model?.asRoot} />;
+      case 'package-installer':
+        return <PackageInstaller initialPath={path} />;
       case 'editor':
         return <Editor initialPath={path} asRoot={model?.asRoot} />;
       case 'media-player':
@@ -289,7 +343,7 @@ export function Desktop({
       case 'codelab':
         return <CodeLab />;
       case 'settings':
-        return <Settings />;
+        return <Settings onShowKeyboardHelp={() => setKeyboardHelp(true)} />;
       case 'saves':
         return <Saves onMenu={onMenu} />;
       case 'processes':
@@ -310,15 +364,17 @@ export function Desktop({
   return (
     <>
       <main
-        inert={locked || sessionPending}
+        inert={inputBlocked || locked || sessionPending || keyboardHelp}
         className={`desktop wallpaper-${world.settings.wallpaper ?? 'waves'}`}
         data-testid="desktop"
+        {...drop({ kind: 'folder', path: desktopPath })}
         tabIndex={-1}
         onContextMenu={(event) => {
           const target = event.target as HTMLElement;
           if (
             presentation ||
             creating ||
+            fileOperation ||
             target.closest(
               '.window, .top-panel, .kali-menu, .desktop-note, .desktop-create-backdrop, .desktop-context-menu',
             )
@@ -332,6 +388,9 @@ export function Desktop({
           setLauncher(false);
           const path = target.closest<HTMLElement>('[data-vfs-path]')?.dataset.vfsPath;
           setSelected(path ?? null);
+          if (!path || !selectedPaths.includes(path)) {
+            setSelectedPaths(path ? [path] : []);
+          }
           setContext({ x: event.clientX, y: event.clientY, path });
         }}
         onKeyDown={(event) => {
@@ -339,6 +398,10 @@ export function Desktop({
           if (
             presentation ||
             creating ||
+            fileOperation ||
+            locked ||
+            sessionPending ||
+            keyboardHelp ||
             target.closest(
               '.window, .top-panel, .kali-menu, .desktop-context-menu, .desktop-create-backdrop',
             )
@@ -354,12 +417,47 @@ export function Desktop({
               path: target.closest<HTMLElement>('[data-vfs-path]')?.dataset.vfsPath,
             });
           }
-          if (event.ctrlKey && ['c', 'x', 'v'].includes(event.key.toLowerCase())) {
+          const action = fileKeyboardAction(event);
+          if (action) {
             event.preventDefault();
-            if (event.key.toLowerCase() === 'v') {
+            event.stopPropagation();
+            if (event.repeat && !['next', 'previous'].includes(action)) {
+              return;
+            }
+            if (action === 'paste') {
               paste();
-            } else if (selected) {
-              useVfsClipboard.getState().copy(selected, event.key.toLowerCase() === 'x');
+            } else if (action === 'folder' || action === 'file') {
+              setFileOperation({ kind: action });
+            } else if (action === 'all') {
+              setSelectedPaths(displayedShortcuts.map((item) => item.id));
+            } else if (action === 'copy' || action === 'cut') {
+              useVfsClipboard.getState().copy(selectedItems, action === 'cut');
+            } else if (action === 'trash' && selectedItems.length) {
+              trashSelection();
+            } else if (action === 'rename' && selectedItems.length === 1) {
+              setFileOperation({ kind: 'rename', node: world.vfs.nodes[selectedItems[0]] });
+            } else if (action === 'open' && selectedItems.length === 1) {
+              openNode(world.vfs.nodes[selectedItems[0]]);
+            } else if (action === 'next' || action === 'previous') {
+              const index = displayedShortcuts.findIndex((item) => item.id === selected);
+              const next =
+                displayedShortcuts[
+                  Math.max(
+                    0,
+                    Math.min(displayedShortcuts.length - 1, index + (action === 'next' ? 1 : -1)),
+                  )
+                ];
+              if (next) {
+                setSelected(next.id);
+                setSelectedPaths([next.id]);
+                Array.from(
+                  event.currentTarget.querySelectorAll<HTMLElement>(
+                    '.desktop-shortcuts [data-vfs-path]',
+                  ),
+                )
+                  .find((item) => item.dataset.vfsPath === next.id)
+                  ?.focus();
+              }
             }
           }
         }}
@@ -392,20 +490,28 @@ export function Desktop({
               key={node.id}
               data-app={node.metadata.app}
               data-vfs-path={node.id}
-              className={selected === node.id ? 'desktop-icon-selected' : undefined}
-              onClick={() => setSelected(node.id)}
+              className={selectedPaths.includes(node.id) ? 'desktop-icon-selected' : undefined}
+              aria-pressed={selectedPaths.includes(node.id)}
+              onClick={(event) => {
+                setSelected(node.id);
+                setSelectedPaths(
+                  event.ctrlKey
+                    ? selectedPaths.includes(node.id)
+                      ? selectedPaths.filter((path) => path !== node.id)
+                      : [...selectedPaths, node.id]
+                    : [node.id],
+                );
+              }}
               title={node.name.replace(/\.desktop$/, '')}
               onDoubleClick={() => openNode(node)}
               draggable
+              {...drop(dropTargetForNode(node))}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('application/x-cyber-war-vfs', node.id);
-                e.dataTransfer.setData('text/plain', node.id);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  openNode(node);
-                }
+                startVfsDrag(
+                  e.dataTransfer,
+                  selectedPaths.includes(node.id) ? selectedItems : [node.id],
+                  e.currentTarget,
+                );
               }}
             >
               <AppIcon
@@ -426,30 +532,11 @@ export function Desktop({
             </button>
           ))}
           <button
-            className={`desktop-trash${trashHasItems ? ' has-items' : ''}${trashHover ? ' is-over' : ''}`}
+            className={`desktop-trash${trashHasItems ? ' has-items' : ''}`}
             title="Lixeira"
             aria-label="Lixeira"
             onClick={() => open('files', TRASH_FILES_PATH)}
-            onDragOver={(e) => {
-              const source = e.dataTransfer.types.includes('application/x-cyber-war-vfs');
-              if (!source) {
-                return;
-              }
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-              setTrashHover(true);
-            }}
-            onDragLeave={() => setTrashHover(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setTrashHover(false);
-              const source =
-                e.dataTransfer.getData('application/x-cyber-war-vfs') ||
-                e.dataTransfer.getData('text/plain');
-              if (source && !isTrashPath(source)) {
-                act('vfs_remove', { path: source, recursive: true });
-              }
-            }}
+            {...drop({ kind: 'trash' })}
           >
             <AppIcon name="trash" size={40} trashFull={trashHasItems} />
             <span className="desktop-shortcut-name">Lixeira</span>
@@ -500,7 +587,15 @@ export function Desktop({
           />
         )}
         {creating && <DesktopCreateDialog kind={creating} onClose={() => setCreating(null)} />}
+        {fileOperation && (
+          <FileNameDialog
+            operation={fileOperation}
+            directory={desktopPath}
+            onClose={() => setFileOperation(null)}
+          />
+        )}
       </main>
+      {keyboardHelp && <DesktopKeyboardHelp onClose={() => setKeyboardHelp(false)} />}
       {locked && (
         <section
           className="session-lock"

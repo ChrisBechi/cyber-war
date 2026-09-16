@@ -117,6 +117,15 @@ impl Resource {
                 }
             },
             Self::File { host, path } => {
+                if host.is_none()
+                    && (w.packages.ownership.contains_key(path)
+                        || w.vfs
+                            .nodes
+                            .get(path)
+                            .is_some_and(|n| n.metadata.contains_key("packageProjection")))
+                {
+                    return Ok(());
+                }
                 let fs = match host {
                     Some(host) => {
                         &mut w

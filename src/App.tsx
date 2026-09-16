@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { Desktop } from './features/desktop/Desktop';
 import { BootFlow } from './features/boot/BootFlow';
 import { FadeTransition } from './features/boot/FadeTransition';
 import { NarrativeIntro } from './features/boot/NarrativeIntro';
+import { SessionIntro } from './features/boot/SessionIntro';
 import { preloadBranding, openingSources } from './features/boot/boot-assets';
 import { desktopRuntime } from './lib/api';
 import { useGame } from './lib/game-store';
@@ -27,15 +28,18 @@ export function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [assetsReady, setAssetsReady] = useState(false);
   const [startAttempt, setStartAttempt] = useState(0);
+  const [showSessionIntro, setShowSessionIntro] = useState(false);
+  const finishSessionIntro = useCallback(() => setShowSessionIntro(false), []);
   const [systemReduced, setSystemReduced] = useState(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
   const { settings, ready } = useAppSettings();
-  const { error, clearError, sessionPending } = useGame();
+  const { world, error, clearError, sessionPending } = useGame();
   const enterDesktop = () => {
-    void startSession(() => setScreen('desktop')).catch(() =>
-      setStartAttempt((attempt) => attempt + 1),
-    );
+    void startSession(() => {
+      setShowSessionIntro(true);
+      setScreen('desktop');
+    }).catch(() => setStartAttempt((attempt) => attempt + 1));
   };
   const returnToMenu = () => {
     void endSession(() => setScreen('menu')).catch(() => undefined);
@@ -117,7 +121,22 @@ export function App() {
         stage={screen}
         render={(shown) =>
           shown === 'desktop' ? (
-            <Desktop onMenu={() => setScreen('menu')} />
+            <div className="session-stage">
+              <div
+                className="session-desktop"
+                inert={showSessionIntro}
+                aria-hidden={showSessionIntro || undefined}
+              >
+                <Desktop onMenu={() => setScreen('menu')} inputBlocked={showSessionIntro} />
+              </div>
+              {showSessionIntro && (
+                <SessionIntro
+                  session={world?.session ?? 0}
+                  reducedMotion={systemReduced || settings.reducedMotion}
+                  onFinish={finishSessionIntro}
+                />
+              )}
+            </div>
           ) : shown === 'login' ? (
             <LoginScreen onCancel={returnToMenu} onSuccess={enterDesktop} />
           ) : shown === 'narrative' ? (

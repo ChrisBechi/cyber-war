@@ -23,7 +23,7 @@ function readAutostart(value: string | undefined): string[] {
   }
 }
 
-export function Settings() {
+export function Settings({ onShowKeyboardHelp }: { onShowKeyboardHelp?: () => void } = {}) {
   const settings = useGame((s) => s.world?.settings);
   const network = useGame((s) => s.world?.network);
   const autostart = readAutostart(settings?.autostartApps);
@@ -41,6 +41,7 @@ export function Settings() {
       </div>
       <h3>Exibição</h3>
       <button onClick={toggleFullscreen}>Alternar tela cheia · F11</button>
+      {onShowKeyboardHelp && <button onClick={onShowKeyboardHelp}>Atalhos de teclado · F1</button>}
       <h3>Rede virtual</h3>
       <label>
         Conexão cabeada · eth0
@@ -105,8 +106,8 @@ export function Settings() {
         ))}
       </div>
       <p className="muted">
-        Atalhos: Ctrl+Alt+T abre o terminal. Alt+Tab troca de janela. Esc fecha o menu de
-        aplicativos.
+        Ctrl+Alt+T abre o terminal. Alt+PageDown troca de janela. F1 mostra todos os atalhos do
+        sistema.
       </p>
     </div>
   );

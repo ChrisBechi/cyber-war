@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { associationForPath, mediaSourceForPath } from './file-associations';
 
 describe('virtual file associations', () => {
+  it('opens DEB by extension or detected MIME even after renaming', () => {
+    expect(associationForPath('/package.deb').application).toBe('package-installer');
+    expect(
+      associationForPath('/renamed.bin', {
+        metadata: {},
+        blob: { hash: 'a'.repeat(64), size: 30, mime: 'application/vnd.debian.binary-package' },
+      }).application,
+    ).toBe('package-installer');
+  });
   it('opens shell scripts in the virtual terminal', () => {
     expect(associationForPath('/home/kali/tools/scan.sh').application).toBe('terminal');
     expect(associationForPath('/home/kali/tools/scan.sh').mime).toBe('application/x-shellscript');
@@ -28,7 +37,8 @@ describe('virtual file associations', () => {
   });
   it('distinguishes unsupported formats and does not execute Zsh as Bash', () => {
     expect(associationForPath('/document.pdf').support).toBe('unsupported');
-    expect(associationForPath('/archive.zip').support).toBe('unsupported');
+    expect(associationForPath('/archive.zip').application).toBe('archive-viewer');
+    expect(associationForPath('/archive.rar').support).toBe('unsupported');
     expect(associationForPath('/script.zsh').application).toBe('editor');
     expect(associationForPath('/clip.mkv').support).toBe('preview-conditional');
   });

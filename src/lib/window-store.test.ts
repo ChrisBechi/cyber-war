@@ -38,4 +38,46 @@ describe('window manager', () => {
     useWindows.getState().close('terminal');
     expect(useWindows.getState().windows.map((w) => w.id)).toEqual(['files']);
   });
+  it('cycles through every window in both directions and restores minimized windows only in the current workspace', () => {
+    const state = useWindows.getState();
+    state.open('terminal');
+    state.open('files');
+    state.open('browser');
+    state.open('settings');
+    state.update('settings', { workspace: 2 });
+    state.update('files', { minimized: true });
+    expect(state.cycle(1)).toBe('terminal');
+    expect(state.cycle(1)).toBe('files');
+    expect(state.cycle(1)).toBe('browser');
+    expect(state.cycle(-1)).toBe('files');
+    expect(useWindows.getState().windows.find((item) => item.id === 'files')?.minimized).toBe(
+      false,
+    );
+    expect(useWindows.getState().workspace).toBe(1);
+  });
+  it('restores only windows hidden by show desktop and preserves other workspaces and previously minimized windows', () => {
+    const state = useWindows.getState();
+    state.open('terminal');
+    state.open('browser');
+    state.open('files');
+    state.update('browser', { minimized: true });
+    state.update('files', { workspace: 2 });
+    state.toggleDesktop();
+    expect(useWindows.getState().windows.map((item) => item.minimized)).toEqual([
+      true,
+      true,
+      false,
+    ]);
+    state.toggleDesktop();
+    expect(useWindows.getState().windows.map((item) => item.minimized)).toEqual([
+      false,
+      true,
+      false,
+    ]);
+    state.toggleDesktop();
+    state.close('terminal');
+    state.toggleDesktop();
+    expect(useWindows.getState().windows.map((item) => item.id)).toEqual(['browser', 'files']);
+    expect(useWindows.getState().windows[0].minimized).toBe(true);
+  });
 });

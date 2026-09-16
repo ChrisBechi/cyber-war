@@ -1,1 +1,10 @@
-{"name":"vigilia-protocolo-zero","version":"1.0.0","private":true,"type":"module","scripts":{"check":"node --check dist/game.js && node --check dist/engine.js && node --check dist/audio.js && node --check dist/render.js && node --check dist/store.js && node --check dist/characters.js","test":"node --test tests/engine.test.js"}}
+{
+  "name": "vigilia-protocolo-zero",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check ../../public/games/vigilia/game.js && node --check ../../public/games/vigilia/engine.js && node --check ../../public/games/vigilia/audio.js && node --check ../../public/games/vigilia/render.js && node --check ../../public/games/vigilia/store.js && node --check ../../public/games/vigilia/characters.js",
+    "test": "node --test tests/engine.test.js tests/animation.test.js"
+  }
+}

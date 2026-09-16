@@ -1,0 +1,55 @@
+.desktop-keyboard-help {
+  width: min(580px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+}
+
+.desktop-keyboard-help header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.desktop-keyboard-help header button {
+  font-size: 20px;
+  padding: 2px 10px;
+}
+
+.desktop-keyboard-list {
+  overflow: auto;
+  min-height: 0;
+}
+
+.desktop-keyboard-list h3 {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: #a5c8ff;
+}
+
+.desktop-keyboard-list dl {
+  margin: 0;
+}
+
+.desktop-keyboard-list dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid #ffffff12;
+  font-size: 12px;
+}
+
+.desktop-keyboard-list dd {
+  margin: 0;
+}
+
+.desktop-keyboard-list kbd {
+  padding: 2px 6px;
+  border: 1px solid #596575;
+  border-radius: 3px;
+  background: #1a1c23;
+  white-space: nowrap;
+}

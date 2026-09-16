@@ -9,14 +9,14 @@ use regex::{Regex, RegexBuilder};
 
 pub fn manual(name: &str) -> Option<String> {
     let syntax = match name {
-        "ls" => "ls [-1aAldFhrSt] [--] [PATH...]\nOne entry per line; -l symbolic permissions/virtual timestamps/sizes; -a includes . and ..; -A hidden entries; -d directory itself; -F classify; -h binary units; -r reverse; -S size; -t modification order. No symlinks, color, recursive -R or real disk allocation.",
-        "grep" => "grep [-EFGivnclLqHhwx] [-e PATTERN] [-m COUNT] [--] PATTERN FILE...\nBRE by default, -E extended subset, -F literal. -i case-insensitive, -v invert, -n numbers, -c counts, -l/-L file names, -q quiet, -H/-h headers, -w words, -x whole line. Repeated -e is OR. Exit 0 match, 1 no match, 2 error. No backreferences, lookaround, PCRE, recursion, context flags or binary matching.",
+        "ls" => "ls [-1aAldFhrStR] [--color[=always|auto|never]] [--] [PATH...]\nOne entry per line; -l symbolic permissions/virtual timestamps/sizes; -a includes . and ..; -A hidden entries; -d directory itself; -F classify; -h binary units; -r reverse; -S size; -t modification order. -R recurses without following symlinks. --color=auto follows stdout TTY; always/never force the setting. Symlink targets and aligned long columns use VFS metadata. Real disk allocation, link counts, LS_COLORS and automatic multi-column layout are outside this subset.",
+        "grep" => "grep [-EFGivnclLqHhwxr] [-e PATTERN] [-m COUNT] [--] PATTERN FILE...\nBRE by default, -E extended subset, -F literal. -i case-insensitive, -v invert, -n numbers, -c counts, -l/-L file names, -q quiet, -H/-h headers, -w words, -x whole line. Repeated -e is OR. Exit 0 match, 1 no match, 2 error. -r/--recursive traverses VFS directories and skips encountered symlinks. No backreferences, lookaround, PCRE, -R symlink dereferencing, context flags or binary matching.",
         "find" => "find [PATH...] [-name GLOB] [-iname GLOB] [-type f|d] [-mindepth N] [-maxdepth N] [-print]\nPredicates combine with AND. Globs support * and ?. Includes the starting path at depth zero. No exec/delete, symlinks, OR/NOT or bracket classes.",
         "chmod" => "chmod [-Rv] [--] MODE PATH...\nOctal 000..777 or explicit symbolic classes u/g/o/a with +,-,= and r/w/x/X (comma-separated). -R recursive. No special bits, implicit umask or class-copy expressions. Atomic VFS mutation.",
         "chown" => "chown [-Rv] [--] OWNER[:GROUP] PATH...\nVirtual root only. Known users/groups: root, kali, vex. Owner alone preserves the group; :GROUP changes only group. -R recursive. Atomic VFS mutation.",
         _ => return None,
     };
-    Some(format!("{name} — CYBER WAR audited virtual subset\n\n{syntax}\n\nOnly the selected local/SSH VFS is used. Unsupported options fail explicitly.\n"))
+    Some(format!("{name} â€” CYBER WAR audited virtual subset\n\n{syntax}\n\nOnly the selected local/SSH VFS is used. Unsupported options fail explicitly.\n"))
 }
 
 pub fn execute(
@@ -50,10 +50,15 @@ fn bounded(output: &Output) -> GameResult<()> {
     Ok(())
 }
 fn size(n: &VfsNode) -> usize {
-    n.blob.as_ref().map_or(n.content.len(), |b| b.size)
+    n.logical_size().min(usize::MAX as u64) as usize
 }
 fn mode_text(n: &VfsNode) -> String {
-    let mut out = if n.kind == "directory" { "d" } else { "-" }.to_owned();
+    let mut out = match n.kind.as_str() {
+        "directory" => "d",
+        "symlink" => "l",
+        _ => "-",
+    }
+    .to_owned();
     for shift in [6, 3, 0] {
         for (bit, letter) in [(4, 'r'), (2, 'w'), (1, 'x')] {
             out.push(if (n.mode >> shift) & bit != 0 {
@@ -65,11 +70,51 @@ fn mode_text(n: &VfsNode) -> String {
     }
     out
 }
+fn human_size(bytes: usize) -> String {
+    if bytes < 1024 {
+        return bytes.to_string();
+    }
+    let mut value = bytes as f64;
+    let mut unit = 0;
+    while value >= 1024.0 && unit < 6 {
+        value /= 1024.0;
+        unit += 1;
+    }
+    let rounded = if value < 10.0 {
+        (value * 10.0).ceil() / 10.0
+    } else {
+        value.ceil()
+    };
+    if rounded < 10.0 {
+        format!("{rounded:.1}{}", ["", "K", "M", "G", "T", "P", "E"][unit])
+    } else {
+        format!("{rounded:.0}{}", ["", "K", "M", "G", "T", "P", "E"][unit])
+    }
+}
 fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
+    let mut color = "never";
+    let mut filtered = Vec::new();
+    let mut ended = false;
+    for arg in args {
+        if !ended && (arg == "--color" || arg.starts_with("--color=")) {
+            color = arg.split_once('=').map_or("always", |(_, v)| v);
+            if !["always", "auto", "never"].contains(&color) {
+                return Err(domain(format!(
+                    "ls: invalid argument '{color}' for 'color'"
+                )));
+            }
+        } else {
+            if arg == "--" {
+                ended = true;
+            }
+            filtered.push(arg.clone());
+        }
+    }
+    let colored = color == "always" || color == "auto" && world.terminal.io.stdout_tty;
     let opts = options(
         "ls",
-        args,
-        "1aAldFhrSt",
+        &filtered,
+        "1aAldFhrStR",
         "",
         &[
             ("all", 'a'),
@@ -78,6 +123,7 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
             ("classify", 'F'),
             ("human-readable", 'h'),
             ("reverse", 'r'),
+            ("recursive", 'R'),
         ],
     )?;
     if opts.help {
@@ -89,7 +135,9 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
         opts.files.clone()
     };
     let mut out = Output::default();
-    for file in &files {
+    let mut pending: Vec<(String, bool)> = files.iter().rev().map(|f| (f.clone(), false)).collect();
+    while let Some((file, nested)) = pending.pop() {
+        let file = &file;
         let result = (|| -> GameResult<String> {
             let path = normalize(file, &world.terminal.cwd)?;
             let n = world.fs()?.stat(&path, actor)?;
@@ -103,7 +151,7 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
             };
             if directory {
                 entries.retain(|n| opts.has('a') || opts.has('A') || !n.name.starts_with('.'));
-                if opts.has('a') && !opts.has('A') {
+                if opts.has('a') {
                     for (label, p) in [(".", path.as_str()), ("..", parent(&path))] {
                         let mut n = world.fs()?.stat(p, actor)?.clone();
                         n.name = label.into();
@@ -121,7 +169,7 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
                 entries.reverse();
             }
             let mut text = String::new();
-            if directory && files.len() > 1 {
+            if directory && (files.len() > 1 || opts.has('R')) {
                 text.push_str(&format!("{file}:\n"));
             }
             if directory && opts.has('l') {
@@ -133,10 +181,37 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
                         .sum::<usize>()
                 ));
             }
-            for n in entries {
+            if directory && opts.has('R') {
+                for child in entries
+                    .iter()
+                    .rev()
+                    .filter(|n| n.kind == "directory" && n.name != "." && n.name != "..")
+                {
+                    pending.push((
+                        format!("{}/{}", file.trim_end_matches('/'), child.name),
+                        true,
+                    ));
+                }
+            }
+            let owner_width = entries.iter().map(|n| n.owner.len()).max().unwrap_or(0);
+            let group_width = entries.iter().map(|n| n.group.len()).max().unwrap_or(0);
+            let lengths: Vec<_> = entries
+                .iter()
+                .map(|n| {
+                    if opts.has('h') {
+                        human_size(size(n))
+                    } else {
+                        size(n).to_string()
+                    }
+                })
+                .collect();
+            let size_width = lengths.iter().map(String::len).max().unwrap_or(0);
+            for (n, length) in entries.into_iter().zip(lengths) {
                 let suffix = if opts.has('F') {
                     if n.kind == "directory" {
                         "/"
+                    } else if n.kind == "symlink" {
+                        "@"
                     } else if n.mode & 0o111 != 0 {
                         "*"
                     } else {
@@ -145,43 +220,67 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
                 } else {
                     ""
                 };
-                if opts.has('l') {
-                    let bytes = size(&n);
-                    let length = if opts.has('h') && bytes >= 1024 {
-                        format!("{:.1}K", bytes as f64 / 1024.)
+                let name = if colored {
+                    let color = if n.kind == "directory" {
+                        "01;34"
+                    } else if n.kind == "symlink" {
+                        "01;36"
+                    } else if n.mode & 0o111 != 0 {
+                        "01;32"
                     } else {
-                        bytes.to_string()
+                        ""
                     };
+                    if color.is_empty() {
+                        n.name.clone()
+                    } else {
+                        format!("\x1b[0m\x1b[{color}m{}\x1b[0m", n.name)
+                    }
+                } else {
+                    n.name.clone()
+                };
+                if opts.has('l') {
                     let timestamp = chrono::DateTime::from_timestamp(n.modified_at as i64, 0)
                         .ok_or_else(|| domain("invalid virtual timestamp"))?
                         .format("%b %e %H:%M")
                         .to_string();
                     text.push_str(&format!(
-                        "{} 1 {} {} {} {} {}{}\n",
+                        "{} 1 {:<owner_width$} {:<group_width$} {:>size_width$} {} {}{}{}\n",
                         mode_text(&n),
                         n.owner,
                         n.group,
                         length,
                         timestamp,
-                        n.name,
-                        suffix
+                        name,
+                        suffix,
+                        if n.kind == "symlink" {
+                            format!(" -> {}", n.content)
+                        } else {
+                            String::new()
+                        }
                     ));
                 } else {
-                    text.push_str(&format!("{}{suffix}\n", n.name));
+                    text.push_str(&format!("{name}{suffix}\n"));
                 }
             }
             Ok(text)
         })();
         match result {
             Ok(text) => {
-                if files.len() > 1 && !out.stdout.is_empty() {
+                let offset = out.stdout.len();
+                if (files.len() > 1 || opts.has('R')) && !out.stdout.is_empty() {
                     out.stdout.push('\n');
                 }
                 out.stdout.push_str(&text);
+                out.ordered.push((1, out.stdout[offset..].to_owned()));
             }
             Err(e) => {
-                out.error("ls", file, e);
-                out.status = 2;
+                let error = format!(
+                    "ls: cannot access '{file}': {}\n",
+                    crate::terminal_io::error_reason(e)
+                );
+                out.stderr.push_str(&error);
+                out.ordered.push((2, error));
+                out.status = out.status.max(if nested { 1 } else { 2 });
             }
         }
         bounded(&out)?;
@@ -238,7 +337,7 @@ fn grep(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
     let opts = options(
         "grep",
         args,
-        "EFGivnclLqHhwx",
+        "EFGivnclLqHhwxr",
         "em",
         &[
             ("extended-regexp", 'E'),
@@ -257,6 +356,7 @@ fn grep(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
             ("line-regexp", 'x'),
             ("regexp", 'e'),
             ("max-count", 'm'),
+            ("recursive", 'r'),
         ],
     )?;
     if opts.help {
@@ -276,7 +376,13 @@ fn grep(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
         patterns.push(files.remove(0));
     }
     if files.is_empty() {
-        return Err(domain("grep: stdin is not supported; provide files"));
+        if opts.has('r') {
+            files.push(".".into());
+        } else if world.terminal.stdin.is_some() {
+            files.push("-".into());
+        } else {
+            return Err(domain("grep: stdin is not supported; provide files"));
+        }
     }
     let matcher = opts.flags.iter().rev().find(|f| "EFG".contains(**f));
     let regexes: Vec<Regex> = patterns
@@ -313,24 +419,69 @@ fn grep(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
         .iter()
         .rev()
         .find(|f| "Hh".contains(**f))
-        .map_or(files.len() > 1, |f| *f == 'H');
+        .map_or(files.len() > 1 || opts.has('r'), |f| *f == 'H');
     let mut out = Output::default();
     let mut found = false;
     let mut failed = false;
-    for file in &files {
-        let content = if file == "-" {
-            Err(domain("stdin is not implemented"))
+    let mut pending: Vec<(String, bool)> = files.into_iter().rev().map(|f| (f, false)).collect();
+    let mut stdin_consumed = false;
+    while let Some((file, descendant)) = pending.pop() {
+        let file = &file;
+        if opts.has('r') && file != "-" {
+            let path = normalize(file, &world.terminal.cwd)?;
+            if let Ok(node) = world.fs()?.stat(&path, actor) {
+                if node.kind == "symlink" && descendant {
+                    continue;
+                }
+                if node.kind == "directory" {
+                    match world.fs()?.list(&path, actor) {
+                        Ok(entries) => {
+                            for child in entries.into_iter().rev() {
+                                pending.push((
+                                    format!("{}/{}", file.trim_end_matches('/'), child.name),
+                                    true,
+                                ));
+                            }
+                        }
+                        Err(error) => {
+                            let offset = out.stderr.len();
+                            out.error("grep", file, error);
+                            out.ordered.push((2, out.stderr[offset..].to_owned()));
+                            failed = true;
+                        }
+                    }
+                    continue;
+                }
+            }
+        }
+        let content = if file == "-" && stdin_consumed {
+            Ok(String::new())
+        } else if file == "-" {
+            stdin_consumed = true;
+            world
+                .terminal
+                .stdin
+                .clone()
+                .ok_or_else(|| domain("grep: stdin unavailable"))
         } else {
             normalize(file, &world.terminal.cwd).and_then(|p| world.fs()?.read(&p, actor))
         };
         let content = match content {
             Ok(c) => c,
             Err(e) => {
+                let offset = out.stderr.len();
                 out.error("grep", file, e);
+                out.ordered.push((2, out.stderr[offset..].to_owned()));
                 failed = true;
                 continue;
             }
         };
+        let file = if file == "-" {
+            "(standard input)"
+        } else {
+            file.as_str()
+        };
+        let output_offset = out.stdout.len();
         let mut count = 0;
         for (index, line) in content.split_inclusive('\n').enumerate() {
             if count >= maximum {
@@ -368,6 +519,10 @@ fn grep(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
                 out.stdout.push_str(&format!("{file}:"));
             }
             out.stdout.push_str(&format!("{count}\n"));
+        }
+        if out.stdout.len() > output_offset {
+            out.ordered
+                .push((1, out.stdout[output_offset..].to_owned()));
         }
     }
     out.status = if failed {

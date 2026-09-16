@@ -55,6 +55,11 @@ export class OpeningDirector {
         await Promise.resolve();
         const world = useGame.getState().world!;
         switch (command) {
+          case 'terminal_cancel_all':
+          case 'terminal_output_ack':
+            return null;
+          case 'terminal_input':
+            return false;
           case 'world_get':
             return world;
           case 'mission_get_state':

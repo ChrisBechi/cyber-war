@@ -167,6 +167,12 @@
   flex-shrink: 0;
 }
 
+.browser-navigation > .browser-address-box ~ .browser-icon-button .chrome-icon,
+.browser-navigation .browser-star .chrome-icon {
+  width: 12px;
+  height: 12px;
+}
+
 .browser-address-box {
   position: relative;
   min-width: 0;

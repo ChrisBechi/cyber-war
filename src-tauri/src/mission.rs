@@ -10,6 +10,18 @@ use std::collections::BTreeSet;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum Condition {
+    PackageInstalled {
+        name: String,
+        version: Option<String>,
+    },
+    PackageEvent {
+        event: String,
+        package: Option<String>,
+    },
+    ArchiveEvent {
+        event: String,
+        path: String,
+    },
     Flag {
         key: String,
     },
@@ -43,6 +55,22 @@ pub enum Condition {
 impl Condition {
     pub fn matches(&self, world: &WorldState) -> bool {
         match self {
+            Self::PackageInstalled { name, version } => {
+                world.packages.installed.get(name).is_some_and(|p| {
+                    p.status == crate::packages::model::Status::Installed
+                        && version.as_ref().is_none_or(|v| *v == p.definition.version)
+                })
+            }
+            Self::PackageEvent { event, package } => world.packages.events.iter().any(|e| {
+                e.kind == *event
+                    && package
+                        .as_ref()
+                        .is_none_or(|p| e.package.as_ref() == Some(p))
+            }),
+            Self::ArchiveEvent { event, path } => world
+                .archive_events
+                .iter()
+                .any(|e| e.kind == *event && e.path == *path),
             Self::Flag { key } => world.flags.contains(key),
             Self::FileContains { path, text } => world
                 .vfs
@@ -70,20 +98,49 @@ impl Condition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum Effect {
-    Flag { key: String },
-    File { path: String, text: String },
-    Message { contact: String, text: String },
-    Reward { money: i64, reputation: i64 },
-    Connection { online: bool },
-    Session { number: u8 },
-    Inventory { key: String },
-    Evidence { key: String },
-    Decision { key: String, value: String },
+    Repository {
+        id: String,
+        available: bool,
+        release: u32,
+        trusted: bool,
+    },
+    Flag {
+        key: String,
+    },
+    File {
+        path: String,
+        text: String,
+    },
+    Message {
+        contact: String,
+        text: String,
+    },
+    Reward {
+        money: i64,
+        reputation: i64,
+    },
+    Connection {
+        online: bool,
+    },
+    Session {
+        number: u8,
+    },
+    Inventory {
+        key: String,
+    },
+    Evidence {
+        key: String,
+    },
+    Decision {
+        key: String,
+        value: String,
+    },
 }
 
 impl Effect {
     fn resources(&self) -> Vec<Resource> {
         match self {
+            Self::Repository { .. } => Vec::new(),
             Self::Flag { key } => vec![Resource::Flag { key: key.clone() }],
             Self::File { path, .. } => vec![Resource::file(path)],
             Self::Message { contact, .. } => vec![Resource::Contact {
@@ -128,6 +185,21 @@ impl Effect {
     }
     fn apply(&self, world: &mut WorldState) {
         match self {
+            Self::Repository {
+                id,
+                available,
+                release,
+                trusted,
+            } => {
+                world.packages.repositories.insert(
+                    id.clone(),
+                    crate::packages::model::RepositoryState {
+                        available: *available,
+                        trusted: *trusted,
+                        release: *release,
+                    },
+                );
+            }
             Self::Flag { key } => {
                 world.flags.insert(key.clone());
             }
@@ -218,6 +290,9 @@ impl MissionEngine {
         for stage in &mission.stages {
             for condition in &stage.conditions {
                 match condition {
+                    Condition::ArchiveEvent { path, .. } => {
+                        scope.insert(Resource::file(path));
+                    }
                     Condition::Flag { key } => {
                         scope.insert(Resource::Flag { key: key.clone() });
                     }
@@ -239,7 +314,10 @@ impl MissionEngine {
                             port: *port,
                         });
                     }
-                    Condition::Money { .. } | Condition::Reputation { .. } => {}
+                    Condition::Money { .. }
+                    | Condition::Reputation { .. }
+                    | Condition::PackageInstalled { .. }
+                    | Condition::PackageEvent { .. } => {}
                 }
             }
         }
@@ -357,6 +435,18 @@ impl MissionEngine {
             }
         }
         for (resource, missions) in owners {
+            if let Resource::File { host: None, path } = &resource {
+                if after.packages.ownership.contains_key(path)
+                    || before.packages.ownership.contains_key(path)
+                    || after
+                        .vfs
+                        .nodes
+                        .get(path)
+                        .is_some_and(|n| n.metadata.contains_key("packageProjection"))
+                {
+                    continue;
+                }
+            }
             let old = resource.read(before);
             let new = resource.read(after);
             if old == new

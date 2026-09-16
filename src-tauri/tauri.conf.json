@@ -19,6 +19,7 @@
         "minWidth": 1024,
         "minHeight": 640,
         "resizable": true,
+        "dragDropEnabled": false,
         "fullscreen": true,
         "decorations": true,
         "center": true,
@@ -31,6 +32,7 @@
     }
   },
   "bundle": {
+    "resources": ["resources/archive-licenses.txt"],
     "active": true,
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
     "targets": ["nsis", "msi"],

@@ -1,6 +1,5 @@
 use crate::{
     error::GameResult,
-    terminal::COMMANDS,
     vfs::{domain, normalize},
     world::WorldState,
 };
@@ -119,17 +118,33 @@ pub fn complete(world: &WorldState, line: &str, cursor: usize) -> GameResult<Com
         index == 0 || (index == 1 && tokens.first().is_some_and(|w| w.value == "sudo"));
     let command = tokens.first().map(|w| w.value.as_str()).unwrap_or("");
     let mut candidates: Vec<(String, bool)> = if command_position {
-        COMMANDS
+        crate::command_registry::NAMES
             .iter()
-            .copied()
-            .chain(
-                crate::software::CATALOG
-                    .entries
-                    .iter()
-                    .flat_map(|entry| entry.commands.iter().map(String::as_str)),
-            )
+            .map(String::as_str)
             .filter(|c| c.starts_with(&prefix))
+            .filter(|c| crate::command_registry::available(world, c))
             .map(|c| (c.into(), false))
+            .collect()
+    } else if tokens
+        .iter()
+        .any(|w| w.value == "apt" || w.value == "apt-get")
+        && index > 1
+    {
+        let removing = tokens
+            .iter()
+            .any(|w| ["remove", "purge", "reinstall"].contains(&w.value.as_str()));
+        let names = if removing {
+            world.packages.installed.keys().cloned().collect::<Vec<_>>()
+        } else {
+            crate::packages::resolver::candidates(&world.packages)
+                .iter()
+                .map(|e| e.package.name.clone())
+                .collect()
+        };
+        names
+            .into_iter()
+            .filter(|n| n.starts_with(&prefix))
+            .map(|n| (n, false))
             .collect()
     } else {
         normalize(&prefix, &world.terminal.cwd)?;
@@ -137,7 +152,21 @@ pub fn complete(world: &WorldState, line: &str, cursor: usize) -> GameResult<Com
             .rsplit_once('/')
             .map(|(p, n)| (format!("{p}/"), n))
             .unwrap_or((String::new(), prefix.as_str()));
-        let path = normalize(&directory, &world.terminal.cwd)?;
+        let expanded = if directory.starts_with("~/")
+            && !matches!(chars.get(start), Some('\'' | '"' | '\\'))
+        {
+            let env = crate::terminal::virtual_env(world, &world.terminal.user);
+            format!(
+                "{}{}",
+                env.get("HOME")
+                    .map(String::as_str)
+                    .unwrap_or(crate::vfs::HOME),
+                &directory[1..]
+            )
+        } else {
+            directory.clone()
+        };
+        let path = normalize(&expanded, &world.terminal.cwd)?;
         // Permission failures reveal no names. Completion never touches the host filesystem.
         world
             .fs()?
@@ -162,6 +191,14 @@ pub fn complete(world: &WorldState, line: &str, cursor: usize) -> GameResult<Com
             })
             .collect()
     };
+    if command_position {
+        candidates.extend(
+            crate::packages::executables::names(world, &world.terminal.user)
+                .into_iter()
+                .filter(|n| n.starts_with(&prefix))
+                .map(|n| (n, false)),
+        );
+    }
     candidates.sort();
     candidates.dedup();
     let mut result = Completion {

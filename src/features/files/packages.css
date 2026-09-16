@@ -1,0 +1,60 @@
+.package-installer {
+  padding: 24px;
+  overflow: auto;
+  color: #e9edf4;
+  background: #252b35;
+  min-height: 100%;
+}
+
+.package-installer header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.package-installer h2 {
+  margin: 0;
+}
+
+.package-installer header p {
+  overflow-wrap: anywhere;
+  color: #b9c7d5;
+}
+
+.package-installer dl {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+}
+
+.package-installer dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.package-installer dt {
+  color: #a9b8c9;
+}
+
+.package-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.package-plan,
+.package-log {
+  background: #181d25;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.package-installer pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.package-error {
+  color: #ffb9b9;
+}

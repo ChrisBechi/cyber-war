@@ -1,5 +1,38 @@
 # Recursos do Kali Linux
 
+## Archive e compressão
+
+O backend utiliza zip 8.6.0 (MIT), tar 0.4.46, flate2 1.1.10, bzip2 0.6.1 e
+liblzma 0.4.8 (MIT ou Apache-2.0). O decoder bzip2 utiliza libbz2-rs-sys 0.2.5
+(bzip2-1.0.6); a biblioteca nativa liblzma é fornecida por liblzma-sys 0.4.9
+com código XZ Utils sob 0BSD. O build Windows usa embed-resource 3.0.11 (MIT).
+
+As licenças completas das dependências adicionadas e seus componentes transitivos
+estão em `src-tauri/resources/archive-licenses.txt`, incluído nos recursos do bundle.
+A decisão está em `docs/adr/0002-vfs-archives.md`.
+
+## Interface
+
+O dragão ASCII dos comandos virtuais `fastfetch` e `neofetch` vem de
+`src/logo/ascii/k/kali.txt` do [Fastfetch](https://github.com/fastfetch-cli/fastfetch),
+commit `02dc6a4428c015cdf8b003239be3c4238fdcd5f4`. A cópia original e a licença MIT
+estão em `public/assets/fastfetch/`. A implementação do jogo converte os marcadores
+de cor do desenho em ANSI; não inclui nem executa o programa Fastfetch do sistema.
+
+O gerenciador de arquivos utiliza SVGs originais, sem alterações, do tema
+**Flat-Remix-Blue-Dark**, de Daniel Ruiz de Alegría e colaboradores:
+<https://github.com/daniruiz/flat-remix>, commit
+`e7de6c346da46e008987228f363b0eae6e638637`. Os arquivos-fonte estão em
+`public/assets/flat-remix/`, acompanhados da licença GPL-3.0 (`LICENSE.txt`),
+autoria (`AUTHORS.txt`) e caminhos de origem com hashes SHA-256 (`sources.json`).
+Os links simbólicos do repositório foram resolvidos para os SVGs originais;
+apenas tamanho de exibição e cor dos ícones simbólicos são definidos por CSS.
+
+A ilustração `public/assets/browser/no-connection.svg` é distribuída sem alterações
+do [repositório oficial do Firefox](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/themes/shared/illustrations/no-connection.svg),
+consultado em 15 de setembro de 2026. Mozilla Public License 2.0; o cabeçalho
+original e a licença em `public/assets/browser/MPL-2.0.txt` acompanham o arquivo.
+
 A interface do LifeOS adapta o tema **Kali-Dark** para HTML/CSS. Os ícones em
 `public/assets/kali` são recursos SVG dos projetos oficiais abaixo. O jogo não
 inclui o ambiente GTK/Xfce nem os executáveis dos aplicativos Kali.

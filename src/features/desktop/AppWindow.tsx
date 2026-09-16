@@ -3,14 +3,20 @@ import type { ReactNode } from 'react';
 import { apps, useWindows, windowApp } from '../../lib/window-store';
 import type { WindowState } from '../../lib/window-store';
 import { AppIcon } from './AppIcon';
+import { useVfsDrop } from '../../lib/use-vfs-drop';
+import { useWindowGeometry } from './use-window-geometry';
+import { WindowHeaderContext } from './window-header-context';
 
 export function AppWindow({ model, children }: { model: WindowState; children: ReactNode }) {
   const app = apps[windowApp(model.id)];
+  const drop = useVfsDrop();
   const { focus, close, update, workspace } = useWindows();
   const container = useRef<HTMLElement>(null);
   const [interacting, setInteracting] = useState(false);
+  const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
   const shown = !model.minimized && model.workspace === workspace;
+  useWindowGeometry(container, model, shown, interacting);
   useEffect(() => {
     if (!model.fullscreen) {
       return;
@@ -45,9 +51,15 @@ export function AppWindow({ model, children }: { model: WindowState; children: R
   return (
     <section
       ref={container}
+      {...drop(
+        windowApp(model.id) === 'files'
+          ? null
+          : { kind: 'app', app: windowApp(model.id), windowId: model.id, asRoot: model.asRoot },
+      )}
       data-window-id={model.id}
       data-window-app={windowApp(model.id)}
       role="dialog"
+      tabIndex={-1}
       aria-label={app.title}
       aria-hidden={!shown}
       inert={!shown}
@@ -65,12 +77,15 @@ export function AppWindow({ model, children }: { model: WindowState; children: R
       <header
         className="window__titlebar"
         onDoubleClick={(event) => {
-          if (!(event.target as HTMLElement).closest('button')) {
+          if (!(event.target as HTMLElement).closest('button, input, select, label, form')) {
             update(model.id, { maximized: !model.maximized });
           }
         }}
         onPointerDown={(event) => {
-          if ((event.target as HTMLElement).closest('button') || model.maximized) {
+          if (
+            (event.target as HTMLElement).closest('button, input, select, label, form') ||
+            model.maximized
+          ) {
             return;
           }
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -122,7 +137,10 @@ export function AppWindow({ model, children }: { model: WindowState; children: R
           {model.asRoot ? ' (root)' : ''}
           {model.path ? ` — ${model.path.split('/').pop() ?? ''}` : ''}
         </span>
-        <div>
+        {windowApp(model.id) === 'files' && (
+          <div className="files-header-slot" ref={setHeaderSlot} />
+        )}
+        <div className="window__controls">
           <button
             aria-label={`Minimizar ${app.title}`}
             onClick={() => update(model.id, { minimized: true })}
@@ -154,7 +172,9 @@ export function AppWindow({ model, children }: { model: WindowState; children: R
           </button>
         </div>
       </header>
-      <div className="window__content">{children}</div>
+      <div className="window__content">
+        <WindowHeaderContext value={headerSlot}>{children}</WindowHeaderContext>
+      </div>
       {!model.maximized && (
         <button
           className="resize-handle"

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { BrowserPage } from '../../lib/api';
+import type { BrowserLocalFile } from './browser-local-file';
 
 export const preferencesSchema = z.object({
   home: z.string().max(512),
@@ -46,6 +47,7 @@ export type BrowserTab = {
   history: string[];
   index: number;
   page: BrowserPage | null;
+  localFile?: BrowserLocalFile;
   error: string;
   loading: boolean;
   request: number;
@@ -74,6 +76,9 @@ export const addressKey = (address: string) =>
 export function canonicalAddress(address: string) {
   const value = address.trim();
   if (!value) {
+    return value;
+  }
+  if (/^file:/i.test(value)) {
     return value;
   }
   const withoutProtocol = value.replace(/^https?:\/\//i, '');
@@ -117,6 +122,7 @@ export function startNavigation(
     loading: !!address,
     error: '',
     page: null,
+    localFile: undefined,
     value: '',
     history,
     index: index ?? history.length - 1,

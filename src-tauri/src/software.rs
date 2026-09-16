@@ -7,6 +7,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
 #[derive(Debug, Deserialize)]
@@ -30,18 +31,36 @@ pub static CATALOG: LazyLock<Catalog> = LazyLock::new(|| {
         .expect("validated Kali catalog")
 });
 
-pub fn get(id: &str) -> GameResult<&'static Software> {
+static IDS: LazyLock<BTreeMap<&'static str, usize>> = LazyLock::new(|| {
     CATALOG
         .entries
         .iter()
-        .find(|entry| entry.id == id)
+        .enumerate()
+        .map(|(i, e)| (e.id.as_str(), i))
+        .collect()
+});
+static COMMAND_INDEX: LazyLock<BTreeMap<&'static str, usize>> = LazyLock::new(|| {
+    let mut index = BTreeMap::new();
+    for (i, entry) in CATALOG.entries.iter().enumerate() {
+        for name in std::iter::once(&entry.id)
+            .chain(std::iter::once(&entry.name))
+            .chain(entry.commands.iter())
+        {
+            // Preserve the existing first-entry precedence. Tooling validates
+            // every overlap against its explicit collision resolution policy.
+            index.entry(name.as_str()).or_insert(i);
+        }
+    }
+    index
+});
+pub fn get(id: &str) -> GameResult<&'static Software> {
+    IDS.get(id)
+        .map(|i| &CATALOG.entries[*i])
         .ok_or_else(|| domain("Aplicativo fora do conjunto padrão do Kali"))
 }
 
 pub fn by_command(command: &str) -> Option<&'static Software> {
-    CATALOG.entries.iter().find(|entry| {
-        entry.name == command || entry.id == command || entry.commands.iter().any(|c| c == command)
-    })
+    COMMAND_INDEX.get(command).map(|i| &CATALOG.entries[*i])
 }
 
 fn list(world: &WorldState, key: &str, fallback: &[String]) -> Vec<String> {
@@ -53,7 +72,8 @@ fn list(world: &WorldState, key: &str, fallback: &[String]) -> Vec<String> {
 }
 
 pub fn open(world: &mut WorldState, id: &str) -> GameResult<()> {
-    get(id)?;
+    let tool = get(id)?;
+    available(world, tool)?;
     let mut recent = list(world, "launcherRecent", &[]);
     recent.retain(|item| item != id && get(item).is_ok());
     recent.insert(0, id.into());
@@ -91,8 +111,22 @@ pub struct ToolReport {
     pub saved_path: Option<String>,
 }
 
+fn available(world: &WorldState, tool: &Software) -> GameResult<()> {
+    if world.packages.managed.contains(&tool.package)
+        && world
+            .packages
+            .installed
+            .get(&tool.package)
+            .is_none_or(|p| p.status != crate::packages::model::Status::Installed)
+    {
+        return Err(domain(format!("Package {} is not installed", tool.package)));
+    }
+    Ok(())
+}
+
 pub fn inspect(world: &WorldState, id: &str, target: &str, actor: &str) -> GameResult<ToolReport> {
     let tool = get(id)?;
+    available(world, tool)?;
     if target.len() > 4096 || target.chars().any(char::is_control) {
         return Err(domain("Alvo virtual inválido"));
     }
@@ -233,6 +267,12 @@ mod tests {
         assert!(get("kali-ghidra").is_err());
         for id in &CATALOG.favorites {
             assert!(get(id).is_ok());
+        }
+        for command in CATALOG.entries.iter().flat_map(|e| &e.commands) {
+            assert!(
+                !command.starts_with("Includes "),
+                "invalid imported command: {command}"
+            );
         }
     }
     #[test]

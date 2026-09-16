@@ -43,6 +43,10 @@ pub fn save_preferences(world: &mut WorldState, preferences: Preferences) -> Gam
             .unwrap_or("");
         let host = host.strip_prefix("www.").unwrap_or(host);
         [
+            "nexora.support",
+            "repository.kali.local",
+            "mirror.kali.game",
+            "repo.blackwire.net",
             "wipedia.org",
             "archive.org",
             "fakebook.com",
@@ -82,6 +86,38 @@ mod preferences_tests {
     use crate::service::GameService;
     use crate::world::{MissionProgress, WorldState};
     use rusqlite::Connection;
+    #[test]
+    fn repeated_browser_downloads_keep_existing_files() {
+        let mut world = WorldState::new("neo", "pc").unwrap();
+        world.network.connected = true;
+        action(&mut world, "sector-ix-download", "").unwrap();
+        world
+            .vfs
+            .write(
+                "/home/kali/Downloads/sector-ix-linux.sh",
+                "my edits",
+                "kali",
+            )
+            .unwrap();
+        action(&mut world, "sector-ix-download", "").unwrap();
+        action(&mut world, "sector-ix-download", "").unwrap();
+        assert_eq!(
+            world
+                .vfs
+                .read("/home/kali/Downloads/sector-ix-linux.sh", "kali")
+                .unwrap(),
+            "my edits"
+        );
+        assert!(world
+            .vfs
+            .read("/home/kali/Downloads/sector-ix-linux (2).sh", "kali")
+            .unwrap()
+            .starts_with("#!/usr/bin/env bash"));
+        assert!(world
+            .vfs
+            .nodes
+            .contains_key("/home/kali/Downloads/SECTOR-IX-README (2).txt"));
+    }
     fn preferences() -> Preferences {
         Preferences {
             home: "wipedia.org".into(),
@@ -188,6 +224,61 @@ pub struct BrowserPage {
     action: Option<String>,
 }
 pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
+    let package_address = format!(
+        "https://{}",
+        address
+            .trim()
+            .trim_start_matches("https://")
+            .trim_start_matches("http://")
+            .trim_start_matches("www.")
+            .trim_end_matches('/')
+    );
+    if let Some(entry) = crate::packages::ipc::download_entry(&package_address) {
+        if !w.network.connected {
+            return Err(domain("network unreachable"));
+        }
+        return Ok(BrowserPage {
+            title: entry.package.name.clone(),
+            body: crate::packages::deb::control(&entry.package),
+            action: Some(format!("package-download:{package_address}")),
+        });
+    }
+    let repo_url = package_address.as_str();
+    if let Some(repo) = crate::packages::repository::REPOSITORIES.get(repo_url) {
+        if !w.network.connected {
+            return Err(domain("network unreachable"));
+        }
+        if w.packages
+            .repositories
+            .get(repo_url)
+            .is_some_and(|r| !r.available)
+        {
+            return Err(domain("virtual repository unavailable"));
+        }
+        let release = w
+            .packages
+            .repositories
+            .get(repo_url)
+            .map_or(1, |r| r.release);
+        return Ok(BrowserPage {
+            title: "Virtual Software Repository".into(),
+            body: repo
+                .entries
+                .iter()
+                .filter(|(r, _)| *r <= release)
+                .map(|(_, e)| {
+                    format!(
+                        "{} {}\n{}/pool/{}.deb\n\n",
+                        e.package.name,
+                        e.package.version,
+                        e.repository,
+                        e.package.key()
+                    )
+                })
+                .collect(),
+            action: None,
+        });
+    }
     let normalized = address.trim().to_lowercase();
     let normalized = normalized
         .trim_start_matches("https://")
@@ -235,22 +326,49 @@ pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
             "wipedia.org"=>Ok(BrowserPage{title:"Wipédia · Biblioteca".into(),body:"ARQUIVOS\npwd mostra onde você está; ls lista; cd navega. echo texto > arquivo cria uma nota. cp preserva uma cópia; mv move; cat lê.\n\nREDE\nifconfig mostra sua interface. ping verifica se um host responde. Consultas usam nomes presentes no mundo: vex.local, archive.org.\n\nP2P\nPeers compartilham blocos; seeds possuem o arquivo completo.\n\nADMINISTRAÇÃO\nLeia logs antes de alterar configuração. No servidor de VEX, sudo administra o ambiente. Backup só vale se a restauração for validada.\n\nTECHNICAL JOURNEY\nConhecimento não é bloqueado por nível. Uma técnica conta quando produz resultado válido.".into(),action:None}),
             "mercado.com.br"=>Ok(BrowserPage{title:"Mercado Aberto".into(),body:format!("Memória virtual adicional · R$ 100\nSeu saldo: R$ {}\nMelhorias integram o inventário desta campanha.",w.money),action:Some("upgrade".into())}),
             "meudominio.com.br"=>Ok(BrowserPage{title:"MeuDomínio · Mercado de domínios".into(),body:"Pesquise, registre e administre os domínios da sua empresa.".into(),action:None}),
+            "nexora.support"=>Ok(BrowserPage{title:"Nexora Support — AXR550".into(),body:"Firmware AXR550 versão 1.4. Pacote TAR.GZ com README, atualizador e configuração padrão.".into(),action:Some("firmware-download".into())}),
+            "repository.kali.local"=>Ok(BrowserPage{title:"Software Repository".into(),body:"tool-2.1.tar.gz — pacote de código fonte virtual, incluindo binário, configuração e licença.".into(),action:Some("source-download".into())}),
             "vigilia.org"=>Ok(BrowserPage{title:"SECTOR IX — Protocolo Zero".into(),body:"Download seguro do runtime interno. Use o terminal Linux para baixar, instalar e executar o jogo.".into(),action:Some("sector-ix-download".into())}),
             _=>Err(domain("Endereço não encontrado na internet do jogo."))
         }
 }
 pub fn action(w: &mut WorldState, action: &str, value: &str) -> GameResult<()> {
+    if let Some(url) = action.strip_prefix("package-download:") {
+        let entry =
+            crate::packages::ipc::download_entry(url).ok_or_else(|| domain("package not found"))?;
+        let path = format!("/home/kali/Downloads/{}.deb", entry.package.key());
+        crate::packages::ipc::download(w, url, &path, "kali")?;
+        return Ok(());
+    }
     if !w.network.connected {
         return Err(domain("network unreachable"));
     }
     match action {
+        "firmware-download" => {
+            crate::archive::downloads::download(
+                w,
+                crate::archive::downloads::FIRMWARE_URL,
+                "/home/kali/Downloads/firmware_AXR550_v1.4.tar.gz",
+                "kali",
+            )?;
+        }
+        "source-download" => {
+            crate::archive::downloads::download(
+                w,
+                crate::archive::downloads::SOURCE_URL,
+                "/home/kali/Downloads/tool-2.1.tar.gz",
+                "kali",
+            )?;
+        }
         "download" => {
             if !w.inventory.contains("cyber-siege") {
                 return Err(domain("manifest not requested"));
             }
             let text = w.network.request("https://archive.org")?;
-            w.vfs
-                .write("/home/kali/Downloads/cyber-siege.manifest", &text, "kali")?;
+            let path = w
+                .vfs
+                .available_path("/home/kali/Downloads/cyber-siege.manifest", false);
+            w.vfs.write(&path, &text, "kali")?;
             w.flags.insert("GAME_DOWNLOADED".into());
         }
         "recover" => {
@@ -274,14 +392,18 @@ pub fn action(w: &mut WorldState, action: &str, value: &str) -> GameResult<()> {
             w.inventory.insert("memory-upgrade".into());
         }
         "sector-ix-download" => {
-            let installer = w.network.request("https://vigilia.org/download/sector-ix-linux.sh")?;
+            let installer = w
+                .network
+                .request("https://vigilia.org/download/sector-ix-linux.sh")?;
+            let path = w
+                .vfs
+                .available_path("/home/kali/Downloads/sector-ix-linux.sh", false);
+            w.vfs.write(&path, &installer, "kali")?;
+            let readme = w
+                .vfs
+                .available_path("/home/kali/Downloads/SECTOR-IX-README.txt", false);
             w.vfs.write(
-                "/home/kali/Downloads/sector-ix-linux.sh",
-                &installer,
-                "kali",
-            )?;
-            w.vfs.write(
-                "/home/kali/Downloads/SECTOR-IX-README.txt",
+                &readme,
                 "SECTOR IX — Protocolo Zero\n\ncd ~/Downloads\nwget -O sector-ix-linux.sh https://www.vigilia.org/download/sector-ix-linux.sh\nchmod +x sector-ix-linux.sh\nbash sector-ix-linux.sh\nsector-ix\n\nA instalação cria uma árvore visual em ~/Games/sector-ix. O único arquivo funcional da instalação é saves/sector-ix.save.\n\nO jogo também está disponível em Aplicativos > Jogos > SECTOR IX. Ele inicia em janela; use o botão de fullscreen dentro do jogo quando quiser.\n",
                 "kali",
             )?;

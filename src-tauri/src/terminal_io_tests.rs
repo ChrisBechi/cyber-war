@@ -182,13 +182,10 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
         "head -n bad a",
         "head -c2K a",
         "head -n9999999999999999999999999999999 a",
-        "cp -rf a Documents/a",
+        "cp --backup a Documents/a",
         "mv -r a Documents/a",
         "rm --invented a",
         "rm -I a",
-        "cat",
-        "cat -",
-        "head",
         "tail -",
     ] {
         let result = execute(&mut w, cmd);
@@ -234,7 +231,7 @@ fn copy_move_overwrite_and_no_clobber_obey_permissions() {
 }
 
 #[test]
-fn directory_copy_is_recursive_only_when_requested_and_merges_are_explicitly_unsupported() {
+fn directory_copy_requires_recursion_and_merges_existing_directories() {
     let mut w = world();
     w.vfs.mkdir("/home/kali/source", "kali").unwrap();
     file(&mut w, "source/a", "A");
@@ -245,7 +242,12 @@ fn directory_copy_is_recursive_only_when_requested_and_merges_are_explicitly_uns
     assert_ne!(execute(&mut w, "cp -r source source/nested").exit_code, 0);
     assert_eq!(serde_json::to_string(&w.vfs).unwrap(), before);
     ok(&mut w, "cp -r source Documents", "");
-    assert_ne!(execute(&mut w, "cp -r source Documents").exit_code, 0);
+    file(&mut w, "source/b", "B");
+    ok(&mut w, "cp -r source Documents", "");
+    assert_eq!(
+        w.vfs.read("/home/kali/Documents/source/b", "kali").unwrap(),
+        "B"
+    );
     assert_eq!(
         w.vfs.read("/home/kali/Documents/source/a", "kali").unwrap(),
         "A"
@@ -253,11 +255,12 @@ fn directory_copy_is_recursive_only_when_requested_and_merges_are_explicitly_uns
 }
 
 #[test]
-fn rm_force_does_not_hide_permissions_and_failure_rolls_back_the_whole_command() {
+fn rm_force_does_not_hide_permissions_and_successful_operands_survive_failure() {
     let mut w = world();
     file(&mut w, "keep", "keep");
     assert_ne!(execute(&mut w, "rm keep missing").exit_code, 0);
-    ok(&mut w, "cat keep", "keep");
+    assert!(!w.vfs.nodes.contains_key("/home/kali/keep"));
+    file(&mut w, "keep", "keep");
     assert_ne!(execute(&mut w, "rm -f /root/missing").exit_code, 0);
     assert_ne!(execute(&mut w, "rm -f /root/missing/child").exit_code, 0);
     assert_ne!(execute(&mut w, "rm -f keep/child").exit_code, 0);

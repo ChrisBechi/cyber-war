@@ -1,0 +1,814 @@
+[
+  {
+    "schemaVersion": 2,
+    "id": "cat/stdin",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": [],
+    "stdin": "alpha\nbeta\n",
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["STDIN", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "alpha\nbeta\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cat/file",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": ["a"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/a": "A\n"
+      }
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "A\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cat/missing",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": ["missing"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["ERRORS", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": true,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": "cat: missing: No such file or directory\n"
+      },
+      "exitCode": 1,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cat/permissions",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": ["private"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["PERMISSIONS", "ERRORS", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": true,
+    "fixture": {
+      "files": {
+        "/home/kali/private": "secret"
+      },
+      "modes": {
+        "/home/kali/private": 0
+      }
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": "cat: private: Permission denied\n"
+      },
+      "exitCode": 1,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cat/pipe",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": [],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["PIPE", "STDOUT", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "alpha\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    },
+    "script": "echo alpha | cat"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cat/redirect",
+    "softwareId": "coreutils",
+    "command": "cat",
+    "argv": ["a"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
+    },
+    "gates": ["REDIRECTION", "SIDE_EFFECTS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/a": "A\n"
+      }
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1out/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "A\n"
+          }
+        }
+      ]
+    },
+    "script": "cat a > out"
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ls/basic",
+    "softwareId": "coreutils",
+    "command": "ls",
+    "argv": ["-1", "cli-fixture"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/ls.1.en.html"
+    },
+    "gates": ["SHORT_FLAGS", "POSITIONAL_ARGS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-1"],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/cli-fixture/a": "A",
+        "/home/kali/cli-fixture/.hidden": "H"
+      },
+      "directories": ["/home/kali/cli-fixture"],
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "a\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ls/hidden",
+    "softwareId": "coreutils",
+    "command": "ls",
+    "argv": ["-1A", "cli-fixture"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/ls.1.en.html"
+    },
+    "gates": ["COMBINED_FLAGS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-1A"],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/cli-fixture/a": "A",
+        "/home/kali/cli-fixture/.hidden": "H"
+      },
+      "directories": ["/home/kali/cli-fixture"],
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ".hidden\na\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "pwd/basic",
+    "softwareId": "bash",
+    "command": "pwd",
+    "argv": [],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "/home/kali\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "cd/change",
+    "softwareId": "bash",
+    "command": "cd",
+    "argv": ["Documents"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": [
+      "POSITIONAL_ARGS",
+      "SIDE_EFFECTS",
+      "STATE_CONSISTENCY",
+      "STDOUT",
+      "STDERR",
+      "EXIT_CODE"
+    ],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/cwd",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "/home/kali/Documents"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "head/stdin",
+    "softwareId": "coreutils",
+    "command": "head",
+    "argv": ["-n", "1"],
+    "stdin": "a\nb\n",
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/head.1.en.html"
+    },
+    "gates": ["STDIN", "SHORT_FLAGS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-n"],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "a\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "tail/stdin",
+    "softwareId": "coreutils",
+    "command": "tail",
+    "argv": ["-n1"],
+    "stdin": "a\nb\n",
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/tail.1.en.html"
+    },
+    "gates": ["STDIN", "SHORT_FLAGS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-n1"],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "b\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "bash/status",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": ["-c", "false\necho $?"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["PARSER", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-c"],
+    "errorCase": false,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "1\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "bash/not-found",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": ["-c", "unknown-command"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["ERRORS", "STDERR", "EXIT_CODE"],
+    "flags": ["-c"],
+    "errorCase": true,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": "unknown-command: command not found\n"
+      },
+      "exitCode": 127,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "bash/streams",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": ["-c", "echo good\ncat missing"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": ["-c"],
+    "errorCase": true,
+    "fixture": {},
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "good\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": "cat: missing: No such file or directory\n"
+      },
+      "exitCode": 1,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "source/alias",
+    "softwareId": "bash",
+    "command": ".",
+    "argv": ["s", "hello world"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["ALIAS_RESOLUTION", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/s": "echo \"$1\"\nreturn 7\n"
+      }
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "hello world\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 7,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "ls/cross-tool",
+    "softwareId": "coreutils",
+    "command": "ls",
+    "argv": ["-1", "cli-fixture"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "coreutils",
+      "version": "9.7",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/coreutils/ls.1.en.html"
+    },
+    "gates": ["CROSS_TOOL_CONSISTENCY", "STATE_CONSISTENCY", "STDOUT", "EXIT_CODE"],
+    "flags": ["-1"],
+    "errorCase": false,
+    "fixture": {
+      "setup": ["touch cli-fixture/made"],
+      "directories": ["/home/kali/cli-fixture"],
+      "files": {}
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "made\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1cli-fixture~1made/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "source/canonical",
+    "softwareId": "bash",
+    "command": "source",
+    "argv": ["s", "hello world"],
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://manpages.debian.org/trixie/bash/bash.1.en.html"
+    },
+    "gates": ["POSITIONAL_ARGS", "STDOUT", "STDERR", "EXIT_CODE"],
+    "flags": [],
+    "errorCase": false,
+    "fixture": {
+      "files": {
+        "/home/kali/s": "echo \"$1\"\nreturn 7\n"
+      }
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "hello world\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 7,
+      "state": []
+    }
+  }
+]
