@@ -4,6 +4,7 @@ pub(crate) mod cat;
 mod foundation;
 mod foundation_messages;
 mod foundation_options;
+pub(crate) mod head;
 pub(crate) mod io;
 mod legacy;
 mod options;
@@ -26,10 +27,8 @@ pub(crate) fn execute(
         "basename" | "dirname" | "printenv" | "whoami" | "env" => {
             foundation::execute(world, name, args, actor, invocation)
         }
-        "cat" => cat::execute(world, invocation, args, actor),
-        "head" | "tail" | "tee" | "base64" | "sha256sum" => {
-            bytes::execute(world, name, args, actor)
-        }
+        "cat" | "head" => cat::execute(world, invocation, args, actor),
+        "tail" | "tee" | "base64" | "sha256sum" => bytes::execute(world, name, args, actor),
         _ => match legacy::validate(name, args) {
             Ok(Some(out)) => Ok(out),
             Ok(None) => return None,

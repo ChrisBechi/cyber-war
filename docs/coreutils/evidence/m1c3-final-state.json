@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "note": "Derived snapshot; rerun cli:compat and cli:verify to certify the current checkout.",
+  "executedAt": "2026-09-17T23:27:41.263Z",
+  "fingerprint": "c2e7b0abc80294e2025bdaf60f5fb4976e99665b1f684dd8278dfd8d19faeb58",
+  "captureHash": "ddc64c2151f7487500271b556b5cc1411916e5c531968a260384f025b1b70fc1",
+  "performanceHash": "c2ad992e2f79750026e3ed3b2e15b6f07370b2018db5e8ba85cf16f82cd0aa87",
+  "coreutilsPerformanceHash": "26631377104ded795f45f9273905cc7a79a06ce95cf589b6c548bad30e6f0dc9",
+  "vfsPerformanceHash": "21bc3cbe1d8285581150ebbd2f690d26e4d7be57c0e4a68d2680f2d3cbf839d3",
+  "summary": {
+    "commandNames": 1797,
+    "uniqueExecutables": 1526,
+    "aliases": 1,
+    "launcherNames": 270,
+    "catalogLaunchers": 303,
+    "guiLaunchers": 19,
+    "softwareGroups": 279,
+    "realCompat": 1519,
+    "fictionalNative": 7,
+    "catalogOnly": 1406,
+    "commands": {
+      "VERIFIED": 6,
+      "PARTIAL": 114,
+      "UNVERIFIED": 1406
+    },
+    "software": {
+      "VERIFIED": 0,
+      "PARTIAL": 42,
+      "UNVERIFIED": 237
+    },
+    "commandVerification": {
+      "verified": 6,
+      "total": 1519,
+      "percent": 0.39499670836076367
+    },
+    "softwareVerification": {
+      "verified": 0,
+      "total": 243,
+      "percent": 0
+    },
+    "pinnedSoftware": 12,
+    "unpinnedSoftware": 231,
+    "commandsTested": 20,
+    "gatesPassed": 3902,
+    "requiredGates": {
+      "passed": 3353,
+      "total": 35174
+    },
+    "pilotCases": {
+      "PASS": 583,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "flagCasesPassed": 298,
+    "errorCasesPassed": 195
+  },
+  "coreutilsTotals": {
+    "VERIFIED": 6,
+    "PARTIAL": 31,
+    "UNVERIFIED": 0
+  },
+  "commands": [
+    {
+      "command": "basename",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 48,
+      "referenceCases": 48,
+      "matchedReferenceCases": 48,
+      "gates": {
+        "passed": 19,
+        "required": 19
+      },
+      "contracts": {
+        "passed": 5,
+        "required": 5
+      },
+      "blockers": []
+    },
+    {
+      "command": "printenv",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 36,
+      "referenceCases": 36,
+      "matchedReferenceCases": 36,
+      "gates": {
+        "passed": 19,
+        "required": 19
+      },
+      "contracts": {
+        "passed": 5,
+        "required": 5
+      },
+      "blockers": []
+    },
+    {
+      "command": "whoami",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 31,
+      "referenceCases": 31,
+      "matchedReferenceCases": 31,
+      "gates": {
+        "passed": 19,
+        "required": 19
+      },
+      "contracts": {
+        "passed": 5,
+        "required": 5
+      },
+      "blockers": []
+    },
+    {
+      "command": "dirname",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 27,
+      "referenceCases": 27,
+      "matchedReferenceCases": 27,
+      "gates": {
+        "passed": 19,
+        "required": 19
+      },
+      "contracts": {
+        "passed": 5,
+        "required": 5
+      },
+      "blockers": []
+    },
+    {
+      "command": "head",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 215,
+      "referenceCases": 215,
+      "matchedReferenceCases": 215,
+      "gates": {
+        "passed": 26,
+        "required": 26
+      },
+      "contracts": {
+        "passed": 9,
+        "required": 9
+      },
+      "blockers": []
+    },
+    {
+      "command": "cat",
+      "before": "PARTIAL",
+      "after": "VERIFIED",
+      "projectCases": 91,
+      "referenceCases": 91,
+      "matchedReferenceCases": 91,
+      "gates": {
+        "passed": 26,
+        "required": 26
+      },
+      "contracts": {
+        "passed": 9,
+        "required": 9
+      },
+      "blockers": []
+    }
+  ],
+  "strictScopes": {
+    "head": true,
+    "cat": true,
+    "foundation": true
+  },
+  "normalPassed": true,
+  "globalStrict": {
+    "passed": false,
+    "remainingDebts": 1514
+  },
+  "wave": {
+    "processed": ["head"],
+    "limit": 12,
+    "next": {
+      "command": "tail",
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 8,
+      "referenceCases": 0,
+      "matchedReferenceCases": 0,
+      "gates": {
+        "passed": 14,
+        "required": 26
+      },
+      "contracts": {
+        "passed": 5,
+        "required": 6
+      },
+      "blockers": [
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:REDIRECTION",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:TTY",
+        "GAP:Follow/retry requires process/filesystem notifications",
+        "GAP:count multipliers and NUL delimiter unsupported"
+      ]
+    },
+    "classification": "ARCHITECTURAL_BOUNDARY",
+    "stopReason": "ARCHITECTURAL_BOUNDARY",
+    "reasons": ["GAP:Follow/retry requires process/filesystem notifications"]
+  },
+  "windowsBuild": {
+    "passed": true,
+    "profile": "release",
+    "features": ["tauri/custom-protocol"],
+    "path": "src-tauri/target/release/game-hacker.exe",
+    "bytes": 89698304,
+    "sha256": "dc889eed1d615be68fdf101b8663f02cdbde09f11520edae3dda300233e55606",
+    "elapsed": "7m 42s",
+    "command": "cargo build --offline --manifest-path src-tauri/Cargo.toml --release --features tauri/custom-protocol"
+  }
+}

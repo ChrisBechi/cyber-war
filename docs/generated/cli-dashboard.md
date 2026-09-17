@@ -14,18 +14,18 @@ Generated from runtime registrations and current evidence. PARTIAL is not certif
 | realCompat           | 1519                                                      |
 | fictionalNative      | 7                                                         |
 | catalogOnly          | 1406                                                      |
-| commands             | {"VERIFIED":5,"PARTIAL":115,"UNVERIFIED":1406}            |
+| commands             | {"VERIFIED":6,"PARTIAL":114,"UNVERIFIED":1406}            |
 | software             | {"VERIFIED":0,"PARTIAL":42,"UNVERIFIED":237}              |
-| commandVerification  | {"verified":5,"total":1519,"percent":0.32916392363396973} |
+| commandVerification  | {"verified":6,"total":1519,"percent":0.39499670836076367} |
 | softwareVerification | {"verified":0,"total":243,"percent":0}                    |
 | pinnedSoftware       | 12                                                        |
 | unpinnedSoftware     | 231                                                       |
 | commandsTested       | 20                                                        |
-| gatesPassed          | 3890                                                      |
-| requiredGates        | {"passed":3341,"total":35174}                             |
-| pilotCases           | {"PASS":376,"FAIL":0,"SKIPPED":0}                         |
-| flagCasesPassed      | 139                                                       |
-| errorCasesPassed     | 123                                                       |
+| gatesPassed          | 3902                                                      |
+| requiredGates        | {"passed":3353,"total":35174}                             |
+| pilotCases           | {"PASS":583,"FAIL":0,"SKIPPED":0}                         |
+| flagCasesPassed      | 298                                                       |
+| errorCasesPassed     | 195                                                       |
 
 ## Subsystem readiness
 
@@ -63,6 +63,6 @@ Generated from runtime registrations and current evidence. PARTIAL is not certif
 
 ## Coreutils
 
-{"VERIFIED":5,"PARTIAL":32,"UNVERIFIED":0}
+{"VERIFIED":6,"PARTIAL":31,"UNVERIFIED":0}
 
 [Per-command contracts, waves and evidence](coreutils-compatibility.md).

@@ -53,6 +53,8 @@ export const evidenceSources = () => [
   'scripts/cli-inventory.mjs',
   'scripts/cli-compat.mjs',
   'scripts/cli-verify.mjs',
+  'scripts/cli-head-generate.mjs',
+  'scripts/cli-coreutils-wave.mjs',
   'vite.config.ts',
 ];
 export function cargo(args, extra = {}) {

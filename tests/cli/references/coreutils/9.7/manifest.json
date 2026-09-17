@@ -13,7 +13,6 @@
     "cat/redirect",
     "ls/basic",
     "ls/hidden",
-    "head/stdin",
     "tail/stdin",
     "ls/cross-tool"
   ],

@@ -247,7 +247,7 @@ pub fn cancelled() -> bool {
     })
 }
 pub use super::tty::Read;
-pub fn read() -> Read {
+pub fn read_limit(limit: usize) -> Read {
     ACTIVE.with(|a| {
         let a = a.borrow();
         let Some(control) = a.as_ref() else {
@@ -256,7 +256,7 @@ pub fn read() -> Read {
         if control.cancelled.load(Ordering::Relaxed) {
             return Read::Interrupted;
         }
-        let read = control.input.lock().read();
+        let read = control.input.lock().read_limit(limit);
         read
     })
 }

@@ -20,13 +20,15 @@
     "cli:inventory": "node scripts/cli-inventory.mjs",
     "cli:compat": "node scripts/cli-compat.mjs",
     "cli:verify": "node scripts/cli-verify.mjs",
-    "cli:test": "node --test scripts/cli/tooling.test.mjs scripts/cli/foundation.test.mjs",
+    "cli:test": "node --test scripts/cli/tooling.test.mjs scripts/cli/foundation.test.mjs scripts/cli/head.test.mjs",
     "cli:check": "pnpm cli:inventory && pnpm cli:test && pnpm cli:compat && pnpm cli:verify",
     "rust:fmt": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check",
     "rust:clippy": "cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings",
     "rust:test": "cargo test --manifest-path src-tauri/Cargo.toml",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm content:check && pnpm test && pnpm rust:fmt && pnpm rust:clippy && pnpm rust:test && pnpm cli:check",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "cli:wave": "node scripts/cli-coreutils-wave.mjs",
+    "cli:head:requests": "node scripts/cli-head-generate.mjs --requests artifacts/head-requests.json"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",

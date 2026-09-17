@@ -36,7 +36,7 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (c.command === 'cat') {
+  if (['cat', 'head'].includes(c.command)) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -53,7 +53,7 @@ export function validateReference(command, capture) {
   const binary = capture.environment?.binaryHashes?.[command.command];
   const lock = json('content/cli-compatibility/coreutils-environment.json');
   if (
-    capture.schemaVersion !== (command.command === 'cat' ? 3 : 2) ||
+    capture.schemaVersion !== (['cat', 'head'].includes(command.command) ? 3 : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
     capture.version !== command.referenceVersion ||
     capture.command !== command.command ||
@@ -68,7 +68,7 @@ export function validateReference(command, capture) {
   )
     return 'Reference harness/environment fingerprint stale';
   if (
-    command.command === 'cat' &&
+    ['cat', 'head'].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
@@ -127,7 +127,7 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (test.command === 'cat') {
+  if (['cat', 'head'].includes(test.command)) {
     const io = test.io ?? {};
     const endpoints = {
       stdin: test.interaction ? 'pty-canonical-echo-off' : io.stdinPath ? 'file' : 'pipe',

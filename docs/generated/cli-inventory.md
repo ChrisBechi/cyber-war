@@ -540,7 +540,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | hciconfig                     | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hcitool                       | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hd                            | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| head                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| head                          | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/head.rs       |
 | help                          | bash                     | BUILTIN      | 5.2.37     | PARTIAL    | src-tauri/src/terminal.rs             |
 | helpztags                     | vim                      | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hex2hcd                       | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

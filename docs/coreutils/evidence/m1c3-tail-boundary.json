@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "provenance": "GNU_BOUNDARY_PROBE",
+  "certifiesExecutable": false,
+  "command": "tail",
+  "version": "tail (GNU coreutils) 9.7",
+  "environment": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
+  "locale": "C",
+  "isolation": "bubblewrap/unshare-all",
+  "network": "disabled",
+  "binaryHash": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600",
+  "lockHash": "ee0a9423c1203dfa883dffafe62df14c820c7651333bc30725bc05d2b9ba346d",
+  "probeHash": "b69599d10579c3e5c24dfb90be99b7abcb7b0966b193c164282abe224429a01f",
+  "reproducible": true,
+  "result": {
+    "argv": [
+      "-n1",
+      "--follow=name",
+      "--retry",
+      "--sleep-interval=0.01",
+      "--max-unchanged-stats=1",
+      "log"
+    ],
+    "stdinHex": "",
+    "observations": [
+      {
+        "after": "initial",
+        "stdoutHex": "66697273740a",
+        "running": true
+      },
+      {
+        "after": "append",
+        "stdoutHex": "66697273740a7365636f6e640a",
+        "running": true
+      },
+      {
+        "after": "rename-and-recreate",
+        "stdoutHex": "66697273740a7365636f6e640a74686972640a",
+        "running": true
+      }
+    ],
+    "stdoutHex": "66697273740a7365636f6e640a74686972640a",
+    "stderrHex": "7461696c3a20276c6f672720686173206265656e207265706c616365643b2020666f6c6c6f77696e67206e65772066696c650a",
+    "termination": {
+      "signal": "SIGTERM",
+      "returncode": -15
+    },
+    "files": {
+      "log": "74686972640a",
+      "log.1": "66697273740a7365636f6e640a"
+    }
+  },
+  "capturedAt": "2026-09-17T23:21:50.474305+00:00"
+}

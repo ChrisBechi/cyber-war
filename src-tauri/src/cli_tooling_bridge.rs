@@ -232,10 +232,24 @@ fn run_interaction(
 fn cli_tooling_capture() {
     let path =
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../artifacts/cli-case-request.json");
-    let request: Request = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let request: Request = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
     assert_eq!(request.schema_version, 2);
-    let mut results = Vec::new();
-    for case in request.cases {
+    // Keep only one case snapshot resident. The matrix can contain hundreds of
+    // complete VFS snapshots; collecting all Value trees multiplied memory use.
+    use std::io::Write;
+    let target = path.with_file_name("cli-case-actual.json");
+    let temporary = path.with_file_name("cli-case-actual.partial.json");
+    let mut writer = std::io::BufWriter::new(std::fs::File::create(&temporary).unwrap());
+    writer
+        .write_all(b"{\"schemaVersion\":2,\"cases\":[")
+        .unwrap();
+    for (index, case) in request.cases.into_iter().enumerate() {
+        if index > 0 {
+            writer.write_all(b",").unwrap();
+        }
+        if index % 32 == 0 {
+            eprintln!("capture case {index}: {}", case.id);
+        }
         let mut w = WorldState::new("kali", "lifeos").unwrap();
         for dir in case.fixture.directories {
             w.vfs.mkdir(&dir, "kali").unwrap();
@@ -264,6 +278,11 @@ fn cli_tooling_capture() {
         w.vfs.directory(&case.cwd, "kali").unwrap();
         w.terminal.cwd = case.cwd;
         w.terminal.env = case.env;
+        // Structured executable requests model a child process environment.
+        // Shell-script fixtures also use env for unexported initial variables.
+        if case.script.is_none() {
+            w.terminal.exported.extend(w.terminal.env.keys().cloned());
+        }
         if let Some(process) = case.process {
             if let Some(actor) = process.actor {
                 w.terminal.user = actor;
@@ -389,6 +408,17 @@ fn cli_tooling_capture() {
         } else {
             crate::shell::control::run(&control, work)
         };
+        assert_eq!(
+            w.vfs.open_handle_count(),
+            0,
+            "leaked descriptor: {}",
+            case.id
+        );
+        assert!(
+            crate::shell::control::process_ids(&case.id).is_empty(),
+            "leaked process registration: {}",
+            case.id
+        );
         drop(control);
         if case.roundtrip {
             let json = serde_json::to_string(&w.vfs).unwrap();
@@ -396,14 +426,14 @@ fn cli_tooling_capture() {
         }
         w.vfs.collect();
         w.vfs.check_invariants().unwrap();
-        results.push(json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
+        serde_json::to_writer(&mut writer, &json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
             "stderrHex":result.stderr_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"exitCode":result.exit_code,"termination":result.termination,"observations":observations,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty,
-            "files":w.vfs.nodes.iter().filter(|(p,n)| p.starts_with("/home/kali/") && n.kind == "file").map(|(p,n)| (p.clone(), n.blob.as_ref().map(|b| w.blobs[&b.hash].as_slice()).unwrap_or(n.content.as_bytes()).iter().map(|b|format!("{b:02x}")).collect::<String>())).collect::<BTreeMap<_,_>>()}));
+            "files":w.vfs.nodes.iter().filter(|(p,n)| p.starts_with("/home/kali/") && n.kind == "file").map(|(p,n)| (p.clone(), n.blob.as_ref().map(|b| w.blobs[&b.hash].as_slice()).unwrap_or(n.content.as_bytes()).iter().map(|b|format!("{b:02x}")).collect::<String>())).collect::<BTreeMap<_,_>>()})).unwrap();
     }
-    artifact(
-        "cli-case-actual.json",
-        &json!({"schemaVersion":2,"cases":results}),
-    );
+    writer.write_all(b"]}").unwrap();
+    writer.flush().unwrap();
+    drop(writer);
+    std::fs::rename(temporary, target).unwrap();
 }
 
 #[test]

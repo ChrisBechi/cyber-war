@@ -50,11 +50,18 @@ impl VirtualTty {
     pub fn pending(&self) -> bool {
         self.ready.is_empty()
     }
+    #[cfg(test)]
     pub fn read(&mut self) -> Read {
-        let Some(read) = self.ready.pop_front() else {
+        self.read_limit(usize::MAX)
+    }
+    pub fn read_limit(&mut self, limit: usize) -> Read {
+        let Some(mut read) = self.ready.pop_front() else {
             return Read::Pending;
         };
-        if let Read::Data(bytes) = &read {
+        if let Read::Data(bytes) = &mut read {
+            if bytes.len() > limit {
+                self.ready.push_front(Read::Data(bytes.split_off(limit)));
+            }
             self.bytes -= bytes.len();
         }
         read

@@ -11,6 +11,7 @@ pub(super) struct Options {
     pub zero: bool,
     pub special: Option<&'static str>,
     pub flags: Vec<char>,
+    pub selection: Option<super::head::Selection>,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -57,6 +58,10 @@ pub(super) fn shell_quote(value: &str) -> String {
     {
         return value.into();
     }
+    shell_quote_always(value)
+}
+
+pub(super) fn shell_quote_always(value: &str) -> String {
     if value.contains('\'')
         && value
             .bytes()
@@ -106,6 +111,14 @@ pub(super) fn parse(
         "basename" => long.extend([("multiple", 'a'), ("suffix", 's'), ("zero", 'z')]),
         "dirname" => long.push(("zero", 'z')),
         "printenv" => long.push(("null", '0')),
+        "head" => long.extend([
+            ("bytes", 'c'),
+            ("lines", 'n'),
+            ("quiet", 'q'),
+            ("silent", 'q'),
+            ("verbose", 'v'),
+            ("zero-terminated", 'z'),
+        ]),
         "cat" => long.extend([
             ("number-nonblank", 'b'),
             ("number", 'n'),
@@ -163,7 +176,9 @@ pub(super) fn parse(
                     true,
                 )));
             };
-            if !(name == "basename" && *ch == 's') && attached.is_some() {
+            let takes_value =
+                (name == "basename" && *ch == 's') || (name == "head" && matches!(*ch, 'n' | 'c'));
+            if !takes_value && attached.is_some() {
                 return Err(Box::new(error(
                     name,
                     invocation,
@@ -171,14 +186,14 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if name == "cat"
+            if matches!(name, "cat" | "head")
                 && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
                 out.special = Some(if *ch == 'h' { "help" } else { "version" });
                 return Ok(out);
             }
-            let val = if name == "basename" && *ch == 's' {
+            let val = if takes_value {
                 Some(if let Some(value) = attached {
                     value.to_string()
                 } else {
@@ -187,7 +202,14 @@ pub(super) fn parse(
                         error(
                             name,
                             invocation,
-                            &format!("option '--{prefix}' requires an argument"),
+                            &format!(
+                                "option '--{}' requires an argument",
+                                if name == "head" {
+                                    found.unwrap().0
+                                } else {
+                                    prefix
+                                }
+                            ),
                             true,
                         )
                     })?
@@ -203,6 +225,7 @@ pub(super) fn parse(
                     "dirname" => "z",
                     "printenv" => "0iu",
                     "cat" => "AbEnestTuv",
+                    "head" => "cnqvz0123456789",
                     _ => "",
                 };
                 if !allowed.contains(ch) {
@@ -220,7 +243,18 @@ pub(super) fn parse(
                         ..Default::default()
                     }));
                 }
-                if (name == "basename" && ch == 's') || (name == "printenv" && ch == 'u') {
+                if name == "head" && ch.is_ascii_digit() {
+                    return Err(Box::new(error(
+                        name,
+                        invocation,
+                        &format!("invalid trailing option -- {ch}"),
+                        false,
+                    )));
+                }
+                if (name == "basename" && ch == 's')
+                    || (name == "printenv" && ch == 'u')
+                    || (name == "head" && matches!(ch, 'n' | 'c'))
+                {
                     let rest = &arg[1 + offset + ch.len_utf8()..];
                     let value = if rest.is_empty() {
                         index += 1;
@@ -249,6 +283,14 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "head" {
+                if let Some(value) = value {
+                    out.selection = Some(super::head::Selection::parse(ch, &value)?);
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
             if name == "cat" {
                 out.flags.push(ch);
                 continue;

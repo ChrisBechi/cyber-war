@@ -1,4 +1,4 @@
-# Foundation and cat command messages
+# Foundation, cat and head command messages
 
 The observable C-locale help and version strings in this directory were captured
 from GNU Coreutils 9.7 (Alpine package 9.7-r1). GNU Coreutils is copyright

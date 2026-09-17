@@ -5,5 +5,6 @@
 | basename | coreutils |               |            |
 | cat      | coreutils |               |            |
 | dirname  | coreutils |               |            |
+| head     | coreutils |               |            |
 | printenv | coreutils |               |            |
 | whoami   | coreutils |               |            |

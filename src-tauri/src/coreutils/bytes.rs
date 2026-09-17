@@ -18,7 +18,7 @@ pub(super) fn execute(
     actor: &str,
 ) -> GameResult<Output> {
     let syntax = match name {
-        "head" | "tail" => "[-qv] [-n COUNT | -c COUNT] [FILE]... (decimal counts; no follow mode)",
+        "tail" => "[-qv] [-n COUNT | -c COUNT] [FILE]... (decimal counts; no follow mode)",
         "tee" => "[-a] [FILE]...",
         "base64" => "[-di] [-w COLS] [FILE]",
         _ => "[-bt] [FILE]... | [-c] [--status | --quiet] [CHECKSUM_FILE]...",
@@ -27,7 +27,7 @@ pub(super) fn execute(
         return Ok(out);
     }
     let mut opts = match name {
-        "head" | "tail" => parse(
+        "tail" => parse(
             name,
             args,
             "qv",
@@ -85,7 +85,7 @@ pub(super) fn execute(
     }
     let mut out = Output::default();
     let mut header_seen = false;
-    let selection = if matches!(name, "head" | "tail") {
+    let selection = if name == "tail" {
         Some(selection(name, &opts)?)
     } else {
         None
@@ -115,7 +115,7 @@ pub(super) fn execute(
             }
         };
         let bytes = match name {
-            "head" | "tail" => {
+            "tail" => {
                 let headers = opts
                     .flags
                     .iter()
@@ -132,7 +132,7 @@ pub(super) fn execute(
                     )?;
                     header_seen = true;
                 }
-                slice(&data, name, selection.as_ref().unwrap())
+                slice(&data, selection.as_ref().unwrap())
             }
             "base64" if opts.has('d') => {
                 let encoded: Vec<u8> = data
@@ -247,43 +247,24 @@ fn selection(name: &str, opts: &Options) -> GameResult<Selection> {
         sign,
     })
 }
-fn slice(data: &[u8], name: &str, s: &Selection) -> Vec<u8> {
+fn slice(data: &[u8], s: &Selection) -> Vec<u8> {
     if s.bytes {
-        let cut = if name == "head" {
-            if s.sign == '-' {
-                data.len().saturating_sub(s.count)
-            } else {
-                s.count.min(data.len())
-            }
-        } else if s.sign == '+' {
+        let cut = if s.sign == '+' {
             s.count.saturating_sub(1).min(data.len())
         } else {
             data.len().saturating_sub(s.count)
         };
-        return if name == "head" {
-            data[..cut].to_vec()
-        } else {
-            data[cut..].to_vec()
-        };
+        return data[cut..].to_vec();
     }
     let lines: Vec<&[u8]> = data.split_inclusive(|b| *b == b'\n').collect();
-    let cut = if name == "head" {
-        if s.sign == '-' {
-            lines.len().saturating_sub(s.count)
-        } else {
-            s.count.min(lines.len())
-        }
-    } else if s.sign == '+' {
+    let cut = if s.sign == '+' {
         s.count.saturating_sub(1).min(lines.len())
     } else {
         lines.len().saturating_sub(s.count)
     };
-    if name == "head" {
-        lines[..cut].concat()
-    } else {
-        lines[cut..].concat()
-    }
+    lines[cut..].concat()
 }
+
 fn check(
     world: &mut WorldState,
     data: &[u8],

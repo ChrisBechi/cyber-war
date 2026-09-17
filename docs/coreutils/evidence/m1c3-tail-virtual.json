@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "provenance": "CYBER_WAR_BOUNDARY_PROBE",
+  "certifiesExecutable": false,
+  "reproduction": "Feed cases[].request as {schemaVersion:2,cases:[...]} to artifacts/cli-case-request.json; run cargo test --offline --manifest-path src-tauri/Cargo.toml --lib cli_tooling_capture -- --ignored --nocapture",
+  "cases": [
+    {
+      "id": "boundary/tail/0",
+      "request": {
+        "id": "boundary/tail/0",
+        "command": "tail",
+        "invocation": "/usr/bin/tail",
+        "argv": [
+          "-n1",
+          "--follow=name",
+          "--retry",
+          "--sleep-interval=0.01",
+          "--max-unchanged-stats=1",
+          "log"
+        ],
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "tty": {
+          "isTTY": false,
+          "columns": 80,
+          "rows": 24,
+          "ansiSupport": true,
+          "interactive": false
+        },
+        "fixture": {
+          "files": {
+            "/home/kali/log": "first\n"
+          },
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": [],
+          "hardlinks": {},
+          "symlinks": {}
+        },
+        "stdin": ""
+      },
+      "stdoutHex": "",
+      "stderrHex": "7461696c3a20756e7265636f676e697a6564206f7074696f6e20272d2d666f6c6c6f773d6e616d65270a54727920277461696c202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "termination": {
+        "code": 1,
+        "kind": "exit"
+      },
+      "filesystemUnchanged": true
+    },
+    {
+      "id": "boundary/tail/1",
+      "request": {
+        "id": "boundary/tail/1",
+        "command": "tail",
+        "invocation": "/usr/bin/tail",
+        "argv": ["-f", "log"],
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "tty": {
+          "isTTY": false,
+          "columns": 80,
+          "rows": 24,
+          "ansiSupport": true,
+          "interactive": false
+        },
+        "fixture": {
+          "files": {
+            "/home/kali/log": "first\n"
+          },
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": [],
+          "hardlinks": {},
+          "symlinks": {}
+        },
+        "stdin": ""
+      },
+      "stdoutHex": "",
+      "stderrHex": "7461696c3a20696e76616c6964206f7074696f6e202d2d202766270a54727920277461696c202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "termination": {
+        "code": 1,
+        "kind": "exit"
+      },
+      "filesystemUnchanged": true
+    }
+  ]
+}

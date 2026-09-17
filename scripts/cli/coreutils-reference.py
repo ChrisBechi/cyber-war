@@ -40,7 +40,7 @@ def request(case):
             'argv': case['argv'], 'stdinHex': case.get('stdinHex', (case.get('stdin') or '').encode().hex()),
             'env': case['env'], 'cwd': case['cwd'], 'fixture': {k: case.get('fixture', {}).get(k, [] if k in ['directories', 'setup'] else {}) for k in ['files', 'bytes', 'directories', 'modes', 'setup']},
             'process': case.get('process'), 'transport': case.get('transport', 'direct')}
-    if case['command'] == 'cat':
+    if case['command'] in {'cat', 'head'}:
         req.update(io=case.get('io'), interaction=case.get('interaction'))
         req['fixture'].update({k: case.get('fixture', {}).get(k, {}) for k in ['hardlinks', 'symlinks']})
     return req
@@ -100,11 +100,11 @@ def worker(path):
     req = json.loads(Path(path).read_text())
     env = environment(req)
     argv = [req['invocation'], *req['argv']]
-    if req['command'] == 'cat':
+    if req['command'] in {'cat', 'head'}:
         from coreutils_interaction import execute
         if req['transport'] == 'redirect':
             req['io'] = {**(req.get('io') or {}), 'stdoutPath': '/home/kali/reference-output'}
-        result = execute(req, shutil.which('cat', path='/usr/bin:/bin'), env)
+        result = execute(req, shutil.which(req['command'], path='/usr/bin:/bin'), env)
         print(json.dumps(result))
         return
     if req['transport'] == 'redirect':
@@ -193,7 +193,7 @@ def capture(case, bwrap):
         result = {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
                 'stdoutHex': out.hex(), 'stderrHex': err.hex(), 'exitCode': completed.returncode,
                 'before': before, 'after': snapshot(home)}
-        if req['command'] == 'cat':
+        if req['command'] in {'cat', 'head'}:
             result.update(json.loads(out))
         return result
 
@@ -261,11 +261,11 @@ def main():
         payload = {'schemaVersion': 2, 'provenance': 'GNU_PROBE' if args.probe else 'GNU_REFERENCE', 'version': version,
                    'command': name, 'locale': 'C', 'capturedAt': datetime.now(timezone.utc).isoformat(),
                    'harnessHash': source_hash(HARNESS_PATH), 'environment': {**env, 'binaryHashes': {name: binaries[name]}}, 'cases': rows}
-        if name == 'cat':
+        if name in {'cat', 'head'}:
             payload.update(schemaVersion=3, interactionHash=source_hash('scripts/cli/coreutils_interaction.py'))
         if args.verify:
             original = json.loads(target.read_text())
-            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name == 'cat' else []):
+            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head'} else []):
                 if original[key] != payload[key]:
                     raise RuntimeError(f'Reference reproduction differs: {name}/{key}; golden unchanged')
         else:

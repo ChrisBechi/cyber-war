@@ -9,11 +9,11 @@ import { generate } from './cli/reports.mjs';
 const selected = scope();
 const baseline = json('content/cli-compatibility/manifest.json').software.coreutils
   .referenceVersion;
-const closedFoundation = new Set(
+const closedCoreutils = new Set(
   Object.entries(json('content/cli-compatibility/coreutils.json').commands)
     .filter(
       ([name, s]) =>
-        s.area === 'foundation' &&
+        (s.area === 'foundation' || ['cat', 'head'].includes(name)) &&
         existsSync(resolve(root, `tests/cli/gnu/coreutils/${baseline}/${name}.json`)),
     )
     .map(([name]) => name),
@@ -29,7 +29,7 @@ const cases = loadCases().filter(
     selected.includes(c) ||
     (selected.names &&
       (requiredSubsystemCases.has(c.id) ||
-        (c.softwareId === 'coreutils' && closedFoundation.has(c.command)))),
+        (c.softwareId === 'coreutils' && closedCoreutils.has(c.command)))),
 );
 const previous = selected.names ? (currentCapture()?.cases ?? []) : [];
 await generate(pipeline());

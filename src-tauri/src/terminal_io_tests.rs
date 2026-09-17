@@ -179,8 +179,6 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
         "tail --follow a",
         "tail -n",
         "head -n bad a",
-        "head -c2K a",
-        "head -n9999999999999999999999999999999 a",
         "cp --backup a Documents/a",
         "mv -r a Documents/a",
         "rm --invented a",
@@ -192,6 +190,13 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
         assert!(!result.stderr.is_empty(), "{cmd}");
         assert_eq!(serde_json::to_string(&w.vfs).unwrap(), before, "{cmd}");
     }
+    // These former subset rejections are accepted by the pinned GNU reference.
+    ok(&mut w, "head -c2K a", "original");
+    ok(
+        &mut w,
+        "head -n9999999999999999999999999999999 a",
+        "original",
+    );
 }
 
 #[test]
@@ -350,12 +355,17 @@ fn excessive_text_output_is_bounded_and_does_not_change_files() {
 #[test]
 fn audited_manuals_describe_the_implemented_subset() {
     let mut w = world();
-    for command in ["pwd", "cd", "head", "tail", "cp", "mv", "rm"] {
+    for command in ["pwd", "cd", "tail", "cp", "mv", "rm"] {
         let help = execute(&mut w, &format!("{command} --help"));
         assert_eq!(help.exit_code, 0, "{command}");
         assert!(help.stdout.contains("virtual subset"));
         ok(&mut w, &format!("man {command}"), &help.stdout);
     }
+    let head = execute(&mut w, "head --help");
+    assert_eq!(head.exit_code, 0);
+    assert!(head.stdout.contains("--zero-terminated"));
+    assert!(head.stdout.contains("NUM may have a multiplier suffix:"));
+    ok(&mut w, "man head", &head.stdout);
     let help = execute(&mut w, "cat --help");
     assert_eq!(help.exit_code, 0);
     assert!(help

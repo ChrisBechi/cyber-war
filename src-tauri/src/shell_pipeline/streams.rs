@@ -55,8 +55,15 @@ impl Pipe {
         self.chunks.push_back(text);
         Ok(true)
     }
+    #[cfg(test)]
     fn read(&mut self) -> Read {
-        if let Some(text) = self.chunks.pop_front() {
+        self.read_limit(CHUNK)
+    }
+    fn read_limit(&mut self, limit: usize) -> Read {
+        if let Some(mut text) = self.chunks.pop_front() {
+            if text.len() > limit {
+                self.chunks.push_front(text.split_off(limit));
+            }
             self.bytes -= text.len();
             Read::Data(text)
         } else if self.writer_closed {
@@ -80,27 +87,35 @@ enum Input {
 }
 impl Input {
     fn read(&mut self, world: &mut WorldState, pipes: &mut [Pipe]) -> GameResult<Read> {
+        self.read_limit(world, pipes, CHUNK)
+    }
+    fn read_limit(
+        &mut self,
+        world: &mut WorldState,
+        pipes: &mut [Pipe],
+        limit: usize,
+    ) -> GameResult<Read> {
         Ok(match self {
             Self::Text(text, offset) => {
                 if *offset == text.len() {
                     return Ok(Read::Eof);
                 }
-                let end = chunk_end(text, *offset);
+                let end = (*offset + limit).min(text.len());
                 let value = text[*offset..end].into();
                 *offset = end;
                 Read::Data(value)
             }
-            Self::Pipe(i) => pipes[*i].read(),
+            Self::Pipe(i) => pipes[*i].read_limit(limit),
             Self::File(handle) => {
                 let blobs = world.blobs.clone();
-                let bytes = world.fs_mut()?.read_handle_bytes(*handle, CHUNK, &blobs)?;
+                let bytes = world.fs_mut()?.read_handle_bytes(*handle, limit, &blobs)?;
                 if bytes.is_empty() {
                     Read::Eof
                 } else {
                     Read::Data(bytes)
                 }
             }
-            Self::Terminal => match control::read() {
+            Self::Terminal => match control::read_limit(limit) {
                 control::Read::Data(text) => Read::Data(text),
                 control::Read::Eof => Read::Eof,
                 control::Read::Pending => Read::Pending,
@@ -118,7 +133,7 @@ impl Input {
 enum Engine {
     Yes(Vec<u8>),
     Cat(Box<crate::coreutils::cat::Cat>),
-    Head(usize),
+    Head(Box<crate::coreutils::head::Head>),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
@@ -136,9 +151,7 @@ struct Process {
     signals: Arc<ProcessSignalState>,
     termination: Option<Termination>,
 }
-fn chunk_end(text: &[u8], start: usize) -> usize {
-    (start + CHUNK).min(text.len())
-}
+
 fn chunks(pending: &mut VecDeque<(u8, Vec<u8>)>, fd: u8, text: Vec<u8>) {
     for chunk in text.chunks(CHUNK) {
         pending.push_back((fd, chunk.to_vec()));
@@ -153,11 +166,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    match name {
-        "cat" => true,
-        "head" => matches!(engine(stage, true), Engine::Head(_)),
-        _ => false,
-    }
+    matches!(name, "cat" | "head")
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -169,42 +178,23 @@ fn engine(stage: &Stage, available: bool) -> Engine {
         .next()
         .unwrap_or("");
     let args = stage.arguments.get(1..).unwrap_or_default();
-    if available {
-        if name == "yes" && !args.iter().any(|a| a.starts_with('-') && a != "--") {
-            let args = if args.first().is_some_and(|s| s == "--") {
-                &args[1..]
-            } else {
-                args
-            };
-            return Engine::Yes(
-                format!(
-                    "{}\n",
-                    if args.is_empty() {
-                        "y".into()
-                    } else {
-                        args.join(" ")
-                    }
-                )
-                .into_bytes(),
-            );
-        }
-        if name == "head" {
-            let count = if args.is_empty() {
-                Some(10)
-            } else if args.len() == 2 && args[0] == "-n" {
-                args[1].parse().ok()
-            } else if args.len() == 1 {
-                args[0]
-                    .strip_prefix("-n")
-                    .or_else(|| args[0].strip_prefix("--lines="))
-                    .and_then(|s| s.parse().ok())
-            } else {
-                None
-            };
-            if let Some(count) = count {
-                return Engine::Head(count);
-            }
-        }
+    if available && name == "yes" && !args.iter().any(|a| a.starts_with('-') && a != "--") {
+        let args = if args.first().is_some_and(|s| s == "--") {
+            &args[1..]
+        } else {
+            args
+        };
+        return Engine::Yes(
+            format!(
+                "{}\n",
+                if args.is_empty() {
+                    "y".into()
+                } else {
+                    args.join(" ")
+                }
+            )
+            .into_bytes(),
+        );
     }
     // Only commands with an stdin contract need to wait for upstream EOF.
     let input_command = if name == "sudo" {
@@ -331,11 +321,18 @@ fn prepare(
     let mut engine = engine(stage, available);
     let mut pending = VecDeque::new();
     let mut status = 0;
-    if available && name.rsplit('/').next() == Some("cat") && error.is_none() {
+    if available && matches!(name.rsplit('/').next(), Some("cat" | "head")) && error.is_none() {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        match crate::coreutils::cat::Cat::new(name, &stage.arguments[1..], posix) {
-            Ok(cat) => engine = Engine::Cat(Box::new(cat)),
+        let parsed = if name.rsplit('/').next() == Some("head") {
+            crate::coreutils::head::Head::new(name, &stage.arguments[1..], posix)
+                .map(|h| Engine::Head(Box::new(h)))
+        } else {
+            crate::coreutils::cat::Cat::new(name, &stage.arguments[1..], posix)
+                .map(|c| Engine::Cat(Box::new(c)))
+        };
+        match parsed {
+            Ok(parsed) => engine = parsed,
             Err(output) => {
                 status = output.status;
                 for (fd, bytes) in output_chunks(*output) {
@@ -352,7 +349,7 @@ fn prepare(
         engine = Engine::Finished;
         input.close(pipes);
     }
-    if matches!(engine, Engine::Head(0) | Engine::Legacy { read: false, .. }) {
+    if matches!(engine, Engine::Legacy { read: false, .. }) {
         input.close(pipes);
     }
     world.processes.push(crate::world::VirtualProcess {
@@ -394,10 +391,6 @@ fn step(
                     line.repeat((CHUNK / line.len()).max(1)),
                 );
             }
-        }
-        Engine::Head(0) => {
-            process.input.close(pipes);
-            process.engine = Engine::Finished;
         }
         Engine::Cat(cat) => {
             if cat.current.is_none() {
@@ -495,30 +488,135 @@ fn step(
                 }
             }
         }
-        Engine::Head(_) => match process.input.read(world, pipes)? {
-            Read::Pending | Read::Interrupted => return Ok(false),
-            Read::Eof => process.engine = Engine::Finished,
-            Read::Data(mut text) => {
-                if let Engine::Head(remaining) = &mut process.engine {
-                    let mut end = text.len();
-                    for (i, byte) in text.iter().copied().enumerate() {
-                        if byte == b'\n' {
-                            *remaining -= 1;
-                            if *remaining == 0 {
-                                end = i + 1;
-                                break;
+        Engine::Head(head) => {
+            if head.current.is_none() {
+                let Some(file) = head.files.pop_front() else {
+                    process.input.close(pipes);
+                    process.engine = Engine::Finished;
+                    return Ok(true);
+                };
+                head.directory = false;
+                if file != "-" {
+                    let result = normalize(&file, &process.session.cwd).and_then(|path| {
+                        let fs = world.fs()?;
+                        let node = fs.stat(&path, &process.session.user)?;
+                        if node.kind == "directory" && !fs.allowed(node, &process.session.user, 4) {
+                            return Err(crate::vfs::domain("Permission denied"));
+                        }
+                        world.fs_mut()?.open(
+                            &path,
+                            crate::vfs::OpenFlags {
+                                read: true,
+                                ..Default::default()
+                            },
+                            0,
+                            &process.session.user,
+                        )
+                    });
+                    match result {
+                        Ok(handle) => head.handle = Some(handle),
+                        Err(error) => {
+                            // POSIX open of a directory succeeds; the error occurs on read.
+                            if crate::terminal_io::error_reason(&error) == "Is a directory" {
+                                head.directory = true;
+                            } else {
+                                process.status = 1;
+                                chunks(
+                                    &mut process.pending,
+                                    2,
+                                    crate::coreutils::head::diagnostic(&file, error, true),
+                                );
+                                return Ok(true);
                             }
                         }
                     }
-                    text.truncate(end);
-                    if *remaining == 0 {
-                        process.input.close(pipes);
-                        process.engine = Engine::Finished;
+                }
+                chunks(&mut process.pending, 1, head.start(file));
+                if let Some(handle) = head.handle.or(match process.input {
+                    Input::File(h) if head.current.as_deref() == Some("-") => Some(h),
+                    _ => None,
+                }) {
+                    let (_, offset, size, regular) = world.fs()?.handle_identity(handle)?;
+                    if regular {
+                        head.regular_source(size.saturating_sub(offset as u64));
                     }
                 }
-                chunks(&mut process.pending, 1, text);
             }
-        },
+            let read = if head.transform.done() || head.source_remaining == Some(0) {
+                Ok(Read::Eof)
+            } else if head.directory {
+                Err(crate::vfs::domain("Is a directory"))
+            } else if let Some(handle) = head.handle {
+                let blobs = world.blobs.clone();
+                world
+                    .fs_mut()?
+                    .read_handle_bytes(handle, head.read_limit(), &blobs)
+                    .map(|data| {
+                        if data.is_empty() {
+                            Read::Eof
+                        } else {
+                            Read::Data(data)
+                        }
+                    })
+            } else {
+                process.input.read_limit(world, pipes, head.read_limit())
+            };
+            match read {
+                Ok(Read::Pending | Read::Interrupted) => return Ok(false),
+                Ok(Read::Data(bytes)) => {
+                    if let Some(left) = &mut head.source_remaining {
+                        *left = left.saturating_sub(bytes.len() as u64);
+                    }
+                    let (output, consumed) = head.transform.push(&bytes);
+                    chunks(&mut process.pending, 1, output);
+                    if consumed < bytes.len() {
+                        if let Some(handle) = head.handle.or(match process.input {
+                            Input::File(h) if head.current.as_deref() == Some("-") => Some(h),
+                            _ => None,
+                        }) {
+                            let (_, offset, _, regular) = world.fs()?.handle_identity(handle)?;
+                            if regular {
+                                world
+                                    .fs_mut()?
+                                    .seek(handle, offset - (bytes.len() - consumed))?;
+                            }
+                        }
+                    }
+                }
+                ending => {
+                    if let Err(error) = ending {
+                        process.status = 1;
+                        chunks(
+                            &mut process.pending,
+                            2,
+                            crate::coreutils::head::diagnostic(
+                                head.current.as_deref().unwrap_or("-"),
+                                error,
+                                false,
+                            ),
+                        );
+                    } else {
+                        chunks(&mut process.pending, 1, head.transform.finish());
+                        if let Some(handle) = head.handle.or(match process.input {
+                            Input::File(h) if head.current.as_deref() == Some("-") => Some(h),
+                            _ => None,
+                        }) {
+                            let (_, offset, _, regular) = world.fs()?.handle_identity(handle)?;
+                            if regular {
+                                world.fs_mut()?.seek(
+                                    handle,
+                                    offset.saturating_sub(head.transform.retained()),
+                                )?;
+                            }
+                        }
+                    }
+                    if let Some(handle) = head.handle.take() {
+                        world.fs_mut()?.close(handle)?;
+                    }
+                    head.current = None;
+                }
+            }
+        }
         Engine::Legacy { text, read } => {
             if *read {
                 match process.input.read(world, pipes)? {
@@ -586,16 +684,24 @@ fn step(
     Ok(true)
 }
 
+fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> {
+    let handle = match engine {
+        Engine::Cat(c) => c.handle.take(),
+        Engine::Head(h) => h.handle.take(),
+        _ => None,
+    };
+    if let Some(handle) = handle {
+        world.fs_mut()?.close(handle)?;
+    }
+    Ok(())
+}
+
 fn terminate(
     world: &mut WorldState,
     process: &mut Process,
     signal: VirtualSignal,
 ) -> GameResult<()> {
-    if let Engine::Cat(cat) = &mut process.engine {
-        if let Some(handle) = cat.handle.take() {
-            world.fs_mut()?.close(handle)?;
-        }
-    }
+    close_operand(world, &mut process.engine)?;
     let termination = Termination::Signal { signal };
     process.termination = Some(termination);
     process.status = termination.status();
@@ -666,11 +772,7 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                         }) {
                             Ok(()) => true,
                             Err(error) => {
-                                if let Engine::Cat(cat) = &mut process.engine {
-                                    if let Some(handle) = cat.handle.take() {
-                                        world.fs_mut()?.close(handle)?;
-                                    }
-                                }
+                                close_operand(world, &mut process.engine)?;
                                 process.pending.clear();
                                 process.engine = Engine::Finished;
                                 process.status = 1;
@@ -731,14 +833,10 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
     world
         .processes
         .retain(|p| !processes.iter().any(|running| running.pid == p.pid));
-    for process in &processes {
+    for process in &mut processes {
         control::unregister_process(process.pid);
-        if let Engine::Cat(cat) = &process.engine {
-            if let Some(handle) = cat.handle {
-                world.terminal.host = process.session.host.clone();
-                world.fs_mut()?.close(handle)?;
-            }
-        }
+        world.terminal.host = process.session.host.clone();
+        close_operand(world, &mut process.engine)?;
         close_files(world, &process.files)?;
     }
     world.terminal = original;
@@ -751,6 +849,37 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn controlled_producer_observes_prefix_close_without_eof() {
+        // Exercise the actual scheduler without relying on a certified producer
+        // executable: prepare head with a controlled internal pipe as stdin.
+        for argv in [vec!["head", "-n1"], vec!["head", "-c1"]] {
+            let mut world = WorldState::new("kali", "lifeos").unwrap();
+            let original = world.terminal.clone();
+            let stage = Stage {
+                arguments: argv.iter().map(|s| (*s).into()).collect(),
+                ..Default::default()
+            };
+            let mut pipes = vec![Pipe::default()];
+            let mut process = prepare(&mut world, &stage, 1, 2, &original, &mut pipes).unwrap();
+            assert_eq!(pipes[0].push(b"first\nsecond\n".to_vec()), Ok(true));
+            for _ in 0..5 {
+                step(&mut world, &mut process, &stage, &mut pipes).unwrap();
+                process.pending.clear();
+                if matches!(process.engine, Engine::Finished) {
+                    break;
+                }
+            }
+            assert!(matches!(process.engine, Engine::Finished));
+            assert!(!pipes[0].writer_closed, "producer never sent EOF");
+            assert_eq!(pipes[0].push(b"late".to_vec()), Err(()));
+            assert!(pipes[0].peak <= CAPACITY);
+            close_operand(&mut world, &mut process.engine).unwrap();
+            close_files(&mut world, &process.files).unwrap();
+            control::unregister_process(process.pid);
+            assert_eq!(world.vfs.open_handle_count(), 0);
+        }
+    }
     #[test]
     fn bounded_channel_distinguishes_backpressure_eof_and_broken_pipe() {
         let mut pipe = Pipe::default();
