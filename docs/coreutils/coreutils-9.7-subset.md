@@ -5,12 +5,12 @@ A versão vem do manifest. O contrato individual e a lista de flags estão em `c
 ## Trabalhos realizados
 
 - **Fundamentos:** basename lexical, suffix e múltiplos operandos; dirname lexical; printenv com nomes ausentes e NUL; whoami com usuário virtual efetivo; env com ambiente temporário, limpeza/unset e dispatch virtual.
-- **Leitura:** cat binário e flags de apresentação; head/tail com limites decimais de linhas ou bytes, cabeçalhos e múltiplos arquivos; tee com append e erros parciais; wc conta bytes/newlines de conteúdo binário; Base64 opera bytes; SHA-256 calcula digest e verifica listas básicas.
+- **Leitura:** cat incremental, binário, flags completas, TTY canônico e sinais virtuais; head/tail com limites decimais de linhas ou bytes, cabeçalhos e múltiplos arquivos; tee com append e erros parciais; wc conta bytes/newlines de conteúdo binário; Base64 opera bytes; SHA-256 calcula digest e verifica listas básicas.
 - **Integração:** execução por caminho absoluto, disponibilidade do pacote, pipes binários, redireção, append, inode compartilhado e cancelamento de produtor. Comandos de filesystem existentes não receberam certificação completa por herdar as primitives M1B.
 
 ## Convenções
 
-Locale determinístico C para comparação; C.UTF-8 permanece disponível nos handlers que já o suportam. NUL e CR/LF não são normalizados. End-of-options segue o parser de cada comando. A Foundation Wave usa os textos observáveis de ajuda e versão capturados do GNU, incluindo o nome de invocação. Os demais comandos conservam seus banners e limitações anteriores. Consulte o [ambiente de referência](reference-environment.md) e o status derivado de cada executável.
+Locale determinístico C para comparação; C.UTF-8 permanece disponível nos handlers que já o suportam. NUL e CR/LF não são normalizados. End-of-options segue o parser de cada comando. A Foundation Wave e cat usam os textos observáveis de ajuda e versão capturados do GNU, incluindo o nome de invocação. Os demais comandos conservam seus banners e limitações anteriores. Consulte o [ambiente de referência](reference-environment.md) e o status derivado de cada executável.
 
 Arquivos, identidades, grupos, rede e relógio são virtuais. `df`/`du` conservam semântica lógica incompleta; não são prova de alocação ext4. `date`, `id`, `groups`, `seq`, `cut`, `tr` e as ferramentas avançadas mantêm lacunas individuais no manifest.
 

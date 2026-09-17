@@ -1,5 +1,6 @@
 //! Virtual Coreutils handlers. Development reference execution lives in scripts/, never here.
 mod bytes;
+pub(crate) mod cat;
 mod foundation;
 mod foundation_messages;
 mod foundation_options;
@@ -25,7 +26,8 @@ pub(crate) fn execute(
         "basename" | "dirname" | "printenv" | "whoami" | "env" => {
             foundation::execute(world, name, args, actor, invocation)
         }
-        "cat" | "head" | "tail" | "tee" | "base64" | "sha256sum" => {
+        "cat" => cat::execute(world, invocation, args, actor),
+        "head" | "tail" | "tee" | "base64" | "sha256sum" => {
             bytes::execute(world, name, args, actor)
         }
         _ => match legacy::validate(name, args) {

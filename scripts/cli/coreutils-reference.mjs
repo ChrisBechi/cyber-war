@@ -19,7 +19,7 @@ export const canonical = (v) =>
 const hash = (s) => createHash('sha256').update(s).digest('hex');
 export const sourceHash = (p) => hash(read(p).replaceAll('\r\n', '\n'));
 export function referenceRequest(c) {
-  return {
+  const request = {
     id: c.id,
     command: c.command,
     invocation: c.invocation ?? `/usr/bin/${c.command}`,
@@ -36,6 +36,12 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
+  if (c.command === 'cat') {
+    request.io = c.io ?? null;
+    request.interaction = c.interaction ?? null;
+    for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
+  }
+  return request;
 }
 export const requestDigest = (c) => hash(canonical(referenceRequest(c)));
 export function referenceCapture(command) {
@@ -47,7 +53,7 @@ export function validateReference(command, capture) {
   const binary = capture.environment?.binaryHashes?.[command.command];
   const lock = json('content/cli-compatibility/coreutils-environment.json');
   if (
-    capture.schemaVersion !== 2 ||
+    capture.schemaVersion !== (command.command === 'cat' ? 3 : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
     capture.version !== command.referenceVersion ||
     capture.command !== command.command ||
@@ -61,6 +67,11 @@ export function validateReference(command, capture) {
       sourceHash('content/cli-compatibility/coreutils-environment.json')
   )
     return 'Reference harness/environment fingerprint stale';
+  if (
+    command.command === 'cat' &&
+    capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
+  )
+    return 'Reference interaction harness fingerprint stale';
   if (
     capture.environment?.os !== 'Linux' ||
     capture.environment?.id !== lock.id ||
@@ -86,7 +97,7 @@ export function referenceDifference(test, actual, row) {
     test.fixture?.setup?.length ||
     test.inputEvents?.length ||
     test.roundtrip ||
-    test.tty?.isTTY
+    (test.tty?.isTTY && !test.interaction)
   )
     return 'GNU structured reference does not cover scripts/events/roundtrip/TTY execution';
   if (!row || row.reproducible !== true) return 'Missing reproducible GNU case';
@@ -116,6 +127,76 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
+  if (test.command === 'cat') {
+    const io = test.io ?? {};
+    const endpoints = {
+      stdin: test.interaction ? 'pty-canonical-echo-off' : io.stdinPath ? 'file' : 'pipe',
+      stdout:
+        io.stdoutPath || test.transport === 'redirect'
+          ? 'file'
+          : io.closedConsumer
+            ? 'closed-pipe'
+            : 'pipe',
+      stderr: io.stderrPath ? 'file' : 'pipe',
+    };
+    if (canonical(row.endpoints) !== canonical(endpoints))
+      errors.push('GNU descriptor provenance mismatch');
+    const terminationStatus =
+      row.termination?.kind === 'exit'
+        ? row.termination.code
+        : row.termination?.kind === 'signal'
+          ? { SIGINT: 130, SIGPIPE: 141, SIGTERM: 143 }[row.termination.signal]
+          : undefined;
+    if (terminationStatus === undefined || terminationStatus !== row.exitCode)
+      errors.push('Invalid GNU termination result');
+    for (const field of ['termination', 'observations'])
+      if (canonical(row[field]) !== canonical(actual[field]))
+        errors.push(`${field} differs from GNU`);
+    const nodes = actual.after?.vfs ?? {};
+    const pairs = [];
+    for (const [relative, expected] of Object.entries(row.after)) {
+      const path = '/home/kali/' + relative,
+        observed = nodes[path];
+      if (!observed) {
+        errors.push(`Missing VFS path ${path}`);
+        continue;
+      }
+      for (const key of ['mode', 'nlink'])
+        if (observed[key] !== expected[key]) errors.push(`${path}/${key} differs from GNU`);
+      if (observed.kind !== expected.type) errors.push(`${path}/type differs from GNU`);
+      if (expected.type === 'file' && actual.files?.[path] !== expected.contentHex)
+        errors.push(`${path}/bytes differ from GNU`);
+      if (expected.type === 'symlink' && observed.content !== expected.target)
+        errors.push(`${path}/target differs from GNU`);
+      for (const [group, ino] of pairs)
+        if ((group === expected.inodeGroup) !== (ino === observed.ino))
+          errors.push(`${path}/inode relationship differs from GNU`);
+      pairs.push([expected.inodeGroup, observed.ino]);
+    }
+    const stable = (nodes) =>
+      Object.fromEntries(
+        Object.entries(nodes)
+          .filter(
+            ([p]) =>
+              !Object.hasOwn(row.after, p.slice('/home/kali/'.length)) ||
+              !p.startsWith('/home/kali/'),
+          )
+          .map(([p, n]) => [
+            p,
+            {
+              kind: n.kind,
+              content: n.content,
+              blob: n.blob ?? null,
+              mode: n.mode,
+              ino: n.ino,
+              nlink: n.nlink,
+            },
+          ]),
+      );
+    if (canonical(stable(actual.before.vfs)) !== canonical(stable(nodes)))
+      errors.push('Unexpected project filesystem mutation');
+    return errors.join('; ') || null;
+  }
   if (test.transport === 'redirect') {
     const output = actual.after?.vfs?.['/home/kali/reference-output'];
     const bytes = output?.blob ? null : Buffer.from(output?.content ?? '').toString('hex');

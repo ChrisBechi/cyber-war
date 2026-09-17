@@ -35,11 +35,15 @@ def source_hash(path):
 
 def request(case):
     # Same projection as referenceRequest in coreutils-reference.mjs.
-    return {'id': case['id'], 'command': case['command'],
+    req = {'id': case['id'], 'command': case['command'],
             'invocation': case.get('invocation', '/usr/bin/' + case['command']),
             'argv': case['argv'], 'stdinHex': case.get('stdinHex', (case.get('stdin') or '').encode().hex()),
             'env': case['env'], 'cwd': case['cwd'], 'fixture': {k: case.get('fixture', {}).get(k, [] if k in ['directories', 'setup'] else {}) for k in ['files', 'bytes', 'directories', 'modes', 'setup']},
             'process': case.get('process'), 'transport': case.get('transport', 'direct')}
+    if case['command'] == 'cat':
+        req.update(io=case.get('io'), interaction=case.get('interaction'))
+        req['fixture'].update({k: case.get('fixture', {}).get(k, {}) for k in ['hardlinks', 'symlinks']})
+    return req
 
 
 def limits():
@@ -96,6 +100,13 @@ def worker(path):
     req = json.loads(Path(path).read_text())
     env = environment(req)
     argv = [req['invocation'], *req['argv']]
+    if req['command'] == 'cat':
+        from coreutils_interaction import execute
+        if req['transport'] == 'redirect':
+            req['io'] = {**(req.get('io') or {}), 'stdoutPath': '/home/kali/reference-output'}
+        result = execute(req, shutil.which('cat', path='/usr/bin:/bin'), env)
+        print(json.dumps(result))
+        return
     if req['transport'] == 'redirect':
         fd = os.open('/home/kali/reference-output', os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666)
         os.dup2(fd, 1)
@@ -125,6 +136,9 @@ def capture(case, bwrap):
     if case.get('script') or case['fixture'].get('setup') or case.get('inputEvents'):
         raise ValueError(f"{case['id']}: scripts/setup/events are project-only; use structured transport/identity")
     req = request(case)
+    for name in ['stdinPath', 'stdoutPath', 'stderrPath']:
+        if (req.get('io') or {}).get(name):
+            fixture_path(Path('/'), req['io'][name])
     environment(req)
     process = req.get('process') or {}
     uid = process.get('uid', 1000)
@@ -145,6 +159,11 @@ def capture(case, bwrap):
                 target = fixture_path(home, path)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(bytes.fromhex(data) if field == 'bytes' else data.encode())
+        for path, target in req['fixture'].get('hardlinks', {}).items():
+            os.link(fixture_path(home, target), fixture_path(home, path))
+        for path, target in req['fixture'].get('symlinks', {}).items():
+            # Targets stay virtual; absolute paths resolve inside bubblewrap.
+            fixture_path(home, path).symlink_to(target)
         for path, mode in req['fixture']['modes'].items():
             fixture_path(home, path).chmod(mode)
         request_file = sandbox / 'request.json'
@@ -157,6 +176,7 @@ def capture(case, bwrap):
         cmd += ['--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp',
                 '--bind', str(home), '/home/kali', '--ro-bind', str(etc), '/etc',
                 '--ro-bind', str(Path(__file__).resolve()), '/reference/worker.py',
+                '--ro-bind', str(ROOT / 'scripts/cli/coreutils_interaction.py'), '/reference/coreutils_interaction.py',
                 '--ro-bind', str(request_file), '/reference/request.json',
                 '--chdir', req['cwd'], '--clearenv', '--setenv', 'LC_ALL', 'C',
                 '--', '/usr/bin/python3', '/reference/worker.py', '--worker', '/reference/request.json']
@@ -170,9 +190,12 @@ def capture(case, bwrap):
                 raise RuntimeError('Reference output limit exceeded')
             if completed.returncode < 0 or err.startswith(b'bwrap:') or b'Traceback (most recent call last)' in err:
                 raise RuntimeError(f'Sandbox/worker failed for {case["id"]}: {err[:1000]!r}')
-        return {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
+        result = {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
                 'stdoutHex': out.hex(), 'stderrHex': err.hex(), 'exitCode': completed.returncode,
                 'before': before, 'after': snapshot(home)}
+        if req['command'] == 'cat':
+            result.update(json.loads(out))
+        return result
 
 
 def main():
@@ -238,9 +261,11 @@ def main():
         payload = {'schemaVersion': 2, 'provenance': 'GNU_PROBE' if args.probe else 'GNU_REFERENCE', 'version': version,
                    'command': name, 'locale': 'C', 'capturedAt': datetime.now(timezone.utc).isoformat(),
                    'harnessHash': source_hash(HARNESS_PATH), 'environment': {**env, 'binaryHashes': {name: binaries[name]}}, 'cases': rows}
+        if name == 'cat':
+            payload.update(schemaVersion=3, interactionHash=source_hash('scripts/cli/coreutils_interaction.py'))
         if args.verify:
             original = json.loads(target.read_text())
-            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases']:
+            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name == 'cat' else []):
                 if original[key] != payload[key]:
                     raise RuntimeError(f'Reference reproduction differs: {name}/{key}; golden unchanged')
         else:

@@ -2,9 +2,9 @@
 use parking_lot::{Condvar, Mutex};
 use std::{
     cell::{Cell, RefCell},
-    collections::{BTreeMap, VecDeque},
+    collections::BTreeMap,
     sync::{
-        atomic::{AtomicBool, AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering},
         Arc, LazyLock,
     },
     time::Duration,
@@ -14,7 +14,10 @@ const INPUT_CAPACITY: usize = 64 * 1024;
 #[derive(Default)]
 pub struct Control {
     cancelled: AtomicBool,
-    input: Mutex<(VecDeque<String>, usize, bool)>,
+    waiting: AtomicBool,
+    signal: AtomicU8,
+    processes: Mutex<BTreeMap<u32, Arc<super::signals::ProcessSignalState>>>,
+    input: Mutex<super::tty::VirtualTty>,
     wake: Condvar,
     output: Option<tauri::ipc::Channel<crate::cli_contract::Event>>,
     in_flight: AtomicUsize,
@@ -23,6 +26,24 @@ static CONTROLS: LazyLock<Mutex<BTreeMap<String, Arc<Control>>>> =
     LazyLock::new(|| Mutex::new(BTreeMap::new()));
 thread_local! { static ACTIVE: RefCell<Option<Arc<Control>>> = const { RefCell::new(None) }; }
 thread_local! { static CAPTURE_DEPTH: Cell<usize> = const { Cell::new(0) }; }
+thread_local! { static CURRENT_PROCESS: RefCell<Option<Arc<super::signals::ProcessSignalState>>> = const { RefCell::new(None) }; }
+pub fn with_process<T>(
+    process: &Arc<super::signals::ProcessSignalState>,
+    work: impl FnOnce() -> T,
+) -> T {
+    struct Restore(Option<Arc<super::signals::ProcessSignalState>>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            CURRENT_PROCESS.with(|c| *c.borrow_mut() = self.0.take());
+        }
+    }
+    let _restore = Restore(CURRENT_PROCESS.with(|c| c.replace(Some(process.clone()))));
+    work()
+}
+fn interrupted(control: &Control) -> bool {
+    control.cancelled.load(Ordering::Relaxed)
+        || CURRENT_PROCESS.with(|c| c.borrow().as_ref().is_some_and(|s| s.pending()))
+}
 pub struct Registration {
     key: String,
     control: Arc<Control>,
@@ -81,45 +102,54 @@ pub fn capture<T>(work: impl FnOnce() -> T) -> T {
     work()
 }
 pub fn emit(fd: u8, text: &str) {
-    if CAPTURE_DEPTH.with(Cell::get) > 0 {
-        return;
-    }
-    let control = ACTIVE.with(|active| active.borrow().clone());
-    let Some(control) = control else {
-        return;
-    };
-    let Some(output) = &control.output else {
-        return;
-    };
     let mut start = 0;
-    while start < text.len() && !control.cancelled.load(Ordering::Relaxed) {
+    while start < text.len() {
         let mut end = (start + 4096).min(text.len());
         while !text.is_char_boundary(end) {
             end -= 1;
         }
-        let bytes = end - start;
-        let mut input = control.input.lock();
-        while control.in_flight.load(Ordering::Relaxed) + bytes > INPUT_CAPACITY
-            && !control.cancelled.load(Ordering::Relaxed)
-        {
-            control.wake.wait_for(&mut input, Duration::from_millis(10));
-        }
-        drop(input);
-        if control.cancelled.load(Ordering::Relaxed) {
-            return;
-        }
-        control.in_flight.fetch_add(bytes, Ordering::Relaxed);
-        let event = if fd == 1 {
-            crate::cli_contract::Event::Stdout(text[start..end].into())
-        } else {
-            crate::cli_contract::Event::Stderr(text[start..end].into())
-        };
-        if output.send(event).is_err() {
-            control.cancelled.store(true, Ordering::Relaxed);
-            return;
+        if !emit_chunk(fd, &text[start..end]) {
+            break;
         }
         start = end;
     }
+}
+/// Reserve a whole presentation chunk before publishing it. The byte stream
+/// commits its corresponding raw bytes only when this delivery succeeds.
+pub fn emit_chunk(fd: u8, text: &str) -> bool {
+    assert!(text.len() <= INPUT_CAPACITY);
+    if CAPTURE_DEPTH.with(Cell::get) > 0 {
+        return true;
+    }
+    let control = ACTIVE.with(|active| active.borrow().clone());
+    let Some(control) = control else {
+        return true;
+    };
+    let Some(output) = &control.output else {
+        return true;
+    };
+    let bytes = text.len();
+    let mut input = control.input.lock();
+    while control.in_flight.load(Ordering::Relaxed) + bytes > INPUT_CAPACITY
+        && !interrupted(&control)
+    {
+        control.wake.wait_for(&mut input, Duration::from_millis(10));
+    }
+    drop(input);
+    if interrupted(&control) {
+        return false;
+    }
+    control.in_flight.fetch_add(bytes, Ordering::Relaxed);
+    let event = if fd == 1 {
+        crate::cli_contract::Event::Stdout(text.into())
+    } else {
+        crate::cli_contract::Event::Stderr(text.into())
+    };
+    if output.send(event).is_err() {
+        control.cancelled.store(true, Ordering::Relaxed);
+        return false;
+    }
+    true
 }
 pub fn run<T>(registration: &Registration, work: impl FnOnce() -> T) -> T {
     struct Restore(Option<Arc<Control>>);
@@ -132,10 +162,59 @@ pub fn run<T>(registration: &Registration, work: impl FnOnce() -> T) -> T {
     work()
 }
 pub fn cancel(key: &str) {
+    signal(key, None, super::signals::VirtualSignal::Int);
+}
+pub fn signal(key: &str, pid: Option<u32>, signal: super::signals::VirtualSignal) -> bool {
     if let Some(control) = CONTROLS.lock().get(key) {
-        control.cancelled.store(true, Ordering::Relaxed);
+        let processes = control.processes.lock();
+        if let Some(pid) = pid {
+            let Some(process) = processes.get(&pid) else {
+                return false;
+            };
+            process.send(signal);
+        } else {
+            control.signal.store(signal as u8, Ordering::SeqCst);
+            control.cancelled.store(true, Ordering::Relaxed);
+            for process in processes.values() {
+                process.send(signal);
+            }
+        }
         control.wake.notify_all();
+        return true;
     }
+    false
+}
+pub fn register_process(pid: u32) -> Arc<super::signals::ProcessSignalState> {
+    let state = Arc::new(super::signals::ProcessSignalState::default());
+    ACTIVE.with(|a| {
+        if let Some(control) = a.borrow().as_ref() {
+            if let Some(signal) = termination_signal() {
+                state.send(signal);
+            }
+            control.processes.lock().insert(pid, state.clone());
+        }
+    });
+    state
+}
+pub fn unregister_process(pid: u32) {
+    ACTIVE.with(|a| {
+        if let Some(c) = a.borrow().as_ref() {
+            c.processes.lock().remove(&pid);
+        }
+    });
+}
+pub fn termination_signal() -> Option<super::signals::VirtualSignal> {
+    ACTIVE.with(|a| {
+        a.borrow().as_ref().and_then(|c| {
+            super::signals::VirtualSignal::from_number(c.signal.load(Ordering::SeqCst)).or_else(
+                || {
+                    c.cancelled
+                        .load(Ordering::Relaxed)
+                        .then_some(super::signals::VirtualSignal::Int)
+                },
+            )
+        })
+    })
 }
 pub fn cancel_all() {
     for control in CONTROLS.lock().values() {
@@ -149,20 +228,16 @@ pub fn input(key: &str, text: Option<String>) -> bool {
         return false;
     };
     let mut input = control.input.lock();
-    if input.2 {
+    control.waiting.store(false, Ordering::Relaxed);
+    if control.cancelled.load(Ordering::Relaxed) {
         return false;
     }
-    if let Some(text) = text {
-        if input.1 + text.len() > INPUT_CAPACITY || text.contains('\0') {
-            return false;
-        }
-        input.1 += text.len();
-        input.0.push_back(text);
-    } else {
-        input.2 = true;
-    }
+    let accepted = match text {
+        Some(text) => input.input(text.as_bytes()),
+        None => input.eof(),
+    };
     control.wake.notify_all();
-    true
+    accepted
 }
 pub fn cancelled() -> bool {
     ACTIVE.with(|a| {
@@ -171,33 +246,30 @@ pub fn cancelled() -> bool {
             .is_some_and(|c| c.cancelled.load(Ordering::Relaxed))
     })
 }
-pub enum Read {
-    Data(String),
-    Eof,
-    Pending,
-}
+pub use super::tty::Read;
 pub fn read() -> Read {
     ACTIVE.with(|a| {
         let a = a.borrow();
         let Some(control) = a.as_ref() else {
             return Read::Eof;
         };
-        let mut input = control.input.lock();
-        if let Some(text) = input.0.pop_front() {
-            input.1 -= text.len();
-            Read::Data(text)
-        } else if input.2 || control.cancelled.load(Ordering::Relaxed) {
-            Read::Eof
-        } else {
-            Read::Pending
+        if control.cancelled.load(Ordering::Relaxed) {
+            return Read::Interrupted;
         }
+        let read = control.input.lock().read();
+        read
     })
 }
 pub fn wait() {
     ACTIVE.with(|a| {
         if let Some(control) = a.borrow().as_ref() {
             let mut input = control.input.lock();
-            if input.0.is_empty() && !input.2 && !control.cancelled.load(Ordering::Relaxed) {
+            if input.pending() && !control.cancelled.load(Ordering::Relaxed) {
+                if !control.waiting.swap(true, Ordering::Relaxed) {
+                    if let Some(output) = &control.output {
+                        let _ = output.send(crate::cli_contract::Event::WaitingForInput);
+                    }
+                }
                 control.wake.wait_for(&mut input, Duration::from_millis(10));
             }
         }
@@ -205,8 +277,48 @@ pub fn wait() {
 }
 
 #[cfg(test)]
+pub fn process_ids(key: &str) -> Vec<u32> {
+    CONTROLS
+        .lock()
+        .get(key)
+        .map(|c| c.processes.lock().keys().copied().collect())
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn process_signal_wakes_output_backpressure_without_signalling_peer() {
+        use super::super::signals::VirtualSignal;
+        let (tx, rx) = std::sync::mpsc::channel();
+        let output = tauri::ipc::Channel::new(move |_| {
+            tx.send(()).unwrap();
+            Ok(())
+        });
+        let registration = register_output("process-backpressure", Some(output));
+        let worker = std::thread::spawn(move || {
+            run(&registration, || {
+                let target = register_process(71);
+                let peer = register_process(72);
+                with_process(&target, || emit(1, &"x".repeat(INPUT_CAPACITY * 2)));
+                assert_eq!(target.take(), Some(VirtualSignal::Term));
+                assert_eq!(peer.take(), None);
+                assert!(!cancelled());
+                unregister_process(71);
+                unregister_process(72);
+            })
+        });
+        for _ in 0..16 {
+            rx.recv_timeout(Duration::from_secs(5)).unwrap();
+        }
+        assert!(signal(
+            "process-backpressure",
+            Some(71),
+            VirtualSignal::Term
+        ));
+        worker.join().unwrap();
+    }
     #[test]
     fn xterm_backpressure_waits_for_acknowledgements_and_can_cancel() {
         let (sender, receiver) = std::sync::mpsc::channel();

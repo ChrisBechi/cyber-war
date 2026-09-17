@@ -135,3 +135,50 @@ test('scoped fingerprints preserve unrelated handlers and bind shared dependenci
   ]);
   assert.throws(() => scope(['--command', 'basename', '--wave', 'foundation']));
 });
+
+test('cat GNU evidence binds PTY descriptors, signal termination and observation barriers', () => {
+  const command = { command: 'cat', referenceVersion: '9.7' };
+  const capture = json('tests/cli/gnu/coreutils/9.7/cat.json');
+  assert.equal(validateReference(command, capture), null);
+  const stale = structuredClone(capture);
+  stale.interactionHash = '0'.repeat(64);
+  assert.match(validateReference(command, stale), /interaction/);
+  const testCase = json('tests/cli/compat/pilot/coreutils-cat.json').find(
+    (c) => c.id === 'coreutils/cat/tty-sigint',
+  );
+  const row = capture.cases.find((r) => r.id === testCase.id);
+  const actual = {
+    stdoutHex: row.stdoutHex,
+    stderrHex: row.stderrHex,
+    exitCode: row.exitCode,
+    termination: row.termination,
+    observations: row.observations,
+    before: { vfs: {} },
+    after: { vfs: {} },
+    files: {},
+  };
+  assert.equal(referenceDifference(testCase, actual, row), null);
+  assert.match(
+    referenceDifference(testCase, { ...actual, termination: { kind: 'exit', code: 130 } }, row),
+    /termination/,
+  );
+  assert.match(referenceDifference(testCase, { ...actual, observations: [] }, row), /observations/);
+  assert.match(
+    referenceDifference(testCase, actual, {
+      ...row,
+      endpoints: { ...row.endpoints, stdin: 'pipe' },
+    }),
+    /descriptor/,
+  );
+  assert.match(
+    referenceDifference(testCase, actual, { ...row, termination: undefined }),
+    /termination/,
+  );
+  assert.notEqual(
+    compareCase(testCase, { ...actual, termination: { kind: 'exit', code: 130 } }).result,
+    'PASS',
+  );
+  const changed = structuredClone(testCase);
+  changed.interaction.steps[0].hex = '61';
+  assert.notEqual(requestDigest(changed), requestDigest(testCase));
+});

@@ -49,6 +49,7 @@ pub fn append(total: &mut Output, mut output: Output) -> GameResult<()> {
     total.stderr.push_str(&output.stderr);
     total.ordered.extend(output.ordered);
     total.status = output.status;
+    total.termination = output.termination;
     total.archive_job = output.archive_job;
     Ok(())
 }

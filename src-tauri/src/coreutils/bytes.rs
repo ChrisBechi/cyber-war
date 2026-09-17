@@ -18,7 +18,6 @@ pub(super) fn execute(
     actor: &str,
 ) -> GameResult<Output> {
     let syntax = match name {
-        "cat" => "[-AbEnestTuv] [FILE]...",
         "head" | "tail" => "[-qv] [-n COUNT | -c COUNT] [FILE]... (decimal counts; no follow mode)",
         "tee" => "[-a] [FILE]...",
         "base64" => "[-di] [-w COLS] [FILE]",
@@ -28,21 +27,6 @@ pub(super) fn execute(
         return Ok(out);
     }
     let mut opts = match name {
-        "cat" => parse(
-            name,
-            args,
-            "AbEnestTuv",
-            "",
-            &[
-                ("show-all", 'A'),
-                ("number-nonblank", 'b'),
-                ("show-ends", 'E'),
-                ("number", 'n'),
-                ("squeeze-blank", 's'),
-                ("show-tabs", 'T'),
-                ("show-nonprinting", 'v'),
-            ],
-        )?,
         "head" | "tail" => parse(
             name,
             args,
@@ -100,7 +84,6 @@ pub(super) fn execute(
         opts.files.push("-".into());
     }
     let mut out = Output::default();
-    let mut cat = Cat::default();
     let mut header_seen = false;
     let selection = if matches!(name, "head" | "tail") {
         Some(selection(name, &opts)?)
@@ -132,7 +115,6 @@ pub(super) fn execute(
             }
         };
         let bytes = match name {
-            "cat" => cat.transform(&data, &opts),
             "head" | "tail" => {
                 let headers = opts
                     .flags
@@ -222,77 +204,12 @@ fn diagnostic(
         .into_bytes(),
     )
 }
-#[derive(Default)]
-struct Cat {
-    number: usize,
-    line_start: bool,
-    initialized: bool,
-    blank_before: bool,
-}
-impl Cat {
-    fn transform(&mut self, data: &[u8], opts: &Options) -> Vec<u8> {
-        if !self.initialized {
-            self.number = 1;
-            self.line_start = true;
-            self.initialized = true;
-        }
-        let mut out = Vec::new();
-        let visible = opts.has('v') || opts.has('A') || opts.has('e') || opts.has('t');
-        let tabs = opts.has('T') || opts.has('A') || opts.has('t');
-        let ends = opts.has('E') || opts.has('A') || opts.has('e');
-        for (index, &b) in data.iter().enumerate() {
-            let blank = self.line_start && b == b'\n';
-            if blank && self.blank_before && opts.has('s') {
-                continue;
-            }
-            if self.line_start {
-                if (opts.has('b') && !blank) || (opts.has('n') && !opts.has('b')) {
-                    out.extend_from_slice(format!("{:>6}\t", self.number).as_bytes());
-                    self.number += 1;
-                }
-                self.blank_before = blank;
-            }
-            if b == b'\n' {
-                if ends {
-                    out.push(b'$');
-                }
-                out.push(b'\n');
-            } else if b == b'\t' {
-                if tabs {
-                    out.extend_from_slice(b"^I");
-                } else {
-                    out.push(b);
-                }
-            } else if ends && b == b'\r' && data.get(index + 1) == Some(&b'\n') {
-                out.extend_from_slice(b"^M");
-            } else if visible {
-                visible_byte(b, &mut out);
-            } else {
-                out.push(b);
-            }
-            self.line_start = b == b'\n';
-        }
-        out
-    }
-}
-fn visible_byte(mut b: u8, out: &mut Vec<u8>) {
-    if b >= 128 {
-        out.extend_from_slice(b"M-");
-        b -= 128;
-    }
-    if b < 32 {
-        out.extend_from_slice(&[b'^', b + 64]);
-    } else if b == 127 {
-        out.extend_from_slice(b"^?");
-    } else {
-        out.push(b);
-    }
-}
 struct Selection {
     bytes: bool,
     count: usize,
     sign: char,
 }
+
 fn selection(name: &str, opts: &Options) -> GameResult<Selection> {
     let (flag, value) = opts
         .counts

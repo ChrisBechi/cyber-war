@@ -110,7 +110,7 @@ export function coreutilsGate(command, name, byCase, results, actuals = new Map(
           : 'All linked project contracts and supported flags passed',
     };
   const path = `tests/cli/gnu/coreutils/${command.referenceVersion}/capture.json`;
-  if (command.coreutils.area === 'foundation') {
+  if (command.coreutils.area === 'foundation' || command.command === 'cat') {
     const capture = referenceCapture(command),
       invalid = validateReference(command, capture);
     if (invalid) return { result: capture ? 'FAIL' : 'SKIPPED', reason: invalid };
@@ -232,7 +232,7 @@ export function coreutilsReport(report) {
         after: c.effectiveStatus,
         projectCases: coverage.filter((t) => t.result === 'PASS').length,
         referenceCases:
-          spec.area === 'foundation'
+          spec.area === 'foundation' || c.command === 'cat'
             ? (referenceCapture(c)?.cases.length ?? 0)
             : reference
               ? c.evidenceIds.length

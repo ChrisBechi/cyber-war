@@ -82,10 +82,19 @@ export function TerminalWindow({
     let shellIncomplete = false;
     let foregroundInput = '';
     let commandAbort: AbortController | null = null;
+    let inputDelivery = Promise.resolve<unknown>(undefined);
     const sendInput = (value: string | null, cancel = false) => {
-      void request('terminal_input', { sessionId: terminalId, value, cancel }, z.boolean()).catch(
-        () => undefined,
-      );
+      const deliver = () =>
+        request('terminal_input', { sessionId: terminalId, value, cancel }, z.boolean()).catch(
+          () => undefined,
+        );
+      // Preserve canonical input/EOF order across asynchronous IPC. Interrupts
+      // bypass queued input so they can always wake a blocked command.
+      if (cancel) {
+        void deliver();
+      } else {
+        inputDelivery = inputDelivery.then(deliver);
+      }
     };
     const localHost = useGame.getState().world?.hostname ?? 'game-hacker';
     let context = { user: 'kali', host: localHost, cwd: '/home/kali' };

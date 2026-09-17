@@ -126,6 +126,7 @@ pub const COMMANDS: &[&str] = &[
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommandResult {
+    pub termination: crate::shell::signals::Termination,
     #[serde(skip)]
     #[allow(dead_code)]
     // Raw command transport is inspected by development capture, never rendered as text.
@@ -280,67 +281,74 @@ fn execute_with(
     }
     let mut candidate = world.clone();
     let outcome = work(&mut candidate).map(|mut output| {
-        if crate::shell::control::cancelled() {
-            output.status = 130;
+        if let Some(signal) = crate::shell::control::termination_signal() {
+            let termination = crate::shell::signals::Termination::Signal { signal };
+            output.status = termination.status();
+            output.termination = Some(termination);
         }
         output
     });
-    let (stdout, stderr, code, archive_job, ordered, stdout_bytes, stderr_bytes) = match outcome {
-        Ok(out) => {
-            // Process umask belongs to the shell context, not the shared desktop VFS.
-            candidate.vfs.umask = world.vfs.umask;
-            for (id, host) in &mut candidate.network.hosts {
-                host.files.umask = world.network.hosts.get(id).map_or(0o022, |h| h.files.umask);
+    let (stdout, stderr, code, archive_job, ordered, stdout_bytes, stderr_bytes, termination) =
+        match outcome {
+            Ok(out) => {
+                // Process umask belongs to the shell context, not the shared desktop VFS.
+                candidate.vfs.umask = world.vfs.umask;
+                for (id, host) in &mut candidate.network.hosts {
+                    host.files.umask = world.network.hosts.get(id).map_or(0o022, |h| h.files.umask);
+                }
+                if candidate.terminal.cwd != world.terminal.cwd
+                    || candidate.terminal.host != world.terminal.host
+                {
+                    candidate
+                        .terminal
+                        .env
+                        .insert("PWD".into(), candidate.terminal.cwd.clone());
+                }
+                if candidate.terminal.host != world.terminal.host {
+                    // A previous local directory is not the previous directory of the remote shell.
+                    candidate.terminal.env.remove("OLDPWD");
+                }
+                observe(&mut candidate);
+                *world = candidate;
+                let raw = out.binary.unwrap_or_else(|| out.stdout.as_bytes().to_vec());
+                let raw_error = if out.byte_ordered.is_empty() {
+                    out.stderr.as_bytes().to_vec()
+                } else {
+                    out.byte_ordered
+                        .iter()
+                        .filter(|(fd, _)| *fd == 2)
+                        .flat_map(|(_, bytes)| bytes.iter().copied())
+                        .collect()
+                };
+                (
+                    out.stdout,
+                    out.stderr,
+                    out.status,
+                    out.archive_job,
+                    out.ordered,
+                    raw,
+                    raw_error,
+                    out.termination
+                        .unwrap_or(crate::shell::signals::Termination::Exit { code: out.status }),
+                )
             }
-            if candidate.terminal.cwd != world.terminal.cwd
-                || candidate.terminal.host != world.terminal.host
-            {
-                candidate
-                    .terminal
-                    .env
-                    .insert("PWD".into(), candidate.terminal.cwd.clone());
+            Err(e) => {
+                let text = e.to_string();
+                (
+                    String::new(),
+                    format!("{text}\n"),
+                    2,
+                    None,
+                    Vec::new(),
+                    Vec::new(),
+                    format!("{text}\n").into_bytes(),
+                    crate::shell::signals::Termination::Exit { code: 2 },
+                )
             }
-            if candidate.terminal.host != world.terminal.host {
-                // A previous local directory is not the previous directory of the remote shell.
-                candidate.terminal.env.remove("OLDPWD");
-            }
-            observe(&mut candidate);
-            *world = candidate;
-            let raw = out.binary.unwrap_or_else(|| out.stdout.as_bytes().to_vec());
-            let raw_error = if out.byte_ordered.is_empty() {
-                out.stderr.as_bytes().to_vec()
-            } else {
-                out.byte_ordered
-                    .iter()
-                    .filter(|(fd, _)| *fd == 2)
-                    .flat_map(|(_, bytes)| bytes.iter().copied())
-                    .collect()
-            };
-            (
-                out.stdout,
-                out.stderr,
-                out.status,
-                out.archive_job,
-                out.ordered,
-                raw,
-                raw_error,
-            )
-        }
-        Err(e) => {
-            let text = e.to_string();
-            (
-                String::new(),
-                format!("{text}\n"),
-                2,
-                None,
-                Vec::new(),
-                Vec::new(),
-                format!("{text}\n").into_bytes(),
-            )
-        }
-    };
+        };
     world.terminal.last_status = code;
     CommandResult {
+        termination,
         stdout_bytes,
         stderr_bytes,
         shell_incomplete: false,
@@ -1284,6 +1292,9 @@ pub(crate) fn virtual_env(world: &WorldState, actor: &str) -> BTreeMap<String, S
 }
 
 fn manual_page(command: &str) -> String {
+    if command == "cat" {
+        return crate::terminal_io::manual(command).unwrap();
+    }
     if let Some(manual) = crate::coreutils::help(command) {
         return manual;
     }

@@ -15,6 +15,7 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/terminal_remove.rs',
     'src-tauri/src/coreutils/bytes.rs',
     'src-tauri/src/coreutils/foundation.rs',
+    'src-tauri/src/coreutils/cat.rs',
   ]);
   const foundation = ['basename', 'dirname', 'printenv', 'whoami'].includes(test.command);
   return sources.filter((p) => {
@@ -28,9 +29,9 @@ export function caseSources(test, sources = evidenceSources()) {
       return false;
     if (p.startsWith('content/cli-compatibility/')) return false;
     if (p.startsWith('src-tauri/src/coreutils/messages/'))
-      return foundation && p.includes('/' + test.command + '-');
+      return (foundation || test.command === 'cat') && p.includes('/' + test.command + '-');
     if (p.endsWith('/foundation_options.rs') || p.endsWith('/foundation_messages.rs'))
-      return foundation;
+      return foundation || test.command === 'cat';
     return !leaf.has(p) || p === impl;
   });
 }

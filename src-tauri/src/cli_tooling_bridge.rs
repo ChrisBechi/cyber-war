@@ -52,6 +52,8 @@ struct Case {
     invocation: Option<String>,
     transport: Option<String>,
     process: Option<ProcessFixture>,
+    io: Option<IoFixture>,
+    interaction: Option<InteractionFixture>,
     argv: Vec<String>,
     script: Option<String>,
     #[serde(default)]
@@ -64,6 +66,38 @@ struct Case {
     fixture: Fixture,
     #[serde(default)]
     input_events: Vec<crate::cli_contract::Input>,
+}
+#[derive(Deserialize, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct IoFixture {
+    stdin_path: Option<String>,
+    stdout_path: Option<String>,
+    stderr_path: Option<String>,
+    #[serde(default)]
+    append: bool,
+    #[serde(default)]
+    closed_consumer: bool,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct InteractionFixture {
+    schema_version: u8,
+    steps: Vec<InteractionStep>,
+}
+#[derive(Deserialize)]
+#[serde(tag = "kind", rename_all = "camelCase", deny_unknown_fields)]
+enum InteractionStep {
+    Write {
+        hex: String,
+    },
+    Expect {
+        #[serde(rename = "stdoutHex")]
+        stdout_hex: String,
+    },
+    Eof,
+    Signal {
+        signal: crate::shell::signals::VirtualSignal,
+    },
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -98,6 +132,10 @@ struct Fixture {
     modes: BTreeMap<String, u16>,
     #[serde(default)]
     setup: Vec<String>,
+    #[serde(default)]
+    hardlinks: BTreeMap<String, String>,
+    #[serde(default)]
+    symlinks: BTreeMap<String, String>,
 }
 fn snapshot(w: &WorldState) -> Value {
     json!({"vfs": w.vfs.nodes, "processes": w.processes, "network": w.network,
@@ -110,6 +148,84 @@ fn unhex(text: &str) -> Vec<u8> {
         .iter()
         .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
         .collect()
+}
+fn run_interaction(
+    key: &str,
+    registration: &crate::shell::control::Registration,
+    interaction: &InteractionFixture,
+    events: std::sync::mpsc::Receiver<crate::cli_contract::Event>,
+    observations: &mut Vec<Value>,
+    work: impl FnOnce() -> terminal::CommandResult + Send,
+) -> terminal::CommandResult {
+    use crate::{cli_contract::Event, shell::control};
+    assert_eq!(interaction.schema_version, 1);
+    std::thread::scope(|scope| {
+        let worker = scope.spawn(|| control::run(registration, work));
+        let mut stdout = Vec::new();
+        let mut waiting = false;
+        let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            for step in &interaction.steps {
+                match step {
+                    InteractionStep::Write { hex } => {
+                        waiting = false;
+                        assert!(control::input(
+                            key,
+                            Some(String::from_utf8(unhex(hex)).unwrap())
+                        ));
+                    }
+                    InteractionStep::Eof => {
+                        waiting = false;
+                        assert!(control::input(key, None));
+                    }
+                    InteractionStep::Expect { stdout_hex } => {
+                        let expected = unhex(stdout_hex);
+                        while stdout.len() < expected.len() {
+                            match events
+                                .recv_timeout(std::time::Duration::from_secs(5))
+                                .expect("TTY stdout barrier")
+                            {
+                                Event::Stdout(text) => {
+                                    control::acknowledge(key, text.len());
+                                    stdout.extend_from_slice(text.as_bytes());
+                                }
+                                Event::WaitingForInput => waiting = true,
+                                _ => {}
+                            }
+                        }
+                        assert_eq!(stdout, expected, "TTY stdout barrier {key}");
+                        observations
+                            .push(json!({"stdoutHex":stdout_hex,"running":!worker.is_finished()}));
+                    }
+                    InteractionStep::Signal { signal } => {
+                        while !waiting {
+                            match events
+                                .recv_timeout(std::time::Duration::from_secs(5))
+                                .expect("TTY blocked-read barrier")
+                            {
+                                Event::WaitingForInput => waiting = true,
+                                Event::Stdout(text) => {
+                                    control::acknowledge(key, text.len());
+                                    stdout.extend_from_slice(text.as_bytes());
+                                }
+                                _ => {}
+                            }
+                        }
+                        let pids = control::process_ids(key);
+                        assert_eq!(pids.len(), 1, "signal targets one virtual process");
+                        assert!(control::signal(key, Some(pids[0]), *signal));
+                    }
+                }
+            }
+        }));
+        if outcome.is_err() {
+            control::cancel(key);
+        }
+        let result = worker.join().unwrap();
+        if let Err(error) = outcome {
+            std::panic::resume_unwind(error);
+        }
+        result
+    })
 }
 #[test]
 #[ignore = "development case capture; invoked explicitly by cli:compat"]
@@ -134,6 +250,12 @@ fn cli_tooling_capture() {
         }
         for (path, mode) in case.fixture.modes {
             w.vfs.chmod(&path, "kali", mode).unwrap();
+        }
+        for (path, target) in case.fixture.hardlinks {
+            w.vfs.link(&target, &path, "kali").unwrap();
+        }
+        for (path, target) in case.fixture.symlinks {
+            w.vfs.symlink(&path, &target, "kali").unwrap();
         }
         for setup in case.fixture.setup {
             let result = terminal::execute(&mut w, &setup);
@@ -186,7 +308,16 @@ fn cli_tooling_capture() {
         // engines currently consume columns and descriptor TTY state only.
         let tty = json!({"isTTY":case.tty.is_tty,"rows":case.tty.rows,"columns":case.tty.columns,"ansiSupport":case.tty.ansi_support,"interactive":case.tty.interactive});
         let before = snapshot(&w);
-        let control = crate::shell::control::register(&case.id);
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let output = case.interaction.as_ref().map(|_| {
+            tauri::ipc::Channel::new(move |body| {
+                sender
+                    .send(body.deserialize::<crate::cli_contract::Event>().unwrap())
+                    .unwrap();
+                Ok(())
+            })
+        });
+        let control = crate::shell::control::register_output(&case.id, output);
         for input in &case.input_events {
             match input {
                 crate::cli_contract::Input::Stdin(text) => {
@@ -198,20 +329,39 @@ fn cli_tooling_capture() {
                 crate::cli_contract::Input::Cancel => crate::shell::control::cancel(&case.id),
             }
         }
+        let closed_consumer = case.io.as_ref().is_some_and(|io| io.closed_consumer);
         let work = || {
             if let Some(script) = case.script {
                 terminal::execute(&mut w, &script)
-            } else if case.transport.as_deref().is_some_and(|t| t != "direct") {
+            } else if case.transport.as_deref().is_some_and(|t| t != "direct") || case.io.is_some()
+            {
                 let quote = |value: &str| format!("'{}'", value.replace('\'', "'\\''"));
-                let command = std::iter::once(case.invocation.unwrap_or(case.command))
+                let mut command = std::iter::once(case.invocation.unwrap_or(case.command))
                     .chain(case.argv)
                     .map(|s| quote(&s))
                     .collect::<Vec<_>>()
                     .join(" ");
+                if let Some(io) = case.io {
+                    if let Some(path) = io.stdin_path {
+                        command.push_str(&format!(" < {}", quote(&path)));
+                    }
+                    if let Some(path) = io.stdout_path {
+                        command.push_str(&format!(
+                            " {} {}",
+                            if io.append { ">>" } else { ">" },
+                            quote(&path)
+                        ));
+                    }
+                    if let Some(path) = io.stderr_path {
+                        command.push_str(&format!(" 2> {}", quote(&path)));
+                    }
+                }
                 let script = if case.transport.as_deref() == Some("pipe") {
                     format!("{command} | /usr/bin/cat")
-                } else {
+                } else if case.transport.as_deref() == Some("redirect") {
                     format!("{command} > /home/kali/reference-output")
+                } else {
+                    command
                 };
                 terminal::execute(&mut w, &script)
             } else {
@@ -222,7 +372,19 @@ fn cli_tooling_capture() {
             }
         };
         let started = std::time::Instant::now();
-        let result = if case.input_events.is_empty() {
+        let mut observations = Vec::new();
+        let result = if let Some(interaction) = case.interaction {
+            run_interaction(
+                &case.id,
+                &control,
+                &interaction,
+                receiver,
+                &mut observations,
+                work,
+            )
+        } else if closed_consumer {
+            crate::shell_pipeline::streams::with_closed_consumer(work)
+        } else if case.input_events.is_empty() {
             work()
         } else {
             crate::shell::control::run(&control, work)
@@ -235,7 +397,8 @@ fn cli_tooling_capture() {
         w.vfs.collect();
         w.vfs.check_invariants().unwrap();
         results.push(json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
-            "stderrHex":result.stderr_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"exitCode":result.exit_code,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty}));
+            "stderrHex":result.stderr_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"exitCode":result.exit_code,"termination":result.termination,"observations":observations,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty,
+            "files":w.vfs.nodes.iter().filter(|(p,n)| p.starts_with("/home/kali/") && n.kind == "file").map(|(p,n)| (p.clone(), n.blob.as_ref().map(|b| w.blobs[&b.hash].as_slice()).unwrap_or(n.content.as_bytes()).iter().map(|b|format!("{b:02x}")).collect::<String>())).collect::<BTreeMap<_,_>>()}));
     }
     artifact(
         "cli-case-actual.json",

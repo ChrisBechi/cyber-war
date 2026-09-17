@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "baseline": "9.7",
   "policy": "Discover registered membership; order by dependency readiness, semantic area, mission use, complexity and existing passing evidence. Project expectations cannot satisfy GNU_REFERENCE.",
-  "totals": { "VERIFIED": 4, "PARTIAL": 33, "UNVERIFIED": 0 },
+  "totals": { "VERIFIED": 5, "PARTIAL": 32, "UNVERIFIED": 0 },
   "commands": [
     {
       "command": "basename",
@@ -550,7 +550,7 @@
       "command": "cat",
       "aliases": [],
       "baseline": "9.7",
-      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "implementation": "src-tauri/src/coreutils/cat.rs",
       "implementationKind": "NATIVE",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
       "flags": [
@@ -570,53 +570,199 @@
         "--number",
         "--squeeze-blank",
         "--show-tabs",
-        "--show-nonprinting"
+        "--show-nonprinting",
+        "--help",
+        "--version"
       ],
       "contracts": [
         {
           "id": "invocation",
           "applicability": "REQUIRED",
-          "description": "Byte concatenation, stdin once, transformations across files and partial errors",
-          "evidence": ["coreutils/cat/stdin-twice"],
+          "description": "Byte concatenation and ordered operands including stdin, dash and errors",
+          "evidence": [
+            "cat/stdin",
+            "coreutils/cat/binary",
+            "coreutils/cat/stdin-twice",
+            "coreutils/cat/visible",
+            "coreutils/cat/binary-large",
+            "coreutils/cat/dash-name"
+          ],
           "result": "PASS"
         },
         {
           "id": "options",
           "applicability": "REQUIRED",
-          "description": "Supported options, combinations, --, unknown options and required operands",
+          "description": "GNU supported options, precedence, abbreviations and byte-exact diagnostics",
           "evidence": [
+            "coreutils/cat/stdin-twice",
             "coreutils/cat/transform",
             "coreutils/cat/visible",
-            "coreutils/cat/unknown-option"
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/help",
+            "coreutils/cat/unknown",
+            "coreutils/cat/invalid",
+            "coreutils/cat/utf8-option",
+            "coreutils/cat/ambiguous",
+            "coreutils/cat/empty-long",
+            "coreutils/cat/value",
+            "coreutils/cat/plain",
+            "coreutils/cat/space",
+            "coreutils/cat/quote",
+            "coreutils/cat/double",
+            "coreutils/cat/backslash",
+            "coreutils/cat/tab",
+            "coreutils/cat/line",
+            "coreutils/cat/unicode",
+            "coreutils/cat/control",
+            "coreutils/cat/bytes-plain",
+            "coreutils/cat/bytes-v",
+            "coreutils/cat/bytes-upper-e",
+            "coreutils/cat/bytes-upper-t",
+            "coreutils/cat/bytes-upper-a",
+            "coreutils/cat/bytes-b",
+            "coreutils/cat/bytes-n",
+            "coreutils/cat/bytes-s",
+            "coreutils/cat/bytes-bn",
+            "coreutils/cat/bytes-nb",
+            "coreutils/cat/bytes-ns",
+            "coreutils/cat/bytes-bs",
+            "coreutils/cat/bytes-be",
+            "coreutils/cat/bytes-et",
+            "coreutils/cat/bytes-u",
+            "coreutils/cat/cross-crlf",
+            "coreutils/cat/cr-pending",
+            "coreutils/cat/bupper-e",
+            "coreutils/cat/precedence",
+            "coreutils/cat/precedence-error",
+            "coreutils/cat/posix",
+            "coreutils/cat/option-show-all",
+            "coreutils/cat/option-number-nonblank",
+            "coreutils/cat/option-show-ends",
+            "coreutils/cat/option-number",
+            "coreutils/cat/option-squeeze-blank",
+            "coreutils/cat/option-show-tabs",
+            "coreutils/cat/option-show-nonprinting",
+            "coreutils/cat/option-show-e",
+            "coreutils/cat/option-num",
+            "coreutils/cat/option-v",
+            "coreutils/cat/dash-name"
           ],
           "result": "PASS"
         },
         {
           "id": "errors",
           "applicability": "REQUIRED",
-          "description": "Separate stderr, exact status, partial success and operand order",
-          "evidence": ["coreutils/cat/mixed", "coreutils/cat/unknown-option"],
+          "description": "Separate byte-exact stderr, status and continued operands after errors",
+          "evidence": [
+            "cat/missing",
+            "cat/permissions",
+            "coreutils/cat/mixed",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/stderr-file",
+            "coreutils/cat/self-same-truncate",
+            "coreutils/cat/self-same-append",
+            "coreutils/cat/self-hard-truncate",
+            "coreutils/cat/self-hard-append",
+            "coreutils/cat/self-soft-truncate",
+            "coreutils/cat/self-soft-append",
+            "coreutils/cat/stdin-self",
+            "coreutils/cat/dangling",
+            "coreutils/cat/loop",
+            "coreutils/cat/directory",
+            "coreutils/cat/errors-order"
+          ],
           "result": "PASS"
         },
         {
           "id": "help-version",
           "applicability": "REQUIRED",
-          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
-          "evidence": ["coreutils/cat/version"],
+          "description": "Full GNU C-locale help/version and observable invocation name",
+          "evidence": ["coreutils/cat/version", "coreutils/cat/help"],
           "result": "PASS"
         },
         {
           "id": "integration",
           "applicability": "REQUIRED",
-          "description": "Explicit packaged executable, shell argv, streams and host isolation",
-          "evidence": [],
-          "result": "NO_EVIDENCE"
+          "description": "Virtual VFS inode identity, ordered redirection and byte streams",
+          "evidence": [
+            "cat/pipe",
+            "cat/redirect",
+            "coreutils/cat/stdin-file",
+            "coreutils/cat/binary-pipe",
+            "coreutils/cat/binary-redirect",
+            "coreutils/cat/append",
+            "coreutils/cat/stderr-file",
+            "coreutils/cat/self-same-truncate",
+            "coreutils/cat/self-same-append",
+            "coreutils/cat/self-hard-truncate",
+            "coreutils/cat/self-hard-append",
+            "coreutils/cat/self-soft-truncate",
+            "coreutils/cat/self-soft-append",
+            "coreutils/cat/stdin-self",
+            "coreutils/cat/closed-consumer"
+          ],
+          "result": "PASS"
         },
         {
           "id": "bytes",
           "applicability": "REQUIRED",
-          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
-          "evidence": ["coreutils/cat/binary", "coreutils/cat/visible"],
+          "description": "Arbitrary bytes, empty inputs, chunking, bounded large inputs and transformations",
+          "evidence": [
+            "cat/stdin",
+            "coreutils/cat/binary",
+            "coreutils/cat/visible",
+            "coreutils/cat/binary-large"
+          ],
+          "result": "PASS"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Numbering, squeeze and CR/LF state preserved between chunks and operands",
+          "evidence": [
+            "coreutils/cat/state-between",
+            "coreutils/cat/binary-large",
+            "coreutils/cat/large-file",
+            "coreutils/cat/cr-chunk",
+            "coreutils/cat/self-same-truncate",
+            "coreutils/cat/self-same-append",
+            "coreutils/cat/self-hard-truncate",
+            "coreutils/cat/self-hard-append",
+            "coreutils/cat/self-soft-truncate",
+            "coreutils/cat/self-soft-append",
+            "coreutils/cat/errors-order",
+            "coreutils/cat/tty-number",
+            "coreutils/cat/tty-partial-eof",
+            "coreutils/cat/tty-squeeze",
+            "coreutils/cat/tty-repeat-stdin",
+            "coreutils/cat/tty-sigint",
+            "coreutils/cat/tty-sigterm"
+          ],
+          "result": "PASS"
+        },
+        {
+          "id": "tty",
+          "applicability": "REQUIRED",
+          "description": "Canonical line delivery, partial Ctrl+D, real EOF and running before completion",
+          "evidence": [
+            "coreutils/cat/tty-number",
+            "coreutils/cat/tty-partial-eof",
+            "coreutils/cat/tty-squeeze",
+            "coreutils/cat/tty-repeat-stdin",
+            "coreutils/cat/tty-sigint",
+            "coreutils/cat/tty-sigterm"
+          ],
+          "result": "PASS"
+        },
+        {
+          "id": "signals",
+          "applicability": "REQUIRED",
+          "description": "Process-local SIGINT, SIGTERM and SIGPIPE with explicit termination",
+          "evidence": [
+            "coreutils/cat/closed-consumer",
+            "coreutils/cat/tty-sigint",
+            "coreutils/cat/tty-sigterm"
+          ],
           "result": "PASS"
         }
       ],
@@ -625,26 +771,15 @@
       "complexity": 2,
       "missionUses": [],
       "before": "PARTIAL",
-      "after": "PARTIAL",
-      "projectCases": 13,
-      "referenceCases": 0,
-      "referenceState": "SKIPPED",
-      "matchedReferenceCases": 0,
+      "after": "VERIFIED",
+      "projectCases": 91,
+      "referenceCases": 91,
+      "referenceState": "PASS",
+      "matchedReferenceCases": 91,
       "requiredGates": 26,
-      "passedGates": 18,
-      "blockers": [
-        "GATE:COMMAND_CONTRACTS",
-        "GATE:CROSS_TOOL_CONSISTENCY",
-        "GATE:GNU_REFERENCE",
-        "GATE:HELP",
-        "GATE:KNOWN_GAPS",
-        "GATE:SIGNALS",
-        "GATE:STATE_CONSISTENCY",
-        "GATE:TTY",
-        "GAP:Interactive transformed input buffers to EOF",
-        "GAP:self-output detection and GNU quoting need evidence"
-      ],
-      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+      "passedGates": 26,
+      "blockers": [],
+      "action": "NEEDS_REMAINING_GATES"
     },
     {
       "command": "head",
@@ -3583,37 +3718,19 @@
     }
   ],
   "next": {
-    "command": "cat",
+    "command": "head",
     "aliases": [],
     "baseline": "9.7",
     "implementation": "src-tauri/src/coreutils/bytes.rs",
     "implementationKind": "NATIVE",
     "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-    "flags": [
-      "-A",
-      "-b",
-      "-E",
-      "-n",
-      "-e",
-      "-s",
-      "-t",
-      "-T",
-      "-u",
-      "-v",
-      "--show-all",
-      "--number-nonblank",
-      "--show-ends",
-      "--number",
-      "--squeeze-blank",
-      "--show-tabs",
-      "--show-nonprinting"
-    ],
+    "flags": ["-q", "-v", "-n", "-c", "--quiet", "--silent", "--verbose", "--lines", "--bytes"],
     "contracts": [
       {
         "id": "invocation",
         "applicability": "REQUIRED",
-        "description": "Byte concatenation, stdin once, transformations across files and partial errors",
-        "evidence": ["coreutils/cat/stdin-twice"],
+        "description": "Decimal line/byte limits, multiple headers and negative counts",
+        "evidence": ["coreutils/head/lines"],
         "result": "PASS"
       },
       {
@@ -3621,9 +3738,10 @@
         "applicability": "REQUIRED",
         "description": "Supported options, combinations, --, unknown options and required operands",
         "evidence": [
-          "coreutils/cat/transform",
-          "coreutils/cat/visible",
-          "coreutils/cat/unknown-option"
+          "coreutils/head/binary",
+          "coreutils/head/negative-or-start",
+          "coreutils/head/headers",
+          "coreutils/head/unknown-option"
         ],
         "result": "PASS"
       },
@@ -3631,14 +3749,14 @@
         "id": "errors",
         "applicability": "REQUIRED",
         "description": "Separate stderr, exact status, partial success and operand order",
-        "evidence": ["coreutils/cat/mixed", "coreutils/cat/unknown-option"],
+        "evidence": ["coreutils/head/invalid", "coreutils/head/unknown-option"],
         "result": "PASS"
       },
       {
         "id": "help-version",
         "applicability": "REQUIRED",
         "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
-        "evidence": ["coreutils/cat/version"],
+        "evidence": ["coreutils/head/version"],
         "result": "PASS"
       },
       {
@@ -3652,7 +3770,7 @@
         "id": "bytes",
         "applicability": "REQUIRED",
         "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
-        "evidence": ["coreutils/cat/binary", "coreutils/cat/visible"],
+        "evidence": ["coreutils/head/binary"],
         "result": "PASS"
       }
     ],
@@ -3662,23 +3780,27 @@
     "missionUses": [],
     "before": "PARTIAL",
     "after": "PARTIAL",
-    "projectCases": 13,
+    "projectCases": 8,
     "referenceCases": 0,
     "referenceState": "SKIPPED",
     "matchedReferenceCases": 0,
     "requiredGates": 26,
-    "passedGates": 18,
+    "passedGates": 14,
     "blockers": [
       "GATE:COMMAND_CONTRACTS",
       "GATE:CROSS_TOOL_CONSISTENCY",
       "GATE:GNU_REFERENCE",
       "GATE:HELP",
       "GATE:KNOWN_GAPS",
+      "GATE:PERMISSIONS",
+      "GATE:PIPE",
+      "GATE:REDIRECTION",
+      "GATE:SIDE_EFFECTS",
       "GATE:SIGNALS",
       "GATE:STATE_CONSISTENCY",
       "GATE:TTY",
-      "GAP:Interactive transformed input buffers to EOF",
-      "GAP:self-output detection and GNU quoting need evidence"
+      "GAP:Count multipliers and NUL delimiter unsupported",
+      "GAP:bounded byte mode is not incremental"
     ],
     "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
   }

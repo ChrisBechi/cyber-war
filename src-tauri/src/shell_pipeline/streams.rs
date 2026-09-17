@@ -2,10 +2,13 @@
 //! no host threads/processes per stage, and an empty buffer is distinct from EOF.
 use super::*;
 use crate::shell::control;
+use crate::shell::signals::{ProcessSignalState, Termination, VirtualSignal};
+use std::sync::Arc;
 enum Read {
     Data(Vec<u8>),
     Eof,
     Pending,
+    Interrupted,
 }
 use std::collections::VecDeque;
 
@@ -14,6 +17,19 @@ const CAPACITY: usize = 64 * 1024;
 const ADAPTER_LIMIT: usize = 4 * 1024 * 1024;
 #[cfg(test)]
 thread_local! { static LAST_PEAK: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+#[cfg(test)]
+thread_local! { static CLOSED_CONSUMER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+#[cfg(test)]
+pub(crate) fn with_closed_consumer<T>(work: impl FnOnce() -> T) -> T {
+    struct Restore(bool);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            CLOSED_CONSUMER.with(|c| c.set(self.0));
+        }
+    }
+    let _restore = Restore(CLOSED_CONSUMER.with(|c| c.replace(true)));
+    work()
+}
 #[cfg(test)]
 pub(crate) fn last_peak() -> usize {
     LAST_PEAK.with(std::cell::Cell::get)
@@ -57,16 +73,17 @@ impl Pipe {
 }
 enum Input {
     Text(Vec<u8>, usize),
+    File(u64),
     Pipe(usize),
     Terminal,
     Eof,
 }
 impl Input {
-    fn read(&mut self, pipes: &mut [Pipe]) -> Read {
-        match self {
+    fn read(&mut self, world: &mut WorldState, pipes: &mut [Pipe]) -> GameResult<Read> {
+        Ok(match self {
             Self::Text(text, offset) => {
                 if *offset == text.len() {
-                    return Read::Eof;
+                    return Ok(Read::Eof);
                 }
                 let end = chunk_end(text, *offset);
                 let value = text[*offset..end].into();
@@ -74,13 +91,23 @@ impl Input {
                 Read::Data(value)
             }
             Self::Pipe(i) => pipes[*i].read(),
+            Self::File(handle) => {
+                let blobs = world.blobs.clone();
+                let bytes = world.fs_mut()?.read_handle_bytes(*handle, CHUNK, &blobs)?;
+                if bytes.is_empty() {
+                    Read::Eof
+                } else {
+                    Read::Data(bytes)
+                }
+            }
             Self::Terminal => match control::read() {
-                control::Read::Data(text) => Read::Data(text.into_bytes()),
+                control::Read::Data(text) => Read::Data(text),
                 control::Read::Eof => Read::Eof,
                 control::Read::Pending => Read::Pending,
+                control::Read::Interrupted => Read::Interrupted,
             },
             Self::Eof => Read::Eof,
-        }
+        })
     }
     fn close(&self, pipes: &mut [Pipe]) {
         if let Self::Pipe(i) = self {
@@ -90,7 +117,7 @@ impl Input {
 }
 enum Engine {
     Yes(Vec<u8>),
-    Cat,
+    Cat(Box<crate::coreutils::cat::Cat>),
     Head(usize),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
@@ -106,6 +133,8 @@ struct Process {
     status: i32,
     done: bool,
     archive_job: Option<u32>,
+    signals: Arc<ProcessSignalState>,
+    termination: Option<Termination>,
 }
 fn chunk_end(text: &[u8], start: usize) -> usize {
     (start + CHUNK).min(text.len())
@@ -121,13 +150,11 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
         return false;
     };
     let name = name.rsplit('/').next().unwrap_or(name);
-    let args = &stage.arguments[1..];
     if name == "yes" {
         return true;
     }
     match name {
-        "cat" => crate::terminal_io::options("cat", args, "nbEsTu", "", &[])
-            .is_ok_and(|o| !o.help && (o.files.is_empty() || o.files == ["-"])),
+        "cat" => true,
         "head" => matches!(engine(stage, true), Engine::Head(_)),
         _ => false,
     }
@@ -160,9 +187,6 @@ fn engine(stage: &Stage, available: bool) -> Engine {
                 )
                 .into_bytes(),
             );
-        }
-        if name == "cat" && (args.is_empty() || args == ["-"]) {
-            return Engine::Cat;
         }
         if name == "head" {
             let count = if args.is_empty() {
@@ -244,7 +268,6 @@ fn prepare(
         Destination::Stderr,
     ];
     let mut files = Vec::new();
-    let mut input_path = None;
     let mut error = None;
     for redirect in &stage.redirects {
         let result = (|| -> GameResult<()> {
@@ -254,8 +277,21 @@ fn prepare(
                 }
                 Redirect::Input(target) => {
                     let path = normalize(target, &original.cwd)?;
-                    world.fs()?.readable(&path, &actor)?;
-                    input_path = Some(path);
+                    let handle = world.fs_mut()?.open(
+                        &path,
+                        crate::vfs::OpenFlags {
+                            read: true,
+                            ..Default::default()
+                        },
+                        0,
+                        &actor,
+                    )?;
+                    input.close(pipes);
+                    input = Input::File(handle);
+                    files.push(File {
+                        host: original.host.clone(),
+                        handle,
+                    });
                     input_tty = false;
                 }
                 Redirect::Output(fd, target, append) => {
@@ -269,13 +305,6 @@ fn prepare(
         if let Err(e) = result {
             error = Some(failure(format!("bash: {e}")));
             break;
-        }
-    }
-    if let Some(path) = input_path {
-        input.close(pipes);
-        match super::read_input(world, &path, &actor) {
-            Ok(text) => input = Input::Text(text, 0),
-            Err(e) => error = Some(failure(format!("bash: {e}"))),
         }
     }
     let is_tty = |destination| match destination {
@@ -302,6 +331,21 @@ fn prepare(
     let mut engine = engine(stage, available);
     let mut pending = VecDeque::new();
     let mut status = 0;
+    if available && name.rsplit('/').next() == Some("cat") && error.is_none() {
+        let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
+            && world.terminal.env.contains_key("POSIXLY_CORRECT");
+        match crate::coreutils::cat::Cat::new(name, &stage.arguments[1..], posix) {
+            Ok(cat) => engine = Engine::Cat(Box::new(cat)),
+            Err(output) => {
+                status = output.status;
+                for (fd, bytes) in output_chunks(*output) {
+                    chunks(&mut pending, fd, bytes);
+                }
+                engine = Engine::Finished;
+                input.close(pipes);
+            }
+        }
+    }
     if let Some(error) = error {
         chunks(&mut pending, 2, error.stderr.into_bytes());
         status = error.status;
@@ -328,6 +372,8 @@ fn prepare(
         status,
         done: false,
         archive_job: None,
+        signals: control::register_process(pid),
+        termination: None,
     })
 }
 fn step(
@@ -353,8 +399,104 @@ fn step(
             process.input.close(pipes);
             process.engine = Engine::Finished;
         }
-        Engine::Cat | Engine::Head(_) => match process.input.read(pipes) {
-            Read::Pending => return Ok(false),
+        Engine::Cat(cat) => {
+            if cat.current.is_none() {
+                let Some(file) = cat.files.pop_front() else {
+                    chunks(&mut process.pending, 1, cat.transform.finish());
+                    process.engine = Engine::Finished;
+                    return Ok(true);
+                };
+                if file != "-" {
+                    let result = normalize(&file, &process.session.cwd).and_then(|path| {
+                        world.fs_mut()?.open(
+                            &path,
+                            crate::vfs::OpenFlags {
+                                read: true,
+                                ..Default::default()
+                            },
+                            0,
+                            &process.session.user,
+                        )
+                    });
+                    match result {
+                        Ok(handle) => cat.handle = Some(handle),
+                        Err(error) => {
+                            process.status = 1;
+                            chunks(
+                                &mut process.pending,
+                                2,
+                                crate::coreutils::cat::diagnostic(&file, error),
+                            );
+                            return Ok(true);
+                        }
+                    }
+                }
+                let input_handle = cat.handle.or(match process.input {
+                    Input::File(handle) => Some(handle),
+                    _ => None,
+                });
+                if let (Some(input), Destination::File(index)) =
+                    (input_handle, process.destinations[1])
+                {
+                    let (ino, offset, size, regular) = world.fs()?.handle_identity(input)?;
+                    let (output_ino, _, _, _) =
+                        world.fs()?.handle_identity(process.files[index].handle)?;
+                    if regular && ino == output_ino && (offset as u64) < size {
+                        if let Some(h) = cat.handle.take() {
+                            world.fs_mut()?.close(h)?;
+                        }
+                        process.status = 1;
+                        chunks(
+                            &mut process.pending,
+                            2,
+                            crate::coreutils::cat::diagnostic(&file, "input file is output file"),
+                        );
+                        return Ok(true);
+                    }
+                }
+                cat.current = Some(file);
+            }
+            let read = if let Some(handle) = cat.handle {
+                let blobs = world.blobs.clone();
+                world
+                    .fs_mut()?
+                    .read_handle_bytes(handle, CHUNK, &blobs)
+                    .map(|bytes| {
+                        if bytes.is_empty() {
+                            Read::Eof
+                        } else {
+                            Read::Data(bytes)
+                        }
+                    })
+            } else {
+                process.input.read(world, pipes)
+            };
+            match read {
+                Ok(Read::Pending | Read::Interrupted) => return Ok(false),
+                Ok(Read::Data(bytes)) => {
+                    chunks(&mut process.pending, 1, cat.transform.transform(&bytes))
+                }
+                ending => {
+                    if let Err(error) = ending {
+                        process.status = 1;
+                        chunks(
+                            &mut process.pending,
+                            2,
+                            crate::coreutils::cat::diagnostic(
+                                cat.current.as_deref().unwrap_or("-"),
+                                error,
+                            ),
+                        );
+                    }
+                    if let Some(handle) = cat.handle.take() {
+                        world.fs_mut()?.close(handle)?;
+                    }
+                    cat.current = None;
+                }
+            }
+        }
+        Engine::Head(_) => match process.input.read(world, pipes)? {
+            Read::Pending | Read::Interrupted => return Ok(false),
             Read::Eof => process.engine = Engine::Finished,
             Read::Data(mut text) => {
                 if let Engine::Head(remaining) = &mut process.engine {
@@ -379,8 +521,8 @@ fn step(
         },
         Engine::Legacy { text, read } => {
             if *read {
-                match process.input.read(pipes) {
-                    Read::Pending => return Ok(false),
+                match process.input.read(world, pipes)? {
+                    Read::Pending | Read::Interrupted => return Ok(false),
                     Read::Data(chunk) => {
                         if text.len() + chunk.len() > ADAPTER_LIMIT {
                             process.status = 1;
@@ -444,6 +586,24 @@ fn step(
     Ok(true)
 }
 
+fn terminate(
+    world: &mut WorldState,
+    process: &mut Process,
+    signal: VirtualSignal,
+) -> GameResult<()> {
+    if let Engine::Cat(cat) = &mut process.engine {
+        if let Some(handle) = cat.handle.take() {
+            world.fs_mut()?.close(handle)?;
+        }
+    }
+    let termination = Termination::Signal { signal };
+    process.termination = Some(termination);
+    process.status = termination.status();
+    process.pending.clear();
+    process.engine = Engine::Finished;
+    Ok(())
+}
+
 pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output> {
     let original = world.terminal.clone();
     let mut pipes: Vec<Pipe> = (1..stages.len()).map(|_| Pipe::default()).collect();
@@ -460,11 +620,14 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                 &mut pipes,
             )?);
         }
+        #[cfg(test)]
+        if CLOSED_CONSUMER.with(std::cell::Cell::get) {
+            let mut pipe = Pipe::default();
+            pipe.close_reader();
+            pipes.push(pipe);
+            processes.last_mut().unwrap().destinations[1] = Destination::Pipe;
+        }
         while processes.iter().any(|p| !p.done) {
-            if control::cancelled() {
-                output.status = 130;
-                break;
-            }
             let mut progress = false;
             for index in (0..processes.len()).rev() {
                 let process = &mut processes[index];
@@ -472,6 +635,10 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                     continue;
                 }
                 world.terminal = process.session.clone();
+                if let Some(signal) = process.signals.take().or_else(control::termination_signal) {
+                    terminate(world, process, signal)?;
+                    progress = true;
+                }
                 if process.pending.is_empty() {
                     progress |= step(world, process, &stages[index], &mut pipes)?;
                 }
@@ -481,29 +648,38 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                         match pipes[index].push(text.clone()) {
                             Ok(sent) => sent,
                             Err(()) => {
-                                process.status = 141;
-                                process.pending.clear();
-                                process.engine = Engine::Finished;
+                                process.signals.send(VirtualSignal::Pipe);
+                                terminate(world, process, VirtualSignal::Pipe)?;
                                 true
                             }
                         }
                     } else {
-                        match emit_bytes(
-                            world,
-                            destination,
-                            text,
-                            &mut process.files,
-                            &mut output,
-                            &mut Vec::new(),
-                        ) {
+                        match control::with_process(&process.signals, || {
+                            emit_bytes(
+                                world,
+                                destination,
+                                text,
+                                &mut process.files,
+                                &mut output,
+                                &mut Vec::new(),
+                            )
+                        }) {
                             Ok(()) => true,
                             Err(error) => {
+                                if let Engine::Cat(cat) = &mut process.engine {
+                                    if let Some(handle) = cat.handle.take() {
+                                        world.fs_mut()?.close(handle)?;
+                                    }
+                                }
                                 process.pending.clear();
                                 process.engine = Engine::Finished;
                                 process.status = 1;
                                 let diagnostic = format!("bash: write error: {error}\n");
                                 if output.stdout.len() + output.stderr.len() < ADAPTER_LIMIT {
                                     output.stderr.push_str(&diagnostic);
+                                    output
+                                        .byte_ordered
+                                        .push((2, diagnostic.as_bytes().to_vec()));
                                     output.ordered.push((2, diagnostic));
                                 }
                                 true
@@ -514,6 +690,10 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                         process.pending.pop_front();
                         progress = true;
                     }
+                }
+                // A signal may have interrupted delivery while waiting for UI capacity.
+                if let Some(signal) = process.signals.take().or_else(control::termination_signal) {
+                    terminate(world, process, signal)?;
                 }
                 if process.pending.is_empty() && matches!(process.engine, Engine::Finished) {
                     process.done = true;
@@ -530,6 +710,10 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                     }
                     if index + 1 == stages.len() {
                         output.status = process.status;
+                        output.termination =
+                            Some(process.termination.unwrap_or(Termination::Exit {
+                                code: process.status,
+                            }));
                         output.archive_job = process.archive_job;
                     }
                     if let Some(p) = world.processes.iter_mut().find(|p| p.pid == process.pid) {
@@ -548,6 +732,13 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
         .processes
         .retain(|p| !processes.iter().any(|running| running.pid == p.pid));
     for process in &processes {
+        control::unregister_process(process.pid);
+        if let Engine::Cat(cat) = &process.engine {
+            if let Some(handle) = cat.handle {
+                world.terminal.host = process.session.host.clone();
+                world.fs_mut()?.close(handle)?;
+            }
+        }
         close_files(world, &process.files)?;
     }
     world.terminal = original;

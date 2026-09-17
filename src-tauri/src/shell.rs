@@ -6,7 +6,9 @@ mod expansion;
 mod foundation_tests;
 #[cfg(test)]
 mod performance_tests;
+pub mod signals;
 pub mod syntax;
+pub mod tty;
 use crate::{
     error::GameResult,
     terminal_io::Output,

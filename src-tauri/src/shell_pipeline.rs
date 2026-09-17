@@ -139,25 +139,29 @@ fn emit_bytes(
     }
     match destination {
         Destination::Stdout | Destination::Stderr => {
-            let fd = if matches!(destination, Destination::Stdout) {
-                1
-            } else {
-                2
-            };
-            // Text is presentation only. byte_ordered/binary retain the exact command bytes.
-            let display = String::from_utf8_lossy(data);
-            if fd == 1 {
-                output.stdout.push_str(&display);
-                output
-                    .binary
-                    .get_or_insert_with(Vec::new)
-                    .extend_from_slice(data);
-            } else {
-                output.stderr.push_str(&display);
+            for data in data.chunks(4096) {
+                let fd = if matches!(destination, Destination::Stdout) {
+                    1
+                } else {
+                    2
+                };
+                // Text is presentation only. byte_ordered/binary retain the exact command bytes.
+                let display = String::from_utf8_lossy(data);
+                if !crate::shell::control::emit_chunk(fd, &display) {
+                    break;
+                }
+                if fd == 1 {
+                    output.stdout.push_str(&display);
+                    output
+                        .binary
+                        .get_or_insert_with(Vec::new)
+                        .extend_from_slice(data);
+                } else {
+                    output.stderr.push_str(&display);
+                }
+                output.ordered.push((fd, display.to_string()));
+                output.byte_ordered.push((fd, data.to_vec()));
             }
-            output.ordered.push((fd, display.to_string()));
-            output.byte_ordered.push((fd, data.to_vec()));
-            crate::shell::control::emit(fd, &display);
         }
         Destination::Pipe => pipe.extend_from_slice(data),
         Destination::Null => {}

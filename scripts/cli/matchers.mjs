@@ -68,6 +68,14 @@ export function compareCase(test, actual) {
       );
   if (actual.exitCode !== test.expected.exitCode)
     errors.push(`exitCode ${actual.exitCode}, expected ${test.expected.exitCode}`);
+  for (const field of ['termination', 'observations'])
+    if (
+      test.expected[field] !== undefined &&
+      !isDeepStrictEqual(test.expected[field], actual[field])
+    )
+      errors.push(
+        `${field} mismatch: expected ${JSON.stringify(test.expected[field])}, actual ${JSON.stringify(actual[field])}`,
+      );
   for (const assertion of test.expected.state) {
     const value = pointer(actual.after, assertion.path);
     const pass = assertion.absent

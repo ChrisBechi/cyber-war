@@ -189,250 +189,6 @@
   },
   {
     "schemaVersion": 2,
-    "id": "coreutils/cat/binary",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["data"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STDIN"],
-    "flags": [],
-    "errorCase": false,
-    "fixture": {
-      "files": {},
-      "bytes": {
-        "/home/kali/data": "00ff80c3a90a7a"
-      }
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": [],
-      "stdoutHex": "00ff80c3a90a7a"
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/stdin-twice",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["-", "-"],
-    "stdin": "abc\n",
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "PARSER", "POSITIONAL_ARGS"],
-    "flags": [],
-    "errorCase": false,
-    "fixture": {
-      "files": {},
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "abc\n"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/mixed",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["a", "missing", "b"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "ERRORS"],
-    "flags": [],
-    "errorCase": true,
-    "fixture": {
-      "files": {
-        "/home/kali/a": "A",
-        "/home/kali/b": "B"
-      },
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "AB"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": "cat: missing: No such file or directory\n"
-      },
-      "exitCode": 1,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/transform",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["-nbsET", "a", "b"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "SHORT_FLAGS", "LONG_FLAGS", "COMBINED_FLAGS"],
-    "flags": ["-n", "-b", "-s", "-E", "-T"],
-    "errorCase": false,
-    "fixture": {
-      "files": {
-        "/home/kali/a": "A\n\n",
-        "/home/kali/b": "\nB\t\n"
-      },
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "     1\tA$\n$\n     2\tB^I$\n"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/visible",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["-A", "data"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": [
-      "STDOUT",
-      "STDERR",
-      "EXIT_CODE",
-      "SHORT_FLAGS",
-      "LONG_FLAGS",
-      "COMBINED_FLAGS",
-      "STDIN"
-    ],
-    "flags": ["-A"],
-    "errorCase": false,
-    "fixture": {
-      "files": {},
-      "bytes": {
-        "/home/kali/data": "00ff80c3a90a7a"
-      }
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "^@M-^?M-^@M-CM-)$\nz"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
     "id": "coreutils/head/binary",
     "softwareId": "coreutils",
     "command": "head",
@@ -1789,104 +1545,6 @@
         "value": "env: unrecognized option '--not-implemented'\nTry 'env --help' for more information.\n"
       },
       "exitCode": 125,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/version",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["--version"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "VERSION"],
-    "flags": ["--version"],
-    "errorCase": false,
-    "fixture": {
-      "files": {},
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "cat (GNU coreutils) 9.7\n"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
-    "id": "coreutils/cat/unknown-option",
-    "softwareId": "coreutils",
-    "command": "cat",
-    "invocation": "/usr/bin/cat",
-    "argv": ["--not-implemented"],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/cat.1.en.html"
-    },
-    "gates": [
-      "STDOUT",
-      "STDERR",
-      "EXIT_CODE",
-      "ERRORS",
-      "SHORT_FLAGS",
-      "LONG_FLAGS",
-      "COMBINED_FLAGS"
-    ],
-    "flags": [],
-    "errorCase": true,
-    "fixture": {
-      "files": {},
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": "cat: unrecognized option '--not-implemented'\nTry 'cat --help' for more information.\n"
-      },
-      "exitCode": 1,
       "state": []
     }
   },
@@ -3338,7 +2996,7 @@
       "a b",
       "a\tb",
       "a\nb",
-      "a\u00e7\u00e3o/\u00e9",
+      "ação/é",
       "C:\\Users\\Test",
       "\\\\server\\share\\foo"
     ],
@@ -3367,7 +3025,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": "\n/\n/\n/\nbar\n.\n..\na b\na\tb\na\nb\n\u00e9\nC:\\Users\\Test\n\\\\server\\share\\foo\n"
+        "value": "\n/\n/\n/\nbar\n.\n..\na b\na\tb\na\nb\né\nC:\\Users\\Test\n\\\\server\\share\\foo\n"
       },
       "stdoutHex": "0a2f0a2f0a2f0a6261720a2e0a2e2e0a6120620a6109620a610a620ac3a90a433a5c55736572735c546573740a5c5c7365727665725c73686172655c666f6f0a",
       "stderr": {
@@ -4431,7 +4089,7 @@
     "softwareId": "coreutils",
     "command": "basename",
     "invocation": "/usr/bin/basename",
-    "argv": ["a", "b", "c'\n\t\u00e9"],
+    "argv": ["a", "b", "c'\n\té"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -4865,7 +4523,7 @@
     "softwareId": "coreutils",
     "command": "basename",
     "invocation": "/usr/bin/basename",
-    "argv": ["-\u00e9"],
+    "argv": ["-é"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -4899,7 +4557,7 @@
       "stdoutHex": "",
       "stderr": {
         "kind": "EXACT",
-        "value": "/usr/bin/basename: invalid option -- '\ufffd'\nTry '/usr/bin/basename --help' for more information.\n"
+        "value": "/usr/bin/basename: invalid option -- '�'\nTry '/usr/bin/basename --help' for more information.\n"
       },
       "stderrHex": "2f7573722f62696e2f626173656e616d653a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
       "exitCode": 1,
@@ -4925,7 +4583,7 @@
     "softwareId": "coreutils",
     "command": "basename",
     "invocation": "/usr/bin/basename",
-    "argv": ["-a", "a\u00e7\u00e3o/\u00e9", "x/\t", "x/\n", "C:\\Users\\name", "//host/share"],
+    "argv": ["-a", "ação/é", "x/\t", "x/\n", "C:\\Users\\name", "//host/share"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -4954,7 +4612,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": "\u00e9\n\t\n\n\nC:\\Users\\name\nshare\n"
+        "value": "é\n\t\n\n\nC:\\Users\\name\nshare\n"
       },
       "stdoutHex": "c3a90a090a0a0a433a5c55736572735c6e616d650a73686172650a",
       "stderr": {
@@ -5045,7 +4703,7 @@
     "softwareId": "coreutils",
     "command": "basename",
     "invocation": "/usr/bin/basename",
-    "argv": ["-s", "\u00e9", "caf\u00e9"],
+    "argv": ["-s", "é", "café"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -6732,7 +6390,7 @@
       "../a",
       "a b/c d",
       "a\t/b\n",
-      "a\u00e7\u00e3o/\u00e9",
+      "ação/é",
       "C:\\Users\\name",
       "C:/Users/name"
     ],
@@ -6764,7 +6422,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": ".\n/\n/\n/\n/\n/\n///host\na\n.\n.\n.\n.\n.\n..\na b\na\t\na\u00e7\u00e3o\n.\nC:/Users\n"
+        "value": ".\n/\n/\n/\n/\n/\n///host\na\n.\n.\n.\n.\n.\n..\na b\na\t\nação\n.\nC:/Users\n"
       },
       "stdoutHex": "2e0a2f0a2f0a2f0a2f0a2f0a2f2f2f686f73740a610a2e0a2e0a2e0a2e0a2e0a2e2e0a6120620a61090a61c3a7c3a36f0a2e0a433a2f55736572730a",
       "stderr": {
@@ -7168,7 +6826,7 @@
     "softwareId": "coreutils",
     "command": "dirname",
     "invocation": "/usr/bin/dirname",
-    "argv": ["-\u00e9"],
+    "argv": ["-é"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -7202,7 +6860,7 @@
       "stdoutHex": "",
       "stderr": {
         "kind": "EXACT",
-        "value": "/usr/bin/dirname: invalid option -- '\ufffd'\nTry '/usr/bin/dirname --help' for more information.\n"
+        "value": "/usr/bin/dirname: invalid option -- '�'\nTry '/usr/bin/dirname --help' for more information.\n"
       },
       "stderrHex": "2f7573722f62696e2f6469726e616d653a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f6469726e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
       "exitCode": 1,
@@ -9418,7 +9076,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": "Z=last\nLC_ALL=C\nEMPTY=\nA=first\nMULTI=a\nb\tc=d\nUNICODE=a\u00e7\u00e3o\nspace name=has value\n--help=operand value\n"
+        "value": "Z=last\nLC_ALL=C\nEMPTY=\nA=first\nMULTI=a\nb\tc=d\nUNICODE=ação\nspace name=has value\n--help=operand value\n"
       },
       "stdoutHex": "5a3d6c6173740a4c435f414c4c3d430a454d5054593d0a413d66697273740a4d554c54493d610a6209633d640a554e49434f44453d61c3a7c3a36f0a7370616365206e616d653d6861732076616c75650a2d2d68656c703d6f706572616e642076616c75650a",
       "stderr": {
@@ -9436,7 +9094,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9477,7 +9135,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": "Z=last\u0000LC_ALL=C\u0000EMPTY=\u0000A=first\u0000MULTI=a\nb\tc=d\u0000UNICODE=a\u00e7\u00e3o\u0000space name=has value\u0000--help=operand value\u0000"
+        "value": "Z=last\u0000LC_ALL=C\u0000EMPTY=\u0000A=first\u0000MULTI=a\nb\tc=d\u0000UNICODE=ação\u0000space name=has value\u0000--help=operand value\u0000"
       },
       "stdoutHex": "5a3d6c617374004c435f414c4c3d4300454d5054593d00413d6669727374004d554c54493d610a6209633d6400554e49434f44453d61c3a7c3a36f007370616365206e616d653d6861732076616c7565002d2d68656c703d6f706572616e642076616c756500",
       "stderr": {
@@ -9495,7 +9153,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9554,7 +9212,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9595,7 +9253,7 @@
     "expected": {
       "stdout": {
         "kind": "EXACT",
-        "value": "a\nb\tc=d\na\u00e7\u00e3o\nhas value\n"
+        "value": "a\nb\tc=d\nação\nhas value\n"
       },
       "stdoutHex": "610a6209633d640a61c3a7c3a36f0a6861732076616c75650a",
       "stderr": {
@@ -9613,7 +9271,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9672,7 +9330,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9731,7 +9389,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9790,7 +9448,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -9849,7 +9507,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"],
         ["POSIXLY_CORRECT", "1"]
@@ -9959,7 +9617,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -10027,7 +9685,7 @@
         ["EMPTY", ""],
         ["A", "first"],
         ["MULTI", "a\nb\tc=d"],
-        ["UNICODE", "a\u00e7\u00e3o"],
+        ["UNICODE", "ação"],
         ["space name", "has value"],
         ["--help", "operand value"]
       ]
@@ -10099,7 +9757,7 @@
     "softwareId": "coreutils",
     "command": "printenv",
     "invocation": "/usr/bin/printenv",
-    "argv": ["-\u00e9"],
+    "argv": ["-é"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -10133,7 +9791,7 @@
       "stdoutHex": "",
       "stderr": {
         "kind": "EXACT",
-        "value": "/usr/bin/printenv: invalid option -- '\ufffd'\nTry '/usr/bin/printenv --help' for more information.\n"
+        "value": "/usr/bin/printenv: invalid option -- '�'\nTry '/usr/bin/printenv --help' for more information.\n"
       },
       "stderrHex": "2f7573722f62696e2f7072696e74656e763a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f7072696e74656e76202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
       "exitCode": 2,
@@ -11696,7 +11354,7 @@
     "softwareId": "coreutils",
     "command": "whoami",
     "invocation": "/usr/bin/whoami",
-    "argv": ["a'\n\u00e9"],
+    "argv": ["a'\né"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -11824,7 +11482,7 @@
     "softwareId": "coreutils",
     "command": "whoami",
     "invocation": "/usr/bin/whoami",
-    "argv": ["-\u00e9"],
+    "argv": ["-é"],
     "stdin": null,
     "env": {
       "LC_ALL": "C"
@@ -11852,7 +11510,7 @@
       "ERRORS",
       "SHORT_FLAGS"
     ],
-    "flags": ["-\u00e9"],
+    "flags": ["-é"],
     "errorCase": true,
     "fixture": {
       "files": {},
@@ -11866,7 +11524,7 @@
       "stdoutHex": "",
       "stderr": {
         "kind": "EXACT",
-        "value": "/usr/bin/whoami: invalid option -- '\ufffd'\nTry '/usr/bin/whoami --help' for more information.\n"
+        "value": "/usr/bin/whoami: invalid option -- '�'\nTry '/usr/bin/whoami --help' for more information.\n"
       },
       "stderrHex": "2f7573722f62696e2f77686f616d693a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
       "exitCode": 1,

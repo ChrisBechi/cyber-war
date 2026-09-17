@@ -713,9 +713,8 @@
         "value": ""
       },
       "stderr": {
-        "kind": "REGEX",
-        "pattern": "too many levels",
-        "flags": "i"
+        "kind": "EXACT",
+        "value": "cat: a: Symbolic link loop\n"
       },
       "exitCode": 1,
       "state": [

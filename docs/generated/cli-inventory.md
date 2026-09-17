@@ -226,7 +226,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | calculator                    | mate-calc                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | capinfos                      | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | captype                       | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| cat                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| cat                           | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/cat.rs        |
 | ccache2john                   | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | cd                            | bash                     | BUILTIN      | 5.2.37     | PARTIAL    | src-tauri/src/terminal_io.rs          |
 | certipy-ad                    | certipy-ad               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

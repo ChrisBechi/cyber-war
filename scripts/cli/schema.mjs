@@ -276,6 +276,48 @@ export const caseSchema = z
     id: z.string().regex(/^[a-z0-9][a-z0-9/_.-]+$/),
     softwareId: z.string(),
     command: z.string().min(1),
+    io: z
+      .object({
+        stdinPath: z.string().startsWith('/home/kali/').optional(),
+        stdoutPath: z.string().startsWith('/home/kali/').optional(),
+        stderrPath: z.string().startsWith('/home/kali/').optional(),
+        append: z.boolean().optional(),
+        closedConsumer: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    interaction: z
+      .object({
+        schemaVersion: z.literal(1),
+        steps: z
+          .array(
+            z.discriminatedUnion('kind', [
+              z
+                .object({
+                  kind: z.literal('write'),
+                  hex: z
+                    .string()
+                    .regex(/^(?:[a-f0-9]{2})*$/)
+                    .max(8192),
+                })
+                .strict(),
+              z
+                .object({
+                  kind: z.literal('expect'),
+                  stdoutHex: z.string().regex(/^(?:[a-f0-9]{2})*$/),
+                })
+                .strict(),
+              z.object({ kind: z.literal('eof') }).strict(),
+              z
+                .object({ kind: z.literal('signal'), signal: z.enum(['SIGINT', 'SIGTERM']) })
+                .strict(),
+            ]),
+          )
+          .min(1)
+          .max(32),
+      })
+      .strict()
+      .optional(),
     invocation: z
       .string()
       .regex(/^(?:\/usr\/bin\/)?[a-z][a-z0-9-]*$/)
@@ -350,6 +392,8 @@ export const caseSchema = z
         directories: z.array(z.string()).default([]),
         modes: z.record(z.string(), z.number().int().min(0).max(4095)).default({}),
         setup: z.array(z.string()).default([]),
+        hardlinks: z.record(z.string(), z.string()).optional(),
+        symlinks: z.record(z.string(), z.string()).optional(),
       })
       .strict(),
     expected: z
@@ -365,6 +409,20 @@ export const caseSchema = z
           .regex(/^(?:[a-f0-9]{2})*$/)
           .optional(),
         exitCode: z.number().int(),
+        termination: z
+          .discriminatedUnion('kind', [
+            z.object({ kind: z.literal('exit'), code: z.number().int() }).strict(),
+            z
+              .object({
+                kind: z.literal('signal'),
+                signal: z.enum(['SIGINT', 'SIGPIPE', 'SIGTERM']),
+              })
+              .strict(),
+          ])
+          .optional(),
+        observations: z
+          .array(z.object({ stdoutHex: z.string(), running: z.boolean() }).strict())
+          .optional(),
         state: z.array(assertionSchema).default([]),
       })
       .strict(),

@@ -10,6 +10,7 @@ pub(super) struct Options {
     pub suffix: Option<String>,
     pub zero: bool,
     pub special: Option<&'static str>,
+    pub flags: Vec<char>,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -46,6 +47,53 @@ pub(super) fn quote(value: &str) -> String {
     out
 }
 
+/// GNU shell-escape quoting for path diagnostics; Foundation operand errors use
+/// the C quoting style above. The two styles deliberately have separate contracts.
+pub(super) fn shell_quote(value: &str) -> String {
+    if !value.is_empty()
+        && value
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"_+-./:=,@%".contains(&b))
+    {
+        return value.into();
+    }
+    if value.contains('\'')
+        && value
+            .bytes()
+            .all(|b| (32..127).contains(&b) && !b"\"$`\\".contains(&b))
+    {
+        return format!("\"{value}\"");
+    }
+    let mut out = String::from("'");
+    let mut escaped = false;
+    for b in value.bytes() {
+        let needs_escape = !(32..127).contains(&b);
+        if needs_escape != escaped {
+            out.push_str(if needs_escape { "'$'" } else { "''" });
+            escaped = needs_escape;
+        }
+        if needs_escape {
+            // Reuse C-locale byte escapes from the Foundation quoter.
+            match b {
+                7 => out.push_str("\\a"),
+                8 => out.push_str("\\b"),
+                9 => out.push_str("\\t"),
+                10 => out.push_str("\\n"),
+                11 => out.push_str("\\v"),
+                12 => out.push_str("\\f"),
+                13 => out.push_str("\\r"),
+                _ => out.push_str(&format!("\\{b:03o}")),
+            }
+        } else if b == b'\'' {
+            out.push_str("'\\''");
+        } else {
+            out.push(b as char);
+        }
+    }
+    out.push('\'');
+    out
+}
+
 pub(super) fn parse(
     name: &str,
     invocation: &str,
@@ -58,6 +106,15 @@ pub(super) fn parse(
         "basename" => long.extend([("multiple", 'a'), ("suffix", 's'), ("zero", 'z')]),
         "dirname" => long.push(("zero", 'z')),
         "printenv" => long.push(("null", '0')),
+        "cat" => long.extend([
+            ("number-nonblank", 'b'),
+            ("number", 'n'),
+            ("squeeze-blank", 's'),
+            ("show-nonprinting", 'v'),
+            ("show-ends", 'E'),
+            ("show-tabs", 'T'),
+            ("show-all", 'A'),
+        ]),
         _ => {}
     }
     long.extend([("help", 'h'), ("version", 'v')]);
@@ -106,7 +163,7 @@ pub(super) fn parse(
                     true,
                 )));
             };
-            if *ch != 's' && attached.is_some() {
+            if !(name == "basename" && *ch == 's') && attached.is_some() {
                 return Err(Box::new(error(
                     name,
                     invocation,
@@ -114,7 +171,14 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            let val = if *ch == 's' {
+            if name == "cat"
+                && matches!(*ch, 'h' | 'v')
+                && matches!(found.unwrap().0, "help" | "version")
+            {
+                out.special = Some(if *ch == 'h' { "help" } else { "version" });
+                return Ok(out);
+            }
+            let val = if name == "basename" && *ch == 's' {
                 Some(if let Some(value) = attached {
                     value.to_string()
                 } else {
@@ -138,6 +202,7 @@ pub(super) fn parse(
                     "basename" => "asz",
                     "dirname" => "z",
                     "printenv" => "0iu",
+                    "cat" => "AbEnestTuv",
                     _ => "",
                 };
                 if !allowed.contains(ch) {
@@ -155,7 +220,7 @@ pub(super) fn parse(
                         ..Default::default()
                     }));
                 }
-                if ch == 's' || ch == 'u' {
+                if (name == "basename" && ch == 's') || (name == "printenv" && ch == 'u') {
                     let rest = &arg[1 + offset + ch.len_utf8()..];
                     let value = if rest.is_empty() {
                         index += 1;
@@ -184,6 +249,10 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "cat" {
+                out.flags.push(ch);
+                continue;
+            }
             match ch {
                 'a' => out.multiple = true,
                 's' => {

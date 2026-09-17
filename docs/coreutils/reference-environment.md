@@ -1,9 +1,9 @@
-# GNU reference environment — Foundation
+# GNU reference environment — Foundation and cat
 
 The baseline is read from `content/cli-compatibility/manifest.json`. The lock at
 `content/cli-compatibility/coreutils-environment.json` must agree exactly. The
 current environment is Linux x86_64, Alpine 3.22.0, musl and GNU Coreutils 9.7-r1.
-The official minirootfs, every APK and the four GNU binaries have SHA-256 hashes in the lock. APK signature
+The official minirootfs, every APK and the five GNU binaries have SHA-256 hashes in the lock. APK signature
 verification uses the keys supplied by the official Alpine rootfs. Package version,
 origin and build date are recorded; no floating Coreutils version is accepted.
 
@@ -81,3 +81,30 @@ checks for reference environment and inputs.
 All Python, WSL, Docker and reference execution is DEV/CI only. Gameplay uses the
 Rust virtual implementation, package registry, virtual streams, credentials and
 VFS. The Windows executable does not require Linux, Coreutils, Docker or WSL.
+
+## Cat interaction protocol
+
+`coreutils_interaction.py` is mounted read-only inside the same isolated namespace.
+Cat captures use schema 3 and bind its hash in addition to the existing harness,
+lock, binary and canonical request hashes. Foundation retains schema 2.
+
+`io` declares stdin/stdout/stderr files, append and a closed pipe consumer. Fixtures
+can contain hardlinks and symlinks. `interaction.version = 1` declares ordered
+write, EOF, exact cumulative stdout barrier and virtual signal steps. GNU uses a
+real canonical PTY for stdin, with echo disabled; stdout/stderr stay separate pipes
+or the declared files. Captures identify these endpoints explicitly. A pipe-only
+capture cannot satisfy a PTY case.
+
+The worker waits for stdout bytes or a blocked read (`/proc/PID/wchan` and the
+pinned x86_64 syscall ABI) before signalling. Each run has a deadline; there are no
+fixed startup sleeps. Closed-consumer tests use a real pipe with its reader closed.
+Evidence distinguishes normal exit from signal termination and records shell
+status separately. Comparison includes observations, bytes, file content, type,
+mode, link count and inode equivalence classes. Logical VFS timestamps are not
+compared to host wall time. No runtime component invokes this helper.
+
+```sh
+python scripts/cli/coreutils-environment.py run --verify --command cat
+pnpm cli:compat --command cat
+pnpm cli:verify --command cat --strict
+```

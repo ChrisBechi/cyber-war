@@ -342,19 +342,29 @@ fn excessive_text_output_is_bounded_and_does_not_change_files() {
     let result = execute(&mut w, "cat large large large large large");
     assert_ne!(result.exit_code, 0);
     assert!(result.stderr.contains("4 MiB"));
-    assert!(result.stdout.is_empty());
+    assert_eq!(result.stderr_bytes, result.stderr.as_bytes());
+    assert_eq!(result.stdout, "x".repeat(4 * 1024 * 1024 - 4096));
     assert_eq!(w.vfs.nodes["/home/kali/large"].content.len(), 1024 * 1024);
 }
 
 #[test]
 fn audited_manuals_describe_the_implemented_subset() {
     let mut w = world();
-    for command in ["pwd", "cd", "cat", "head", "tail", "cp", "mv", "rm"] {
+    for command in ["pwd", "cd", "head", "tail", "cp", "mv", "rm"] {
         let help = execute(&mut w, &format!("{command} --help"));
         assert_eq!(help.exit_code, 0, "{command}");
         assert!(help.stdout.contains("virtual subset"));
         ok(&mut w, &format!("man {command}"), &help.stdout);
     }
+    let help = execute(&mut w, "cat --help");
+    assert_eq!(help.exit_code, 0);
+    assert!(help
+        .stdout
+        .contains("Concatenate FILE(s) to standard output."));
+    let manual = execute(&mut w, "man cat");
+    assert_eq!(manual.exit_code, 0);
+    assert!(manual.stdout.contains("canonical virtual TTY"));
+    assert!(manual.stdout.contains("SIGPIPE"));
     assert!(execute(&mut w, "man ip")
         .stdout
         .contains("still require a vertical audit"));

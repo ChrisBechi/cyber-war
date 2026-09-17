@@ -7,6 +7,7 @@ use crate::{
 
 #[derive(Default, Debug)]
 pub struct Output {
+    pub termination: Option<crate::shell::signals::Termination>,
     pub byte_ordered: Vec<(u8, Vec<u8>)>,
     /// Ordered writes used when a shell duplicates stdout/stderr or runs scripts.
     pub ordered: Vec<(u8, String)>,
@@ -153,10 +154,12 @@ pub(crate) fn options(
 }
 
 pub fn manual(command: &str) -> Option<String> {
+    if command == "cat" {
+        return Some(format!("{}\nCYBER WAR compatibility scope\n\nByte streams use the selected local/SSH virtual filesystem. All documented options are supported; -b overrides -n and transformation state continues across operands and chunks.\nThe canonical virtual TTY distinguishes pending input, complete lines and EOF. Ctrl+D flushes a partial line; on an empty line it ends the current read. Echo belongs to the UI. SIGINT, SIGTERM and SIGPIPE terminate the virtual process with status 130, 143 and 141. Full POSIX terminal modes and job control are outside this scope.\nResources are bounded; see docs/coreutils/MILESTONE-1C.2.md for limits and GNU evidence.\n", crate::coreutils::cat::help()));
+    }
     let syntax = match command {
         "pwd" => "pwd [-L|-P] [--]",
         "cd" => "cd [-L|-P] [--] [DIRECTORY|-]",
-        "cat" => "cat [-nbEsTu] [--number] [--number-nonblank] [--show-ends] [--show-tabs] [--squeeze-blank] [--] FILE...",
         "head" => "head [-qv] [-n N|-n -N|-c N|-c -N] [--lines=N|--bytes=N] [--] FILE...",
         "tail" => "tail [-qv] [-n N|-n +N|-c N|-c +N] [--lines=N|--bytes=N] [--] FILE...",
         "cp" => "cp [-rRnvfuTP] [-t DIRECTORY] [--recursive] [--no-clobber] [--verbose] [--force] [--no-dereference] [--target-directory=DIRECTORY] [--no-target-directory] [--version] [--] SOURCE... DESTINATION",
@@ -166,7 +169,6 @@ pub fn manual(command: &str) -> Option<String> {
     };
     let detail = match command {
         "pwd" | "cd" => "-L/-P are equivalent: this VFS has no symbolic links. cd updates PWD/OLDPWD; cd - prints the previous directory. CDPATH is not implemented.",
-        "cat" => "-b overrides -n. Numbering continues across files. Newlines and tabs are preserved unless explicitly displayed/transformed. -u is accepted with no buffering effect. -v/-e/-t/-A are not implemented.",
         "head" | "tail" => "Default: 10 lines. -q/--quiet/--silent suppress headers; -v/--verbose always shows headers. Decimal counts only. -n and -c accept attached or separate counts; the last one wins. Legacy -N is accepted only first. No follow mode, suffix multipliers or zero delimiters. Byte slices splitting UTF-8 cannot be represented by this text VFS and return an explicit error.",
         "cp" | "mv" => "Multiple sources require a destination directory. -t selects it explicitly; -T treats the destination as an exact path. cp -r/-R merges directories; mv replaces only empty destination directories. -n skips existing targets; -u skips targets at least as new; -v reports changes. cp -f retries unwritable destinations; mv uses the last -f/-n. Successful operands survive other operand failures. mv preserves virtual metadata and needs parent permissions, not file read access. cp preserves binary/media content, applies virtual umask 022, and creates fresh timestamps. cp -P and recursive copies preserve links; non-recursive cp follows final source links only. Interactive input, metadata preservation flags, backup flags, symlinked ancestors/destinations and full version banners remain unsupported. Recursion is bounded to 256 levels. A failed force retry is atomic per file.",
         "rm" => "Permanent VFS deletion, never GUI trash. -f ignores missing files but not permissions. -r/-R traverses directories without following symbolic links; -d removes empty directories. Each entry checks its parent permissions. Successful removals survive errors on other entries. Virtual root, dot/dot-dot and trash infrastructure are protected. Recursion is bounded to 256 levels. Interactive prompts, sticky bits and full version banners remain unsupported. Removing the current directory resets the game session to its virtual home.",

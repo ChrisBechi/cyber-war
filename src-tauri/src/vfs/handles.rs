@@ -17,6 +17,22 @@ pub(super) struct Handle {
     pub privileged: bool,
 }
 impl VirtualFileSystem {
+    #[cfg(test)]
+    pub(crate) fn open_handle_count(&self) -> usize {
+        self.handles.len()
+    }
+    pub fn handle_identity(&self, id: u64) -> GameResult<(u64, usize, u64, bool)> {
+        let h = self
+            .handles
+            .get(&id)
+            .ok_or_else(|| error(Errno::BadDescriptor))?;
+        let n = self
+            .nodes
+            .inodes
+            .get(&h.ino)
+            .ok_or_else(|| error(Errno::BadDescriptor))?;
+        Ok((h.ino, h.offset, n.logical_size(), n.kind == "file"))
+    }
     pub fn open(
         &mut self,
         path: &str,
