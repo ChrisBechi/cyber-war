@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "id": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
+  "coreutilsVersion": "9.7",
+  "architecture": "x86_64",
+  "locale": "C",
+  "timezone": "UTC",
+  "base": {
+    "file": "alpine-minirootfs-3.22.0-x86_64.tar.gz",
+    "url": "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/x86_64/alpine-minirootfs-3.22.0-x86_64.tar.gz",
+    "sha256": "18879884e35b0718f017a50ff85b5e6568279e97233fc42822229585feb2fa4d"
+  },
+  "repositories": [
+    "https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/",
+    "https://dl-cdn.alpinelinux.org/alpine/v3.22/community/x86_64/"
+  ],
+  "packages": [
+    {
+      "file": "acl-libs-2.3.2-r1.apk",
+      "sha256": "83c35935dcc0d592f65bc4626cec243b2c5f1a0a3d3e1361f10c4bb221a941f1",
+      "name": "acl-libs",
+      "version": "2.3.2-r1",
+      "origin": "acl",
+      "buildDate": "1735923921"
+    },
+    {
+      "file": "bubblewrap-0.12.0-r0.apk",
+      "sha256": "614479055804640f5f161358ec9d2043f6bb332776facdce8d9b630bfbeea2e5",
+      "name": "bubblewrap",
+      "version": "0.12.0-r0",
+      "origin": "bubblewrap",
+      "buildDate": "1788264351"
+    },
+    {
+      "file": "busybox-1.37.0-r20.apk",
+      "sha256": "7cc34c2dda2520b456ab4a55abc37fe245ac90f98ab9f1c7a9be3aec035df48e",
+      "name": "busybox",
+      "version": "1.37.0-r20",
+      "origin": "busybox",
+      "buildDate": "1763764856"
+    },
+    {
+      "file": "busybox-binsh-1.37.0-r20.apk",
+      "sha256": "ad33d8d799ed80eab45bb68d63c14062165d3653f4fb52e73959cd31d032210e",
+      "name": "busybox-binsh",
+      "version": "1.37.0-r20",
+      "origin": "busybox",
+      "buildDate": "1763764856"
+    },
+    {
+      "file": "coreutils-9.7-r1.apk",
+      "sha256": "f560dcf395e376abbfaf8fccd913d7260100975818c6cb9094832c13c75321c8",
+      "name": "coreutils",
+      "version": "9.7-r1",
+      "origin": "coreutils",
+      "buildDate": "1744817945"
+    },
+    {
+      "file": "coreutils-env-9.7-r1.apk",
+      "sha256": "d1f0969fc5446ec74042600e4ed36c61a7bcb5750b391e1c78143afc90a8e4ad",
+      "name": "coreutils-env",
+      "version": "9.7-r1",
+      "origin": "coreutils",
+      "buildDate": "1744817945"
+    },
+    {
+      "file": "coreutils-fmt-9.7-r1.apk",
+      "sha256": "e50150bef53ac1a6adade0647cd59b3064f3b0cc6e49307591b6f8af2507c359",
+      "name": "coreutils-fmt",
+      "version": "9.7-r1",
+      "origin": "coreutils",
+      "buildDate": "1744817945"
+    },
+    {
+      "file": "coreutils-sha512sum-9.7-r1.apk",
+      "sha256": "e42e5ffdf14f4b27cfc29538b367489c06533c2eaa451151d0140016d5d08438",
+      "name": "coreutils-sha512sum",
+      "version": "9.7-r1",
+      "origin": "coreutils",
+      "buildDate": "1744817945"
+    },
+    {
+      "file": "gdbm-1.24-r0.apk",
+      "sha256": "cb524a457ffbd9c79c6711d9ee883a64a5a9bc6aec4f4b4d047ee67527ac6e6d",
+      "name": "gdbm",
+      "version": "1.24-r0",
+      "origin": "gdbm",
+      "buildDate": "1719989947"
+    },
+    {
+      "file": "libattr-2.5.2-r2.apk",
+      "sha256": "1e2331a0e828bd5c61dd45b321ae2b88b9eceae5732100fd95270fe9981bff21",
+      "name": "libattr",
+      "version": "2.5.2-r2",
+      "origin": "attr",
+      "buildDate": "1726500216"
+    },
+    {
+      "file": "libbz2-1.0.8-r6.apk",
+      "sha256": "0c98810f9332bf1bb1b0acc64eaac4b101036689bffba9ea621416b4b3c190cd",
+      "name": "libbz2",
+      "version": "1.0.8-r6",
+      "origin": "bzip2",
+      "buildDate": "1684120357"
+    },
+    {
+      "file": "libcap2-2.78-r0.apk",
+      "sha256": "9850759bbb16f1ff6d1a49dc99947ef1401e1c10e5ca24f8380e69ba19f077c9",
+      "name": "libcap2",
+      "version": "2.78-r0",
+      "origin": "libcap",
+      "buildDate": "1775909514"
+    },
+    {
+      "file": "libcrypto3-3.5.8-r0.apk",
+      "sha256": "1d111bc0ad6380fdda22e6513941dc2e7988d6b1621d535bed6b3fa5ef086fae",
+      "name": "libcrypto3",
+      "version": "3.5.8-r0",
+      "origin": "openssl",
+      "buildDate": "1787691685"
+    },
+    {
+      "file": "libexpat-2.8.4-r0.apk",
+      "sha256": "f20b6ce1da2693c16023de7fe93c90353a4e93f3968ba90ec12729f4f2636864",
+      "name": "libexpat",
+      "version": "2.8.4-r0",
+      "origin": "expat",
+      "buildDate": "1788211967"
+    },
+    {
+      "file": "libffi-3.4.8-r0.apk",
+      "sha256": "9a75cb9024693c1e52c3d8d7c9afb7c79e6e20f6c08df28effdb8dd816095083",
+      "name": "libffi",
+      "version": "3.4.8-r0",
+      "origin": "libffi",
+      "buildDate": "1744538638"
+    },
+    {
+      "file": "libgcc-14.2.0-r6.apk",
+      "sha256": "04f3467bc967e705221a843fe4d3de5850db826e571686e0c0ed453d38cb5c59",
+      "name": "libgcc",
+      "version": "14.2.0-r6",
+      "origin": "gcc",
+      "buildDate": "1746799641"
+    },
+    {
+      "file": "libncursesw-6.5_p20250503-r0.apk",
+      "sha256": "aeafdfca68147b014705b4e2564639ade6345198debb522f2c6c51d32e417651",
+      "name": "libncursesw",
+      "version": "6.5_p20250503-r0",
+      "origin": "ncurses",
+      "buildDate": "1746535506"
+    },
+    {
+      "file": "libpanelw-6.5_p20250503-r0.apk",
+      "sha256": "046257a4535a9ced124595a33053948f6bf8b2f02988fefd1108f514d213ad4b",
+      "name": "libpanelw",
+      "version": "6.5_p20250503-r0",
+      "origin": "ncurses",
+      "buildDate": "1746535506"
+    },
+    {
+      "file": "libssl3-3.5.8-r0.apk",
+      "sha256": "e8d3ea5e9750cb1f4c4b459d172630925fe6bc13c113c590ac36c78013821e62",
+      "name": "libssl3",
+      "version": "3.5.8-r0",
+      "origin": "openssl",
+      "buildDate": "1787691685"
+    },
+    {
+      "file": "libstdc++-14.2.0-r6.apk",
+      "sha256": "939f7c99898f3e8154207a17f4acbe8bc40437e1bb1b43f5525620ca9e452a2e",
+      "name": "libstdc++",
+      "version": "14.2.0-r6",
+      "origin": "gcc",
+      "buildDate": "1746799641"
+    },
+    {
+      "file": "mpdecimal-4.0.1-r0.apk",
+      "sha256": "28f3d868efbc1e9093b95f4a3f6e74393acd4a37292fcb5c0e0e0612fe83fff3",
+      "name": "mpdecimal",
+      "version": "4.0.1-r0",
+      "origin": "mpdecimal",
+      "buildDate": "1747406985"
+    },
+    {
+      "file": "musl-1.2.5-r12.apk",
+      "sha256": "4990a5e0ba312e478f94cfe431a70efef1538004eb361c8ae424516848be45bb",
+      "name": "musl",
+      "version": "1.2.5-r12",
+      "origin": "musl",
+      "buildDate": "1775835372"
+    },
+    {
+      "file": "ncurses-terminfo-base-6.5_p20250503-r0.apk",
+      "sha256": "0815a5f0403974bb9c34d456e71dc9c0222cb5455d393bc63c44b573da3d7fe0",
+      "name": "ncurses-terminfo-base",
+      "version": "6.5_p20250503-r0",
+      "origin": "ncurses",
+      "buildDate": "1746535506"
+    },
+    {
+      "file": "pyc-3.12.14-r0.apk",
+      "sha256": "0aaec77dc160994b61fbc4bb18ded0ada51d3efbda01d51dae9cd2174d5294e6",
+      "name": "pyc",
+      "version": "3.12.14-r0",
+      "origin": "python3",
+      "buildDate": "1786633451"
+    },
+    {
+      "file": "python3-3.12.14-r0.apk",
+      "sha256": "f74286399e6910a9e531536b1e49971bda391a2e900d7fdd21e2f2a9da88c2ca",
+      "name": "python3",
+      "version": "3.12.14-r0",
+      "origin": "python3",
+      "buildDate": "1786633451"
+    },
+    {
+      "file": "python3-pyc-3.12.14-r0.apk",
+      "sha256": "0b60221a255764300f8304daa4ce177c92ab276bab13e7f7f007834b2f4cd43f",
+      "name": "python3-pyc",
+      "version": "3.12.14-r0",
+      "origin": "python3",
+      "buildDate": "1786633451"
+    },
+    {
+      "file": "python3-pycache-pyc0-3.12.14-r0.apk",
+      "sha256": "ff0f626575e8bdb49f4217f3ebba19fbba55b9c63afbf8a7b402a69aae59a817",
+      "name": "python3-pycache-pyc0",
+      "version": "3.12.14-r0",
+      "origin": "python3",
+      "buildDate": "1786633451"
+    },
+    {
+      "file": "readline-8.2.13-r1.apk",
+      "sha256": "520fa586c689144928191bee13e2c85ff4e170ad87d1471ec48e3e97611673d8",
+      "name": "readline",
+      "version": "8.2.13-r1",
+      "origin": "readline",
+      "buildDate": "1747304947"
+    },
+    {
+      "file": "skalibs-libs-2.14.4.0-r0.apk",
+      "sha256": "b00cb52d7c9c1309b2c2a11b654162ebabd728cf61898326aeffb39f2a27240a",
+      "name": "skalibs-libs",
+      "version": "2.14.4.0-r0",
+      "origin": "skalibs",
+      "buildDate": "1746593427"
+    },
+    {
+      "file": "sqlite-libs-3.49.2-r1.apk",
+      "sha256": "7af9a58595642de91ea35d3d070cd38d969680a720ce76b14966859e6fb4af99",
+      "name": "sqlite-libs",
+      "version": "3.49.2-r1",
+      "origin": "sqlite",
+      "buildDate": "1753029029"
+    },
+    {
+      "file": "ssl_client-1.37.0-r20.apk",
+      "sha256": "11b2a5f91caf8eb5daa9a0bc2586f93545de62897f3a704fd49533e1654b7a68",
+      "name": "ssl_client",
+      "version": "1.37.0-r20",
+      "origin": "busybox",
+      "buildDate": "1763764856"
+    },
+    {
+      "file": "utmps-libs-0.1.3.1-r0.apk",
+      "sha256": "3d1b9714c720828355c2b231fa188791f2b3e5dc26999681765d5adbbf951989",
+      "name": "utmps-libs",
+      "version": "0.1.3.1-r0",
+      "origin": "utmps",
+      "buildDate": "1747905098"
+    },
+    {
+      "file": "xz-libs-5.8.4-r0.apk",
+      "sha256": "37e169b7b400304fa7027cab79f9c1c7a280e83acf6c95463384b8abb7ebb254",
+      "name": "xz-libs",
+      "version": "5.8.4-r0",
+      "origin": "xz",
+      "buildDate": "1788989234"
+    },
+    {
+      "file": "zlib-1.3.2-r0.apk",
+      "sha256": "1f3d5f463f490dad3a68097376711bfe5e8156e9e8daff3070513aa4378cdeca",
+      "name": "zlib",
+      "version": "1.3.2-r0",
+      "origin": "zlib",
+      "buildDate": "1776179676"
+    }
+  ],
+  "provenance": "Official Alpine packages; APK signatures checked against keys in checksum-pinned official minirootfs; every download SHA-256 pinned. GNU baseline checked again inside Linux.",
+  "binaryHashes": {
+    "basename": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600",
+    "dirname": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600",
+    "printenv": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600",
+    "whoami": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600"
+  }
+}

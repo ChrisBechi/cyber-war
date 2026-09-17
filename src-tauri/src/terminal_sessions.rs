@@ -25,6 +25,7 @@ pub fn fresh_session() -> TerminalSession {
         package_pending: None,
         package_job: None,
         stdin: None,
+        stdin_bytes: None,
         io: Default::default(),
     }
 }

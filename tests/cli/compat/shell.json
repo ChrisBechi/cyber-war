@@ -291,7 +291,9 @@
     "expectedStdout": "",
     "expectedStderr": "",
     "expectedExitCode": 0,
-    "absentPaths": ["/dev/null"]
+    "expectedFilesystem": {
+      "/dev/null": ""
+    }
   },
   {
     "id": "null-source",

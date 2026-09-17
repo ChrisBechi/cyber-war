@@ -1,5 +1,5 @@
 import type { VfsNode } from './api';
-import { emptySchema } from './api';
+import { emptySchema, nodeSchema, request } from './api';
 import { associationForPath } from './file-associations';
 import { perform } from './game-store';
 import { softwareById } from './software-catalog';
@@ -29,6 +29,13 @@ export async function launchSoftware(entry: SoftwareEntry) {
 export async function openVfsNode(node: VfsNode, asRoot = false) {
   if (isTrashPath(node.id)) {
     throw new Error('Restaure o item da lixeira antes de abrir.');
+  }
+  if (node.kind === 'symlink') {
+    const resolved = await request('vfs_stat', { path: node.id, asRoot }, nodeSchema);
+    return openVfsNode(resolved, asRoot);
+  }
+  if (node.kind === 'charDevice') {
+    throw new Error('Dispositivo virtual: use o terminal para acessar.');
   }
   const windows = useWindows.getState();
   if (node.kind === 'directory') {

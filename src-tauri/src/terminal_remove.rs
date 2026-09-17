@@ -36,7 +36,16 @@ impl Remove<'_> {
             }
             Ok(true) => {}
         }
-        let directory = fs.nodes[path].kind == "directory";
+        let node = match fs.lstat(path, self.actor) {
+            Ok(node) => node,
+            Err(error) => {
+                self.error(label, error);
+                return;
+            }
+        };
+        let canonical = node.id.clone();
+        let path = canonical.as_str();
+        let directory = node.kind == "directory";
         if label.ends_with('/') && !directory {
             self.error(label, "Not a directory");
             return;

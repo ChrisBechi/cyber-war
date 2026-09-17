@@ -1,3 +1,5 @@
+import { attachCoreutils } from './coreutils.mjs';
+import { caseFingerprints } from './fingerprint.mjs';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { caseSchema, referenceFixtureSchema } from './schema.mjs';
@@ -29,8 +31,9 @@ export function currentCapture() {
   const path = resolve(root, 'artifacts/cli-evidence.json');
   if (!existsSync(path)) return null;
   const evidence = json('artifacts/cli-evidence.json');
-  if (evidence.schemaVersion !== 2 || evidence.fingerprint !== digest(evidenceSources()))
-    return null;
+  if (evidence.schemaVersion !== 2) return null;
+  const fresh = evidence.fingerprint === digest(evidenceSources());
+  if (!fresh && !evidence.caseFingerprints) return null;
   const raw = 'artifacts/cli-case-actual.json';
   if (!existsSync(resolve(root, raw)) || digest([raw]) !== evidence.captureHash) return null;
   const performance = 'artifacts/shell-performance.json';
@@ -40,11 +43,44 @@ export function currentCapture() {
     digest([performance]) === evidence.performanceHash
       ? json(performance)
       : null;
-  return { ...json(raw), fingerprint: evidence.fingerprint, shellPerformance };
+  const vfsPath = 'artifacts/vfs-performance.json';
+  const vfsPerformance =
+    evidence.vfsPerformanceHash &&
+    existsSync(resolve(root, vfsPath)) &&
+    digest([vfsPath]) === evidence.vfsPerformanceHash
+      ? json(vfsPath)
+      : null;
+  const perfPath = 'artifacts/coreutils-performance.json';
+  const coreutilsPerformance =
+    fresh &&
+    evidence.coreutilsPerformanceHash &&
+    existsSync(resolve(root, perfPath)) &&
+    digest([perfPath]) === evidence.coreutilsPerformanceHash
+      ? json(perfPath)
+      : null;
+  const captured = json(raw);
+  if (!fresh) {
+    const current = caseFingerprints(loadCases());
+    captured.cases = captured.cases.filter(
+      (c) => evidence.caseFingerprints[c.id] === current[c.id],
+    );
+  }
+  return {
+    ...captured,
+    coreutilsPerformance,
+    fingerprint: evidence.fingerprint,
+    shellPerformance: fresh ? shellPerformance : null,
+    vfsPerformance: fresh ? vfsPerformance : null,
+  };
 }
 export function pipeline(runtime = runtimeRegistry()) {
   runtimeNamesSourceCheck(runtime);
-  const report = evaluate(loadDiscovery(runtime), loadCases(), currentCapture(), hostGuard());
+  const report = evaluate(
+    attachCoreutils(loadDiscovery(runtime)),
+    loadCases(),
+    currentCapture(),
+    hostGuard(),
+  );
   report.summary = metrics(report);
   report.queue = queue(report);
   delete report.performance;

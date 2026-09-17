@@ -1,7 +1,12 @@
 //! A deterministic cooperative scheduler with bounded byte channels. There are
 //! no host threads/processes per stage, and an empty buffer is distinct from EOF.
 use super::*;
-use crate::shell::control::{self, Read};
+use crate::shell::control;
+enum Read {
+    Data(Vec<u8>),
+    Eof,
+    Pending,
+}
 use std::collections::VecDeque;
 
 const CHUNK: usize = 4096;
@@ -15,14 +20,14 @@ pub(crate) fn last_peak() -> usize {
 }
 #[derive(Default)]
 struct Pipe {
-    chunks: VecDeque<String>,
+    chunks: VecDeque<Vec<u8>>,
     bytes: usize,
     writer_closed: bool,
     reader_closed: bool,
     peak: usize,
 }
 impl Pipe {
-    fn push(&mut self, text: String) -> Result<bool, ()> {
+    fn push(&mut self, text: Vec<u8>) -> Result<bool, ()> {
         if self.reader_closed {
             return Err(());
         }
@@ -51,7 +56,7 @@ impl Pipe {
     }
 }
 enum Input {
-    Text(String, usize),
+    Text(Vec<u8>, usize),
     Pipe(usize),
     Terminal,
     Eof,
@@ -69,7 +74,11 @@ impl Input {
                 Read::Data(value)
             }
             Self::Pipe(i) => pipes[*i].read(),
-            Self::Terminal => control::read(),
+            Self::Terminal => match control::read() {
+                control::Read::Data(text) => Read::Data(text.into_bytes()),
+                control::Read::Eof => Read::Eof,
+                control::Read::Pending => Read::Pending,
+            },
             Self::Eof => Read::Eof,
         }
     }
@@ -80,10 +89,10 @@ impl Input {
     }
 }
 enum Engine {
-    Yes(String),
+    Yes(Vec<u8>),
     Cat,
     Head(usize),
-    Legacy { text: String, read: bool },
+    Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
 struct Process {
@@ -91,37 +100,32 @@ struct Process {
     session: crate::world::TerminalSession,
     input: Input,
     engine: Engine,
-    pending: VecDeque<(u8, String)>,
+    pending: VecDeque<(u8, Vec<u8>)>,
     destinations: [Destination; 3],
     files: Vec<File>,
     status: i32,
     done: bool,
     archive_job: Option<u32>,
 }
-fn chunk_end(text: &str, start: usize) -> usize {
-    let mut end = (start + CHUNK).min(text.len());
-    while !text.is_char_boundary(end) {
-        end -= 1;
-    }
-    end
+fn chunk_end(text: &[u8], start: usize) -> usize {
+    (start + CHUNK).min(text.len())
 }
-fn chunks(pending: &mut VecDeque<(u8, String)>, fd: u8, text: String) {
-    let mut offset = 0;
-    while offset < text.len() {
-        let end = chunk_end(&text, offset);
-        pending.push_back((fd, text[offset..end].into()));
-        offset = end;
+fn chunks(pending: &mut VecDeque<(u8, Vec<u8>)>, fd: u8, text: Vec<u8>) {
+    for chunk in text.chunks(CHUNK) {
+        pending.push_back((fd, chunk.to_vec()));
     }
 }
+
 pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     let Some(name) = stage.arguments.first() else {
         return false;
     };
+    let name = name.rsplit('/').next().unwrap_or(name);
     let args = &stage.arguments[1..];
     if name == "yes" {
         return true;
     }
-    match name.as_str() {
+    match name {
         "cat" => crate::terminal_io::options("cat", args, "nbEsTu", "", &[])
             .is_ok_and(|o| !o.help && (o.files.is_empty() || o.files == ["-"])),
         "head" => matches!(engine(stage, true), Engine::Head(_)),
@@ -129,7 +133,14 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     }
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
-    let name = stage.arguments.first().map(String::as_str).unwrap_or("");
+    let name = stage
+        .arguments
+        .first()
+        .map(String::as_str)
+        .unwrap_or("")
+        .rsplit('/')
+        .next()
+        .unwrap_or("");
     let args = stage.arguments.get(1..).unwrap_or_default();
     if available {
         if name == "yes" && !args.iter().any(|a| a.starts_with('-') && a != "--") {
@@ -138,14 +149,17 @@ fn engine(stage: &Stage, available: bool) -> Engine {
             } else {
                 args
             };
-            return Engine::Yes(format!(
-                "{}\n",
-                if args.is_empty() {
-                    "y".into()
-                } else {
-                    args.join(" ")
-                }
-            ));
+            return Engine::Yes(
+                format!(
+                    "{}\n",
+                    if args.is_empty() {
+                        "y".into()
+                    } else {
+                        args.join(" ")
+                    }
+                )
+                .into_bytes(),
+            );
         }
         if name == "cat" && (args.is_empty() || args == ["-"]) {
             return Engine::Cat;
@@ -195,7 +209,7 @@ fn engine(stage: &Stage, available: bool) -> Engine {
     ]
     .contains(&input_command);
     Engine::Legacy {
-        text: String::new(),
+        text: Vec::new(),
         read,
     }
 }
@@ -212,8 +226,8 @@ fn prepare(
     let pid = crate::shell::next_pid();
     let mut input = if index > 0 {
         Input::Pipe(index - 1)
-    } else if let Some(text) = &original.stdin {
-        Input::Text(text.clone(), 0)
+    } else if original.stdin_bytes.is_some() || original.stdin.is_some() {
+        Input::Text(crate::coreutils::io::stdin(world), 0)
     } else if original.io.stdin_tty {
         Input::Terminal
     } else {
@@ -240,26 +254,14 @@ fn prepare(
                 }
                 Redirect::Input(target) => {
                     let path = normalize(target, &original.cwd)?;
-                    if path != "/dev/null" {
-                        world.fs()?.readable(&path, &actor)?;
-                    }
+                    world.fs()?.readable(&path, &actor)?;
                     input_path = Some(path);
                     input_tty = false;
                 }
                 Redirect::Output(fd, target, append) => {
                     let path = normalize(target, &original.cwd)?;
-                    if path == "/dev/null" {
-                        destinations[*fd as usize] = Destination::Null;
-                    } else {
-                        world.fs_mut()?.prepare_output(&path, &actor, *append)?;
-                        destinations[*fd as usize] = Destination::File(files.len());
-                        files.push(File {
-                            path,
-                            host: original.host.clone(),
-                            append: *append,
-                            offset: 0,
-                        });
-                    }
+                    destinations[*fd as usize] = Destination::File(files.len());
+                    files.push(open_output(world, path, &actor, *append)?);
                 }
             }
             Ok(())
@@ -271,11 +273,7 @@ fn prepare(
     }
     if let Some(path) = input_path {
         input.close(pipes);
-        match if path == "/dev/null" {
-            Ok(String::new())
-        } else {
-            world.fs()?.read(&path, &actor)
-        } {
+        match super::read_input(world, &path, &actor) {
             Ok(text) => input = Input::Text(text, 0),
             Err(e) => error = Some(failure(format!("bash: {e}"))),
         }
@@ -298,13 +296,14 @@ fn prepare(
     let name = stage.arguments.first().map(String::as_str).unwrap_or("");
     let available = original.host.is_some()
         || crate::packages::executables::resolve(world, name, &actor).is_some_and(|resolved| {
-            crate::shell::path_file(world, name, &actor).as_ref() == Some(&resolved)
+            name.contains('/')
+                || crate::shell::path_file(world, name, &actor).as_ref() == Some(&resolved)
         });
     let mut engine = engine(stage, available);
     let mut pending = VecDeque::new();
     let mut status = 0;
     if let Some(error) = error {
-        chunks(&mut pending, 2, error.stderr);
+        chunks(&mut pending, 2, error.stderr.into_bytes());
         status = error.status;
         engine = Engine::Finished;
         input.close(pipes);
@@ -360,7 +359,7 @@ fn step(
             Read::Data(mut text) => {
                 if let Engine::Head(remaining) = &mut process.engine {
                     let mut end = text.len();
-                    for (i, byte) in text.bytes().enumerate() {
+                    for (i, byte) in text.iter().copied().enumerate() {
                         if byte == b'\n' {
                             *remaining -= 1;
                             if *remaining == 0 {
@@ -388,12 +387,12 @@ fn step(
                             chunks(
                                 &mut process.pending,
                                 2,
-                                "shell: legacy stdin adapter limit: 4 MiB\n".into(),
+                                b"shell: legacy stdin adapter limit: 4 MiB\n".to_vec(),
                             );
                             process.engine = Engine::Finished;
                             process.input.close(pipes);
                         } else {
-                            text.push_str(&chunk);
+                            text.extend_from_slice(&chunk);
                         }
                         return Ok(true);
                     }
@@ -401,7 +400,9 @@ fn step(
                 }
             }
             world.terminal = process.session.clone();
-            world.terminal.stdin = Some(std::mem::take(text));
+            let data = std::mem::take(text);
+            world.terminal.stdin = String::from_utf8(data.clone()).ok();
+            world.terminal.stdin_bytes = Some(data);
             let before = world.clone();
             let actor = world.terminal.user.clone();
             let mut result = if stage.arguments.is_empty() {
@@ -429,35 +430,14 @@ fn step(
                     "bash: interactive input requires a foreground command without redirection",
                 );
             }
-            if let Some(bytes) = result.binary.take() {
-                match process.destinations[1] {
-                    Destination::File(i) if !process.files[i].append => {
-                        let size = bytes.len() as u64;
-                        if let Err(e) = crate::archive::write_bytes(world, &process.files[i].path, bytes, &actor, size) { result = failure(e); }
-                    }
-                    Destination::Null => {}, _ => result = failure("bash: binary stdout requires > VIRTUAL_FILE; binary pipes/append are unsupported"),
-                }
-            }
-            if result.stdout.len() + result.stderr.len() > ADAPTER_LIMIT {
-                result = failure("shell: legacy output adapter limit: 4 MiB");
-            }
-            for (fd, text) in [(1, &result.stdout), (2, &result.stderr)] {
-                let emitted: usize = result
-                    .ordered
-                    .iter()
-                    .filter(|(f, _)| *f == fd)
-                    .map(|(_, s)| s.len())
-                    .sum();
-                if emitted < text.len() {
-                    result.ordered.push((fd, text[emitted..].into()));
-                }
-            }
-            for (fd, text) in result.ordered {
-                chunks(&mut process.pending, fd, text);
+            let status = result.status;
+            let job = result.archive_job;
+            for (fd, data) in output_chunks(result) {
+                chunks(&mut process.pending, fd, data);
             }
             process.session = world.terminal.clone();
-            process.status = result.status;
-            process.archive_job = result.archive_job;
+            process.status = status;
+            process.archive_job = job;
             process.engine = Engine::Finished;
         }
     }
@@ -508,14 +488,13 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                             }
                         }
                     } else {
-                        match emit(
+                        match emit_bytes(
                             world,
                             destination,
                             text,
                             &mut process.files,
-                            &original.user,
                             &mut output,
-                            &mut String::new(),
+                            &mut Vec::new(),
                         ) {
                             Ok(()) => true,
                             Err(error) => {
@@ -568,6 +547,9 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
     world
         .processes
         .retain(|p| !processes.iter().any(|running| running.pid == p.pid));
+    for process in &processes {
+        close_files(world, &process.files)?;
+    }
     world.terminal = original;
     #[cfg(test)]
     LAST_PEAK.with(|peak| peak.set(pipes.iter().map(|pipe| pipe.peak).max().unwrap_or(0)));
@@ -583,9 +565,9 @@ mod tests {
         let mut pipe = Pipe::default();
         assert!(matches!(pipe.read(), Read::Pending));
         for _ in 0..CAPACITY / CHUNK {
-            assert_eq!(pipe.push("x".repeat(CHUNK)), Ok(true));
+            assert_eq!(pipe.push(vec![b'x'; CHUNK]), Ok(true));
         }
-        assert_eq!(pipe.push("x".into()), Ok(false));
+        assert_eq!(pipe.push(b"x".to_vec()), Ok(false));
         assert_eq!(pipe.peak, CAPACITY);
         pipe.writer_closed = true;
         for _ in 0..CAPACITY / CHUNK {
@@ -593,6 +575,6 @@ mod tests {
         }
         assert!(matches!(pipe.read(), Read::Eof));
         pipe.close_reader();
-        assert_eq!(pipe.push("x".into()), Err(()));
+        assert_eq!(pipe.push(b"x".to_vec()), Err(()));
     }
 }

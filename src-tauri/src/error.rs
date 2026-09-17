@@ -2,6 +2,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum GameError {
+    #[error("{0}")]
+    Vfs(crate::vfs::Errno),
     #[error("database error: {0}")]
     Database(#[from] rusqlite::Error),
 

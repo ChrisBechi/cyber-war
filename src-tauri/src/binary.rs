@@ -80,6 +80,9 @@ pub fn import(
     };
     reference.validate()?;
     let path = normalize(path, HOME)?;
+    let path = world
+        .vfs
+        .resolve_missing(&path, actor, crate::vfs::Follow::Yes, true)?;
     if VirtualFileSystem::is_trash_path(&path) {
         return Err(domain("restore trash items before replacing them"));
     }
@@ -102,6 +105,9 @@ pub struct BinaryRead {
 }
 pub fn read(world: &WorldState, path: &str, actor: &str) -> GameResult<BinaryRead> {
     let path = normalize(path, HOME)?;
+    let path = world
+        .vfs
+        .resolve_missing(&path, actor, crate::vfs::Follow::Yes, true)?;
     if VirtualFileSystem::is_trash_path(&path) {
         return Err(domain("restore trash items before opening"));
     }
@@ -128,7 +134,7 @@ fn references(json: &str) -> GameResult<BTreeMap<String, BlobRef>> {
         match value {
             serde_json::Value::Object(map) => {
                 if map.get("kind").and_then(|v| v.as_str()) == Some("file")
-                    && map.contains_key("parentId")
+                    && (map.contains_key("parentId") || map.contains_key("ino"))
                 {
                     if let Some(blob) = map.get("blob").filter(|v| !v.is_null()) {
                         let reference: BlobRef = serde_json::from_value(blob.clone())?;

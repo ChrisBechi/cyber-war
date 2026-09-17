@@ -176,7 +176,7 @@ pub fn command(world: &mut WorldState, args: &[String], actor: &str) -> GameResu
     if let Some(root) = &options.operating_dir {
         let root = normalize(root, &world.terminal.cwd)?;
         world.fs()?.directory(&root, actor)?;
-        options.operating_dir = Some(root);
+        options.operating_dir = Some(world.fs()?.resolve(&root, actor, crate::vfs::Follow::Yes)?);
     }
     let path = normalize(
         file,
@@ -185,6 +185,9 @@ pub fn command(world: &mut WorldState, args: &[String], actor: &str) -> GameResu
             .as_deref()
             .unwrap_or(&world.terminal.cwd),
     )?;
+    let path = world
+        .fs()?
+        .resolve_missing(&path, actor, crate::vfs::Follow::Yes, true)?;
     if let Some(root) = options.operating_dir.as_deref() {
         let root = normalize(root, &world.terminal.cwd)?;
         if path != root && !path.starts_with(&format!("{root}/")) {
@@ -193,7 +196,12 @@ pub fn command(world: &mut WorldState, args: &[String], actor: &str) -> GameResu
     }
     let original = match world.fs()?.read(&path, actor) {
         Ok(content) => Some(content),
-        Err(error) if error.to_string().contains("no such file") && !options.view => {
+        Err(error)
+            if matches!(
+                error,
+                crate::error::GameError::Vfs(crate::vfs::Errno::NotFound)
+            ) && !options.view =>
+        {
             world.fs()?.directory(parent(&path), actor)?;
             None
         }

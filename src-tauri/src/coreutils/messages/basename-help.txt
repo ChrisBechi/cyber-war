@@ -1,0 +1,22 @@
+Usage: {invocation} NAME [SUFFIX]
+  or:  {invocation} OPTION... NAME...
+Print NAME with any leading directory components removed.
+If specified, also remove a trailing SUFFIX.
+
+Mandatory arguments to long options are mandatory for short options too.
+  -a, --multiple       support multiple arguments and treat each as a NAME
+  -s, --suffix=SUFFIX  remove a trailing SUFFIX; implies -a
+  -z, --zero           end each output line with NUL, not newline
+      --help        display this help and exit
+      --version     output version information and exit
+
+Examples:
+  {invocation} /usr/bin/sort          -> "sort"
+  {invocation} include/stdio.h .h     -> "stdio"
+  {invocation} -s .h include/stdio.h  -> "stdio"
+  {invocation} -a any/str1 any/str2   -> "str1" followed by "str2"
+
+GNU coreutils online help: <https://www.gnu.org/software/coreutils/>
+Report any translation bugs to <https://translationproject.org/team/>
+Full documentation <https://www.gnu.org/software/coreutils/basename>
+or available locally via: info '(coreutils) basename invocation'

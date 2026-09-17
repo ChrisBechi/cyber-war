@@ -34,6 +34,7 @@ pub(crate) struct Stage {
     pub arguments: Vec<String>,
     pub redirects: Vec<Redirect>,
     pub assignments: std::collections::BTreeMap<String, String>,
+    pub assignment_order: Vec<String>,
     pub assignment_status: Option<i32>,
 }
 
@@ -96,10 +97,8 @@ enum Destination {
     Null,
 }
 struct File {
-    path: String,
     host: Option<String>,
-    append: bool,
-    offset: usize,
+    handle: u64,
 }
 
 fn failure(error: impl std::fmt::Display) -> Output {
@@ -115,72 +114,131 @@ fn failure(error: impl std::fmt::Display) -> Output {
     }
 }
 
-fn emit(
+fn emit_bytes(
     world: &mut WorldState,
     destination: Destination,
-    text: &str,
+    data: &[u8],
     files: &mut [File],
-    actor: &str,
     output: &mut Output,
-    pipe: &mut String,
+    pipe: &mut Vec<u8>,
 ) -> GameResult<()> {
-    if text.is_empty() {
+    if data.is_empty() {
         return Ok(());
     }
-    if matches!(
-        destination,
-        Destination::Stdout | Destination::Stderr | Destination::Pipe
-    ) && output.stdout.len() + output.stderr.len() + pipe.len() + text.len()
+    if output
+        .byte_ordered
+        .iter()
+        .map(|(_, b)| b.len())
+        .sum::<usize>()
+        + pipe.len()
+        + data.len()
         > 4 * 1024 * 1024 - 1024
+        && !matches!(destination, Destination::File(_) | Destination::Null)
     {
         return Err(domain("shell: output limit: 4 MiB"));
     }
     match destination {
-        Destination::Stdout => {
-            output.stdout.push_str(text);
-            output.ordered.push((1, text.into()));
-            crate::shell::control::emit(1, text);
+        Destination::Stdout | Destination::Stderr => {
+            let fd = if matches!(destination, Destination::Stdout) {
+                1
+            } else {
+                2
+            };
+            // Text is presentation only. byte_ordered/binary retain the exact command bytes.
+            let display = String::from_utf8_lossy(data);
+            if fd == 1 {
+                output.stdout.push_str(&display);
+                output
+                    .binary
+                    .get_or_insert_with(Vec::new)
+                    .extend_from_slice(data);
+            } else {
+                output.stderr.push_str(&display);
+            }
+            output.ordered.push((fd, display.to_string()));
+            output.byte_ordered.push((fd, data.to_vec()));
+            crate::shell::control::emit(fd, &display);
         }
-        Destination::Stderr => {
-            output.stderr.push_str(text);
-            output.ordered.push((2, text.into()));
-            crate::shell::control::emit(2, text);
-        }
-        Destination::Pipe => pipe.push_str(text),
+        Destination::Pipe => pipe.extend_from_slice(data),
         Destination::Null => {}
         Destination::File(index) => {
-            let file = &mut files[index];
-            let fs = match &file.host {
-                Some(host) => {
-                    &mut world
-                        .network
-                        .hosts
-                        .get_mut(host)
-                        .ok_or_else(|| domain("redirect host missing"))?
-                        .files
-                }
-                None => &mut world.vfs,
-            };
-            let mut content = fs
-                .nodes
-                .get(&file.path)
-                .map(|n| n.content.clone())
-                .unwrap_or_default();
-            let start = if file.append {
-                content.len()
-            } else {
-                file.offset
-            };
-            let end = (start + text.len()).min(content.len());
-            if !content.is_char_boundary(start) || !content.is_char_boundary(end) {
-                return Err(domain(
-                    "bash: redirected write splits UTF-8; byte streams are outside this subset",
-                ));
-            }
-            content.replace_range(start..end, text);
-            fs.write(&file.path, &content, actor)?;
-            file.offset = start + text.len();
+            let file = &files[index];
+            let previous = world.terminal.host.clone();
+            world.terminal.host = file.host.clone();
+            let result = crate::coreutils::io::write_handle(world, file.handle, data);
+            world.terminal.host = previous;
+            result?;
         }
+    }
+    Ok(())
+}
+fn output_chunks(mut result: Output) -> Vec<(u8, Vec<u8>)> {
+    if !result.byte_ordered.is_empty() {
+        return result.byte_ordered;
+    }
+    let mut chunks = Vec::new();
+    if let Some(bytes) = result.binary.take() {
+        chunks.push((1, bytes));
+    }
+    for (fd, text) in [(1, &result.stdout), (2, &result.stderr)] {
+        let emitted: usize = result
+            .ordered
+            .iter()
+            .filter(|(f, _)| *f == fd)
+            .map(|(_, s)| s.len())
+            .sum();
+        if emitted < text.len() {
+            result.ordered.push((fd, text[emitted..].to_owned()));
+        }
+    }
+    chunks.extend(
+        result
+            .ordered
+            .into_iter()
+            .map(|(fd, text)| (fd, text.into_bytes())),
+    );
+    chunks
+}
+
+fn open_output(
+    world: &mut WorldState,
+    path: String,
+    actor: &str,
+    append: bool,
+) -> GameResult<File> {
+    let host = world.terminal.host.clone();
+    let handle = world.fs_mut()?.open(
+        &path,
+        crate::vfs::OpenFlags {
+            write: true,
+            create: true,
+            truncate: !append,
+            append,
+            ..Default::default()
+        },
+        0o666,
+        actor,
+    )?;
+    Ok(File { host, handle })
+}
+fn read_input(world: &mut WorldState, path: &str, actor: &str) -> GameResult<Vec<u8>> {
+    crate::coreutils::io::read(world, path, actor, &mut None)
+}
+
+fn close_files(world: &mut WorldState, files: &[File]) -> GameResult<()> {
+    for file in files {
+        let fs = match &file.host {
+            Some(host) => {
+                &mut world
+                    .network
+                    .hosts
+                    .get_mut(host)
+                    .ok_or_else(|| domain("redirect host missing"))?
+                    .files
+            }
+            None => &mut world.vfs,
+        };
+        fs.close(file.handle)?;
     }
     Ok(())
 }
@@ -197,19 +255,22 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
     let pipeline = stages.len() > 1;
     let original = world.terminal.clone();
     let actor = original.user.clone();
-    let mut pipe = String::new();
+    let mut pipe = Vec::new();
     let mut output = Output::default();
     for (index, stage) in stages.iter().enumerate() {
         if pipeline {
             world.terminal = original.clone();
         }
         let mut input = if index == 0 {
-            original.stdin.clone()
+            original
+                .stdin_bytes
+                .clone()
+                .or_else(|| original.stdin.as_ref().map(|s| s.as_bytes().to_vec()))
         } else {
             Some(std::mem::take(&mut pipe))
         };
         if input.is_none() && !original.io.stdin_tty {
-            input = Some(String::new());
+            input = Some(Vec::new());
         }
         let mut input_tty = index == 0 && original.io.stdin_tty;
         let mut input_path = None;
@@ -232,26 +293,14 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
                     }
                     Redirect::Input(target) => {
                         let path = normalize(target, &world.terminal.cwd)?;
-                        if path != "/dev/null" {
-                            world.fs()?.readable(&path, &actor)?;
-                        }
+                        world.fs()?.readable(&path, &actor)?;
                         input_path = Some(path);
                         input_tty = false;
                     }
                     Redirect::Output(fd, target, append) => {
                         let path = normalize(target, &world.terminal.cwd)?;
-                        if path == "/dev/null" {
-                            destinations[*fd as usize] = Destination::Null;
-                        } else {
-                            world.fs_mut()?.prepare_output(&path, &actor, *append)?;
-                            destinations[*fd as usize] = Destination::File(files.len());
-                            files.push(File {
-                                path,
-                                host: world.terminal.host.clone(),
-                                append: *append,
-                                offset: 0,
-                            });
-                        }
+                        destinations[*fd as usize] = Destination::File(files.len());
+                        files.push(open_output(world, path, &actor, *append)?);
                     }
                 }
                 Ok(())
@@ -267,11 +316,7 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
         }
         if opening_error.is_none() {
             if let Some(path) = input_path {
-                match if path == "/dev/null" {
-                    Ok(String::new())
-                } else {
-                    world.fs()?.read(&path, &actor)
-                } {
+                match read_input(world, &path, &actor) {
                     Ok(text) => input = Some(text),
                     Err(error) => opening_error = Some(format!("bash: {path}: {error}")),
                 }
@@ -287,12 +332,19 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
             stdout_tty: is_tty(destinations[1]),
             stderr_tty: is_tty(destinations[2]),
         };
-        world.terminal.stdin = input;
-        for (key, value) in &stage.assignments {
+        world.terminal.stdin = input
+            .as_ref()
+            .and_then(|b| String::from_utf8(b.clone()).ok());
+        world.terminal.stdin_bytes = input;
+        for key in &stage.assignment_order {
+            let value = &stage.assignments[key];
             world.terminal.env.insert(key.clone(), value.clone());
             world.terminal.shell.unset.remove(key);
             if !stage.arguments.is_empty() {
                 world.terminal.exported.insert(key.clone());
+                if !world.terminal.shell.environment_order.contains(key) {
+                    world.terminal.shell.environment_order.push(key.clone());
+                }
             }
         }
         let before_command = world.clone();
@@ -329,52 +381,31 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
                 "bash: interactive input requires a foreground command without redirection",
             );
         }
-        if let Some(bytes) = result.binary.take() {
-            match destinations[1] {
-                Destination::File(i) if !files[i].append => {
-                    let host = world.terminal.host.clone();
-                    world.terminal.host = files[i].host.clone();
-                    let size = bytes.len() as u64;
-                    let saved = crate::archive::write_bytes(world, &files[i].path, bytes, &actor, size);
-                    world.terminal.host = host;
-                    if let Err(error) = saved { result = failure(error); }
-                }
-                Destination::Null => {},
-                _ => result = failure("bash: binary stdout requires > VIRTUAL_FILE; binary pipes/append are unsupported"),
-            }
-        }
-        let mut chunks = std::mem::take(&mut result.ordered);
-        // Legacy commands still return aggregate streams. Script diagnostics may
-        // also be appended after its final ordered command (e.g. a syntax error).
-        for (fd, text) in [(1, &result.stdout), (2, &result.stderr)] {
-            let emitted: usize = chunks
-                .iter()
-                .filter(|(f, _)| *f == fd)
-                .map(|(_, s)| s.len())
-                .sum();
-            if emitted < text.len() {
-                chunks.push((fd, text[emitted..].to_string()));
-            }
-        }
+        let status = result.status;
+        let archive_job = result.archive_job;
+        let chunks = output_chunks(result);
+        let mut result = Output {
+            status,
+            archive_job,
+            ..Default::default()
+        };
         for (fd, text) in chunks {
-            if let Err(error) = emit(
+            if let Err(error) = emit_bytes(
                 world,
                 destinations[fd as usize],
                 &text,
                 &mut files,
-                &actor,
                 &mut output,
                 &mut pipe,
             ) {
                 result.status = 1;
                 // A failed write is diagnosed on stderr, including its redirection.
                 let error = format!("bash: write error: {error}\n");
-                if emit(
+                if emit_bytes(
                     world,
                     destinations[2],
-                    &error,
+                    error.as_bytes(),
                     &mut files,
-                    &actor,
                     &mut output,
                     &mut pipe,
                 )
@@ -384,10 +415,14 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
                 }
             }
         }
+        close_files(world, &files)?;
         output.status = result.status;
         output.archive_job = result.archive_job;
         if !stage.arguments.is_empty() {
             for key in stage.assignments.keys() {
+                if !original.shell.environment_order.contains(key) {
+                    world.terminal.shell.environment_order.retain(|k| k != key);
+                }
                 match original.env.get(key) {
                     Some(value) => {
                         world.terminal.env.insert(key.clone(), value.clone());
@@ -418,6 +453,7 @@ pub(crate) fn run_stages(world: &mut WorldState, stages: &[Stage]) -> GameResult
     } else {
         world.terminal.io = original.io;
         world.terminal.stdin = original.stdin;
+        world.terminal.stdin_bytes = original.stdin_bytes;
     }
     Ok(output)
 }

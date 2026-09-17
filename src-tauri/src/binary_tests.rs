@@ -44,10 +44,9 @@ fn bytes_roundtrip_are_not_serialized_and_copies_share_one_blob() {
                 terminal::execute(w, "cp Pictures/a.png Pictures/b.png").exit_code,
                 0
             );
-            assert_ne!(terminal::execute(w, "cat Pictures/a.png").exit_code, 0);
-            assert_ne!(
-                terminal::execute(w, "echo text >> Pictures/a.png").exit_code,
-                0
+            assert_eq!(
+                terminal::execute(w, "cat Pictures/a.png").stdout_bytes,
+                bytes
             );
             Ok(())
         },
@@ -180,7 +179,7 @@ fn manual_checkpoint_and_old_text_snapshots_remain_loadable() {
 fn invalid_imports_never_create_files() {
     let mut game = game();
     for (path, data, mime) in [
-        ("C:\\Windows\\a", "YQ==", "image/png"),
+        ("Pictures/a\0b", "YQ==", "image/png"),
         ("Pictures/a", "!", "image/png"),
         ("Pictures/a", "YQ==", "text/html;script"),
         ("/root/a", "YQ==", "image/png"),

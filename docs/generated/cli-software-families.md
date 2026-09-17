@@ -92,9 +92,9 @@ Aliases: None.
 
 PARTIAL; REAL_COMPAT; package: bash; reference: 5.2.37.
 
-Executables: `bash`, `cd`, `command`, `echo`, `exit`, `export`, `false`, `help`, `jobs`, `kill`, `pwd`, `return`, `sh`, `source`, `true`, `type`, `unset`.
+Executables: `bash`, `cd`, `command`, `echo`, `exit`, `export`, `false`, `help`, `jobs`, `kill`, `pwd`, `return`, `sh`, `source`, `true`, `type`, `umask`, `unset`.
 
-Aliases: `.` → `source`.
+Aliases: `.` â†’ `source`.
 
 ## bind9-dnsutils
 
@@ -236,7 +236,7 @@ Aliases: None.
 
 PARTIAL; REAL_COMPAT; package: coreutils; reference: 9.7.
 
-Executables: `base64`, `basename`, `cat`, `chmod`, `chown`, `cp`, `cut`, `date`, `df`, `dirname`, `du`, `env`, `groups`, `head`, `id`, `ls`, `mkdir`, `mv`, `printenv`, `readlink`, `realpath`, `rm`, `seq`, `sha256sum`, `sort`, `stat`, `tail`, `tee`, `touch`, `tr`, `uname`, `uniq`, `wc`, `whoami`, `yes`.
+Executables: `base64`, `basename`, `cat`, `chmod`, `chown`, `cp`, `cut`, `date`, `df`, `dirname`, `du`, `env`, `groups`, `head`, `id`, `ln`, `ls`, `mkdir`, `mv`, `printenv`, `readlink`, `realpath`, `rm`, `rmdir`, `seq`, `sha256sum`, `sort`, `stat`, `tail`, `tee`, `touch`, `tr`, `uname`, `uniq`, `wc`, `whoami`, `yes`.
 
 Aliases: None.
 

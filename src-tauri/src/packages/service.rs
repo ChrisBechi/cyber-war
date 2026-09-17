@@ -418,7 +418,7 @@ fn unpack(
             world.vfs.write(&f.path, &f.content, "root")?;
         }
         world.vfs.chmod(&f.path, "root", f.mode)?;
-        if let Some(n) = world.vfs.nodes.get_mut(&f.path) {
+        if let Some(mut n) = world.vfs.nodes.get_mut(&f.path) {
             n.metadata.insert("packageOwner".into(), p.name.clone());
             n.metadata
                 .insert("logicalSize".into(), f.logical_size.to_string());
@@ -758,7 +758,7 @@ fn apply_atomic(world: &mut WorldState, p: &Plan, phases: &mut Vec<String>) -> G
     })
 }
 pub fn set_deb_mime(world: &mut WorldState, path: &str) {
-    if let Some(n) = world.vfs.nodes.get_mut(path) {
+    if let Some(mut n) = world.vfs.nodes.get_mut(path) {
         n.metadata.insert("mime".into(), deb::MIME.into());
         if let Some(b) = &mut n.blob {
             b.mime = deb::MIME.into();

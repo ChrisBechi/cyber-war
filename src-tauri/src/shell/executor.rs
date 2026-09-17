@@ -28,6 +28,23 @@ pub fn append(total: &mut Output, mut output: Output) -> GameResult<()> {
             output.ordered.push((fd, text[emitted..].into()));
         }
     }
+    total.binary.get_or_insert_with(Vec::new).extend(
+        output
+            .binary
+            .take()
+            .unwrap_or_else(|| output.stdout.as_bytes().to_vec()),
+    );
+    if output.byte_ordered.is_empty() {
+        output.byte_ordered.extend(
+            output
+                .ordered
+                .iter()
+                .map(|(fd, text)| (*fd, text.as_bytes().to_vec())),
+        );
+    }
+    total
+        .byte_ordered
+        .extend(std::mem::take(&mut output.byte_ordered));
     total.stdout.push_str(&output.stdout);
     total.stderr.push_str(&output.stderr);
     total.ordered.extend(output.ordered);
@@ -58,6 +75,9 @@ fn expand_pipeline(
                         let value = expanded.values.join("");
                         world.terminal.env.insert(key.clone(), value.clone());
                         world.terminal.shell.unset.remove(&key);
+                        if !stage.assignment_order.contains(&key) {
+                            stage.assignment_order.push(key.clone());
+                        }
                         stage.assignments.insert(key, value);
                         if stage
                             .assignments

@@ -14,6 +14,7 @@ mod cli_tooling_bridge;
 mod command_registry;
 mod commands;
 mod completion;
+mod coreutils;
 mod db;
 mod desktop;
 mod domains;

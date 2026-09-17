@@ -174,7 +174,6 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
     let before = serde_json::to_string(&w.vfs).unwrap();
     for cmd in [
         "cat --invented a",
-        "cat -v a",
         "head -f a",
         "tail -f a",
         "tail --follow a",
@@ -196,15 +195,15 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
 }
 
 #[test]
-fn utf8_byte_ranges_fail_explicitly_instead_of_corrupting_text() {
+fn utf8_byte_ranges_preserve_exact_bytes_without_semantic_replacement() {
     let mut w = world();
     file(&mut w, "utf8", "áZ");
     ok(&mut w, "head -c2 utf8", "á");
     ok(&mut w, "tail -c1 utf8", "Z");
     let result = execute(&mut w, "head -c1 utf8");
-    assert_eq!(result.exit_code, 1);
-    assert!(result.stderr.contains("UTF-8"));
-    assert!(result.stdout.is_empty());
+    assert_eq!(result.exit_code, 0);
+    assert_eq!(result.stdout_bytes, vec![0xc3]);
+    assert!(result.stderr.is_empty());
 }
 
 #[test]

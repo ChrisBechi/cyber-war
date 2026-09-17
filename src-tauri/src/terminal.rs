@@ -4,7 +4,6 @@ use crate::{
     world::WorldState,
 };
 use serde::Serialize;
-use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const COMMANDS: &[&str] = &[
@@ -43,6 +42,7 @@ pub const COMMANDS: &[&str] = &[
     "export",
     "ls",
     "mkdir",
+    "rmdir",
     "touch",
     "cat",
     "head",
@@ -60,6 +60,7 @@ pub const COMMANDS: &[&str] = &[
     "dirname",
     "realpath",
     "readlink",
+    "ln",
     "which",
     "type",
     "command",
@@ -125,6 +126,13 @@ pub const COMMANDS: &[&str] = &[
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommandResult {
+    #[serde(skip)]
+    #[allow(dead_code)]
+    // Raw command transport is inspected by development capture, never rendered as text.
+    pub stdout_bytes: Vec<u8>,
+    #[serde(skip)]
+    #[allow(dead_code)]
+    pub stderr_bytes: Vec<u8>,
     pub shell_incomplete: bool,
     pub(crate) ordered: Vec<(u8, String)>,
     pub stdout: String,
@@ -265,6 +273,11 @@ fn execute_with(
     world: &mut WorldState,
     work: impl FnOnce(&mut WorldState) -> GameResult<crate::terminal_io::Output>,
 ) -> CommandResult {
+    if world.terminal.shell.environment_order.is_empty() {
+        world.terminal.shell.environment_order = virtual_env(world, &world.terminal.user)
+            .into_keys()
+            .collect();
+    }
     let mut candidate = world.clone();
     let outcome = work(&mut candidate).map(|mut output| {
         if crate::shell::control::cancelled() {
@@ -272,8 +285,13 @@ fn execute_with(
         }
         output
     });
-    let (stdout, stderr, code, archive_job, ordered) = match outcome {
+    let (stdout, stderr, code, archive_job, ordered, stdout_bytes, stderr_bytes) = match outcome {
         Ok(out) => {
+            // Process umask belongs to the shell context, not the shared desktop VFS.
+            candidate.vfs.umask = world.vfs.umask;
+            for (id, host) in &mut candidate.network.hosts {
+                host.files.umask = world.network.hosts.get(id).map_or(0o022, |h| h.files.umask);
+            }
             if candidate.terminal.cwd != world.terminal.cwd
                 || candidate.terminal.host != world.terminal.host
             {
@@ -288,21 +306,43 @@ fn execute_with(
             }
             observe(&mut candidate);
             *world = candidate;
+            let raw = out.binary.unwrap_or_else(|| out.stdout.as_bytes().to_vec());
+            let raw_error = if out.byte_ordered.is_empty() {
+                out.stderr.as_bytes().to_vec()
+            } else {
+                out.byte_ordered
+                    .iter()
+                    .filter(|(fd, _)| *fd == 2)
+                    .flat_map(|(_, bytes)| bytes.iter().copied())
+                    .collect()
+            };
             (
                 out.stdout,
                 out.stderr,
                 out.status,
                 out.archive_job,
                 out.ordered,
+                raw,
+                raw_error,
             )
         }
         Err(e) => {
             let text = e.to_string();
-            (String::new(), format!("{text}\n"), 2, None, Vec::new())
+            (
+                String::new(),
+                format!("{text}\n"),
+                2,
+                None,
+                Vec::new(),
+                Vec::new(),
+                format!("{text}\n").into_bytes(),
+            )
         }
     };
     world.terminal.last_status = code;
     CommandResult {
+        stdout_bytes,
+        stderr_bytes,
         shell_incomplete: false,
         ordered,
         stdout,
@@ -1244,6 +1284,9 @@ pub(crate) fn virtual_env(world: &WorldState, actor: &str) -> BTreeMap<String, S
 }
 
 fn manual_page(command: &str) -> String {
+    if let Some(manual) = crate::coreutils::help(command) {
+        return manual;
+    }
     if ["fastfetch", "neofetch"].contains(&command) {
         return crate::system_info::HELP.into();
     }
@@ -1291,7 +1334,30 @@ pub(crate) fn dispatch(
     parts: &[String],
     actor: &str,
 ) -> GameResult<crate::terminal_io::Output> {
+    let anchors = world.cwd_anchors();
+    let result = dispatch_command(world, parts, actor);
+    world.repair_cwds(anchors);
+    result
+}
+fn dispatch_command(
+    world: &mut WorldState,
+    parts: &[String],
+    actor: &str,
+) -> GameResult<crate::terminal_io::Output> {
     use crate::terminal_io::Output;
+    if parts[0].contains('/') {
+        let absolute = normalize(&parts[0], &world.terminal.cwd)?;
+        if let Ok(resolved) = world
+            .fs()?
+            .resolve(&absolute, actor, crate::vfs::Follow::Yes)
+        {
+            if world.packages.ownership.contains_key(&resolved) && resolved != parts[0] {
+                let mut argv = parts.to_vec();
+                argv[0] = resolved;
+                return dispatch(world, &argv, actor);
+            }
+        }
+    }
     let original_name = parts[0].as_str();
     let mut resolved_parts = parts.to_vec();
     if !original_name.contains('/') && !crate::shell::is_builtin(original_name) {
@@ -1322,16 +1388,7 @@ pub(crate) fn dispatch(
         } else if original_name.contains('/') {
             let path = normalize(original_name, &world.terminal.cwd)?;
             if let Ok(node) = world.fs()?.stat(&path, actor) {
-                let mask = if actor == "root" {
-                    0o111
-                } else if node.owner == actor {
-                    0o100
-                } else if node.group == actor {
-                    0o010
-                } else {
-                    0o001
-                };
-                if node.kind != "file" || node.mode & mask == 0 {
+                if node.kind != "file" || !world.fs()?.allowed(node, actor, 1) {
                     return Ok(Output {
                         stderr: format!("bash: {original_name}: Permission denied\n"),
                         status: 126,
@@ -1357,64 +1414,42 @@ pub(crate) fn dispatch(
     if let Some(result) = crate::packages::cli::execute(world, name, args, actor) {
         return result;
     }
+    if let Some(result) = crate::coreutils::execute(world, original_name, args, actor) {
+        return result;
+    }
+    if name != "wc"
+        && world
+            .terminal
+            .stdin_bytes
+            .as_ref()
+            .is_some_and(|b| std::str::from_utf8(b).is_err())
+    {
+        return Err(domain(format!(
+            "{name}: binary stdin is not supported by this text-only command"
+        )));
+    }
+    if name == "umask" {
+        if args.is_empty() {
+            return Ok(Output::success(format!(
+                "{:04o}\n",
+                world.terminal.shell.umask
+            )));
+        }
+        if args.len() != 1
+            || args[0].is_empty()
+            || !args[0].chars().all(|c| ('0'..='7').contains(&c))
+        {
+            return Err(domain("umask: supported subset: octal 000..777"));
+        }
+        let mask = u16::from_str_radix(&args[0], 8).map_err(|_| domain("umask: invalid mask"))?;
+        if mask > 0o777 {
+            return Err(domain("umask: invalid mask"));
+        }
+        world.terminal.shell.umask = mask;
+        return Ok(Output::default());
+    }
     if name == "jobs" {
         return Ok(Output::success(crate::archive::jobs::listing(world)));
-    }
-    if name == "env" || name == "printenv" {
-        let mut environment = virtual_env(world, actor);
-        environment.retain(|key, _| {
-            !world.terminal.env.contains_key(key)
-                || world.terminal.exported.contains(key)
-                || ["HOME", "PWD", "OLDPWD", "PATH", "USER", "LANG"].contains(&key.as_str())
-        });
-        if args.iter().any(|s| s.starts_with('-')) {
-            return Ok(Output {
-                status: 2,
-                stderr: format!("{name}: unsupported option\n"),
-                ..Output::default()
-            });
-        }
-        if name == "env" && !args.is_empty() {
-            return Ok(Output {
-                status: 2,
-                stderr: "env: command operands are not implemented\n".into(),
-                ..Output::default()
-            });
-        }
-        if args.is_empty() {
-            return Ok(Output::success(
-                environment
-                    .iter()
-                    .map(|(key, value)| format!("{key}={value}\n"))
-                    .collect(),
-            ));
-        }
-        let mut output = Output::default();
-        for key in args {
-            if let Some(value) = environment.get(key) {
-                output.stdout.push_str(value);
-                output.stdout.push('\n');
-            } else {
-                output.status = 1;
-            }
-        }
-        return Ok(output);
-    }
-    if name == "tee" {
-        let options = crate::terminal_io::options("tee", args, "a", "", &[("append", 'a')])?;
-        let text = world.terminal.stdin.clone().unwrap_or_default();
-        for file in options.files {
-            let path = normalize(&file, &world.terminal.cwd)?;
-            let mut content =
-                if options.flags.contains(&'a') && world.fs()?.nodes.contains_key(&path) {
-                    world.fs()?.read(&path, actor)?
-                } else {
-                    String::new()
-                };
-            content.push_str(&text);
-            world.fs_mut()?.write(&path, &content, actor)?;
-        }
-        return Ok(Output::success(text));
     }
     if let Some(result) = crate::archive::cli::execute(world, name, args, actor) {
         return result;
@@ -1452,6 +1487,15 @@ pub(crate) fn dispatch(
                 world.terminal.shell.unset.remove(key);
             }
             world.terminal.exported.insert(key.into());
+            if !world
+                .terminal
+                .shell
+                .environment_order
+                .iter()
+                .any(|k| k == key)
+            {
+                world.terminal.shell.environment_order.push(key.into());
+            }
         }
         return Ok(Output::default());
     }
@@ -1466,6 +1510,7 @@ pub(crate) fn dispatch(
             }
             world.terminal.env.remove(key);
             world.terminal.exported.remove(key);
+            world.terminal.shell.environment_order.retain(|k| k != key);
             world.terminal.shell.unset.insert(key.clone());
         }
         return Ok(Output::default());
@@ -1582,7 +1627,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             Ok("SECTOR IX — Protocolo Zero\nRuntime interno iniciado em modo janela.\nUse Aplicativos > Jogos > SECTOR IX para abrir a janela do jogo.\n".into())
         }
         "fastfetch" | "neofetch" => crate::system_info::run(world, name, args, actor),
-        "whoami" => Ok(format!("{actor}\n")),
         "id" => Ok(format!("uid={}({actor}) gid={}({actor})\n", if actor == "root" { 0 } else { 1000 }, if actor == "root" { 0 } else { 1000 })),
         "groups" => Ok(format!("{actor} : {actor} sudo adm\n")),
         "hostname" => {
@@ -1601,14 +1645,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 "+%F" => "1970-01-01\n".into(),
                 _ => "Thu Jan 01 00:00:00 UTC 1970\n".into(),
             })
-        }
-        "env" | "printenv" => {
-            let environment = virtual_env(world, actor);
-            if name == "printenv" && args.first().is_some_and(|value| !value.starts_with('-')) {
-                Ok(environment.get(args.first().expect("checked")).cloned().unwrap_or_default() + "\n")
-            } else {
-                Ok(environment.iter().map(|(key, value)| format!("{key}={value}\n")).collect())
-            }
         }
         "export" => {
             for assignment in args.iter().filter(|value| value.contains('=')) {
@@ -1674,22 +1710,27 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 format!("{text}\n")
             })
         }
-        "basename" | "dirname" | "realpath" | "readlink" => {
+        "rmdir" => {
+            let options=crate::terminal_io::options("rmdir",args,"","",&[])?;
+            if options.help { return Ok("rmdir DIRECTORY... — remove empty virtual directories\n".into()); }
+            if options.files.is_empty() { return Err(domain("rmdir: missing operand")); }
+            for name in options.files { let p=path(world,&name)?; world.fs_mut()?.rmdir(&p,actor)?; }
+            Ok(String::new())
+        }
+        "ln" => {
+            let options = crate::terminal_io::options("ln",args,"s","",&[("symbolic",'s')])?;
+            if options.help { return Ok("ln [-s] TARGET LINK_NAME — virtual hard/symbolic links\n".into()); }
+            if options.files.len()!=2 { return Err(domain("usage: ln [-s] TARGET LINK_NAME")); }
+            let target=path(world,&options.files[1])?;
+            if options.has('s') {world.fs_mut()?.symlink(&target,&options.files[0],actor)?;}
+            else {let source=path(world,&options.files[0])?;world.fs_mut()?.link(&source,&target,actor)?;}
+            Ok(String::new())
+        }
+        "realpath" | "readlink" => {
             let value = arg(args, 0, &format!("{name} PATH"))?;
             let p = path(world, &value)?;
-            if name == "basename" {
-                Ok(format!("{}\n", p.rsplit('/').next().unwrap_or("/")))
-            } else if name == "dirname" {
-                let directory = p.rsplit_once('/').map(|(parent, _)| if parent.is_empty() { "/" } else { parent }).unwrap_or(".");
-                Ok(format!("{directory}\n"))
-            } else if name == "readlink" {
-                let node = world.fs()?.stat(&p, actor)?;
-                if node.kind != "symlink" { return Err(domain("readlink: not a symbolic link")); }
-                Ok(format!("{}\n", node.content))
-            } else {
-                world.fs()?.stat(&p, actor)?;
-                Ok(format!("{p}\n"))
-            }
+            let value = if name == "readlink" {world.fs()?.readlink(&p, actor)?} else {world.fs()?.resolve(&p, actor, crate::vfs::Follow::Yes)?};
+            Ok(format!("{value}\n"))
         }
         "which" | "whereis" | "type" | "command" => {
             if name == "command" && args.first().map(String::as_str) != Some("-v") { return Err(domain("usage: command -v COMMAND")); }
@@ -1801,13 +1842,8 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                         let mode = u16::from_str_radix(&mode, 8).map_err(|_| domain("mode must be octal"))?;
                         world.fs_mut()?.chmod(&p, actor, mode)?;
                     }
-                } else if !world.fs()?.nodes.contains_key(&p) {
-                    if !no_create {
-                        world.fs_mut()?.write(&p, "", actor)?;
-                    }
-                } else {
-                    let text = world.fs()?.read(&p, actor)?;
-                    world.fs_mut()?.write(&p, &text, actor)?;
+                } else if !no_create || world.fs()?.path_exists(&p, actor)? {
+                    world.fs_mut()?.touch(&p, actor)?;
                 }
             }
             Ok(String::new())
@@ -1890,17 +1926,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 .map(|line| format!("{line}\n"))
                 .collect())
         }
-        "sha256sum" => {
-            let values = operands(args);
-            if values.is_empty() { return Err(domain("usage: sha256sum FILE...")); }
-            let mut output = String::new();
-            for value in values {
-                let p = path(world, &value)?;
-                let data = crate::archive::bytes(world, &p, actor)?;
-                output.push_str(&format!("{:x}  {p}\n", Sha256::digest(data.as_slice())));
-            }
-            Ok(output)
-        }
         "df" => {
             let value = operands(args).first().cloned().unwrap_or_else(|| "/".into());
             let p = path(world, &value)?;
@@ -1954,26 +1979,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 output.push_str(&format!("{value}: {kind}\n"));
             }
             Ok(output)
-        }
-        "base64" => {
-            use base64::Engine;
-            let value = operands(args)
-                .first()
-                .cloned()
-                .ok_or_else(|| domain("usage: base64 [OPTION]... [FILE]"))?;
-            let p = path(world, &value)?;
-            let content = world.fs()?.read(&p, actor)?;
-            if has_flag(args, 'd', "--decode") {
-                let decoded = base64::engine::general_purpose::STANDARD
-                    .decode(content.trim())
-                    .map_err(|_| domain("base64: invalid input"))?;
-                Ok(String::from_utf8_lossy(&decoded).into_owned())
-            } else {
-                Ok(format!(
-                    "{}\n",
-                    base64::engine::general_purpose::STANDARD.encode(content)
-                ))
-            }
         }
         "man" => {
             let values = operands(args);

@@ -4,7 +4,7 @@ Order: wave, priority, dependency readiness, reference readiness, mission use, s
 
 | Software                | Wave                  | Priority | Action          | Blockers                                                                                                                                   |
 | ----------------------- | --------------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| coreutils               | W1_CORE_LINUX         | P0       | NEEDS_SUBSYSTEM | SUBSYSTEM:VFS:PARTIAL                                                                                                                      |
+| coreutils               | W1_CORE_LINUX         | P0       | NEEDS_SUBSYSTEM | SUBSYSTEM:SHELL.JOBS:PARTIAL                                                                                                               |
 | bash                    | W1_CORE_LINUX         | P0       | NEEDS_SUBSYSTEM | SUBSYSTEM:SHELL:PARTIAL, SUBSYSTEM:TTY:PARTIAL, SUBSYSTEM:VFS:PARTIAL                                                                      |
 | grep                    | W1_CORE_LINUX         | P1       | NEEDS_SUBSYSTEM | SUBSYSTEM:SHELL:PARTIAL, SUBSYSTEM:VFS:PARTIAL                                                                                             |
 | findutils               | W1_CORE_LINUX         | P1       | NEEDS_SUBSYSTEM | SUBSYSTEM:SHELL:PARTIAL, SUBSYSTEM:VFS:PARTIAL                                                                                             |

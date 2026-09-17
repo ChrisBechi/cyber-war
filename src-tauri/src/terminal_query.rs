@@ -9,10 +9,10 @@ use regex::{Regex, RegexBuilder};
 
 pub fn manual(name: &str) -> Option<String> {
     let syntax = match name {
-        "ls" => "ls [-1aAldFhrStR] [--color[=always|auto|never]] [--] [PATH...]\nOne entry per line; -l symbolic permissions/virtual timestamps/sizes; -a includes . and ..; -A hidden entries; -d directory itself; -F classify; -h binary units; -r reverse; -S size; -t modification order. -R recurses without following symlinks. --color=auto follows stdout TTY; always/never force the setting. Symlink targets and aligned long columns use VFS metadata. Real disk allocation, link counts, LS_COLORS and automatic multi-column layout are outside this subset.",
+        "ls" => "ls [-1aAldFhrStR] [--color[=always|auto|never]] [--] [PATH...]\nOne entry per line; -l symbolic permissions/virtual timestamps/sizes; -a includes . and ..; -A hidden entries; -d directory itself; -F classify; -h binary units; -r reverse; -S size; -t modification order. -R recurses without following symlinks. --color=auto follows stdout TTY; always/never force the setting. Symlink targets and aligned long columns use VFS metadata. Real disk allocation, LS_COLORS and automatic multi-column layout are outside this subset.",
         "grep" => "grep [-EFGivnclLqHhwxr] [-e PATTERN] [-m COUNT] [--] PATTERN FILE...\nBRE by default, -E extended subset, -F literal. -i case-insensitive, -v invert, -n numbers, -c counts, -l/-L file names, -q quiet, -H/-h headers, -w words, -x whole line. Repeated -e is OR. Exit 0 match, 1 no match, 2 error. -r/--recursive traverses VFS directories and skips encountered symlinks. No backreferences, lookaround, PCRE, -R symlink dereferencing, context flags or binary matching.",
         "find" => "find [PATH...] [-name GLOB] [-iname GLOB] [-type f|d] [-mindepth N] [-maxdepth N] [-print]\nPredicates combine with AND. Globs support * and ?. Includes the starting path at depth zero. No exec/delete, symlinks, OR/NOT or bracket classes.",
-        "chmod" => "chmod [-Rv] [--] MODE PATH...\nOctal 000..777 or explicit symbolic classes u/g/o/a with +,-,= and r/w/x/X (comma-separated). -R recursive. No special bits, implicit umask or class-copy expressions. Atomic VFS mutation.",
+        "chmod" => "chmod [-Rv] [--] MODE PATH...\nOctal 0000..7777 or explicit symbolic classes u/g/o/a with +,-,= and r/w/x/X/s/t (comma-separated). -R recursive. No implicit umask or class-copy expressions. Atomic VFS mutation.",
         "chown" => "chown [-Rv] [--] OWNER[:GROUP] PATH...\nVirtual root only. Known users/groups: root, kali, vex. Owner alone preserves the group; :GROUP changes only group. -R recursive. Atomic VFS mutation.",
         _ => return None,
     };
@@ -27,6 +27,7 @@ pub fn execute(
 ) -> Option<GameResult<Output>> {
     let result = match name {
         "ls" => listing(world, args, actor),
+        "stat" => stat(world, args, actor),
         "grep" => grep(world, args, actor),
         "find" => find(world, args, actor),
         "chmod" | "chown" => permissions(world, name, args, actor),
@@ -55,6 +56,7 @@ fn size(n: &VfsNode) -> usize {
 fn mode_text(n: &VfsNode) -> String {
     let mut out = match n.kind.as_str() {
         "directory" => "d",
+        "charDevice" => "c",
         "symlink" => "l",
         _ => "-",
     }
@@ -66,6 +68,23 @@ fn mode_text(n: &VfsNode) -> String {
             } else {
                 '-'
             });
+        }
+    }
+    for (index, special) in [(3, 0o4000), (6, 0o2000), (9, 0o1000)] {
+        if n.mode & special != 0 {
+            let executable = out.as_bytes()[index] == b'x';
+            let letter = if index == 9 {
+                if executable {
+                    "t"
+                } else {
+                    "T"
+                }
+            } else if executable {
+                "s"
+            } else {
+                "S"
+            };
+            out.replace_range(index..=index, letter);
         }
     }
     out
@@ -140,7 +159,14 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
         let file = &file;
         let result = (|| -> GameResult<String> {
             let path = normalize(file, &world.terminal.cwd)?;
-            let n = world.fs()?.stat(&path, actor)?;
+            let mut n = world.fs()?.lstat(&path, actor)?;
+            if n.kind == "symlink" && !nested && !opts.has('l') && !opts.has('d') {
+                if let Ok(target) = world.fs()?.stat(&path, actor) {
+                    if target.kind == "directory" {
+                        n = target;
+                    }
+                }
+            }
             let directory = n.kind == "directory" && !opts.has('d');
             let mut entries = if directory {
                 world.fs()?.list(&path, actor)?
@@ -244,8 +270,9 @@ fn listing(world: &WorldState, args: &[String], actor: &str) -> GameResult<Outpu
                         .format("%b %e %H:%M")
                         .to_string();
                     text.push_str(&format!(
-                        "{} 1 {:<owner_width$} {:<group_width$} {:>size_width$} {} {}{}{}\n",
+                        "{} {} {:<owner_width$} {:<group_width$} {:>size_width$} {} {}{}{}\n",
                         mode_text(&n),
+                        n.nlink,
                         n.owner,
                         n.group,
                         length,
@@ -598,7 +625,7 @@ fn find(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
         let path = normalize(&root, &world.terminal.cwd)?;
         let mut pending = vec![(path, root, 0)];
         while let Some((path, display, depth)) = pending.pop() {
-            let node = match world.fs()?.stat(&path, actor) {
+            let node = match world.fs()?.lstat(&path, actor) {
                 Ok(n) => n,
                 Err(e) => {
                     out.error("find", &display, e);
@@ -636,7 +663,7 @@ fn find(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> 
 fn symbolic(old: u16, directory: bool, value: &str) -> GameResult<u16> {
     if !value.is_empty() && value.chars().all(|c| ('0'..='7').contains(&c)) {
         let mode = u16::from_str_radix(value, 8).map_err(|_| domain("chmod: invalid mode"))?;
-        if mode <= 0o777 {
+        if mode <= 0o7777 {
             return Ok(mode);
         }
     }
@@ -649,9 +676,9 @@ fn symbolic(old: u16, directory: bool, value: &str) -> GameResult<u16> {
         let permissions = &clause[index + 1..];
         if classes.is_empty()
             || !classes.chars().all(|c| "ugoa".contains(c))
-            || !permissions.chars().all(|c| "rwxX".contains(c))
+            || !permissions.chars().all(|c| "rwxXst".contains(c))
         {
-            return Err(domain("chmod: explicit u/g/o/a and r/w/x/X required"));
+            return Err(domain("chmod: explicit u/g/o/a and r/w/x/X/s/t required"));
         }
         let bits = permissions.chars().fold(0, |bits, c| {
             bits | match c {
@@ -664,8 +691,20 @@ fn symbolic(old: u16, directory: bool, value: &str) -> GameResult<u16> {
         });
         for (class, shift) in [('u', 6), ('g', 3), ('o', 0)] {
             if classes.contains(class) || classes.contains('a') {
-                let mask = 7 << shift;
-                let bits = bits << shift;
+                let special = match class {
+                    'u' => 0o4000,
+                    'g' => 0o2000,
+                    _ => 0o1000,
+                };
+                let mask = (7 << shift) | special;
+                let bits = (bits << shift)
+                    | if (class == 'o' && permissions.contains('t'))
+                        || (class != 'o' && permissions.contains('s'))
+                    {
+                        special
+                    } else {
+                        0
+                    };
                 match clause.as_bytes()[index] {
                     b'+' => mode |= bits,
                     b'-' => mode &= !bits,
@@ -712,10 +751,14 @@ fn permissions(
         return Err(domain("chown: permission denied or unknown user/group"));
     }
     let mut changes = Vec::new();
+    let mut visited = std::collections::BTreeSet::new();
     for file in &opts.files[1..] {
         let mut pending = vec![normalize(file, &world.terminal.cwd)?];
         while let Some(path) = pending.pop() {
             let node = world.fs()?.stat(&path, actor)?.clone();
+            if !visited.insert(node.ino) {
+                continue;
+            }
             if opts.has('R') && node.kind == "directory" {
                 pending.extend(world.fs()?.list(&path, actor)?.into_iter().map(|n| n.id));
             }
@@ -732,23 +775,88 @@ fn permissions(
     }
     let mut out = Output::default();
     for (path, mode) in changes {
-        let node = world
-            .fs_mut()?
-            .nodes
-            .get_mut(&path)
-            .ok_or_else(|| domain("missing node"))?;
         if name == "chmod" {
-            node.mode = mode;
+            world.fs_mut()?.chmod(&path, actor, mode)?;
         } else {
-            if let Some(owner) = owner {
-                node.owner = owner.into();
-            }
-            if let Some(group) = group {
-                node.group = group.into();
-            }
+            world
+                .fs_mut()?
+                .ownership(&path, actor, owner, group, crate::vfs::Follow::Yes)?;
         }
         if opts.has('v') {
             out.stdout.push_str(&format!("{name}: '{path}' updated\n"));
+        }
+    }
+    Ok(out)
+}
+
+/// Minimal stat adapter; all metadata and link traversal come from the VFS.
+fn stat(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
+    let opts = options(
+        "stat",
+        args,
+        "L",
+        "c",
+        &[("dereference", 'L'), ("format", 'c')],
+    )?;
+    if opts.help {
+        return Ok(Output::success("stat [-L] [-c FORMAT] FILE...\nVirtual inode metadata; -L follows final symlinks. Formats: %i %h %a %u %g %s %n %F %X %Y %Z %%\n".into()));
+    }
+    if opts.files.is_empty() {
+        return Err(domain("stat: missing operand"));
+    }
+    let mut out = Output::default();
+    for file in &opts.files {
+        let result = (|| -> GameResult<String> {
+            let path = normalize(file, &world.terminal.cwd)?;
+            let n = if opts.has('L') {
+                world.fs()?.stat(&path, actor)?
+            } else {
+                world.fs()?.lstat(&path, actor)?
+            };
+            let kind = match n.kind.as_str() {
+                "file" => "regular file",
+                "directory" => "directory",
+                "symlink" => "symbolic link",
+                "charDevice" => "character special file",
+                _ => "unknown",
+            };
+            if let Some(format) = opts
+                .counts
+                .iter()
+                .rev()
+                .find(|(c, _)| *c == 'c')
+                .map(|(_, v)| v)
+            {
+                let mut text = String::new();
+                let mut chars = format.chars();
+                while let Some(c) = chars.next() {
+                    if c != '%' {
+                        text.push(c);
+                        continue;
+                    }
+                    text.push_str(&match chars.next() {
+                        Some('i') => n.ino.to_string(),
+                        Some('h') => n.nlink.to_string(),
+                        Some('a') => format!("{:o}", n.mode),
+                        Some('u') => n.uid.to_string(),
+                        Some('g') => n.gid.to_string(),
+                        Some('s') => n.logical_size().to_string(),
+                        Some('n') => file.clone(),
+                        Some('F') => kind.into(),
+                        Some('X') => n.accessed_at.to_string(),
+                        Some('Y') => n.modified_at.to_string(),
+                        Some('Z') => n.changed_at.to_string(),
+                        Some('%') => "%".into(),
+                        _ => return Err(domain("stat: unsupported format directive")),
+                    });
+                }
+                return Ok(format!("{text}\n"));
+            }
+            Ok(format!("File: {file}\nType: {kind}\nSize: {}\nInode: {}\nLinks: {}\nMode: {:04o}\nUid: {} ({})\nGid: {} ({})\nAccess: {}\nModify: {}\nChange: {}\n",n.logical_size(),n.ino,n.nlink,n.mode,n.uid,n.owner,n.gid,n.group,n.accessed_at,n.modified_at,n.changed_at))
+        })();
+        match result {
+            Ok(text) => out.stdout.push_str(&text),
+            Err(e) => out.error("stat", file, e),
         }
     }
     Ok(out)

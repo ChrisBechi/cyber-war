@@ -138,9 +138,7 @@
             "shell/ambiguous-redirect"
           ],
           "evidenceIds": ["shell::foundation_tests"],
-          "limitations": [
-            "C.UTF-8 byte ordering; no extglob, globstar, locale collating classes or symlink traversal."
-          ]
+          "limitations": ["C.UTF-8 byte ordering; no extglob, globstar, locale collating classes."]
         },
         {
           "id": "SHELL.PIPELINES",
@@ -216,11 +214,206 @@
     {
       "id": "VFS",
       "state": "PARTIAL",
-      "reason": "No complete inode, symlink traversal or sticky-bit model.",
-      "implementation": ["src-tauri/src/vfs.rs"],
-      "evidenceIds": ["vfs::tests::permission_and_mutation_semantics"],
-      "requiredTests": [],
-      "limitations": ["No complete inode, symlink traversal or sticky-bit model."]
+      "reason": "Shared virtual inode and directory foundation; Unicode text/blob subset with no mounts, ACLs, sparse allocation or host filesystem.",
+      "implementation": [
+        "src-tauri/src/vfs.rs",
+        "src-tauri/src/vfs/errors.rs",
+        "src-tauri/src/vfs/handles.rs",
+        "src-tauri/src/vfs/model.rs",
+        "src-tauri/src/vfs/operations.rs",
+        "src-tauri/src/vfs/persistence.rs",
+        "src-tauri/src/vfs/resolve.rs"
+      ],
+      "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+      "requiredTests": [
+        "vfs/path/components",
+        "vfs/path/trailing-slash",
+        "vfs/path/root",
+        "vfs/path/unicode-case",
+        "vfs/inode/rename-preserves-id",
+        "vfs/inode/copy-new-id",
+        "vfs/hardlink/shared-content",
+        "vfs/hardlink/unlink-one",
+        "vfs/symlink/relative-target",
+        "vfs/symlink/absolute",
+        "vfs/symlink/dangling",
+        "vfs/symlink/create-target",
+        "vfs/symlink/loop",
+        "vfs/symlink/unlink-only-link",
+        "vfs/permissions/directory-search",
+        "vfs/permissions/search-without-read",
+        "vfs/permissions/readonly-file",
+        "vfs/permissions/umask",
+        "vfs/sticky/deny-unlink",
+        "vfs/sticky/setgid-directory",
+        "vfs/metadata/shared-mode",
+        "vfs/metadata/special-bits",
+        "vfs/timestamps/touch-preserves-data",
+        "vfs/device/null",
+        "vfs/device/hardlink-null",
+        "vfs/save/hardlink-roundtrip",
+        "vfs/save/rename-roundtrip",
+        "vfs/isolation/windows-looking-name",
+        "vfs/isolation/host-executable",
+        "vfs/directories/rename-cwd",
+        "vfs/directories/list-link",
+        "vfs/metadata/stat-lstat",
+        "vfs/directories/rmdir",
+        "vfs/symlink/glob-directory",
+        "vfs/symlink/executable",
+        "vfs/symlink/script"
+      ],
+      "limitations": [
+        "Deterministic ticks; noatime for immutable text/blob queries, explicit atime for handle reads and touch.",
+        "Special mode bits are metadata; setgid directory inheritance and sticky deletion enforced. No setuid/setgid execution or capabilities.",
+        "Only null and bounded zero devices; no host mounts, ACLs, random or tty device emulation."
+      ],
+      "capabilities": [
+        {
+          "id": "VFS.PATHS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/path/components",
+            "vfs/path/trailing-slash",
+            "vfs/path/root",
+            "vfs/path/unicode-case"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.REGULAR_FILES",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": ["vfs/hardlink/shared-content", "vfs/inode/copy-new-id"],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.DIRECTORIES",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/directories/rename-cwd",
+            "vfs/directories/list-link",
+            "vfs/directories/rmdir"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.INODES",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": ["vfs/inode/rename-preserves-id", "vfs/inode/copy-new-id"],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.SYMLINKS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/symlink/relative-target",
+            "vfs/symlink/absolute",
+            "vfs/symlink/dangling",
+            "vfs/symlink/create-target",
+            "vfs/symlink/loop",
+            "vfs/symlink/unlink-only-link",
+            "vfs/symlink/glob-directory",
+            "vfs/symlink/executable",
+            "vfs/symlink/script"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.HARDLINKS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/hardlink/shared-content",
+            "vfs/hardlink/unlink-one",
+            "vfs/save/hardlink-roundtrip"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.PERMISSIONS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/permissions/directory-search",
+            "vfs/permissions/search-without-read",
+            "vfs/permissions/readonly-file"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.SPECIAL_PERMISSIONS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/permissions/umask",
+            "vfs/sticky/deny-unlink",
+            "vfs/sticky/setgid-directory",
+            "vfs/metadata/special-bits"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": [
+            "Deterministic ticks; noatime for immutable text/blob queries, explicit atime for handle reads and touch.",
+            "Special mode bits are metadata; setgid directory inheritance and sticky deletion enforced. No setuid/setgid execution or capabilities.",
+            "Only null and bounded zero devices; no host mounts, ACLs, random or tty device emulation."
+          ]
+        },
+        {
+          "id": "VFS.METADATA",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": [
+            "vfs/metadata/shared-mode",
+            "vfs/symlink/relative-target",
+            "vfs/metadata/stat-lstat"
+          ],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        },
+        {
+          "id": "VFS.TIMESTAMPS",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": ["vfs/timestamps/touch-preserves-data"],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": [
+            "Deterministic ticks; noatime for immutable text/blob queries, explicit atime for handle reads and touch.",
+            "Special mode bits are metadata; setgid directory inheritance and sticky deletion enforced. No setuid/setgid execution or capabilities.",
+            "Only null and bounded zero devices; no host mounts, ACLs, random or tty device emulation."
+          ]
+        },
+        {
+          "id": "VFS.DEVICES",
+          "state": "PARTIAL",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": ["vfs/device/null", "vfs/device/hardlink-null"],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": [
+            "Deterministic ticks; noatime for immutable text/blob queries, explicit atime for handle reads and touch.",
+            "Special mode bits are metadata; setgid directory inheritance and sticky deletion enforced. No setuid/setgid execution or capabilities.",
+            "Only null and bounded zero devices; no host mounts, ACLs, random or tty device emulation."
+          ]
+        },
+        {
+          "id": "VFS.SAVE_ROUNDTRIP",
+          "state": "READY",
+          "reason": "Implemented bounded virtual subset; readiness requires every linked current case plus the VFS Rust suite in cli:compat.",
+          "requiredTests": ["vfs/save/hardlink-roundtrip", "vfs/save/rename-roundtrip"],
+          "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
+          "limitations": []
+        }
+      ]
     },
     {
       "id": "USERS",

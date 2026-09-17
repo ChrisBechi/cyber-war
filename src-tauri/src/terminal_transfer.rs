@@ -2,7 +2,7 @@
 use crate::{
     error::GameResult,
     terminal_io::{error_reason, options, Options, Output},
-    vfs::{domain, normalize, VirtualFileSystem},
+    vfs::{normalize, VirtualFileSystem},
     world::WorldState,
 };
 use std::collections::BTreeSet;
@@ -58,8 +58,16 @@ impl Transfer<'_> {
                 == Some(&'n')
         }
     }
-    fn entry(&mut self, fs: &mut VirtualFileSystem, paths: Paths, depth: usize) {
-        let original = match fs.stat(&paths.source, self.actor) {
+    fn entry(&mut self, fs: &mut VirtualFileSystem, mut paths: Paths, depth: usize) {
+        if let Ok(path) = fs.resolve(&paths.source, self.actor, crate::vfs::Follow::No) {
+            paths.source = path;
+        }
+        if let Ok(path) =
+            fs.resolve_missing(&paths.target, self.actor, crate::vfs::Follow::No, true)
+        {
+            paths.target = path;
+        }
+        let original = match fs.lstat(&paths.source, self.actor) {
             Ok(node) => node.clone(),
             Err(error) => {
                 self.error(format!(
@@ -109,7 +117,7 @@ impl Transfer<'_> {
             return;
         }
         let existing = match fs.path_exists(&paths.target, self.actor) {
-            Ok(true) => fs.nodes.get(&paths.target).cloned(),
+            Ok(true) => fs.lstat(&paths.target, self.actor).ok().cloned(),
             Ok(false) => None,
             Err(error) => {
                 self.error(format!(
@@ -212,8 +220,8 @@ impl Transfer<'_> {
             }
             if existing.is_none() {
                 // Apply the source mode after children have been written.
-                if let Some(node) = fs.nodes.get_mut(&paths.target) {
-                    node.mode = original.mode & !0o022;
+                if let Err(error) = fs.chmod(&paths.target, self.actor, original.mode & !fs.umask) {
+                    self.error(error_reason(error));
                 }
             }
             return;
@@ -280,15 +288,7 @@ impl Transfer<'_> {
 }
 
 fn follow_link(fs: &VirtualFileSystem, path: &str, actor: &str) -> GameResult<String> {
-    let mut path = path.to_owned();
-    for _ in 0..40 {
-        let node = fs.stat(&path, actor)?;
-        if node.kind != "symlink" {
-            return Ok(path);
-        }
-        path = normalize(&node.content, crate::vfs::parent(&path))?;
-    }
-    Err(domain("Too many levels of symbolic links"))
+    fs.resolve(path, actor, crate::vfs::Follow::Yes)
 }
 
 fn join(directory: &str, name: &str) -> String {

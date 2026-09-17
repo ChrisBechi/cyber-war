@@ -1,0 +1,4576 @@
+{
+  "schemaVersion": 2,
+  "provenance": "GNU_REFERENCE",
+  "version": "9.7",
+  "command": "basename",
+  "locale": "C",
+  "capturedAt": "2026-09-17T19:06:25.306274+00:00",
+  "harnessHash": "0a9c824176d11fb5480471beb194c58560e7c6e702f8907c9c67e540fe990a9d",
+  "environment": {
+    "id": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
+    "lockHash": "f802d3271dc076a788debc364ef368a1a985c5c4e1a03cd4596baa0a51b7bc5e",
+    "os": "Linux",
+    "osRelease": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.22.0\nPRETTY_NAME=\"Alpine Linux v3.22\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\n",
+    "architecture": "x86_64",
+    "isolation": "bubblewrap/unshare-all",
+    "network": "disabled",
+    "locale": "C",
+    "binaryHashes": {
+      "basename": {
+        "versionLine": "basename (GNU coreutils) 9.7",
+        "sha256": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600"
+      }
+    },
+    "packages": [
+      "acl-libs-2.3.2-r1",
+      "alpine-baselayout-3.7.0-r0",
+      "alpine-baselayout-data-3.7.0-r0",
+      "alpine-keys-2.5-r0",
+      "alpine-release-3.22.0-r0",
+      "apk-tools-2.14.9-r2",
+      "bubblewrap-0.12.0-r0",
+      "busybox-1.37.0-r20",
+      "busybox-binsh-1.37.0-r20",
+      "ca-certificates-bundle-20241121-r2",
+      "coreutils-9.7-r1",
+      "coreutils-env-9.7-r1",
+      "coreutils-fmt-9.7-r1",
+      "coreutils-sha512sum-9.7-r1",
+      "gdbm-1.24-r0",
+      "libapk2-2.14.9-r2",
+      "libattr-2.5.2-r2",
+      "libbz2-1.0.8-r6",
+      "libcap2-2.78-r0",
+      "libcrypto3-3.5.8-r0",
+      "libexpat-2.8.4-r0",
+      "libffi-3.4.8-r0",
+      "libgcc-14.2.0-r6",
+      "libncursesw-6.5_p20250503-r0",
+      "libpanelw-6.5_p20250503-r0",
+      "libssl3-3.5.8-r0",
+      "libstdc++-14.2.0-r6",
+      "mpdecimal-4.0.1-r0",
+      "musl-1.2.5-r12",
+      "musl-utils-1.2.5-r10",
+      "ncurses-terminfo-base-6.5_p20250503-r0",
+      "pyc-3.12.14-r0",
+      "python3-3.12.14-r0",
+      "python3-pyc-3.12.14-r0",
+      "python3-pycache-pyc0-3.12.14-r0",
+      "readline-8.2.13-r1",
+      "scanelf-1.3.8-r1",
+      "skalibs-libs-2.14.4.0-r0",
+      "sqlite-libs-3.49.2-r1",
+      "ssl_client-1.37.0-r20",
+      "utmps-libs-0.1.3.1-r0",
+      "xz-libs-5.8.4-r0",
+      "zlib-1.3.2-r0"
+    ]
+  },
+  "cases": [
+    {
+      "id": "coreutils/basename/suffix",
+      "request": {
+        "id": "coreutils/basename/suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "/path/file.txt",
+          ".txt"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "6fd3de8d5ec13b86b45080f2728d88b43334176684139f518ba7fc7c7e04e6e0",
+      "stdoutHex": "66696c650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/root-empty",
+      "request": {
+        "id": "coreutils/basename/root-empty",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-a",
+          "/",
+          "////",
+          ""
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "c33c2ecafee21565086530121a17f1feeba5cbf5ef68dfd839db0c06c17ed243",
+      "stdoutHex": "2f0a2f0a0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/lexical",
+      "request": {
+        "id": "coreutils/basename/lexical",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-a",
+          "a/../b/",
+          "./x/",
+          "a:b",
+          "C:\\foo"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "b6d97c0d2125307948b6e5888e3af5144793066868f146ea72512b561c72c669",
+      "stdoutHex": "620a780a613a620a433a5c666f6f0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/suffix-equal",
+      "request": {
+        "id": "coreutils/basename/suffix-equal",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "file",
+          "file"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "90ff5bd24752ee2277e578162bff1c678b1719b60464aae56ab2904177b6f9b1",
+      "stdoutHex": "66696c650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/multiple-zero",
+      "request": {
+        "id": "coreutils/basename/multiple-zero",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-az",
+          "one/two",
+          "three/four"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "7814b7bf06c744b0e1cf33cb3ed5c5044a88bb48cd64aa4da5cc77a1a48b5f4f",
+      "stdoutHex": "74776f00666f757200",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/long-suffix",
+      "request": {
+        "id": "coreutils/basename/long-suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--suffix=.rs",
+          "a.rs",
+          "b.rs"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "df362201efd0e61b4934b6dd21f1cdb928ded1ad902f9928099281eef281ce36",
+      "stdoutHex": "610a620a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/dash",
+      "request": {
+        "id": "coreutils/basename/dash",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--",
+          "-file"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "cfe010d6f86ceadeda06819c0426d11f106c41da4c391341c2d6a4e39c4a7d2f",
+      "stdoutHex": "2d66696c650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/missing",
+      "request": {
+        "id": "coreutils/basename/missing",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "065da6f5a10dfe4e15e5377ad2ae3b34efb0583d511215627afa6dde8b8623b5",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206d697373696e67206f706572616e640a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/extra",
+      "request": {
+        "id": "coreutils/basename/extra",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "c"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "7e7014c45f7aef2836c91fd31c1ffbb8eaa7dd10f18113ce5b0237768456cc9a",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e64202763270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/version",
+      "request": {
+        "id": "coreutils/basename/version",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--version"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "0ecf8a83b4cfca5f830fa7167931c64f19dbb23af8176183cdda6c17f3b5ae71",
+      "stdoutHex": "626173656e616d652028474e5520636f72657574696c732920392e370a436f70797269676874202843292032303235204672656520536f66747761726520466f756e646174696f6e2c20496e632e0a4c6963656e73652047504c76332b3a20474e552047504c2076657273696f6e2033206f72206c61746572203c68747470733a2f2f676e752e6f72672f6c6963656e7365732f67706c2e68746d6c3e2e0a54686973206973206672656520736f6674776172653a20796f7520617265206672656520746f206368616e676520616e64207265646973747269627574652069742e0a5468657265206973204e4f2057415252414e54592c20746f2074686520657874656e74207065726d6974746564206279206c61772e0a0a5772697474656e206279204461766964204d61634b656e7a69652e0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/unknown-option",
+      "request": {
+        "id": "coreutils/basename/unknown-option",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--not-implemented"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "358e6d7b8be7dd3b70f48e301107d1ddaabfb29e308fa147c253712e9bfde1ca",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a20756e7265636f676e697a6564206f7074696f6e20272d2d6e6f742d696d706c656d656e746564270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/option-value-help",
+      "request": {
+        "id": "coreutils/basename/option-value-help",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-s",
+          "--help",
+          "file--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "1088f1f574847729b86209682a39cb9bfbafb56e7d59db6706ba3e6ebcd6b1a5",
+      "stdoutHex": "66696c650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/help",
+      "request": {
+        "id": "coreutils/basename/help",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "633d41280241bf9798e7defc7bdbcdf32c0c174de41987ec459b422ab420b2bc",
+      "stdoutHex": "55736167653a202f7573722f62696e2f626173656e616d65204e414d45205b5355464649585d0a20206f723a20202f7573722f62696e2f626173656e616d65204f5054494f4e2e2e2e204e414d452e2e2e0a5072696e74204e414d45207769746820616e79206c656164696e67206469726563746f727920636f6d706f6e656e74732072656d6f7665642e0a4966207370656369666965642c20616c736f2072656d6f7665206120747261696c696e67205355464649582e0a0a4d616e6461746f727920617267756d656e747320746f206c6f6e67206f7074696f6e7320617265206d616e6461746f727920666f722073686f7274206f7074696f6e7320746f6f2e0a20202d612c202d2d6d756c7469706c6520202020202020737570706f7274206d756c7469706c6520617267756d656e747320616e6420747265617420656163682061732061204e414d450a20202d732c202d2d7375666669783d535546464958202072656d6f7665206120747261696c696e67205355464649583b20696d706c696573202d610a20202d7a2c202d2d7a65726f2020202020202020202020656e642065616368206f7574707574206c696e652077697468204e554c2c206e6f74206e65776c696e650a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a4578616d706c65733a0a20202f7573722f62696e2f626173656e616d65202f7573722f62696e2f736f7274202020202020202020202d3e2022736f7274220a20202f7573722f62696e2f626173656e616d6520696e636c7564652f737464696f2e68202e6820202020202d3e2022737464696f220a20202f7573722f62696e2f626173656e616d65202d73202e6820696e636c7564652f737464696f2e6820202d3e2022737464696f220a20202f7573722f62696e2f626173656e616d65202d6120616e792f7374723120616e792f737472322020202d3e2022737472312220666f6c6c6f776564206279202273747232220a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f626173656e616d653e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c732920626173656e616d6520696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/path-matrix",
+      "request": {
+        "id": "coreutils/basename/path-matrix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-a",
+          "",
+          "/",
+          "//",
+          "///",
+          "foo//bar/",
+          ".",
+          "..",
+          "a b",
+          "a\tb",
+          "a\nb",
+          "ação/é",
+          "C:\\Users\\Test",
+          "\\\\server\\share\\foo"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "70a8a8fc91861a4297a14e171a062f60e08a59172cdffc0bb76267dbc47bfe0e",
+      "stdoutHex": "0a2f0a2f0a2f0a6261720a2e0a2e2e0a6120620a6109620a610a620ac3a90a433a5c55736572735c546573740a5c5c7365727665725c73686172655c666f6f0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/long-multiple-zero",
+      "request": {
+        "id": "coreutils/basename/long-multiple-zero",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--multiple",
+          "--zero",
+          "/one/a",
+          "/two/b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "366441608d1cb3ae3c79ee96fbc3e3d6f4996e0d6bf89ff2cdfaef04bd3ce31e",
+      "stdoutHex": "61006200",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/suffix-matrix",
+      "request": {
+        "id": "coreutils/basename/suffix-matrix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-s",
+          ".txt",
+          "a.txt",
+          "a.txt/",
+          "a.txt.txt",
+          ".txt",
+          "x.rs"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "1d0c1ed1c61245eb6778d0760a9a605e9f8e3bccb67853efde9a7a1fc2bc738e",
+      "stdoutHex": "610a610a612e7478740a2e7478740a782e72730a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/empty-suffix",
+      "request": {
+        "id": "coreutils/basename/empty-suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--suffix=",
+          "a/b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "8210fb9c1abd273226e3e0b7ae53cb78fb5d211d9c6f5ad023152b04a27c8ce0",
+      "stdoutHex": "620a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/slash-suffix",
+      "request": {
+        "id": "coreutils/basename/slash-suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a/b",
+          "/b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "0e2759c8d2f5b1af176d66fb46489952b1cb7bdbff90ddcb0a92919f97bfa36c",
+      "stdoutHex": "620a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/permutation",
+      "request": {
+        "id": "coreutils/basename/permutation",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "file.txt",
+          "-s",
+          ".txt"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "5453eb2f7aace4102f3211c1a6d0938fcfddc9ac3161b994930f766229965f01",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e6420272e747874270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/posix-permutation",
+      "request": {
+        "id": "coreutils/basename/posix-permutation",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "file.txt",
+          "-s",
+          ".txt"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C",
+          "POSIXLY_CORRECT": "1"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "POSIXLY_CORRECT",
+              "1"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "bcc744fb48165d3f58987b96e54b1bdeddd1c57693dc7f15e45d0b9a85d79873",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e6420272e747874270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/posix-help-operand",
+      "request": {
+        "id": "coreutils/basename/posix-help-operand",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "file",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C",
+          "POSIXLY_CORRECT": "1"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "POSIXLY_CORRECT",
+              "1"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "f2da523af0bdcd18bcfb310786095c1bd1cd01342e732a5edccfc82f502c26d7",
+      "stdoutHex": "66696c650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/abbreviated",
+      "request": {
+        "id": "coreutils/basename/abbreviated",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--mul",
+          "--ze",
+          "a/b",
+          "c/d"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "0e01113f6e42acede9a95f4b6c5d3549e5e5e1cefa6f97b461fe8580a7802361",
+      "stdoutHex": "62006400",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/help-value-cluster",
+      "request": {
+        "id": "coreutils/basename/help-value-cluster",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-as",
+          "--help",
+          "foo--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "5dc35d7b6e33587885019fa2c42f086a6c68d2e7d8f5b3c9a7249c75f7a82d5c",
+      "stdoutHex": "666f6f0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/suffix-value-long-option",
+      "request": {
+        "id": "coreutils/basename/suffix-value-long-option",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--suffix",
+          "--multiple",
+          "foo--multiple"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "fb046b86c46f802a8fa925c035501877424e8bdf3181b1d26bbdfbc22d9d66d3",
+      "stdoutHex": "666f6f0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/invalid-before-help",
+      "request": {
+        "id": "coreutils/basename/invalid-before-help",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--unknown",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "4dcf4812490d461803268cc4351717c9e44e771def988c104f2c0e61c14310ea",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a20756e7265636f676e697a6564206f7074696f6e20272d2d756e6b6e6f776e270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/help-before-invalid",
+      "request": {
+        "id": "coreutils/basename/help-before-invalid",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--help",
+          "--unknown"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "09feea254418c90fd6e38b94ffd44aba2f8b87cdd9ac8e4bf5a9cffeca87f513",
+      "stdoutHex": "55736167653a202f7573722f62696e2f626173656e616d65204e414d45205b5355464649585d0a20206f723a20202f7573722f62696e2f626173656e616d65204f5054494f4e2e2e2e204e414d452e2e2e0a5072696e74204e414d45207769746820616e79206c656164696e67206469726563746f727920636f6d706f6e656e74732072656d6f7665642e0a4966207370656369666965642c20616c736f2072656d6f7665206120747261696c696e67205355464649582e0a0a4d616e6461746f727920617267756d656e747320746f206c6f6e67206f7074696f6e7320617265206d616e6461746f727920666f722073686f7274206f7074696f6e7320746f6f2e0a20202d612c202d2d6d756c7469706c6520202020202020737570706f7274206d756c7469706c6520617267756d656e747320616e6420747265617420656163682061732061204e414d450a20202d732c202d2d7375666669783d535546464958202072656d6f7665206120747261696c696e67205355464649583b20696d706c696573202d610a20202d7a2c202d2d7a65726f2020202020202020202020656e642065616368206f7574707574206c696e652077697468204e554c2c206e6f74206e65776c696e650a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a4578616d706c65733a0a20202f7573722f62696e2f626173656e616d65202f7573722f62696e2f736f7274202020202020202020202d3e2022736f7274220a20202f7573722f62696e2f626173656e616d6520696e636c7564652f737464696f2e68202e6820202020202d3e2022737464696f220a20202f7573722f62696e2f626173656e616d65202d73202e6820696e636c7564652f737464696f2e6820202d3e2022737464696f220a20202f7573722f62696e2f626173656e616d65202d6120616e792f7374723120616e792f737472322020202d3e2022737472312220666f6c6c6f776564206279202273747232220a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f626173656e616d653e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c732920626173656e616d6520696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/missing-suffix",
+      "request": {
+        "id": "coreutils/basename/missing-suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-s"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "850391b02b999168820379e236dfb8b7dfb70ac8eccfe422526f7d80ee211c9b",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a206f7074696f6e20726571756972657320616e20617267756d656e74202d2d202773270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/missing-long-suffix",
+      "request": {
+        "id": "coreutils/basename/missing-long-suffix",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--suffix"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "9e07fb448568b1ca5c4a1644095887516f4d07d23a32d381f29bb470134e89ec",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a206f7074696f6e20272d2d7375666669782720726571756972657320616e20617267756d656e740a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/invalid-short",
+      "request": {
+        "id": "coreutils/basename/invalid-short",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-Q"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "2b8ec2d5083f63f5f8cca767b6403478350524e4edf858497fbe557032cfb899",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a20696e76616c6964206f7074696f6e202d2d202751270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/unexpected-long-value",
+      "request": {
+        "id": "coreutils/basename/unexpected-long-value",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--zero=x",
+          "a"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "b64abcfb04fccafb3d932ec24ebfa494765f70d0f35bff353e62dc3897973693",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a206f7074696f6e20272d2d7a65726f2720646f65736e277420616c6c6f7720616e20617267756d656e740a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/help-argument",
+      "request": {
+        "id": "coreutils/basename/help-argument",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--help=x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "af79cf2526558428682daa2b01c846d1a9d5f4c068803fed79bfb8a9752d1d24",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a206f7074696f6e20272d2d68656c702720646f65736e277420616c6c6f7720616e20617267756d656e740a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/extra-quoted",
+      "request": {
+        "id": "coreutils/basename/extra-quoted",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "c'\n\té"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "f04d3bdaf3770ab17af990af546faae679f80ecfe0a6d14967680abfc91a9f80",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e642027635c275c6e5c745c3330335c323531270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/dash-help",
+      "request": {
+        "id": "coreutils/basename/dash-help",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e72062859bb70afc367af7f7e7f3930cdc2c4831c6493cef1178a2bd39c4e999",
+      "stdoutHex": "2d2d68656c700a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/stdin-ignored",
+      "request": {
+        "id": "coreutils/basename/stdin-ignored",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a"
+        ],
+        "stdinHex": "00ff0a61",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "126612d46fe2ef7d2c944f6b05aef185f4267af3f4532c3b943bf45371dbd89e",
+      "stdoutHex": "610a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/pipe-zero",
+      "request": {
+        "id": "coreutils/basename/pipe-zero",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-az",
+          "a/b",
+          "c/d"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "pipe"
+      },
+      "requestDigest": "662009ffc81fa2ba9e458a441a49430cb91c643fbb16f103e68b6021ef941dc4",
+      "stdoutHex": "62006400",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/redirect-zero",
+      "request": {
+        "id": "coreutils/basename/redirect-zero",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-az",
+          "a/b",
+          "c/d"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "redirect"
+      },
+      "requestDigest": "1c4305a5162ef96cd9ed65069bb2f33e8baf177eab69729c76e571d33b9a0659",
+      "stdoutHex": "",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {
+        "reference-output": {
+          "inodeGroup": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "contentHex": "62006400",
+          "size": 4
+        }
+      },
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/plain-help",
+      "request": {
+        "id": "coreutils/basename/plain-help",
+        "command": "basename",
+        "invocation": "basename",
+        "argv": [
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e35eb2207dbeb0558114c95082a9f37a269d6a23cd178aea88e0dfa2d8342698",
+      "stdoutHex": "55736167653a20626173656e616d65204e414d45205b5355464649585d0a20206f723a2020626173656e616d65204f5054494f4e2e2e2e204e414d452e2e2e0a5072696e74204e414d45207769746820616e79206c656164696e67206469726563746f727920636f6d706f6e656e74732072656d6f7665642e0a4966207370656369666965642c20616c736f2072656d6f7665206120747261696c696e67205355464649582e0a0a4d616e6461746f727920617267756d656e747320746f206c6f6e67206f7074696f6e7320617265206d616e6461746f727920666f722073686f7274206f7074696f6e7320746f6f2e0a20202d612c202d2d6d756c7469706c6520202020202020737570706f7274206d756c7469706c6520617267756d656e747320616e6420747265617420656163682061732061204e414d450a20202d732c202d2d7375666669783d535546464958202072656d6f7665206120747261696c696e67205355464649583b20696d706c696573202d610a20202d7a2c202d2d7a65726f2020202020202020202020656e642065616368206f7574707574206c696e652077697468204e554c2c206e6f74206e65776c696e650a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a4578616d706c65733a0a2020626173656e616d65202f7573722f62696e2f736f7274202020202020202020202d3e2022736f7274220a2020626173656e616d6520696e636c7564652f737464696f2e68202e6820202020202d3e2022737464696f220a2020626173656e616d65202d73202e6820696e636c7564652f737464696f2e6820202d3e2022737464696f220a2020626173656e616d65202d6120616e792f7374723120616e792f737472322020202d3e2022737472312220666f6c6c6f776564206279202273747232220a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f626173656e616d653e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c732920626173656e616d6520696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/plain-error",
+      "request": {
+        "id": "coreutils/basename/plain-error",
+        "command": "basename",
+        "invocation": "basename",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e0fb635b34bffbbfdb15fd1e213da715541db4107d8edc1f5909acab9cff976c",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206d697373696e67206f706572616e640a5472792027626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/utf8-invalid-short",
+      "request": {
+        "id": "coreutils/basename/utf8-invalid-short",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-é"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "6f45a34b67e8553105c40dec4408a7808fb87939036575b6b5e1f66b9851f9c3",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/utf8-operands",
+      "request": {
+        "id": "coreutils/basename/utf8-operands",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-a",
+          "ação/é",
+          "x/\t",
+          "x/\n",
+          "C:\\Users\\name",
+          "//host/share"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "82ecab97fb7bff415ff38e068c99ae841eff3f1382bfde46541d9c21c19d02fd",
+      "stdoutHex": "c3a90a090a0a0a433a5c55736572735c6e616d650a73686172650a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/quote-controls",
+      "request": {
+        "id": "coreutils/basename/quote-controls",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "\"\u0007\b\u000b\f\r\\'"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "4622fbe5755f24bfbf0e02682969c9473095f0b63e82c3947765a1749b2e5a96",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e642027225c615c625c765c665c725c5c5c27270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/suffix-utf8",
+      "request": {
+        "id": "coreutils/basename/suffix-utf8",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-s",
+          "é",
+          "café"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "5005168dc178efa56bd222b61561e6e64a15265f96e510cabc506869286983a8",
+      "stdoutHex": "6361660a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/large-operands",
+      "request": {
+        "id": "coreutils/basename/large-operands",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "-a",
+          "dir/0.txt",
+          "dir/1.txt",
+          "dir/2.txt",
+          "dir/3.txt",
+          "dir/4.txt",
+          "dir/5.txt",
+          "dir/6.txt",
+          "dir/7.txt",
+          "dir/8.txt",
+          "dir/9.txt",
+          "dir/10.txt",
+          "dir/11.txt",
+          "dir/12.txt",
+          "dir/13.txt",
+          "dir/14.txt",
+          "dir/15.txt",
+          "dir/16.txt",
+          "dir/17.txt",
+          "dir/18.txt",
+          "dir/19.txt",
+          "dir/20.txt",
+          "dir/21.txt",
+          "dir/22.txt",
+          "dir/23.txt",
+          "dir/24.txt",
+          "dir/25.txt",
+          "dir/26.txt",
+          "dir/27.txt",
+          "dir/28.txt",
+          "dir/29.txt",
+          "dir/30.txt",
+          "dir/31.txt",
+          "dir/32.txt",
+          "dir/33.txt",
+          "dir/34.txt",
+          "dir/35.txt",
+          "dir/36.txt",
+          "dir/37.txt",
+          "dir/38.txt",
+          "dir/39.txt",
+          "dir/40.txt",
+          "dir/41.txt",
+          "dir/42.txt",
+          "dir/43.txt",
+          "dir/44.txt",
+          "dir/45.txt",
+          "dir/46.txt",
+          "dir/47.txt",
+          "dir/48.txt",
+          "dir/49.txt",
+          "dir/50.txt",
+          "dir/51.txt",
+          "dir/52.txt",
+          "dir/53.txt",
+          "dir/54.txt",
+          "dir/55.txt",
+          "dir/56.txt",
+          "dir/57.txt",
+          "dir/58.txt",
+          "dir/59.txt",
+          "dir/60.txt",
+          "dir/61.txt",
+          "dir/62.txt",
+          "dir/63.txt",
+          "dir/64.txt",
+          "dir/65.txt",
+          "dir/66.txt",
+          "dir/67.txt",
+          "dir/68.txt",
+          "dir/69.txt",
+          "dir/70.txt",
+          "dir/71.txt",
+          "dir/72.txt",
+          "dir/73.txt",
+          "dir/74.txt",
+          "dir/75.txt",
+          "dir/76.txt",
+          "dir/77.txt",
+          "dir/78.txt",
+          "dir/79.txt",
+          "dir/80.txt",
+          "dir/81.txt",
+          "dir/82.txt",
+          "dir/83.txt",
+          "dir/84.txt",
+          "dir/85.txt",
+          "dir/86.txt",
+          "dir/87.txt",
+          "dir/88.txt",
+          "dir/89.txt",
+          "dir/90.txt",
+          "dir/91.txt",
+          "dir/92.txt",
+          "dir/93.txt",
+          "dir/94.txt",
+          "dir/95.txt",
+          "dir/96.txt",
+          "dir/97.txt",
+          "dir/98.txt",
+          "dir/99.txt",
+          "dir/100.txt",
+          "dir/101.txt",
+          "dir/102.txt",
+          "dir/103.txt",
+          "dir/104.txt",
+          "dir/105.txt",
+          "dir/106.txt",
+          "dir/107.txt",
+          "dir/108.txt",
+          "dir/109.txt",
+          "dir/110.txt",
+          "dir/111.txt",
+          "dir/112.txt",
+          "dir/113.txt",
+          "dir/114.txt",
+          "dir/115.txt",
+          "dir/116.txt",
+          "dir/117.txt",
+          "dir/118.txt",
+          "dir/119.txt",
+          "dir/120.txt",
+          "dir/121.txt",
+          "dir/122.txt",
+          "dir/123.txt",
+          "dir/124.txt",
+          "dir/125.txt",
+          "dir/126.txt",
+          "dir/127.txt",
+          "dir/128.txt",
+          "dir/129.txt",
+          "dir/130.txt",
+          "dir/131.txt",
+          "dir/132.txt",
+          "dir/133.txt",
+          "dir/134.txt",
+          "dir/135.txt",
+          "dir/136.txt",
+          "dir/137.txt",
+          "dir/138.txt",
+          "dir/139.txt",
+          "dir/140.txt",
+          "dir/141.txt",
+          "dir/142.txt",
+          "dir/143.txt",
+          "dir/144.txt",
+          "dir/145.txt",
+          "dir/146.txt",
+          "dir/147.txt",
+          "dir/148.txt",
+          "dir/149.txt",
+          "dir/150.txt",
+          "dir/151.txt",
+          "dir/152.txt",
+          "dir/153.txt",
+          "dir/154.txt",
+          "dir/155.txt",
+          "dir/156.txt",
+          "dir/157.txt",
+          "dir/158.txt",
+          "dir/159.txt",
+          "dir/160.txt",
+          "dir/161.txt",
+          "dir/162.txt",
+          "dir/163.txt",
+          "dir/164.txt",
+          "dir/165.txt",
+          "dir/166.txt",
+          "dir/167.txt",
+          "dir/168.txt",
+          "dir/169.txt",
+          "dir/170.txt",
+          "dir/171.txt",
+          "dir/172.txt",
+          "dir/173.txt",
+          "dir/174.txt",
+          "dir/175.txt",
+          "dir/176.txt",
+          "dir/177.txt",
+          "dir/178.txt",
+          "dir/179.txt",
+          "dir/180.txt",
+          "dir/181.txt",
+          "dir/182.txt",
+          "dir/183.txt",
+          "dir/184.txt",
+          "dir/185.txt",
+          "dir/186.txt",
+          "dir/187.txt",
+          "dir/188.txt",
+          "dir/189.txt",
+          "dir/190.txt",
+          "dir/191.txt",
+          "dir/192.txt",
+          "dir/193.txt",
+          "dir/194.txt",
+          "dir/195.txt",
+          "dir/196.txt",
+          "dir/197.txt",
+          "dir/198.txt",
+          "dir/199.txt",
+          "dir/200.txt",
+          "dir/201.txt",
+          "dir/202.txt",
+          "dir/203.txt",
+          "dir/204.txt",
+          "dir/205.txt",
+          "dir/206.txt",
+          "dir/207.txt",
+          "dir/208.txt",
+          "dir/209.txt",
+          "dir/210.txt",
+          "dir/211.txt",
+          "dir/212.txt",
+          "dir/213.txt",
+          "dir/214.txt",
+          "dir/215.txt",
+          "dir/216.txt",
+          "dir/217.txt",
+          "dir/218.txt",
+          "dir/219.txt",
+          "dir/220.txt",
+          "dir/221.txt",
+          "dir/222.txt",
+          "dir/223.txt",
+          "dir/224.txt",
+          "dir/225.txt",
+          "dir/226.txt",
+          "dir/227.txt",
+          "dir/228.txt",
+          "dir/229.txt",
+          "dir/230.txt",
+          "dir/231.txt",
+          "dir/232.txt",
+          "dir/233.txt",
+          "dir/234.txt",
+          "dir/235.txt",
+          "dir/236.txt",
+          "dir/237.txt",
+          "dir/238.txt",
+          "dir/239.txt",
+          "dir/240.txt",
+          "dir/241.txt",
+          "dir/242.txt",
+          "dir/243.txt",
+          "dir/244.txt",
+          "dir/245.txt",
+          "dir/246.txt",
+          "dir/247.txt",
+          "dir/248.txt",
+          "dir/249.txt",
+          "dir/250.txt",
+          "dir/251.txt",
+          "dir/252.txt",
+          "dir/253.txt",
+          "dir/254.txt",
+          "dir/255.txt",
+          "dir/256.txt",
+          "dir/257.txt",
+          "dir/258.txt",
+          "dir/259.txt",
+          "dir/260.txt",
+          "dir/261.txt",
+          "dir/262.txt",
+          "dir/263.txt",
+          "dir/264.txt",
+          "dir/265.txt",
+          "dir/266.txt",
+          "dir/267.txt",
+          "dir/268.txt",
+          "dir/269.txt",
+          "dir/270.txt",
+          "dir/271.txt",
+          "dir/272.txt",
+          "dir/273.txt",
+          "dir/274.txt",
+          "dir/275.txt",
+          "dir/276.txt",
+          "dir/277.txt",
+          "dir/278.txt",
+          "dir/279.txt",
+          "dir/280.txt",
+          "dir/281.txt",
+          "dir/282.txt",
+          "dir/283.txt",
+          "dir/284.txt",
+          "dir/285.txt",
+          "dir/286.txt",
+          "dir/287.txt",
+          "dir/288.txt",
+          "dir/289.txt",
+          "dir/290.txt",
+          "dir/291.txt",
+          "dir/292.txt",
+          "dir/293.txt",
+          "dir/294.txt",
+          "dir/295.txt",
+          "dir/296.txt",
+          "dir/297.txt",
+          "dir/298.txt",
+          "dir/299.txt",
+          "dir/300.txt",
+          "dir/301.txt",
+          "dir/302.txt",
+          "dir/303.txt",
+          "dir/304.txt",
+          "dir/305.txt",
+          "dir/306.txt",
+          "dir/307.txt",
+          "dir/308.txt",
+          "dir/309.txt",
+          "dir/310.txt",
+          "dir/311.txt",
+          "dir/312.txt",
+          "dir/313.txt",
+          "dir/314.txt",
+          "dir/315.txt",
+          "dir/316.txt",
+          "dir/317.txt",
+          "dir/318.txt",
+          "dir/319.txt",
+          "dir/320.txt",
+          "dir/321.txt",
+          "dir/322.txt",
+          "dir/323.txt",
+          "dir/324.txt",
+          "dir/325.txt",
+          "dir/326.txt",
+          "dir/327.txt",
+          "dir/328.txt",
+          "dir/329.txt",
+          "dir/330.txt",
+          "dir/331.txt",
+          "dir/332.txt",
+          "dir/333.txt",
+          "dir/334.txt",
+          "dir/335.txt",
+          "dir/336.txt",
+          "dir/337.txt",
+          "dir/338.txt",
+          "dir/339.txt",
+          "dir/340.txt",
+          "dir/341.txt",
+          "dir/342.txt",
+          "dir/343.txt",
+          "dir/344.txt",
+          "dir/345.txt",
+          "dir/346.txt",
+          "dir/347.txt",
+          "dir/348.txt",
+          "dir/349.txt",
+          "dir/350.txt",
+          "dir/351.txt",
+          "dir/352.txt",
+          "dir/353.txt",
+          "dir/354.txt",
+          "dir/355.txt",
+          "dir/356.txt",
+          "dir/357.txt",
+          "dir/358.txt",
+          "dir/359.txt",
+          "dir/360.txt",
+          "dir/361.txt",
+          "dir/362.txt",
+          "dir/363.txt",
+          "dir/364.txt",
+          "dir/365.txt",
+          "dir/366.txt",
+          "dir/367.txt",
+          "dir/368.txt",
+          "dir/369.txt",
+          "dir/370.txt",
+          "dir/371.txt",
+          "dir/372.txt",
+          "dir/373.txt",
+          "dir/374.txt",
+          "dir/375.txt",
+          "dir/376.txt",
+          "dir/377.txt",
+          "dir/378.txt",
+          "dir/379.txt",
+          "dir/380.txt",
+          "dir/381.txt",
+          "dir/382.txt",
+          "dir/383.txt",
+          "dir/384.txt",
+          "dir/385.txt",
+          "dir/386.txt",
+          "dir/387.txt",
+          "dir/388.txt",
+          "dir/389.txt",
+          "dir/390.txt",
+          "dir/391.txt",
+          "dir/392.txt",
+          "dir/393.txt",
+          "dir/394.txt",
+          "dir/395.txt",
+          "dir/396.txt",
+          "dir/397.txt",
+          "dir/398.txt",
+          "dir/399.txt",
+          "dir/400.txt",
+          "dir/401.txt",
+          "dir/402.txt",
+          "dir/403.txt",
+          "dir/404.txt",
+          "dir/405.txt",
+          "dir/406.txt",
+          "dir/407.txt",
+          "dir/408.txt",
+          "dir/409.txt",
+          "dir/410.txt",
+          "dir/411.txt",
+          "dir/412.txt",
+          "dir/413.txt",
+          "dir/414.txt",
+          "dir/415.txt",
+          "dir/416.txt",
+          "dir/417.txt",
+          "dir/418.txt",
+          "dir/419.txt",
+          "dir/420.txt",
+          "dir/421.txt",
+          "dir/422.txt",
+          "dir/423.txt",
+          "dir/424.txt",
+          "dir/425.txt",
+          "dir/426.txt",
+          "dir/427.txt",
+          "dir/428.txt",
+          "dir/429.txt",
+          "dir/430.txt",
+          "dir/431.txt",
+          "dir/432.txt",
+          "dir/433.txt",
+          "dir/434.txt",
+          "dir/435.txt",
+          "dir/436.txt",
+          "dir/437.txt",
+          "dir/438.txt",
+          "dir/439.txt",
+          "dir/440.txt",
+          "dir/441.txt",
+          "dir/442.txt",
+          "dir/443.txt",
+          "dir/444.txt",
+          "dir/445.txt",
+          "dir/446.txt",
+          "dir/447.txt",
+          "dir/448.txt",
+          "dir/449.txt",
+          "dir/450.txt",
+          "dir/451.txt",
+          "dir/452.txt",
+          "dir/453.txt",
+          "dir/454.txt",
+          "dir/455.txt",
+          "dir/456.txt",
+          "dir/457.txt",
+          "dir/458.txt",
+          "dir/459.txt",
+          "dir/460.txt",
+          "dir/461.txt",
+          "dir/462.txt",
+          "dir/463.txt",
+          "dir/464.txt",
+          "dir/465.txt",
+          "dir/466.txt",
+          "dir/467.txt",
+          "dir/468.txt",
+          "dir/469.txt",
+          "dir/470.txt",
+          "dir/471.txt",
+          "dir/472.txt",
+          "dir/473.txt",
+          "dir/474.txt",
+          "dir/475.txt",
+          "dir/476.txt",
+          "dir/477.txt",
+          "dir/478.txt",
+          "dir/479.txt",
+          "dir/480.txt",
+          "dir/481.txt",
+          "dir/482.txt",
+          "dir/483.txt",
+          "dir/484.txt",
+          "dir/485.txt",
+          "dir/486.txt",
+          "dir/487.txt",
+          "dir/488.txt",
+          "dir/489.txt",
+          "dir/490.txt",
+          "dir/491.txt",
+          "dir/492.txt",
+          "dir/493.txt",
+          "dir/494.txt",
+          "dir/495.txt",
+          "dir/496.txt",
+          "dir/497.txt",
+          "dir/498.txt",
+          "dir/499.txt",
+          "dir/500.txt",
+          "dir/501.txt",
+          "dir/502.txt",
+          "dir/503.txt",
+          "dir/504.txt",
+          "dir/505.txt",
+          "dir/506.txt",
+          "dir/507.txt",
+          "dir/508.txt",
+          "dir/509.txt",
+          "dir/510.txt",
+          "dir/511.txt",
+          "dir/512.txt",
+          "dir/513.txt",
+          "dir/514.txt",
+          "dir/515.txt",
+          "dir/516.txt",
+          "dir/517.txt",
+          "dir/518.txt",
+          "dir/519.txt",
+          "dir/520.txt",
+          "dir/521.txt",
+          "dir/522.txt",
+          "dir/523.txt",
+          "dir/524.txt",
+          "dir/525.txt",
+          "dir/526.txt",
+          "dir/527.txt",
+          "dir/528.txt",
+          "dir/529.txt",
+          "dir/530.txt",
+          "dir/531.txt",
+          "dir/532.txt",
+          "dir/533.txt",
+          "dir/534.txt",
+          "dir/535.txt",
+          "dir/536.txt",
+          "dir/537.txt",
+          "dir/538.txt",
+          "dir/539.txt",
+          "dir/540.txt",
+          "dir/541.txt",
+          "dir/542.txt",
+          "dir/543.txt",
+          "dir/544.txt",
+          "dir/545.txt",
+          "dir/546.txt",
+          "dir/547.txt",
+          "dir/548.txt",
+          "dir/549.txt",
+          "dir/550.txt",
+          "dir/551.txt",
+          "dir/552.txt",
+          "dir/553.txt",
+          "dir/554.txt",
+          "dir/555.txt",
+          "dir/556.txt",
+          "dir/557.txt",
+          "dir/558.txt",
+          "dir/559.txt",
+          "dir/560.txt",
+          "dir/561.txt",
+          "dir/562.txt",
+          "dir/563.txt",
+          "dir/564.txt",
+          "dir/565.txt",
+          "dir/566.txt",
+          "dir/567.txt",
+          "dir/568.txt",
+          "dir/569.txt",
+          "dir/570.txt",
+          "dir/571.txt",
+          "dir/572.txt",
+          "dir/573.txt",
+          "dir/574.txt",
+          "dir/575.txt",
+          "dir/576.txt",
+          "dir/577.txt",
+          "dir/578.txt",
+          "dir/579.txt",
+          "dir/580.txt",
+          "dir/581.txt",
+          "dir/582.txt",
+          "dir/583.txt",
+          "dir/584.txt",
+          "dir/585.txt",
+          "dir/586.txt",
+          "dir/587.txt",
+          "dir/588.txt",
+          "dir/589.txt",
+          "dir/590.txt",
+          "dir/591.txt",
+          "dir/592.txt",
+          "dir/593.txt",
+          "dir/594.txt",
+          "dir/595.txt",
+          "dir/596.txt",
+          "dir/597.txt",
+          "dir/598.txt",
+          "dir/599.txt",
+          "dir/600.txt",
+          "dir/601.txt",
+          "dir/602.txt",
+          "dir/603.txt",
+          "dir/604.txt",
+          "dir/605.txt",
+          "dir/606.txt",
+          "dir/607.txt",
+          "dir/608.txt",
+          "dir/609.txt",
+          "dir/610.txt",
+          "dir/611.txt",
+          "dir/612.txt",
+          "dir/613.txt",
+          "dir/614.txt",
+          "dir/615.txt",
+          "dir/616.txt",
+          "dir/617.txt",
+          "dir/618.txt",
+          "dir/619.txt",
+          "dir/620.txt",
+          "dir/621.txt",
+          "dir/622.txt",
+          "dir/623.txt",
+          "dir/624.txt",
+          "dir/625.txt",
+          "dir/626.txt",
+          "dir/627.txt",
+          "dir/628.txt",
+          "dir/629.txt",
+          "dir/630.txt",
+          "dir/631.txt",
+          "dir/632.txt",
+          "dir/633.txt",
+          "dir/634.txt",
+          "dir/635.txt",
+          "dir/636.txt",
+          "dir/637.txt",
+          "dir/638.txt",
+          "dir/639.txt",
+          "dir/640.txt",
+          "dir/641.txt",
+          "dir/642.txt",
+          "dir/643.txt",
+          "dir/644.txt",
+          "dir/645.txt",
+          "dir/646.txt",
+          "dir/647.txt",
+          "dir/648.txt",
+          "dir/649.txt",
+          "dir/650.txt",
+          "dir/651.txt",
+          "dir/652.txt",
+          "dir/653.txt",
+          "dir/654.txt",
+          "dir/655.txt",
+          "dir/656.txt",
+          "dir/657.txt",
+          "dir/658.txt",
+          "dir/659.txt",
+          "dir/660.txt",
+          "dir/661.txt",
+          "dir/662.txt",
+          "dir/663.txt",
+          "dir/664.txt",
+          "dir/665.txt",
+          "dir/666.txt",
+          "dir/667.txt",
+          "dir/668.txt",
+          "dir/669.txt",
+          "dir/670.txt",
+          "dir/671.txt",
+          "dir/672.txt",
+          "dir/673.txt",
+          "dir/674.txt",
+          "dir/675.txt",
+          "dir/676.txt",
+          "dir/677.txt",
+          "dir/678.txt",
+          "dir/679.txt",
+          "dir/680.txt",
+          "dir/681.txt",
+          "dir/682.txt",
+          "dir/683.txt",
+          "dir/684.txt",
+          "dir/685.txt",
+          "dir/686.txt",
+          "dir/687.txt",
+          "dir/688.txt",
+          "dir/689.txt",
+          "dir/690.txt",
+          "dir/691.txt",
+          "dir/692.txt",
+          "dir/693.txt",
+          "dir/694.txt",
+          "dir/695.txt",
+          "dir/696.txt",
+          "dir/697.txt",
+          "dir/698.txt",
+          "dir/699.txt",
+          "dir/700.txt",
+          "dir/701.txt",
+          "dir/702.txt",
+          "dir/703.txt",
+          "dir/704.txt",
+          "dir/705.txt",
+          "dir/706.txt",
+          "dir/707.txt",
+          "dir/708.txt",
+          "dir/709.txt",
+          "dir/710.txt",
+          "dir/711.txt",
+          "dir/712.txt",
+          "dir/713.txt",
+          "dir/714.txt",
+          "dir/715.txt",
+          "dir/716.txt",
+          "dir/717.txt",
+          "dir/718.txt",
+          "dir/719.txt",
+          "dir/720.txt",
+          "dir/721.txt",
+          "dir/722.txt",
+          "dir/723.txt",
+          "dir/724.txt",
+          "dir/725.txt",
+          "dir/726.txt",
+          "dir/727.txt",
+          "dir/728.txt",
+          "dir/729.txt",
+          "dir/730.txt",
+          "dir/731.txt",
+          "dir/732.txt",
+          "dir/733.txt",
+          "dir/734.txt",
+          "dir/735.txt",
+          "dir/736.txt",
+          "dir/737.txt",
+          "dir/738.txt",
+          "dir/739.txt",
+          "dir/740.txt",
+          "dir/741.txt",
+          "dir/742.txt",
+          "dir/743.txt",
+          "dir/744.txt",
+          "dir/745.txt",
+          "dir/746.txt",
+          "dir/747.txt",
+          "dir/748.txt",
+          "dir/749.txt",
+          "dir/750.txt",
+          "dir/751.txt",
+          "dir/752.txt",
+          "dir/753.txt",
+          "dir/754.txt",
+          "dir/755.txt",
+          "dir/756.txt",
+          "dir/757.txt",
+          "dir/758.txt",
+          "dir/759.txt",
+          "dir/760.txt",
+          "dir/761.txt",
+          "dir/762.txt",
+          "dir/763.txt",
+          "dir/764.txt",
+          "dir/765.txt",
+          "dir/766.txt",
+          "dir/767.txt",
+          "dir/768.txt",
+          "dir/769.txt",
+          "dir/770.txt",
+          "dir/771.txt",
+          "dir/772.txt",
+          "dir/773.txt",
+          "dir/774.txt",
+          "dir/775.txt",
+          "dir/776.txt",
+          "dir/777.txt",
+          "dir/778.txt",
+          "dir/779.txt",
+          "dir/780.txt",
+          "dir/781.txt",
+          "dir/782.txt",
+          "dir/783.txt",
+          "dir/784.txt",
+          "dir/785.txt",
+          "dir/786.txt",
+          "dir/787.txt",
+          "dir/788.txt",
+          "dir/789.txt",
+          "dir/790.txt",
+          "dir/791.txt",
+          "dir/792.txt",
+          "dir/793.txt",
+          "dir/794.txt",
+          "dir/795.txt",
+          "dir/796.txt",
+          "dir/797.txt",
+          "dir/798.txt",
+          "dir/799.txt",
+          "dir/800.txt",
+          "dir/801.txt",
+          "dir/802.txt",
+          "dir/803.txt",
+          "dir/804.txt",
+          "dir/805.txt",
+          "dir/806.txt",
+          "dir/807.txt",
+          "dir/808.txt",
+          "dir/809.txt",
+          "dir/810.txt",
+          "dir/811.txt",
+          "dir/812.txt",
+          "dir/813.txt",
+          "dir/814.txt",
+          "dir/815.txt",
+          "dir/816.txt",
+          "dir/817.txt",
+          "dir/818.txt",
+          "dir/819.txt",
+          "dir/820.txt",
+          "dir/821.txt",
+          "dir/822.txt",
+          "dir/823.txt",
+          "dir/824.txt",
+          "dir/825.txt",
+          "dir/826.txt",
+          "dir/827.txt",
+          "dir/828.txt",
+          "dir/829.txt",
+          "dir/830.txt",
+          "dir/831.txt",
+          "dir/832.txt",
+          "dir/833.txt",
+          "dir/834.txt",
+          "dir/835.txt",
+          "dir/836.txt",
+          "dir/837.txt",
+          "dir/838.txt",
+          "dir/839.txt",
+          "dir/840.txt",
+          "dir/841.txt",
+          "dir/842.txt",
+          "dir/843.txt",
+          "dir/844.txt",
+          "dir/845.txt",
+          "dir/846.txt",
+          "dir/847.txt",
+          "dir/848.txt",
+          "dir/849.txt",
+          "dir/850.txt",
+          "dir/851.txt",
+          "dir/852.txt",
+          "dir/853.txt",
+          "dir/854.txt",
+          "dir/855.txt",
+          "dir/856.txt",
+          "dir/857.txt",
+          "dir/858.txt",
+          "dir/859.txt",
+          "dir/860.txt",
+          "dir/861.txt",
+          "dir/862.txt",
+          "dir/863.txt",
+          "dir/864.txt",
+          "dir/865.txt",
+          "dir/866.txt",
+          "dir/867.txt",
+          "dir/868.txt",
+          "dir/869.txt",
+          "dir/870.txt",
+          "dir/871.txt",
+          "dir/872.txt",
+          "dir/873.txt",
+          "dir/874.txt",
+          "dir/875.txt",
+          "dir/876.txt",
+          "dir/877.txt",
+          "dir/878.txt",
+          "dir/879.txt",
+          "dir/880.txt",
+          "dir/881.txt",
+          "dir/882.txt",
+          "dir/883.txt",
+          "dir/884.txt",
+          "dir/885.txt",
+          "dir/886.txt",
+          "dir/887.txt",
+          "dir/888.txt",
+          "dir/889.txt",
+          "dir/890.txt",
+          "dir/891.txt",
+          "dir/892.txt",
+          "dir/893.txt",
+          "dir/894.txt",
+          "dir/895.txt",
+          "dir/896.txt",
+          "dir/897.txt",
+          "dir/898.txt",
+          "dir/899.txt",
+          "dir/900.txt",
+          "dir/901.txt",
+          "dir/902.txt",
+          "dir/903.txt",
+          "dir/904.txt",
+          "dir/905.txt",
+          "dir/906.txt",
+          "dir/907.txt",
+          "dir/908.txt",
+          "dir/909.txt",
+          "dir/910.txt",
+          "dir/911.txt",
+          "dir/912.txt",
+          "dir/913.txt",
+          "dir/914.txt",
+          "dir/915.txt",
+          "dir/916.txt",
+          "dir/917.txt",
+          "dir/918.txt",
+          "dir/919.txt",
+          "dir/920.txt",
+          "dir/921.txt",
+          "dir/922.txt",
+          "dir/923.txt",
+          "dir/924.txt",
+          "dir/925.txt",
+          "dir/926.txt",
+          "dir/927.txt",
+          "dir/928.txt",
+          "dir/929.txt",
+          "dir/930.txt",
+          "dir/931.txt",
+          "dir/932.txt",
+          "dir/933.txt",
+          "dir/934.txt",
+          "dir/935.txt",
+          "dir/936.txt",
+          "dir/937.txt",
+          "dir/938.txt",
+          "dir/939.txt",
+          "dir/940.txt",
+          "dir/941.txt",
+          "dir/942.txt",
+          "dir/943.txt",
+          "dir/944.txt",
+          "dir/945.txt",
+          "dir/946.txt",
+          "dir/947.txt",
+          "dir/948.txt",
+          "dir/949.txt",
+          "dir/950.txt",
+          "dir/951.txt",
+          "dir/952.txt",
+          "dir/953.txt",
+          "dir/954.txt",
+          "dir/955.txt",
+          "dir/956.txt",
+          "dir/957.txt",
+          "dir/958.txt",
+          "dir/959.txt",
+          "dir/960.txt",
+          "dir/961.txt",
+          "dir/962.txt",
+          "dir/963.txt",
+          "dir/964.txt",
+          "dir/965.txt",
+          "dir/966.txt",
+          "dir/967.txt",
+          "dir/968.txt",
+          "dir/969.txt",
+          "dir/970.txt",
+          "dir/971.txt",
+          "dir/972.txt",
+          "dir/973.txt",
+          "dir/974.txt",
+          "dir/975.txt",
+          "dir/976.txt",
+          "dir/977.txt",
+          "dir/978.txt",
+          "dir/979.txt",
+          "dir/980.txt",
+          "dir/981.txt",
+          "dir/982.txt",
+          "dir/983.txt",
+          "dir/984.txt",
+          "dir/985.txt",
+          "dir/986.txt",
+          "dir/987.txt",
+          "dir/988.txt",
+          "dir/989.txt",
+          "dir/990.txt",
+          "dir/991.txt",
+          "dir/992.txt",
+          "dir/993.txt",
+          "dir/994.txt",
+          "dir/995.txt",
+          "dir/996.txt",
+          "dir/997.txt",
+          "dir/998.txt",
+          "dir/999.txt"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "696088dc605e773f2673668342d67b67ec5b7b1eb0e68d223cb416524e6d2a7e",
+      "stdoutHex": "302e7478740a312e7478740a322e7478740a332e7478740a342e7478740a352e7478740a362e7478740a372e7478740a382e7478740a392e7478740a31302e7478740a31312e7478740a31322e7478740a31332e7478740a31342e7478740a31352e7478740a31362e7478740a31372e7478740a31382e7478740a31392e7478740a32302e7478740a32312e7478740a32322e7478740a32332e7478740a32342e7478740a32352e7478740a32362e7478740a32372e7478740a32382e7478740a32392e7478740a33302e7478740a33312e7478740a33322e7478740a33332e7478740a33342e7478740a33352e7478740a33362e7478740a33372e7478740a33382e7478740a33392e7478740a34302e7478740a34312e7478740a34322e7478740a34332e7478740a34342e7478740a34352e7478740a34362e7478740a34372e7478740a34382e7478740a34392e7478740a35302e7478740a35312e7478740a35322e7478740a35332e7478740a35342e7478740a35352e7478740a35362e7478740a35372e7478740a35382e7478740a35392e7478740a36302e7478740a36312e7478740a36322e7478740a36332e7478740a36342e7478740a36352e7478740a36362e7478740a36372e7478740a36382e7478740a36392e7478740a37302e7478740a37312e7478740a37322e7478740a37332e7478740a37342e7478740a37352e7478740a37362e7478740a37372e7478740a37382e7478740a37392e7478740a38302e7478740a38312e7478740a38322e7478740a38332e7478740a38342e7478740a38352e7478740a38362e7478740a38372e7478740a38382e7478740a38392e7478740a39302e7478740a39312e7478740a39322e7478740a39332e7478740a39342e7478740a39352e7478740a39362e7478740a39372e7478740a39382e7478740a39392e7478740a3130302e7478740a3130312e7478740a3130322e7478740a3130332e7478740a3130342e7478740a3130352e7478740a3130362e7478740a3130372e7478740a3130382e7478740a3130392e7478740a3131302e7478740a3131312e7478740a3131322e7478740a3131332e7478740a3131342e7478740a3131352e7478740a3131362e7478740a3131372e7478740a3131382e7478740a3131392e7478740a3132302e7478740a3132312e7478740a3132322e7478740a3132332e7478740a3132342e7478740a3132352e7478740a3132362e7478740a3132372e7478740a3132382e7478740a3132392e7478740a3133302e7478740a3133312e7478740a3133322e7478740a3133332e7478740a3133342e7478740a3133352e7478740a3133362e7478740a3133372e7478740a3133382e7478740a3133392e7478740a3134302e7478740a3134312e7478740a3134322e7478740a3134332e7478740a3134342e7478740a3134352e7478740a3134362e7478740a3134372e7478740a3134382e7478740a3134392e7478740a3135302e7478740a3135312e7478740a3135322e7478740a3135332e7478740a3135342e7478740a3135352e7478740a3135362e7478740a3135372e7478740a3135382e7478740a3135392e7478740a3136302e7478740a3136312e7478740a3136322e7478740a3136332e7478740a3136342e7478740a3136352e7478740a3136362e7478740a3136372e7478740a3136382e7478740a3136392e7478740a3137302e7478740a3137312e7478740a3137322e7478740a3137332e7478740a3137342e7478740a3137352e7478740a3137362e7478740a3137372e7478740a3137382e7478740a3137392e7478740a3138302e7478740a3138312e7478740a3138322e7478740a3138332e7478740a3138342e7478740a3138352e7478740a3138362e7478740a3138372e7478740a3138382e7478740a3138392e7478740a3139302e7478740a3139312e7478740a3139322e7478740a3139332e7478740a3139342e7478740a3139352e7478740a3139362e7478740a3139372e7478740a3139382e7478740a3139392e7478740a3230302e7478740a3230312e7478740a3230322e7478740a3230332e7478740a3230342e7478740a3230352e7478740a3230362e7478740a3230372e7478740a3230382e7478740a3230392e7478740a3231302e7478740a3231312e7478740a3231322e7478740a3231332e7478740a3231342e7478740a3231352e7478740a3231362e7478740a3231372e7478740a3231382e7478740a3231392e7478740a3232302e7478740a3232312e7478740a3232322e7478740a3232332e7478740a3232342e7478740a3232352e7478740a3232362e7478740a3232372e7478740a3232382e7478740a3232392e7478740a3233302e7478740a3233312e7478740a3233322e7478740a3233332e7478740a3233342e7478740a3233352e7478740a3233362e7478740a3233372e7478740a3233382e7478740a3233392e7478740a3234302e7478740a3234312e7478740a3234322e7478740a3234332e7478740a3234342e7478740a3234352e7478740a3234362e7478740a3234372e7478740a3234382e7478740a3234392e7478740a3235302e7478740a3235312e7478740a3235322e7478740a3235332e7478740a3235342e7478740a3235352e7478740a3235362e7478740a3235372e7478740a3235382e7478740a3235392e7478740a3236302e7478740a3236312e7478740a3236322e7478740a3236332e7478740a3236342e7478740a3236352e7478740a3236362e7478740a3236372e7478740a3236382e7478740a3236392e7478740a3237302e7478740a3237312e7478740a3237322e7478740a3237332e7478740a3237342e7478740a3237352e7478740a3237362e7478740a3237372e7478740a3237382e7478740a3237392e7478740a3238302e7478740a3238312e7478740a3238322e7478740a3238332e7478740a3238342e7478740a3238352e7478740a3238362e7478740a3238372e7478740a3238382e7478740a3238392e7478740a3239302e7478740a3239312e7478740a3239322e7478740a3239332e7478740a3239342e7478740a3239352e7478740a3239362e7478740a3239372e7478740a3239382e7478740a3239392e7478740a3330302e7478740a3330312e7478740a3330322e7478740a3330332e7478740a3330342e7478740a3330352e7478740a3330362e7478740a3330372e7478740a3330382e7478740a3330392e7478740a3331302e7478740a3331312e7478740a3331322e7478740a3331332e7478740a3331342e7478740a3331352e7478740a3331362e7478740a3331372e7478740a3331382e7478740a3331392e7478740a3332302e7478740a3332312e7478740a3332322e7478740a3332332e7478740a3332342e7478740a3332352e7478740a3332362e7478740a3332372e7478740a3332382e7478740a3332392e7478740a3333302e7478740a3333312e7478740a3333322e7478740a3333332e7478740a3333342e7478740a3333352e7478740a3333362e7478740a3333372e7478740a3333382e7478740a3333392e7478740a3334302e7478740a3334312e7478740a3334322e7478740a3334332e7478740a3334342e7478740a3334352e7478740a3334362e7478740a3334372e7478740a3334382e7478740a3334392e7478740a3335302e7478740a3335312e7478740a3335322e7478740a3335332e7478740a3335342e7478740a3335352e7478740a3335362e7478740a3335372e7478740a3335382e7478740a3335392e7478740a3336302e7478740a3336312e7478740a3336322e7478740a3336332e7478740a3336342e7478740a3336352e7478740a3336362e7478740a3336372e7478740a3336382e7478740a3336392e7478740a3337302e7478740a3337312e7478740a3337322e7478740a3337332e7478740a3337342e7478740a3337352e7478740a3337362e7478740a3337372e7478740a3337382e7478740a3337392e7478740a3338302e7478740a3338312e7478740a3338322e7478740a3338332e7478740a3338342e7478740a3338352e7478740a3338362e7478740a3338372e7478740a3338382e7478740a3338392e7478740a3339302e7478740a3339312e7478740a3339322e7478740a3339332e7478740a3339342e7478740a3339352e7478740a3339362e7478740a3339372e7478740a3339382e7478740a3339392e7478740a3430302e7478740a3430312e7478740a3430322e7478740a3430332e7478740a3430342e7478740a3430352e7478740a3430362e7478740a3430372e7478740a3430382e7478740a3430392e7478740a3431302e7478740a3431312e7478740a3431322e7478740a3431332e7478740a3431342e7478740a3431352e7478740a3431362e7478740a3431372e7478740a3431382e7478740a3431392e7478740a3432302e7478740a3432312e7478740a3432322e7478740a3432332e7478740a3432342e7478740a3432352e7478740a3432362e7478740a3432372e7478740a3432382e7478740a3432392e7478740a3433302e7478740a3433312e7478740a3433322e7478740a3433332e7478740a3433342e7478740a3433352e7478740a3433362e7478740a3433372e7478740a3433382e7478740a3433392e7478740a3434302e7478740a3434312e7478740a3434322e7478740a3434332e7478740a3434342e7478740a3434352e7478740a3434362e7478740a3434372e7478740a3434382e7478740a3434392e7478740a3435302e7478740a3435312e7478740a3435322e7478740a3435332e7478740a3435342e7478740a3435352e7478740a3435362e7478740a3435372e7478740a3435382e7478740a3435392e7478740a3436302e7478740a3436312e7478740a3436322e7478740a3436332e7478740a3436342e7478740a3436352e7478740a3436362e7478740a3436372e7478740a3436382e7478740a3436392e7478740a3437302e7478740a3437312e7478740a3437322e7478740a3437332e7478740a3437342e7478740a3437352e7478740a3437362e7478740a3437372e7478740a3437382e7478740a3437392e7478740a3438302e7478740a3438312e7478740a3438322e7478740a3438332e7478740a3438342e7478740a3438352e7478740a3438362e7478740a3438372e7478740a3438382e7478740a3438392e7478740a3439302e7478740a3439312e7478740a3439322e7478740a3439332e7478740a3439342e7478740a3439352e7478740a3439362e7478740a3439372e7478740a3439382e7478740a3439392e7478740a3530302e7478740a3530312e7478740a3530322e7478740a3530332e7478740a3530342e7478740a3530352e7478740a3530362e7478740a3530372e7478740a3530382e7478740a3530392e7478740a3531302e7478740a3531312e7478740a3531322e7478740a3531332e7478740a3531342e7478740a3531352e7478740a3531362e7478740a3531372e7478740a3531382e7478740a3531392e7478740a3532302e7478740a3532312e7478740a3532322e7478740a3532332e7478740a3532342e7478740a3532352e7478740a3532362e7478740a3532372e7478740a3532382e7478740a3532392e7478740a3533302e7478740a3533312e7478740a3533322e7478740a3533332e7478740a3533342e7478740a3533352e7478740a3533362e7478740a3533372e7478740a3533382e7478740a3533392e7478740a3534302e7478740a3534312e7478740a3534322e7478740a3534332e7478740a3534342e7478740a3534352e7478740a3534362e7478740a3534372e7478740a3534382e7478740a3534392e7478740a3535302e7478740a3535312e7478740a3535322e7478740a3535332e7478740a3535342e7478740a3535352e7478740a3535362e7478740a3535372e7478740a3535382e7478740a3535392e7478740a3536302e7478740a3536312e7478740a3536322e7478740a3536332e7478740a3536342e7478740a3536352e7478740a3536362e7478740a3536372e7478740a3536382e7478740a3536392e7478740a3537302e7478740a3537312e7478740a3537322e7478740a3537332e7478740a3537342e7478740a3537352e7478740a3537362e7478740a3537372e7478740a3537382e7478740a3537392e7478740a3538302e7478740a3538312e7478740a3538322e7478740a3538332e7478740a3538342e7478740a3538352e7478740a3538362e7478740a3538372e7478740a3538382e7478740a3538392e7478740a3539302e7478740a3539312e7478740a3539322e7478740a3539332e7478740a3539342e7478740a3539352e7478740a3539362e7478740a3539372e7478740a3539382e7478740a3539392e7478740a3630302e7478740a3630312e7478740a3630322e7478740a3630332e7478740a3630342e7478740a3630352e7478740a3630362e7478740a3630372e7478740a3630382e7478740a3630392e7478740a3631302e7478740a3631312e7478740a3631322e7478740a3631332e7478740a3631342e7478740a3631352e7478740a3631362e7478740a3631372e7478740a3631382e7478740a3631392e7478740a3632302e7478740a3632312e7478740a3632322e7478740a3632332e7478740a3632342e7478740a3632352e7478740a3632362e7478740a3632372e7478740a3632382e7478740a3632392e7478740a3633302e7478740a3633312e7478740a3633322e7478740a3633332e7478740a3633342e7478740a3633352e7478740a3633362e7478740a3633372e7478740a3633382e7478740a3633392e7478740a3634302e7478740a3634312e7478740a3634322e7478740a3634332e7478740a3634342e7478740a3634352e7478740a3634362e7478740a3634372e7478740a3634382e7478740a3634392e7478740a3635302e7478740a3635312e7478740a3635322e7478740a3635332e7478740a3635342e7478740a3635352e7478740a3635362e7478740a3635372e7478740a3635382e7478740a3635392e7478740a3636302e7478740a3636312e7478740a3636322e7478740a3636332e7478740a3636342e7478740a3636352e7478740a3636362e7478740a3636372e7478740a3636382e7478740a3636392e7478740a3637302e7478740a3637312e7478740a3637322e7478740a3637332e7478740a3637342e7478740a3637352e7478740a3637362e7478740a3637372e7478740a3637382e7478740a3637392e7478740a3638302e7478740a3638312e7478740a3638322e7478740a3638332e7478740a3638342e7478740a3638352e7478740a3638362e7478740a3638372e7478740a3638382e7478740a3638392e7478740a3639302e7478740a3639312e7478740a3639322e7478740a3639332e7478740a3639342e7478740a3639352e7478740a3639362e7478740a3639372e7478740a3639382e7478740a3639392e7478740a3730302e7478740a3730312e7478740a3730322e7478740a3730332e7478740a3730342e7478740a3730352e7478740a3730362e7478740a3730372e7478740a3730382e7478740a3730392e7478740a3731302e7478740a3731312e7478740a3731322e7478740a3731332e7478740a3731342e7478740a3731352e7478740a3731362e7478740a3731372e7478740a3731382e7478740a3731392e7478740a3732302e7478740a3732312e7478740a3732322e7478740a3732332e7478740a3732342e7478740a3732352e7478740a3732362e7478740a3732372e7478740a3732382e7478740a3732392e7478740a3733302e7478740a3733312e7478740a3733322e7478740a3733332e7478740a3733342e7478740a3733352e7478740a3733362e7478740a3733372e7478740a3733382e7478740a3733392e7478740a3734302e7478740a3734312e7478740a3734322e7478740a3734332e7478740a3734342e7478740a3734352e7478740a3734362e7478740a3734372e7478740a3734382e7478740a3734392e7478740a3735302e7478740a3735312e7478740a3735322e7478740a3735332e7478740a3735342e7478740a3735352e7478740a3735362e7478740a3735372e7478740a3735382e7478740a3735392e7478740a3736302e7478740a3736312e7478740a3736322e7478740a3736332e7478740a3736342e7478740a3736352e7478740a3736362e7478740a3736372e7478740a3736382e7478740a3736392e7478740a3737302e7478740a3737312e7478740a3737322e7478740a3737332e7478740a3737342e7478740a3737352e7478740a3737362e7478740a3737372e7478740a3737382e7478740a3737392e7478740a3738302e7478740a3738312e7478740a3738322e7478740a3738332e7478740a3738342e7478740a3738352e7478740a3738362e7478740a3738372e7478740a3738382e7478740a3738392e7478740a3739302e7478740a3739312e7478740a3739322e7478740a3739332e7478740a3739342e7478740a3739352e7478740a3739362e7478740a3739372e7478740a3739382e7478740a3739392e7478740a3830302e7478740a3830312e7478740a3830322e7478740a3830332e7478740a3830342e7478740a3830352e7478740a3830362e7478740a3830372e7478740a3830382e7478740a3830392e7478740a3831302e7478740a3831312e7478740a3831322e7478740a3831332e7478740a3831342e7478740a3831352e7478740a3831362e7478740a3831372e7478740a3831382e7478740a3831392e7478740a3832302e7478740a3832312e7478740a3832322e7478740a3832332e7478740a3832342e7478740a3832352e7478740a3832362e7478740a3832372e7478740a3832382e7478740a3832392e7478740a3833302e7478740a3833312e7478740a3833322e7478740a3833332e7478740a3833342e7478740a3833352e7478740a3833362e7478740a3833372e7478740a3833382e7478740a3833392e7478740a3834302e7478740a3834312e7478740a3834322e7478740a3834332e7478740a3834342e7478740a3834352e7478740a3834362e7478740a3834372e7478740a3834382e7478740a3834392e7478740a3835302e7478740a3835312e7478740a3835322e7478740a3835332e7478740a3835342e7478740a3835352e7478740a3835362e7478740a3835372e7478740a3835382e7478740a3835392e7478740a3836302e7478740a3836312e7478740a3836322e7478740a3836332e7478740a3836342e7478740a3836352e7478740a3836362e7478740a3836372e7478740a3836382e7478740a3836392e7478740a3837302e7478740a3837312e7478740a3837322e7478740a3837332e7478740a3837342e7478740a3837352e7478740a3837362e7478740a3837372e7478740a3837382e7478740a3837392e7478740a3838302e7478740a3838312e7478740a3838322e7478740a3838332e7478740a3838342e7478740a3838352e7478740a3838362e7478740a3838372e7478740a3838382e7478740a3838392e7478740a3839302e7478740a3839312e7478740a3839322e7478740a3839332e7478740a3839342e7478740a3839352e7478740a3839362e7478740a3839372e7478740a3839382e7478740a3839392e7478740a3930302e7478740a3930312e7478740a3930322e7478740a3930332e7478740a3930342e7478740a3930352e7478740a3930362e7478740a3930372e7478740a3930382e7478740a3930392e7478740a3931302e7478740a3931312e7478740a3931322e7478740a3931332e7478740a3931342e7478740a3931352e7478740a3931362e7478740a3931372e7478740a3931382e7478740a3931392e7478740a3932302e7478740a3932312e7478740a3932322e7478740a3932332e7478740a3932342e7478740a3932352e7478740a3932362e7478740a3932372e7478740a3932382e7478740a3932392e7478740a3933302e7478740a3933312e7478740a3933322e7478740a3933332e7478740a3933342e7478740a3933352e7478740a3933362e7478740a3933372e7478740a3933382e7478740a3933392e7478740a3934302e7478740a3934312e7478740a3934322e7478740a3934332e7478740a3934342e7478740a3934352e7478740a3934362e7478740a3934372e7478740a3934382e7478740a3934392e7478740a3935302e7478740a3935312e7478740a3935322e7478740a3935332e7478740a3935342e7478740a3935352e7478740a3935362e7478740a3935372e7478740a3935382e7478740a3935392e7478740a3936302e7478740a3936312e7478740a3936322e7478740a3936332e7478740a3936342e7478740a3936352e7478740a3936362e7478740a3936372e7478740a3936382e7478740a3936392e7478740a3937302e7478740a3937312e7478740a3937322e7478740a3937332e7478740a3937342e7478740a3937352e7478740a3937362e7478740a3937372e7478740a3937382e7478740a3937392e7478740a3938302e7478740a3938312e7478740a3938322e7478740a3938332e7478740a3938342e7478740a3938352e7478740a3938362e7478740a3938372e7478740a3938382e7478740a3938392e7478740a3939302e7478740a3939312e7478740a3939322e7478740a3939332e7478740a3939342e7478740a3939352e7478740a3939362e7478740a3939372e7478740a3939382e7478740a3939392e7478740a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/empty-long-name",
+      "request": {
+        "id": "coreutils/basename/empty-long-name",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "--=x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "d3c8aa655d9b16b21e458abbe7d39affc59cbb3a50c571b8d01af813c854ceee",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f626173656e616d653a206f7074696f6e20272d2d3d782720697320616d626967756f75733b20706f73736962696c69746965733a20272d2d6d756c7469706c652720272d2d7375666669782720272d2d7a65726f2720272d2d68656c702720272d2d76657273696f6e270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/quote-0",
+      "request": {
+        "id": "coreutils/basename/quote-0",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "a'b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "18837b1438073d70224d3278f74aeebbfa1ba465c9627e69deb162015f3f8118",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e642027615c2762270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/quote-1",
+      "request": {
+        "id": "coreutils/basename/quote-1",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "a\"b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "586c4bd3d305e7b1ca701759bae59f5b26e91fb3f782e969e02454aab648c735",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e642027612262270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/quote-2",
+      "request": {
+        "id": "coreutils/basename/quote-2",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "a\\b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "61b6fbef2f8042ea9a3b99805c9ac7deb0583ea11173159ce3ba5618b131a4d2",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e642027615c5c62270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/basename/quote-3",
+      "request": {
+        "id": "coreutils/basename/quote-3",
+        "command": "basename",
+        "invocation": "/usr/bin/basename",
+        "argv": [
+          "a",
+          "b",
+          "\u001b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "2a190a2b8a98c95ad46dd1e7411523a2c3714d61151da7d03de5bca8e02c66cd",
+      "stdoutHex": "",
+      "stderrHex": "626173656e616d653a206578747261206f706572616e6420275c303333270a54727920272f7573722f62696e2f626173656e616d65202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    }
+  ]
+}

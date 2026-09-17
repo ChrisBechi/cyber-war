@@ -57,12 +57,12 @@ impl VirtualNetwork {
             serde_json::from_str(include_str!("../../content/networks/initial.json"))?;
         for host in network.hosts.values_mut() {
             host.files = VirtualFileSystem::default();
-            for node in host.files.nodes.values_mut() {
+            host.files.nodes.edit_all(|node| {
                 if node.owner == "kali" {
                     node.owner = "vex".into();
                     node.group = "vex".into();
                 }
-            }
+            });
             host.files.seed(
                 "/etc/web.conf",
                 "file",

@@ -49,9 +49,15 @@ struct Request {
 struct Case {
     id: String,
     command: String,
+    invocation: Option<String>,
+    transport: Option<String>,
+    process: Option<ProcessFixture>,
     argv: Vec<String>,
     script: Option<String>,
+    #[serde(default)]
+    roundtrip: bool,
     stdin: Option<String>,
+    stdin_hex: Option<String>,
     env: BTreeMap<String, String>,
     cwd: String,
     tty: Tty,
@@ -59,11 +65,33 @@ struct Case {
     #[serde(default)]
     input_events: Vec<crate::cli_contract::Input>,
 }
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProcessFixture {
+    actor: Option<String>,
+    uid: Option<u32>,
+    #[serde(default)]
+    username: UsernameFixture,
+    environment: Option<Vec<(String, String)>>,
+}
+#[derive(Default)]
+enum UsernameFixture {
+    #[default]
+    Inherit,
+    Lookup(Option<String>),
+}
+impl<'de> Deserialize<'de> for UsernameFixture {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Option::<String>::deserialize(deserializer).map(Self::Lookup)
+    }
+}
 #[derive(Deserialize, Default)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct Fixture {
     #[serde(default)]
     files: BTreeMap<String, String>,
+    #[serde(default)]
+    bytes: BTreeMap<String, String>,
     #[serde(default)]
     directories: Vec<String>,
     #[serde(default)]
@@ -74,6 +102,14 @@ struct Fixture {
 fn snapshot(w: &WorldState) -> Value {
     json!({"vfs": w.vfs.nodes, "processes": w.processes, "network": w.network,
         "packages": w.packages, "cwd": w.terminal.cwd, "user": w.terminal.user})
+}
+fn unhex(text: &str) -> Vec<u8> {
+    text.as_bytes()
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
+        .collect()
 }
 #[test]
 #[ignore = "development case capture; invoked explicitly by cli:compat"]
@@ -91,6 +127,11 @@ fn cli_tooling_capture() {
         for (path, text) in case.fixture.files {
             w.vfs.write(&path, &text, "kali").unwrap();
         }
+        for (path, hex) in case.fixture.bytes {
+            let bytes = unhex(&hex);
+            let size = bytes.len() as u64;
+            crate::archive::write_bytes(&mut w, &path, bytes, "kali", size).unwrap();
+        }
         for (path, mode) in case.fixture.modes {
             w.vfs.chmod(&path, "kali", mode).unwrap();
         }
@@ -101,7 +142,42 @@ fn cli_tooling_capture() {
         w.vfs.directory(&case.cwd, "kali").unwrap();
         w.terminal.cwd = case.cwd;
         w.terminal.env = case.env;
+        if let Some(process) = case.process {
+            if let Some(actor) = process.actor {
+                w.terminal.user = actor;
+            }
+            if let Some(uid) = process.uid {
+                w.vfs.set_identity(
+                    &w.terminal.user,
+                    crate::vfs::Identity {
+                        uid,
+                        gid: uid,
+                        groups: std::collections::BTreeSet::from([uid]),
+                    },
+                );
+            }
+            if let UsernameFixture::Lookup(username) = process.username {
+                let uid = w.vfs.identity(&w.terminal.user).uid;
+                let passwd = username.map_or_else(String::new, |name| {
+                    format!("{name}:x:{uid}:{uid}::/home/kali:/bin/sh\n")
+                });
+                w.vfs.write("/etc/passwd", &passwd, "root").unwrap();
+            }
+            if let Some(env) = process.environment {
+                w.terminal.shell.environment_order = env.iter().map(|(k, _)| k.clone()).collect();
+                let defaults = terminal::virtual_env(&w, &w.terminal.user);
+                w.terminal.shell.unset.extend(
+                    defaults
+                        .keys()
+                        .filter(|k| !env.iter().any(|(n, _)| n == *k))
+                        .cloned(),
+                );
+                w.terminal.env = env.iter().cloned().collect();
+                w.terminal.exported = env.iter().map(|(k, _)| k.clone()).collect();
+            }
+        }
         w.terminal.stdin = case.stdin;
+        w.terminal.stdin_bytes = case.stdin_hex.as_deref().map(unhex);
         w.terminal.presentation.columns = case.tty.columns;
         w.terminal.io.stdin_tty = case.tty.is_tty;
         w.terminal.io.stdout_tty = case.tty.is_tty;
@@ -125,19 +201,41 @@ fn cli_tooling_capture() {
         let work = || {
             if let Some(script) = case.script {
                 terminal::execute(&mut w, &script)
+            } else if case.transport.as_deref().is_some_and(|t| t != "direct") {
+                let quote = |value: &str| format!("'{}'", value.replace('\'', "'\\''"));
+                let command = std::iter::once(case.invocation.unwrap_or(case.command))
+                    .chain(case.argv)
+                    .map(|s| quote(&s))
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                let script = if case.transport.as_deref() == Some("pipe") {
+                    format!("{command} | /usr/bin/cat")
+                } else {
+                    format!("{command} > /home/kali/reference-output")
+                };
+                terminal::execute(&mut w, &script)
             } else {
-                let parts = std::iter::once(case.command).chain(case.argv).collect();
+                let parts = std::iter::once(case.invocation.unwrap_or(case.command))
+                    .chain(case.argv)
+                    .collect();
                 terminal::execute_parts(&mut w, Ok(parts))
             }
         };
+        let started = std::time::Instant::now();
         let result = if case.input_events.is_empty() {
             work()
         } else {
             crate::shell::control::run(&control, work)
         };
         drop(control);
-        results.push(json!({"id":case.id,"stdout":result.stdout,"stderr":result.stderr,
-            "exitCode":result.exit_code,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty}));
+        if case.roundtrip {
+            let json = serde_json::to_string(&w.vfs).unwrap();
+            w.vfs = serde_json::from_str(&json).unwrap();
+        }
+        w.vfs.collect();
+        w.vfs.check_invariants().unwrap();
+        results.push(json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
+            "stderrHex":result.stderr_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"exitCode":result.exit_code,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty}));
     }
     artifact(
         "cli-case-actual.json",

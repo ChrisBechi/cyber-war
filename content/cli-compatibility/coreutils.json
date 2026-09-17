@@ -1,0 +1,2337 @@
+{
+  "schemaVersion": 1,
+  "softwareId": "coreutils",
+  "referenceVersion": "9.7",
+  "commands": {
+    "base64": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-d", "-i", "-w", "--decode", "--ignore-garbage", "--wrap"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Binary encoding/decoding and configurable wrapping",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/base64/encode",
+            "coreutils/base64/decode",
+            "coreutils/base64/wrap",
+            "coreutils/base64/garbage",
+            "coreutils/base64/unknown-option"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/base64/invalid", "coreutils/base64/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/base64/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/base64/encode", "coreutils/base64/decode"]
+        }
+      ],
+      "knownGaps": [
+        "Decode partial-output behavior and invalid-input diagnostics need full GNU audit"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "basename": {
+      "area": "foundation",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "flags": ["-a", "-s", "-z", "--multiple", "--suffix", "--zero", "--help", "--version"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Pure lexical paths, optional suffix and multiple operands",
+          "evidence": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands"
+          ]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/quote-controls"
+          ]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Exact GNU C-locale help/version bytes, invocation name and option precedence",
+          "evidence": [
+            "coreutils/basename/version",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/plain-help"
+          ]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error"
+          ]
+        }
+      ],
+      "knownGaps": [],
+      "unsupportedFlagsPolicy": "GNU reference captures cover the complete documented option set and rejection of unsupported options.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Linux x86_64 Alpine/musl reference; LC_ALL=C; UTF-8 argv, bounded virtual resources. Other locales and NUL in argv are outside the committed process model."
+      ]
+    },
+    "cat": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": [
+        "-A",
+        "-b",
+        "-E",
+        "-n",
+        "-e",
+        "-s",
+        "-t",
+        "-T",
+        "-u",
+        "-v",
+        "--show-all",
+        "--number-nonblank",
+        "--show-ends",
+        "--number",
+        "--squeeze-blank",
+        "--show-tabs",
+        "--show-nonprinting"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Byte concatenation, stdin once, transformations across files and partial errors",
+          "evidence": ["coreutils/cat/stdin-twice"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/cat/transform",
+            "coreutils/cat/visible",
+            "coreutils/cat/unknown-option"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/cat/mixed", "coreutils/cat/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/cat/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/cat/binary", "coreutils/cat/visible"]
+        }
+      ],
+      "knownGaps": [
+        "Interactive transformed input buffers to EOF",
+        "self-output detection and GNU quoting need evidence"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "chmod": {
+      "area": "filesystem",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "flags": ["-R", "-v", "--recursive", "--verbose"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Octal and explicit symbolic classes; shared inode modes",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Class-copy, implicit umask, symlink traversal and partial errors need audit"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "chown": {
+      "area": "filesystem",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "flags": ["-R", "-v", "--recursive", "--verbose"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Known virtual users/groups, root authorization and inode ownership",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Numeric IDs, follow policies and partial success incomplete"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "cp": {
+      "area": "manipulation",
+      "complexity": 4,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_transfer.rs",
+      "flags": [
+        "-r",
+        "-R",
+        "-n",
+        "-v",
+        "-f",
+        "-u",
+        "-T",
+        "-P",
+        "-t",
+        "--recursive",
+        "--no-clobber",
+        "--verbose",
+        "--force",
+        "--no-dereference",
+        "--target-directory",
+        "--no-target-directory"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual copy, independent inode, bounded recursive merge, multiple operands",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Interactive/preserve/archive/backup/link flags and full dereference matrix incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "cut": {
+      "area": "text",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-d", "-f", "--delimiter", "--fields"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Text field selection",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Byte/character ranges, complement, output delimiter and binary input incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "date": {
+      "area": "execution",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual elapsed seconds and fixed-date display",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["General format/timezone/parsing and scheduler clock semantics incomplete"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "df": {
+      "area": "advanced",
+      "complexity": 4,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-h", "--human-readable"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Logical virtual capacity report",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "No real block allocation or mounts",
+        "GNU df cannot be certified from these numbers"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "dirname": {
+      "area": "foundation",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "flags": ["-z", "--zero", "--help", "--version"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Pure lexical parent names and multiple operands",
+          "evidence": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands"
+          ]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/dirname/zero",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [
+            "coreutils/dirname/missing",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value"
+          ]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Exact GNU C-locale help/version bytes, invocation name and option precedence",
+          "evidence": [
+            "coreutils/dirname/version",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/help-before-invalid"
+          ]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero"
+          ]
+        }
+      ],
+      "knownGaps": [],
+      "unsupportedFlagsPolicy": "GNU reference captures cover the complete documented option set and rejection of unsupported options.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Linux x86_64 Alpine/musl reference; LC_ALL=C; UTF-8 argv, bounded virtual resources. Other locales and NUL in argv are outside the committed process model."
+      ]
+    },
+    "du": {
+      "area": "advanced",
+      "complexity": 4,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-h", "-s", "--human-readable", "--summarize"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Logical virtual size traversal",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Hardlink deduplication, block sizes, dereference policies and GNU layout need audit"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "env": {
+      "area": "execution",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "flags": ["-i", "-u", "--ignore-environment", "--unset"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Temporary environment and virtual command execution",
+          "evidence": ["coreutils/env/assign"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/env/empty",
+            "coreutils/env/unset",
+            "coreutils/env/unknown-option",
+            "coreutils/env/child-version",
+            "coreutils/env/no-shell-builtins"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/env/unset", "coreutils/env/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/env/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/env/child"]
+        }
+      ],
+      "knownGaps": [
+        "Split-string, chdir, signals, arbitrary environment variable names and executable-only lookup still need audit"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": ["SHELL.JOBS"],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "groups": {
+      "area": "execution",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual group labels",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Group output is legacy simulation",
+        "real identity membership not fully integrated"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "head": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-q", "-v", "-n", "-c", "--quiet", "--silent", "--verbose", "--lines", "--bytes"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Decimal line/byte limits, multiple headers and negative counts",
+          "evidence": ["coreutils/head/lines"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/head/binary",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/headers",
+            "coreutils/head/unknown-option"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/head/invalid", "coreutils/head/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/head/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/head/binary"]
+        }
+      ],
+      "knownGaps": [
+        "Count multipliers and NUL delimiter unsupported",
+        "bounded byte mode is not incremental"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "id": {
+      "area": "execution",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual identity display",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Flags, users, supplementary group membership and GNU formatting incomplete"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "ln": {
+      "area": "filesystem",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-s", "--symbolic"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Two-operand hardlinks and textual symlinks",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/ln/inode-flow"]
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": ["coreutils/ln/inode-flow"]
+        }
+      ],
+      "knownGaps": [
+        "Force, directories, target-directory, backup, verbose and follow policy incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "ls": {
+      "area": "filesystem",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "flags": ["-1", "-a", "-A", "-l", "-d", "-F", "-h", "-r", "-S", "-t", "-R", "--color"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual listings, metadata, sorting, recursion and TTY color subset",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Column layout, GNU quoting, LS_COLORS, block accounting and many flags incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "mkdir": {
+      "area": "filesystem",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-p", "-m", "--parents", "--mode"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual directories, parents, octal mode and umask",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "mv": {
+      "area": "manipulation",
+      "complexity": 4,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_transfer.rs",
+      "flags": [
+        "-n",
+        "-v",
+        "-f",
+        "-u",
+        "-T",
+        "-t",
+        "--no-clobber",
+        "--verbose",
+        "--force",
+        "--target-directory",
+        "--no-target-directory"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual rename preserves inode; multiple sources and overwrite subset",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Interactive, backup, exchange and cross-mount moves unsupported"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "printenv": {
+      "area": "foundation",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "flags": ["-0", "--null", "--help", "--version"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Exported virtual environment, named/missing variables and NUL delimiters",
+          "evidence": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value"
+          ]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/printenv/null",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/help",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/invalid-before-help"
+          ]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Exact GNU C-locale help/version bytes, invocation name and option precedence",
+          "evidence": [
+            "coreutils/printenv/version",
+            "coreutils/printenv/help",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/help-before-invalid"
+          ]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null"
+          ]
+        }
+      ],
+      "knownGaps": [],
+      "unsupportedFlagsPolicy": "GNU reference captures cover the complete documented option set and rejection of unsupported options.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Linux x86_64 Alpine/musl reference; LC_ALL=C; UTF-8 argv, bounded virtual resources. Other locales and NUL in argv are outside the committed process model."
+      ]
+    },
+    "readlink": {
+      "area": "filesystem",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Literal symlink target",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "realpath": {
+      "area": "filesystem",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Resolve existing virtual path through symlinks",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Missing-target policies, relative output, strip and NUL forms unsupported"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "rm": {
+      "area": "manipulation",
+      "complexity": 4,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_remove.rs",
+      "flags": ["-r", "-R", "-f", "-v", "-d", "--recursive", "--force", "--verbose", "--dir"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Unlink and bounded recursive removal, permissions and sticky directories",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Interactive, one-filesystem and full preserve-root option semantics unsupported"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "rmdir": {
+      "area": "filesystem",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Empty virtual directory removal",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Parents/verbose and multiple-operand partial success not implemented"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "seq": {
+      "area": "text",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-s", "--separator"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Bounded numeric sequence",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Floating precision, format, equal-width and GNU errors need audit"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "sha256sum": {
+      "area": "reading",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-b", "-t", "-c", "--binary", "--text", "--check", "--quiet", "--status"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual byte hashing and basic checksum list verification",
+          "evidence": ["coreutils/sha256sum/stdin"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": ["coreutils/sha256sum/verify", "coreutils/sha256sum/unknown-option"]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/sha256sum/failed-status", "coreutils/sha256sum/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/sha256sum/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/sha256sum/binary"]
+        }
+      ],
+      "knownGaps": [
+        "Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "sort": {
+      "area": "text",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "flags": [
+        "-b",
+        "-n",
+        "-f",
+        "-r",
+        "-u",
+        "-s",
+        "-c",
+        "-C",
+        "-z",
+        "-o",
+        "--numeric-sort",
+        "--reverse",
+        "--unique",
+        "--stable",
+        "--ignore-case",
+        "--ignore-leading-blanks",
+        "--check",
+        "--output",
+        "--zero-terminated"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Deterministic byte collation of UTF-8 text, decimal comparison and adjacent keys",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Field keys, binary records, merge/external sort and additional numeric modes incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "stat": {
+      "area": "filesystem",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "flags": ["-L", "-c", "--dereference", "--format"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Inode metadata, lstat default; %i %h %a %u %g %s %n %F %X %Y %Z %%",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Filesystem mode, printf, complete formats and GNU default layout incomplete"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "tail": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-q", "-v", "-n", "-c", "--quiet", "--silent", "--verbose", "--lines", "--bytes"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Decimal line/byte suffixes and from-position forms",
+          "evidence": ["coreutils/tail/lines"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/tail/binary",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/headers",
+            "coreutils/tail/unknown-option"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/tail/invalid", "coreutils/tail/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/tail/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/tail/binary"]
+        }
+      ],
+      "knownGaps": [
+        "Follow/retry requires process/filesystem notifications",
+        "count multipliers and NUL delimiter unsupported"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "tee": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-a", "--append"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Byte duplication to stdout and virtual files, append and partial write errors",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": ["coreutils/tee/append", "coreutils/tee/unknown-option"]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/tee/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/tee/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/tee/binary-pipeline"]
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/tee/binary-pipeline"]
+        }
+      ],
+      "knownGaps": ["Signal ignoring/output-error modes unsupported", "buffers stdin to EOF"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "touch": {
+      "area": "filesystem",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-c", "--no-create"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Create or update virtual file timestamps",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Separate atime/mtime, reference/date/timestamp forms unsupported"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "tr": {
+      "area": "text",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": ["-d"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Simple text replacement/deletion",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Classes, ranges, squeeze, complement and binary sets incomplete"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "uname": {
+      "area": "execution",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [
+        "-a",
+        "-s",
+        "-n",
+        "-r",
+        "-v",
+        "-m",
+        "-p",
+        "-i",
+        "-o",
+        "--all",
+        "--kernel-name",
+        "--nodename",
+        "--kernel-release",
+        "--kernel-version",
+        "--machine",
+        "--processor",
+        "--hardware-platform",
+        "--operating-system"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual kernel/platform fields",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        }
+      ],
+      "knownGaps": ["Values intentionally virtual", "parser, ordering and errors need evidence"],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "uniq": {
+      "area": "text",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "flags": [
+        "-c",
+        "-d",
+        "-u",
+        "-i",
+        "-z",
+        "-f",
+        "-s",
+        "-w",
+        "--count",
+        "--repeated",
+        "--unique",
+        "--ignore-case",
+        "--skip-fields",
+        "--skip-chars",
+        "--check-chars",
+        "--zero-terminated"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Adjacent text grouping with counts and skip/width subset",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": []
+        }
+      ],
+      "knownGaps": [
+        "Arbitrary bytes, complete locale folding and group separator forms incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "wc": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "flags": ["-l", "-w", "-m", "-c", "--lines", "--words", "--chars", "--bytes", "--total"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Byte/newline counts and word/character counts in C and C.UTF-8",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": ["coreutils/wc/c-chars", "coreutils/wc/utf8-malformed-count"]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/wc/cross-pipe"]
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/wc/bytes", "coreutils/wc/c-chars"]
+        }
+      ],
+      "knownGaps": [
+        "Display width and files0-from unsupported",
+        "malformed UTF-8 word classification needs reference"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "whoami": {
+      "area": "foundation",
+      "complexity": 1,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "flags": ["--help", "--version"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual effective user; no operands",
+          "evidence": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect"
+          ]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [
+            "coreutils/whoami/extra",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument"
+          ]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Exact GNU C-locale help/version bytes, invocation name and option precedence",
+          "evidence": [
+            "coreutils/whoami/version",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/combined-options"
+          ]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect"
+          ]
+        }
+      ],
+      "knownGaps": [],
+      "unsupportedFlagsPolicy": "GNU reference captures cover the complete documented option set and rejection of unsupported options.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Linux x86_64 Alpine/musl reference; LC_ALL=C; UTF-8 argv, bounded virtual resources. Other locales and NUL in argv are outside the committed process model."
+      ]
+    },
+    "yes": {
+      "area": "execution",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal.rs",
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Incremental virtual producer with backpressure and cancellation",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": []
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/yes/bounded"]
+        }
+      ],
+      "knownGaps": [
+        "Help/version and dash-leading operands need audit",
+        "interactive terminal output has 4 MiB cap"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    }
+  }
+}

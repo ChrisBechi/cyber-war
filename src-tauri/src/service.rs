@@ -108,11 +108,17 @@ impl GameService {
         let elapsed = active.clock.elapsed().as_secs();
         world.playtime_seconds += elapsed;
         let mut events = Vec::new();
+        let anchors = world.cwd_anchors();
         let result = change(&self.engine, &mut world, &mut events)?;
+        world.repair_cwds(anchors);
         terminal::observe(&mut world);
         self.engine.track_action(&active.world, &mut world)?;
         events.extend(self.engine.evaluate(&mut world)?);
         terminal::observe(&mut world);
+        world.vfs.collect();
+        for host in world.network.hosts.values_mut() {
+            host.files.collect();
+        }
         world.validate()?;
         let tx = self.connection.transaction()?;
         for event in &events {

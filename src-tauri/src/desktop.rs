@@ -74,7 +74,7 @@ pub fn create(world: &mut WorldState, kind: ItemKind, name: &str, target: &str) 
         }
     };
     world.vfs.write(&path, &content, "kali")?;
-    let node = world
+    let mut node = world
         .vfs
         .nodes
         .get_mut(&path)

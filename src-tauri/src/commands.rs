@@ -294,6 +294,12 @@ pub fn nano_write(
                 if session.options.view {
                     return Err(domain("nano: file is read-only"));
                 }
+                let path = world.fs()?.resolve_missing(
+                    &path,
+                    &session.actor,
+                    crate::vfs::Follow::Yes,
+                    true,
+                )?;
                 crate::nano::validate_access(&session, &path)?;
                 if session.options.trim_blanks {
                     let normalized = content
@@ -334,7 +340,7 @@ fn expected_for_save(
     }
     match world.fs()?.read(path, &session.actor) {
         Ok(content) => Ok(Some(content)),
-        Err(error) if error.to_string().contains("no such file") => Ok(None),
+        Err(crate::error::GameError::Vfs(crate::vfs::Errno::NotFound)) => Ok(None),
         Err(error) => Err(error),
     }
 }
@@ -368,6 +374,9 @@ fn write_nano_buffer(
                     .unwrap_or(&world.terminal.cwd),
             )?;
             world.fs()?.directory(&root, &actor)?;
+            let root = world
+                .fs()?
+                .resolve(&root, &actor, crate::vfs::Follow::Yes)?;
             let stem = format!(
                 "{}/{}",
                 root.trim_end_matches('/'),
@@ -380,6 +389,10 @@ fn write_nano_buffer(
         } else {
             format!("{path}~")
         };
+        let backup_path =
+            world
+                .fs()?
+                .resolve_missing(&backup_path, &actor, crate::vfs::Follow::Yes, true)?;
         crate::nano::validate_access(session, &backup_path)?;
         let previous = if path == session.path {
             session.original_content.clone()
@@ -426,6 +439,9 @@ fn read_nano_file(world: &WorldState, path: &str) -> GameResult<String> {
             .as_deref()
             .unwrap_or(&world.terminal.cwd),
     )?;
+    let path = world
+        .fs()?
+        .resolve(&path, &session.actor, crate::vfs::Follow::Yes)?;
     crate::nano::validate_access(session, &path)?;
     world.fs()?.read(&path, &session.actor)
 }
@@ -519,12 +535,12 @@ pub fn vfs_import_bytes(
     )
 }
 #[tauri::command]
-pub fn vfs_stat(path: String, service: Service<'_>) -> GameResult<VfsNode> {
+pub fn vfs_stat(path: String, as_root: Option<bool>, service: Service<'_>) -> GameResult<VfsNode> {
     Ok(service
         .lock()
         .world()?
         .vfs
-        .stat(&normalize(&path, HOME)?, "kali")?
+        .stat(&normalize(&path, HOME)?, file_actor(as_root))?
         .clone())
 }
 #[tauri::command]

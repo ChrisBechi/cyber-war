@@ -160,7 +160,9 @@ impl ArchiveService {
     ) -> GameResult<Vec<StoredEntry>> {
         let mut pending = Vec::new();
         for input in inputs {
-            let p = normalize(input, cwd)?;
+            let p = world
+                .fs()?
+                .resolve(&normalize(input, cwd)?, actor, crate::vfs::Follow::No)?;
             if p == cwd {
                 for child in world.fs()?.list(cwd, actor)? {
                     pending.push((child.id, child.name));
@@ -183,7 +185,7 @@ impl ArchiveService {
                 continue;
             }
             let relative = self.limits.path(&relative)?;
-            let n = world.fs()?.stat(&p, actor)?;
+            let n = world.fs()?.lstat(&p, actor)?;
             let kind = n.kind.clone();
             if entries.contains_key(&relative) {
                 continue;
@@ -302,9 +304,10 @@ impl ArchiveService {
         );
         let mut candidate = world.clone();
         write_bytes(&mut candidate, &path, data, actor, logical)?;
-        let node = candidate.fs_mut()?.nodes.get_mut(&path).unwrap();
+        let mut node = candidate.fs_mut()?.nodes.get_mut(&path).unwrap();
         node.metadata
             .insert("archiveOriginalSize".into(), original.to_string());
+        drop(node);
         let result = self.inspect_archive(&candidate, &path, actor)?;
         event(
             &mut candidate,
@@ -471,6 +474,7 @@ impl ArchiveService {
             if output == info.path {
                 return Err(domain("archive: cannot overwrite the source archive"));
             }
+            candidate.fs()?.reject_symlink_components(&output, actor)?;
             mkdirs(candidate.fs_mut()?, parent(&output), actor)?;
             let e = &entry.info;
             if e.kind == "directory" {
@@ -550,8 +554,8 @@ impl ArchiveService {
                     e.original_size,
                 )?;
             }
-            let n = candidate.fs_mut()?.nodes.get_mut(&output).unwrap();
-            restore_metadata(n, e, actor);
+            let mut n = candidate.fs_mut()?.nodes.get_mut(&output).unwrap();
+            restore_metadata(&mut n, e, actor);
             n.metadata
                 .insert("logicalSize".into(), e.original_size.to_string());
             n.metadata
@@ -578,7 +582,11 @@ impl ArchiveService {
             written.push(e.path.clone());
         }
         for (path, e) in directories.into_iter().rev() {
-            restore_metadata(candidate.fs_mut()?.nodes.get_mut(&path).unwrap(), e, actor);
+            restore_metadata(
+                &mut candidate.fs_mut()?.nodes.get_mut(&path).unwrap(),
+                e,
+                actor,
+            );
         }
         if info.encrypted {
             event(
@@ -763,6 +771,7 @@ fn selected(path: &str, selected: &[String]) -> bool {
             .any(|p| path == p || path.starts_with(&format!("{p}/")))
 }
 fn mkdirs(fs: &mut VirtualFileSystem, path: &str, actor: &str) -> GameResult<()> {
+    fs.reject_symlink_components(path, actor)?;
     let mut p = String::new();
     for part in path.split('/').filter(|s| !s.is_empty()) {
         p.push('/');

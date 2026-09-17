@@ -1,52 +1,75 @@
-use std::collections::BTreeMap;
-
-use serde::{Deserialize, Serialize};
-
+//! One virtual filesystem shared by commands, UI, missions and package bindings.
 use crate::error::{GameError, GameResult};
-
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    sync::Arc,
+};
+mod errors;
+#[cfg(test)]
+mod fidelity_tests;
+mod handles;
+#[cfg(test)]
+mod integration_tests;
+mod model;
+mod operations;
+#[cfg(test)]
+mod performance_tests;
+mod persistence;
+mod resolve;
+use errors::error;
+pub use errors::Errno;
+pub use handles::OpenFlags;
+use model::NodeTable;
+pub use model::{Inode, VfsNode};
+pub use resolve::Follow;
 pub const HOME: &str = "/home/kali";
 pub const TRASH_ROOT: &str = "/home/kali/.local/share/Trash";
 pub const TRASH_FILES: &str = "/home/kali/.local/share/Trash/files";
 pub const TRASH_INFO: &str = "/home/kali/.local/share/Trash/info";
 const MAX_CONTENT: usize = 1_048_576;
-
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
-pub struct VfsNode {
-    pub id: String,
-    pub parent_id: Option<String>,
-    pub name: String,
-    pub kind: String,
-    pub content: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub blob: Option<crate::binary::BlobRef>,
-    pub owner: String,
-    pub group: String,
-    pub mode: u16,
-    pub created_at: u64,
-    pub modified_at: u64,
-    pub metadata: BTreeMap<String, String>,
+pub struct Identity {
+    pub uid: u32,
+    pub gid: u32,
+    pub groups: BTreeSet<u32>,
 }
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VirtualFileSystem {
-    pub nodes: BTreeMap<String, VfsNode>,
+    pub nodes: NodeTable,
     clock: u64,
-    #[serde(default = "default_disk_capacity")]
     pub capacity_bytes: u64,
+    identities: BTreeMap<String, Identity>,
+    pub read_only: bool,
+    pub umask: u16,
+    handles: BTreeMap<u64, handles::Handle>,
+    next_handle: u64,
 }
-
 fn default_disk_capacity() -> u64 {
     64 * 1024 * 1024 * 1024
 }
-impl VfsNode {
+fn identity_id(name: &str) -> u32 {
+    match name {
+        "root" => 0,
+        "kali" => 1000,
+        "vex" => 1001,
+        _ => {
+            65536
+                + name
+                    .bytes()
+                    .fold(0u32, |n, b| n.wrapping_mul(31).wrapping_add(b as u32))
+                    % 1_000_000
+        }
+    }
+}
+impl Inode {
     pub fn storage_size(&self) -> u64 {
         self.blob
             .as_ref()
             .map_or(self.content.len() as u64, |b| b.size as u64)
     }
     pub fn logical_size(&self) -> u64 {
-        if self.kind == "directory" {
+        if self.kind == "directory" || self.kind == "charDevice" {
             return 0;
         }
         self.metadata
@@ -56,47 +79,28 @@ impl VfsNode {
             .max(self.storage_size())
     }
 }
-
 pub fn domain(message: impl Into<String>) -> GameError {
     GameError::Domain(message.into())
 }
-
+/// Make absolute without erasing semantic '..', '.', or trailing slash.
 pub fn normalize(path: &str, cwd: &str) -> GameResult<String> {
-    if path.len() > 4096 || path.contains(['\\', ':']) || path.chars().any(char::is_control) {
-        return Err(domain("invalid virtual path"));
-    }
-    // Tilde expansion belongs to the shell, where quote information exists.
-    let expanded = if path.starts_with('/') {
+    resolve::validate_path(path)?;
+    let absolute = if path.starts_with('/') {
         path.to_owned()
     } else {
-        format!("{cwd}/{path}")
+        format!("{}/{path}", cwd.trim_end_matches('/'))
     };
-    let mut parts = Vec::new();
-    for part in expanded.split('/') {
-        match part {
-            "" | "." => {}
-            ".." => {
-                parts.pop();
-            }
-            part => parts.push(part),
-        }
-    }
-    Ok(format!("/{}", parts.join("/")))
+    resolve::validate_path(&absolute)?;
+    Ok(absolute)
 }
-
 pub fn parent(path: &str) -> &str {
     path.rsplit_once('/')
         .map(|(p, _)| if p.is_empty() { "/" } else { p })
         .unwrap_or("/")
 }
-
 impl Default for VirtualFileSystem {
     fn default() -> Self {
-        let mut fs = Self {
-            nodes: BTreeMap::new(),
-            clock: 0,
-            capacity_bytes: default_disk_capacity(),
-        };
+        let mut fs = Self::empty();
         for path in [
             "/", "/bin", "/boot", "/dev", "/etc", "/home", HOME, "/opt", "/root", "/tmp", "/usr",
             "/var", "/var/log", "/srv", "/srv/www",
@@ -129,11 +133,11 @@ impl Default for VirtualFileSystem {
         ] {
             fs.seed(path, "directory", "", "kali");
         }
-        if let Some(n) = fs.nodes.get_mut("/root") {
+        if let Some(mut n) = fs.nodes.get_mut("/root") {
             n.mode = 0o700;
         }
-        if let Some(n) = fs.nodes.get_mut("/tmp") {
-            n.mode = 0o777;
+        if let Some(mut n) = fs.nodes.get_mut("/tmp") {
+            n.mode = 0o1777;
         }
         fs.seed(
             "/etc/os-release",
@@ -170,7 +174,7 @@ impl Default for VirtualFileSystem {
             ),
         ] {
             fs.seed(path, "file", "", "kali");
-            if let Some(node) = fs.nodes.get_mut(path) {
+            if let Some(mut node) = fs.nodes.get_mut(path) {
                 node.metadata.insert("mime".into(), mime.into());
                 node.metadata.insert("mediaSource".into(), source.into());
             }
@@ -181,7 +185,7 @@ impl Default for VirtualFileSystem {
             "WEBVTT\n\n00:00:00.000 --> 00:00:04.000\nCYBER WAR\n\n00:00:04.000 --> 00:00:08.000\nA virtual investigation begins.\n",
             "kali",
         );
-        if let Some(node) = fs.nodes.get_mut("/home/kali/Videos/cyber-war-opening.vtt") {
+        if let Some(mut node) = fs.nodes.get_mut("/home/kali/Videos/cyber-war-opening.vtt") {
             node.metadata.insert("mime".into(), "text/vtt".into());
         }
         for (name, app) in [
@@ -194,8 +198,17 @@ impl Default for VirtualFileSystem {
         ] {
             let path = format!("{HOME}/Desktop/{name}.desktop");
             fs.seed(&path, "file", app, "kali");
-            if let Some(n) = fs.nodes.get_mut(&path) {
+            if let Some(mut n) = fs.nodes.get_mut(&path) {
                 n.metadata.insert("app".into(), app.into());
+            }
+        }
+        fs.seed("/dev/null", "charDevice", "", "root");
+        fs.seed("/dev/zero", "charDevice", "", "root");
+        for path in ["/dev/null", "/dev/zero"] {
+            if let Some(mut n) = fs.nodes.get_mut(path) {
+                n.mode = 0o666;
+                n.metadata
+                    .insert("device".into(), path.rsplit('/').next().unwrap().into());
             }
         }
         fs
@@ -203,7 +216,102 @@ impl Default for VirtualFileSystem {
 }
 
 impl VirtualFileSystem {
+    fn empty() -> Self {
+        Self {
+            nodes: NodeTable::default(),
+            clock: 0,
+            capacity_bytes: default_disk_capacity(),
+            identities: ["root", "kali", "vex"]
+                .into_iter()
+                .map(|name| {
+                    let uid = identity_id(name);
+                    (
+                        name.into(),
+                        Identity {
+                            uid,
+                            gid: uid,
+                            groups: BTreeSet::from([uid]),
+                        },
+                    )
+                })
+                .collect(),
+            read_only: false,
+            umask: 0o022,
+            handles: BTreeMap::new(),
+            next_handle: 1,
+        }
+    }
+    fn tick(&mut self) -> u64 {
+        self.clock = self.clock.saturating_add(1);
+        self.clock
+    }
+    pub fn identity(&self, name: &str) -> Identity {
+        self.identities.get(name).cloned().unwrap_or_else(|| {
+            let uid = u32::MAX;
+            Identity {
+                uid,
+                gid: uid,
+                groups: BTreeSet::from([uid]),
+            }
+        })
+    }
+    fn register_identity(&mut self, name: &str) {
+        if !self.identities.contains_key(name) {
+            let uid = self
+                .identities
+                .values()
+                .map(|i| i.uid)
+                .max()
+                .unwrap_or(1000)
+                + 1;
+            self.identities.insert(
+                name.into(),
+                Identity {
+                    uid,
+                    gid: uid,
+                    groups: BTreeSet::from([uid]),
+                },
+            );
+        }
+    }
+    pub fn set_identity(&mut self, name: &str, identity: Identity) {
+        self.identities.insert(name.into(), identity);
+    }
+    /// Virtual user database lookup, separate from the process credential name.
+    pub fn username_for_uid(&self, uid: u32) -> Option<String> {
+        if self.nodes.contains_key("/etc/passwd") {
+            return self
+                .read("/etc/passwd", "root")
+                .ok()?
+                .lines()
+                .find_map(|line| {
+                    let fields: Vec<_> = line.split(':').collect();
+                    (fields.len() >= 7 && fields[2].parse::<u32>().ok() == Some(uid))
+                        .then(|| fields[0].to_owned())
+                });
+        }
+        self.identities
+            .iter()
+            .find_map(|(name, identity)| (identity.uid == uid).then(|| name.clone()))
+    }
+    pub fn allowed(&self, node: &VfsNode, actor: &str, bits: u16) -> bool {
+        let who = self.identity(actor);
+        if who.uid == 0 {
+            return bits & 1 == 0 || node.kind == "directory" || node.mode & 0o111 != 0;
+        }
+        let shift = if who.uid == node.uid {
+            6
+        } else if who.gid == node.gid || who.groups.contains(&node.gid) {
+            3
+        } else {
+            0
+        };
+        (node.mode >> shift) & bits == bits
+    }
     fn check_projection(&self, path: &str) -> GameResult<()> {
+        if self.read_only {
+            return Err(error(Errno::ReadOnly));
+        }
         let prefix = format!("{path}/");
         if self
             .nodes
@@ -222,25 +330,54 @@ impl VirtualFileSystem {
         Ok(())
     }
     pub fn used_bytes(&self) -> u64 {
-        self.nodes
-            .values()
-            .fold(0u64, |n, e| n.saturating_add(e.logical_size()))
+        self.nodes.used_bytes
     }
     pub fn check_space(&self, path: &str, size: u64) -> GameResult<()> {
-        let old = self.nodes.get(path).map_or(0, VfsNode::logical_size);
+        let old = self.nodes.get(path).map_or(0, |n| n.logical_size());
         if self.used_bytes().saturating_sub(old).saturating_add(size) > self.capacity_bytes {
-            return Err(domain("No space left on virtual device"));
+            return Err(error(Errno::NoSpace));
         }
         Ok(())
     }
-    pub fn symlink(&mut self, path: &str, target: &str, actor: &str) -> GameResult<()> {
-        crate::archive::ArchiveSafetyLimits::default().path(target)?;
-        if self.nodes.contains_key(path) {
-            return Err(domain("file exists"));
-        }
-        self.write(path, target, actor)?;
-        self.nodes.get_mut(path).unwrap().kind = "symlink".into();
-        Ok(())
+    pub fn seed(&mut self, path: &str, kind: &str, content: &str, owner: &str) {
+        self.register_identity(owner);
+        let clock = self.tick();
+        let identity = self.identity(owner);
+        let inode = Inode {
+            ino: 0,
+            kind: kind.into(),
+            content: content.into(),
+            blob: None,
+            owner: owner.into(),
+            group: owner.into(),
+            uid: identity.uid,
+            gid: identity.gid,
+            mode: if kind == "directory" { 0o755 } else { 0o644 },
+            created_at: clock,
+            modified_at: clock,
+            changed_at: clock,
+            accessed_at: clock,
+            nlink: 0,
+            metadata: BTreeMap::new(),
+        };
+        self.nodes.insert(
+            path.into(),
+            VfsNode {
+                id: path.into(),
+                parent_id: None,
+                name: String::new(),
+                inode: Arc::new(inode),
+            },
+        );
+        self.collect();
+    }
+    /// Trusted fixture/mission metadata transformation; all aliases share the canonical inode.
+    pub(crate) fn update_all_metadata(&mut self, update: impl FnMut(&mut Inode)) {
+        self.nodes.edit_all(update);
+    }
+    pub(crate) fn collect(&mut self) {
+        self.nodes
+            .collect(&self.handles.values().map(|h| h.ino).collect());
     }
     pub fn ensure_trash(&mut self) {
         for path in [
@@ -255,8 +392,186 @@ impl VirtualFileSystem {
             }
         }
     }
-
-    /// Optimistic editor save: stale buffers cannot overwrite terminal changes.
+    pub fn directory(&self, path: &str, actor: &str) -> GameResult<()> {
+        let n = self.stat(path, actor)?;
+        if n.kind != "directory" {
+            return Err(error(Errno::NotDirectory));
+        }
+        if !self.allowed(n, actor, 1) {
+            return Err(error(Errno::Access));
+        }
+        Ok(())
+    }
+    pub fn child_names(&self, path: &str, actor: &str) -> GameResult<Vec<String>> {
+        let node = self.stat(path, actor)?;
+        if node.kind != "directory" {
+            return Err(error(Errno::NotDirectory));
+        }
+        if !self.allowed(node, actor, 4) {
+            return Err(error(Errno::Access));
+        }
+        Ok(self
+            .nodes
+            .directories
+            .get(&node.ino)
+            .into_iter()
+            .flat_map(|d| d.keys().cloned())
+            .collect())
+    }
+    pub fn list(&self, path: &str, actor: &str) -> GameResult<Vec<VfsNode>> {
+        let resolved = self.resolve(path, actor, Follow::Yes)?;
+        self.directory(&resolved, actor)?;
+        self.child_names(&resolved, actor)?
+            .into_iter()
+            .map(|name| {
+                let mut node = self
+                    .nodes
+                    .get(&format!("{}/{name}", resolved.trim_end_matches('/')))
+                    .cloned()
+                    .ok_or_else(|| error(Errno::NotFound))?;
+                if resolved == TRASH_FILES {
+                    if let Some(info) = self.nodes.get(&format!("{TRASH_INFO}/{name}.trashinfo")) {
+                        node.metadata
+                            .insert("trashOriginalPath".into(), info.content.clone());
+                    }
+                } else {
+                    node.metadata.remove("trashOriginalPath");
+                    node.metadata.remove("trashDeletedAt");
+                }
+                Ok(node)
+            })
+            .collect()
+    }
+    pub fn readable(&self, path: &str, actor: &str) -> GameResult<&VfsNode> {
+        let n = self.stat(path, actor)?;
+        if n.kind == "directory" {
+            return Err(error(Errno::IsDirectory));
+        }
+        if !self.allowed(n, actor, 4) {
+            return Err(error(Errno::Access));
+        }
+        Ok(n)
+    }
+    pub fn read(&self, path: &str, actor: &str) -> GameResult<String> {
+        let n = self.readable(path, actor)?;
+        if n.kind == "charDevice" {
+            return if n.metadata.get("device").is_some_and(|d| d == "null") {
+                Ok(String::new())
+            } else {
+                Err(domain("device requires a bounded virtual read"))
+            };
+        }
+        if n.blob.is_some() {
+            return Err(domain("binary file: text access is not supported"));
+        }
+        Ok(n.content.clone())
+    }
+    fn writable_parent(&self, path: &str, actor: &str) -> GameResult<()> {
+        if self.read_only {
+            return Err(error(Errno::ReadOnly));
+        }
+        let n = self.stat(parent(path), actor)?;
+        if n.kind != "directory" {
+            return Err(error(Errno::NotDirectory));
+        }
+        if !self.allowed(n, actor, 3) {
+            return Err(error(Errno::Access));
+        }
+        Ok(())
+    }
+    fn sticky(&self, path: &str, actor: &str) -> GameResult<()> {
+        let p = self.stat(parent(path), actor)?;
+        let n = self.lstat(path, actor)?;
+        let uid = self.identity(actor).uid;
+        if p.mode & 0o1000 != 0 && uid != 0 && uid != p.uid && uid != n.uid {
+            return Err(error(Errno::NotPermitted));
+        }
+        Ok(())
+    }
+    fn changed_parent(&mut self, path: &str) {
+        let clock = self.tick();
+        if let Some(mut n) = self.nodes.get_mut(parent(path)) {
+            n.modified_at = clock;
+            n.changed_at = clock;
+        }
+    }
+    fn create(
+        &mut self,
+        path: &str,
+        kind: &str,
+        content: &str,
+        actor: &str,
+        mode: u16,
+    ) -> GameResult<String> {
+        let path = if kind == "directory" {
+            if path.chars().all(|c| c == '/') {
+                "/"
+            } else {
+                path.trim_end_matches('/')
+            }
+        } else {
+            path
+        };
+        let path = self.resolve_missing(path, actor, Follow::No, true)?;
+        if self.nodes.contains_key(&path) {
+            return Err(error(Errno::Exists));
+        }
+        self.writable_parent(&path, actor)?;
+        if self.nodes.len() >= 10000 {
+            return Err(error(Errno::NoSpace));
+        }
+        self.check_space(&path, content.len() as u64)?;
+        let parent_node = self.stat(parent(&path), actor)?.clone();
+        self.seed(&path, kind, content, actor);
+        if let Some(mut n) = self.nodes.get_mut(&path) {
+            n.mode = if kind == "symlink" {
+                0o777
+            } else {
+                mode & !self.umask & 0o7777
+            };
+            if parent_node.mode & 0o2000 != 0 {
+                n.group = parent_node.group.clone();
+                n.gid = parent_node.gid;
+                if kind == "directory" {
+                    n.mode |= 0o2000;
+                }
+            }
+        }
+        self.changed_parent(&path);
+        Ok(path)
+    }
+    pub fn symlink(&mut self, path: &str, target: &str, actor: &str) -> GameResult<()> {
+        resolve::validate_path(target)?;
+        self.create(path, "symlink", target, actor, 0o777)?;
+        Ok(())
+    }
+    pub fn link(&mut self, source: &str, target: &str, actor: &str) -> GameResult<()> {
+        let source = self.resolve(source, actor, Follow::No)?;
+        let target = self.resolve_missing(target, actor, Follow::No, true)?;
+        let original = self.lstat(&source, actor)?.clone();
+        if original.kind == "directory" {
+            return Err(error(Errno::NotPermitted));
+        }
+        self.check_projection(&source)?;
+        self.writable_parent(&target, actor)?;
+        if self.nodes.contains_key(&target) {
+            return Err(error(Errno::Exists));
+        }
+        if self.nodes.len() >= 10000 {
+            return Err(error(Errno::NoSpace));
+        }
+        self.nodes.insert(target.clone(), original);
+        let clock = self.tick();
+        if let Some(mut n) = self.nodes.get_mut(&source) {
+            n.changed_at = clock;
+        }
+        self.changed_parent(&target);
+        Ok(())
+    }
+    pub fn mkdir(&mut self, path: &str, actor: &str) -> GameResult<()> {
+        self.create(path, "directory", "", actor, 0o777)?;
+        Ok(())
+    }
     pub fn write_checked(
         &mut self,
         path: &str,
@@ -264,210 +579,74 @@ impl VirtualFileSystem {
         expected: Option<&str>,
         actor: &str,
     ) -> GameResult<()> {
-        match (self.nodes.get(path), expected) {
-            (Some(_), Some(previous)) if self.read(path,actor)? == previous => {},
-            (None, None) => {},
-            _ => return Err(domain("Arquivo mudou desde a abertura. Reabra antes de salvar; seu texto foi preservado no editor.")),
-        }
+        match (self.path_exists(path,actor)?,expected){(true,Some(old)) if self.read(path,actor)?==old=>{},(false,None)=>{},_=>return Err(domain("Arquivo mudou desde a abertura. Reabra antes de salvar; seu texto foi preservado no editor."))}
         self.write(path, content, actor)
     }
-    pub fn seed(&mut self, path: &str, kind: &str, content: &str, owner: &str) {
-        self.clock += 1;
-        self.nodes.insert(
-            path.into(),
-            VfsNode {
-                id: path.into(),
-                parent_id: (path != "/").then(|| parent(path).into()),
-                name: path.rsplit('/').next().unwrap_or("").into(),
-                kind: kind.into(),
-                content: content.into(),
-                blob: None,
-                owner: owner.into(),
-                group: owner.into(),
-                mode: if kind == "directory" { 0o755 } else { 0o644 },
-                created_at: self.clock,
-                modified_at: self.clock,
-                metadata: BTreeMap::new(),
-            },
-        );
-    }
-
-    fn allowed(node: &VfsNode, actor: &str, bits: u16) -> bool {
-        actor == "root"
-            || ((node.mode
-                >> if actor == node.owner {
-                    6
-                } else if actor == node.group {
-                    3
-                } else {
-                    0
-                })
-                & bits)
-                == bits
-    }
-
-    pub fn stat(&self, path: &str, actor: &str) -> GameResult<&VfsNode> {
-        let mut ancestor = parent(path);
-        loop {
-            let n = self
-                .nodes
-                .get(ancestor)
-                .ok_or_else(|| domain("parent does not exist"))?;
-            if n.kind != "directory" {
-                return Err(domain("not a directory (symlink traversal is not allowed)"));
-            }
-            if !Self::allowed(n, actor, 1) {
-                return Err(domain("permission denied"));
-            }
-            if ancestor == "/" {
-                break;
-            }
-            ancestor = parent(ancestor);
-        }
-        self.nodes
-            .get(path)
-            .ok_or_else(|| domain(format!("{path}: no such file or directory")))
-    }
-
-    pub fn directory(&self, path: &str, actor: &str) -> GameResult<()> {
-        let n = self.stat(path, actor)?;
-        if n.kind != "directory" {
-            return Err(domain("not a directory"));
-        }
-        if !Self::allowed(n, actor, 1) {
-            return Err(domain("permission denied"));
-        }
-        Ok(())
-    }
-
-    /// Existence with traversal checks from root, so an absent deeper ancestor
-    /// cannot hide a permission error (notably rm -f /root/missing/child).
-    pub fn path_exists(&self, path: &str, actor: &str) -> GameResult<bool> {
-        self.directory("/", actor)?;
-        let mut current = String::new();
-        for component in parent(path).split('/').filter(|part| !part.is_empty()) {
-            current.push('/');
-            current.push_str(component);
-            if !self.nodes.contains_key(&current) {
-                return Ok(false);
-            }
-            self.directory(&current, actor)?;
-        }
-        Ok(self.nodes.contains_key(path))
-    }
-
-    /// Names only, in byte order; shell globbing must not clone file bodies.
-    pub fn child_names(&self, path: &str, actor: &str) -> GameResult<Vec<String>> {
-        self.directory(path, actor)?;
-        if !Self::allowed(self.stat(path, actor)?, actor, 4) {
-            return Err(domain("permission denied"));
-        }
-        let prefix = format!("{}/", path.trim_end_matches('/'));
-        Ok(self
-            .nodes
-            .range(prefix.clone()..)
-            .take_while(|(key, _)| key.starts_with(&prefix))
-            .filter(|(_, node)| node.parent_id.as_deref() == Some(path))
-            .map(|(key, _)| key[prefix.len()..].to_string())
-            .collect())
-    }
-
-    pub fn list(&self, path: &str, actor: &str) -> GameResult<Vec<VfsNode>> {
-        self.directory(path, actor)?;
-        if !Self::allowed(self.stat(path, actor)?, actor, 4) {
-            return Err(domain("permission denied"));
-        }
-        Ok(self
-            .nodes
-            .values()
-            .filter(|n| n.parent_id.as_deref() == Some(path))
-            .cloned()
-            .collect())
-    }
-
-    pub fn read(&self, path: &str, actor: &str) -> GameResult<String> {
-        let n = self.readable(path, actor)?;
-        if n.blob.is_some() {
-            return Err(domain("binary file: text access is not supported"));
-        }
-        Ok(n.content.clone())
-    }
-
-    pub fn readable(&self, path: &str, actor: &str) -> GameResult<&VfsNode> {
-        let n = self.stat(path, actor)?;
-        if n.kind != "file" {
-            return Err(domain("is a directory"));
-        }
-        if !Self::allowed(n, actor, 4) {
-            return Err(domain("permission denied"));
-        }
-        Ok(n)
-    }
-
-    fn writable_parent(&self, path: &str, actor: &str) -> GameResult<()> {
-        self.directory(parent(path), actor)?;
-        if !Self::allowed(self.stat(parent(path), actor)?, actor, 3) {
-            return Err(domain("permission denied"));
-        }
-        Ok(())
-    }
-
-    /// Open a virtual shell output target before running the command. Append
-    /// validates write permission without requiring read permission or touching mtime.
     pub fn prepare_output(&mut self, path: &str, actor: &str, append: bool) -> GameResult<()> {
-        if self.nodes.contains_key(path) {
-            let node = self.stat(path, actor)?;
-            if node.kind != "file" {
-                return Err(domain("is a directory"));
-            }
-            if !Self::allowed(node, actor, 2) {
-                return Err(domain("permission denied"));
-            }
-            if append {
-                if node.blob.is_some() {
-                    return Err(domain("cannot append text to a binary file"));
-                }
-                return Ok(());
-            }
-        }
-        self.write(path, "", actor)
+        let h = self.open(
+            path,
+            OpenFlags {
+                write: true,
+                create: true,
+                truncate: !append,
+                append,
+                ..OpenFlags::default()
+            },
+            0o666,
+            actor,
+        )?;
+        self.close(h)
     }
-
     pub fn write(&mut self, path: &str, content: &str, actor: &str) -> GameResult<()> {
-        self.check_projection(path)?;
-        self.check_space(path, content.len() as u64)?;
         if content.len() > MAX_CONTENT {
             return Err(domain("virtual file limit: 1 MiB"));
         }
-        if self.nodes.contains_key(path) {
-            let n = self.stat(path, actor)?;
-            if n.kind != "file" {
-                return Err(domain("is a directory"));
+        let path = self.resolve_missing(path, actor, Follow::Yes, true)?;
+        if !self.nodes.contains_key(&path) {
+            self.create(&path, "file", content, actor, 0o666)?;
+            return Ok(());
+        }
+        self.check_projection(&path)?;
+        let node = self.stat(&path, actor)?;
+        if node.kind == "directory" {
+            return Err(error(Errno::IsDirectory));
+        }
+        if !self.allowed(node, actor, 2) {
+            return Err(error(Errno::Access));
+        }
+        if node.kind == "charDevice" {
+            return if node
+                .metadata
+                .get("device")
+                .is_some_and(|d| d == "null" || d == "zero")
+            {
+                Ok(())
+            } else {
+                Err(error(Errno::Invalid))
+            };
+        }
+        self.check_space(&path, content.len() as u64)?;
+        let clock = self.tick();
+        if let Some(mut n) = self.nodes.get_mut(&path) {
+            n.content = content.into();
+            n.blob = None;
+            n.modified_at = clock;
+            n.changed_at = clock;
+            if actor != "root" {
+                n.mode &= !0o6000;
             }
-            if !Self::allowed(n, actor, 2) {
-                return Err(domain("permission denied"));
+            for key in [
+                "mediaSource",
+                "mime",
+                "logicalSize",
+                "archiveOriginalSize",
+                "archiveDepth",
+            ] {
+                n.metadata.remove(key);
             }
-            self.clock += 1;
-            if let Some(n) = self.nodes.get_mut(path) {
-                n.content = content.into();
-                n.blob = None;
-                n.metadata.remove("mediaSource");
-                n.metadata.remove("mime");
-                n.metadata.remove("logicalSize");
-                n.metadata.remove("archiveOriginalSize");
-                n.metadata.remove("archiveDepth");
-                n.modified_at = self.clock;
-            }
-        } else {
-            self.writable_parent(path, actor)?;
-            if self.nodes.len() >= 10000 {
-                return Err(domain("virtual filesystem capacity reached"));
-            }
-            self.seed(path, "file", content, actor);
         }
         Ok(())
     }
-
     pub fn write_blob(
         &mut self,
         path: &str,
@@ -475,43 +654,83 @@ impl VirtualFileSystem {
         actor: &str,
     ) -> GameResult<()> {
         blob.validate()?;
-        self.check_space(path, blob.size as u64)?;
-        self.write(path, "", actor)?;
-        if let Some(node) = self.nodes.get_mut(path) {
-            node.metadata.insert("mime".into(), blob.mime.clone());
-            node.blob = Some(blob);
+        let path = self.resolve_missing(path, actor, Follow::Yes, true)?;
+        if self
+            .nodes
+            .get(&path)
+            .is_some_and(|n| n.kind == "charDevice")
+        {
+            return self.write(&path, "", actor);
+        }
+        self.check_space(&path, blob.size as u64)?;
+        self.write(&path, "", actor)?;
+        if let Some(mut n) = self.nodes.get_mut(&path) {
+            n.metadata.insert("mime".into(), blob.mime.clone());
+            n.blob = Some(blob);
         }
         Ok(())
     }
-
-    pub fn mkdir(&mut self, path: &str, actor: &str) -> GameResult<()> {
-        if self.nodes.len() >= 10000 {
-            return Err(domain("virtual filesystem capacity reached"));
+    pub fn chmod(&mut self, path: &str, actor: &str, mode: u16) -> GameResult<()> {
+        let path = self.resolve(path, actor, Follow::Yes)?;
+        self.check_projection(&path)?;
+        let n = self.stat(&path, actor)?;
+        if mode > 0o7777 {
+            return Err(error(Errno::Invalid));
         }
-        if self.nodes.contains_key(path) {
-            return Err(domain("file exists"));
+        if actor != "root" && self.identity(actor).uid != n.uid {
+            return Err(error(Errno::NotPermitted));
         }
-        self.writable_parent(path, actor)?;
-        self.seed(path, "directory", "", actor);
+        let clock = self.tick();
+        if let Some(mut n) = self.nodes.get_mut(&path) {
+            n.mode = mode;
+            n.changed_at = clock;
+        }
         Ok(())
     }
-
-    pub fn remove(&mut self, path: &str, actor: &str, recursive: bool) -> GameResult<()> {
-        self.check_projection(path)?;
-        if path == "/" {
-            return Err(domain("cannot remove virtual root"));
+    pub fn ownership(
+        &mut self,
+        path: &str,
+        actor: &str,
+        owner: Option<&str>,
+        group: Option<&str>,
+        follow: Follow,
+    ) -> GameResult<()> {
+        let path = self.resolve(path, actor, follow)?;
+        self.check_projection(&path)?;
+        if actor == "root" {
+            for name in owner.into_iter().chain(group) {
+                self.register_identity(name);
+            }
         }
-        self.stat(path, actor)?;
-        self.writable_parent(path, actor)?;
-        let prefix = format!("{path}/");
-        if !recursive && self.nodes.keys().any(|p| p.starts_with(&prefix)) {
-            return Err(domain("directory not empty; use -r"));
+        let n = self.lstat(&path, actor)?;
+        let who = self.identity(actor);
+        let uid = owner.map(|s| self.identity(s).uid);
+        let gid = group.map(|s| self.identity(s).gid);
+        if who.uid != 0
+            && (who.uid != n.uid
+                || uid.is_some_and(|id| id != n.uid)
+                || gid.is_some_and(|id| id != who.gid && !who.groups.contains(&id)))
+        {
+            return Err(error(Errno::NotPermitted));
         }
-        self.nodes
-            .retain(|p, _| p != path && !p.starts_with(&prefix));
+        let clock = self.tick();
+        if let Some(mut n) = self.nodes.get_mut(&path) {
+            if let Some(o) = owner {
+                n.owner = o.into();
+                n.uid = uid.unwrap_or(n.uid);
+            }
+            if let Some(g) = group {
+                n.group = g.into();
+                n.gid = gid.unwrap_or(n.gid);
+            }
+            n.mode &= !0o6000;
+            n.changed_at = clock;
+        }
         Ok(())
     }
-
+    pub fn chown(&mut self, path: &str, actor: &str, owner: &str) -> GameResult<()> {
+        self.ownership(path, actor, Some(owner), None, Follow::Yes)
+    }
     pub fn is_trash_path(path: &str) -> bool {
         path == TRASH_ROOT
             || path == TRASH_FILES
@@ -529,6 +748,12 @@ impl VirtualFileSystem {
 
     /// Move a user item to the virtual trash, preserving its original path in metadata.
     pub fn move_to_trash(&mut self, path: &str, actor: &str, recursive: bool) -> GameResult<()> {
+        let mut candidate = self.clone();
+        candidate.trash_entry(path, actor, recursive)?;
+        *self = candidate;
+        Ok(())
+    }
+    fn trash_entry(&mut self, path: &str, actor: &str, recursive: bool) -> GameResult<()> {
         self.ensure_trash();
         if path == "/"
             || Self::is_trash_path(path)
@@ -539,7 +764,9 @@ impl VirtualFileSystem {
                 "não é possível enviar a lixeira ou a raiz para a lixeira",
             ));
         }
-        let source = self.stat(path, actor)?.clone();
+        let path = self.resolve(path, actor, Follow::No)?;
+        let path = path.as_str();
+        let source = self.lstat(path, actor)?.clone();
         if source.kind == "directory" && !recursive {
             return Err(domain("omitting directory; use -r"));
         }
@@ -561,7 +788,12 @@ impl VirtualFileSystem {
             }
         }
         self.transfer(path, &target, actor, true, recursive)?;
-        if let Some(node) = self.nodes.get_mut(&target) {
+        let info = format!(
+            "{TRASH_INFO}/{}.trashinfo",
+            target.rsplit('/').next().unwrap()
+        );
+        self.write(&info, path, actor)?;
+        if let Some(mut node) = self.nodes.get_mut(&target) {
             node.metadata
                 .insert("trashOriginalPath".into(), path.into());
             node.metadata
@@ -578,12 +810,17 @@ impl VirtualFileSystem {
         {
             return Err(domain("selecione um item diretamente dentro da lixeira"));
         }
-        let original = self
-            .stat(path, actor)?
-            .metadata
-            .get("trashOriginalPath")
-            .cloned()
-            .ok_or_else(|| domain("item da lixeira sem caminho original"))?;
+        let node = self.lstat(path, actor)?;
+        let info = format!("{TRASH_INFO}/{}.trashinfo", node.name);
+        let original = match self.read(&info, actor) {
+            Ok(path) => path,
+            Err(GameError::Vfs(Errno::NotFound)) => node
+                .metadata
+                .get("trashOriginalPath")
+                .cloned()
+                .ok_or_else(|| domain("item da lixeira sem caminho original"))?,
+            Err(e) => return Err(e),
+        };
         if Self::is_trash_path(&original) || original == "/" {
             return Err(domain("caminho original inválido"));
         }
@@ -592,7 +829,10 @@ impl VirtualFileSystem {
         }
         self.writable_parent(&original, actor)?;
         self.transfer(path, &original, actor, true, true)?;
-        if let Some(node) = self.nodes.get_mut(&original) {
+        if self.nodes.contains_key(&info) {
+            self.unlink(&info, actor)?;
+        }
+        if let Some(mut node) = self.nodes.get_mut(&original) {
             node.metadata.remove("trashOriginalPath");
             node.metadata.remove("trashDeletedAt");
         }
@@ -609,6 +849,13 @@ impl VirtualFileSystem {
             .collect();
         for path in entries {
             self.remove(&path, actor, true)?;
+            let info = format!(
+                "{TRASH_INFO}/{}.trashinfo",
+                path.rsplit('/').next().unwrap()
+            );
+            if self.nodes.contains_key(&info) {
+                self.unlink(&info, actor)?;
+            }
         }
         Ok(())
     }
@@ -653,7 +900,11 @@ impl VirtualFileSystem {
     }
 
     pub fn copy_unique(&mut self, source: &str, destination: &str, actor: &str) -> GameResult<()> {
-        let node = self.stat(source, actor)?;
+        let source = self.resolve(source, actor, Follow::No)?;
+        let destination = self.resolve_missing(destination, actor, Follow::Yes, true)?;
+        let source = source.as_str();
+        let destination = destination.as_str();
+        let node = self.lstat(source, actor)?;
         let target = if self
             .nodes
             .get(destination)
@@ -669,204 +920,7 @@ impl VirtualFileSystem {
         let target = self.available_path(&target, node.kind == "directory");
         self.transfer(source, &target, actor, false, true)
     }
-
-    /// Copy one regular file or link to an exact path. CLI directory traversal
-    /// lives above this layer; GUI collision naming keeps using copy_unique.
-    pub(crate) fn copy_entry(&mut self, source: &str, target: &str, actor: &str) -> GameResult<()> {
-        let original = self.stat(source, actor)?.clone();
-        if original.kind == "file" {
-            self.readable(source, actor)?;
-        } else if original.kind != "symlink" {
-            return Err(domain("unsupported file type"));
-        }
-        self.check_projection(target)?;
-        let existing = self.nodes.get(target).cloned();
-        if let Some(existing) = &existing {
-            self.stat(target, actor)?;
-            if existing.kind == "directory" || (original.kind == "file" && existing.kind != "file")
-            {
-                return Err(domain("destination is not a regular file"));
-            }
-            if original.kind == "symlink" {
-                self.writable_parent(target, actor)?;
-            } else if !Self::allowed(existing, actor, 2) {
-                return Err(domain("permission denied"));
-            }
-        } else {
-            self.writable_parent(target, actor)?;
-            if self.nodes.len() >= 10000 {
-                return Err(domain("virtual filesystem capacity reached"));
-            }
-        }
-        self.check_space(target, original.logical_size())?;
-        self.clock += 1;
-        let mut copied = original;
-        let existing = existing.filter(|_| copied.kind == "file");
-        copied.id = target.into();
-        copied.parent_id = Some(parent(target).into());
-        copied.name = target.rsplit('/').next().unwrap_or("").into();
-        copied.owner = existing
-            .as_ref()
-            .map_or_else(|| actor.into(), |n| n.owner.clone());
-        copied.group = existing
-            .as_ref()
-            .map_or_else(|| actor.into(), |n| n.group.clone());
-        copied.mode = existing.as_ref().map_or(copied.mode & !0o022, |n| n.mode);
-        copied.created_at = existing.as_ref().map_or(self.clock, |n| n.created_at);
-        copied.modified_at = self.clock;
-        copied.metadata.remove("packageProjection");
-        copied.metadata.remove("packageOwner");
-        self.nodes.insert(target.into(), copied);
-        Ok(())
-    }
-
-    /// Rename within one virtual filesystem. Like rename(2), permissions are
-    /// checked on parents, not on the contents of the moved file/directory.
-    /// Validate everything before removing an existing destination.
-    pub(crate) fn rename_entry(
-        &mut self,
-        source: &str,
-        target: &str,
-        actor: &str,
-    ) -> GameResult<()> {
-        if source == "/"
-            || target == "/"
-            || source == target
-            || target.starts_with(&format!("{source}/"))
-        {
-            return Err(domain("invalid copy/move destination"));
-        }
-        let original = self.stat(source, actor)?;
-        self.check_projection(source)?;
-        self.check_projection(target)?;
-        self.writable_parent(source, actor)?;
-        self.writable_parent(target, actor)?;
-        if let Some(existing) = self.nodes.get(target) {
-            if (original.kind == "directory") != (existing.kind == "directory") {
-                return Err(domain("incompatible source and destination types"));
-            }
-            if existing.kind == "directory"
-                && self
-                    .nodes
-                    .keys()
-                    .any(|p| p.starts_with(&format!("{target}/")))
-            {
-                return Err(domain("Directory not empty"));
-            }
-        }
-        let prefix = format!("{source}/");
-        let entries: Vec<_> = self
-            .nodes
-            .iter()
-            .filter(|(path, _)| path.as_str() == source || path.starts_with(&prefix))
-            .map(|(path, node)| (path.clone(), node.clone()))
-            .collect();
-        self.nodes.remove(target);
-        for (old, mut node) in entries {
-            let path = format!("{target}{}", &old[source.len()..]);
-            node.id = path.clone();
-            node.parent_id = Some(parent(&path).into());
-            node.name = path.rsplit('/').next().unwrap_or("").into();
-            self.nodes.remove(&old);
-            self.nodes.insert(path, node);
-        }
-        Ok(())
-    }
-
-    pub fn transfer(
-        &mut self,
-        source: &str,
-        destination: &str,
-        actor: &str,
-        moving: bool,
-        recursive: bool,
-    ) -> GameResult<()> {
-        if moving {
-            self.check_projection(source)?;
-        }
-        let source_node = self.stat(source, actor)?.clone();
-        let target = if self
-            .nodes
-            .get(destination)
-            .is_some_and(|n| n.kind == "directory")
-        {
-            format!("{}/{}", destination.trim_end_matches('/'), source_node.name)
-        } else {
-            destination.into()
-        };
-        if source == "/" || target == source || target.starts_with(&format!("{source}/")) {
-            return Err(domain("invalid copy/move destination"));
-        }
-        if source_node.kind == "directory" && !recursive && !moving {
-            return Err(domain("omitting directory; use -r"));
-        }
-        self.writable_parent(&target, actor)?;
-        if self.nodes.contains_key(&target) {
-            return Err(domain("destination already exists"));
-        }
-        let entries: Vec<_> = self
-            .nodes
-            .iter()
-            .filter(|(p, _)| *p == source || p.starts_with(&format!("{source}/")))
-            .map(|(p, n)| (p.clone(), n.clone()))
-            .collect();
-        if !moving && self.nodes.len() + entries.len() > 10000 {
-            return Err(domain("virtual filesystem capacity reached"));
-        }
-        for (p, n) in &entries {
-            self.stat(p, actor)?;
-            if !Self::allowed(n, actor, if n.kind == "directory" { 5 } else { 4 }) {
-                return Err(domain("permission denied"));
-            }
-        }
-        if moving {
-            self.writable_parent(source, actor)?;
-        }
-        for (p, mut n) in entries {
-            let new_path = format!("{target}{}", &p[source.len()..]);
-            n.id = new_path.clone();
-            n.parent_id = Some(parent(&new_path).into());
-            n.name = new_path.rsplit('/').next().unwrap_or("").into();
-            if !moving {
-                n.owner = actor.into();
-                n.group = actor.into();
-                n.metadata.remove("packageProjection");
-                n.metadata.remove("packageOwner");
-            }
-            self.nodes.insert(new_path, n);
-        }
-        if moving {
-            self.remove(source, actor, true)?;
-        }
-        Ok(())
-    }
-
-    pub fn chmod(&mut self, path: &str, actor: &str, mode: u16) -> GameResult<()> {
-        self.check_projection(path)?;
-        let n = self.stat(path, actor)?;
-        if mode > 0o777 || (actor != "root" && actor != n.owner) {
-            return Err(domain("invalid mode or permission denied"));
-        }
-        if let Some(n) = self.nodes.get_mut(path) {
-            n.mode = mode;
-        }
-        Ok(())
-    }
-
-    pub fn chown(&mut self, path: &str, actor: &str, owner: &str) -> GameResult<()> {
-        self.check_projection(path)?;
-        self.stat(path, actor)?;
-        if actor != "root" || !["root", "kali", "vex"].contains(&owner) {
-            return Err(domain("permission denied or unknown user"));
-        }
-        if let Some(n) = self.nodes.get_mut(path) {
-            n.owner = owner.into();
-            n.group = owner.into();
-        }
-        Ok(())
-    }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -916,10 +970,20 @@ mod tests {
     }
     #[test]
     fn paths_remain_virtual() {
-        assert_eq!(normalize("../../../../etc", HOME).expect("path"), "/etc");
-        for p in ["C:\\Windows", "file:///etc", "\\\\server\\share", "a\0b"] {
-            assert!(normalize(p, HOME).is_err());
+        let fs = VirtualFileSystem::default();
+        assert_eq!(
+            fs.resolve(
+                &normalize("../../../../etc", HOME).unwrap(),
+                "kali",
+                Follow::Yes
+            )
+            .unwrap(),
+            "/etc"
+        );
+        for p in ["C:\\Windows", "file:///etc", "\\\\server\\share"] {
+            assert!(normalize(p, HOME).unwrap().starts_with(HOME));
         }
+        assert!(normalize("a\0b", HOME).is_err());
     }
     #[test]
     fn permission_and_mutation_semantics() {

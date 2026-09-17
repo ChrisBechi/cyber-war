@@ -139,10 +139,10 @@ impl Resource {
                 };
                 match value {
                     Some(v) => {
-                        fs.nodes.insert(path.clone(), serde_json::from_value(v)?);
+                        fs.restore_entry(path, Some(serde_json::from_value(v)?));
                     }
                     None => {
-                        fs.nodes.remove(path);
+                        fs.restore_entry(path, None);
                     }
                 }
             }
@@ -398,7 +398,7 @@ pub fn record_change(
             }
             None => &mut world.vfs,
         };
-        if let Some(node) = fs.nodes.get_mut(path) {
+        if let Some(mut node) = fs.nodes.get_mut(path) {
             node.metadata.insert(ATTEMPT_TAG.into(), attempt);
         }
     }
@@ -437,16 +437,14 @@ pub fn inherited_files(world: &WorldState, attempt: &str) -> Vec<Resource> {
 pub fn commit(world: &mut WorldState, mission: &str) {
     if let Some(attempt) = world.mission_runtime.attempts.get(mission) {
         let id = attempt.id.clone();
-        for node in world.vfs.nodes.values_mut().chain(
-            world
-                .network
-                .hosts
-                .values_mut()
-                .flat_map(|h| h.files.nodes.values_mut()),
-        ) {
-            if node.metadata.get(ATTEMPT_TAG) == Some(&id) {
-                node.metadata.remove(ATTEMPT_TAG);
-            }
+        for fs in std::iter::once(&mut world.vfs)
+            .chain(world.network.hosts.values_mut().map(|h| &mut h.files))
+        {
+            fs.update_all_metadata(|node| {
+                if node.metadata.get(ATTEMPT_TAG) == Some(&id) {
+                    node.metadata.remove(ATTEMPT_TAG);
+                }
+            });
         }
     }
     world.mission_runtime.commit(mission);
@@ -513,5 +511,9 @@ pub fn discard(world: &mut WorldState, mission: &str) -> GameResult<()> {
         Ok(())
     })();
     world.mission_runtime = runtime;
+    world.vfs.collect();
+    for host in world.network.hosts.values_mut() {
+        host.files.collect();
+    }
     result
 }

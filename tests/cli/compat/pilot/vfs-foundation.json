@@ -1,0 +1,1990 @@
+[
+  {
+    "schemaVersion": 2,
+    "id": "vfs/path/components",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir a; mkdir b; mkdir b/deep; ln -s ../b/deep a/link; echo data > b/file; cat ./a//link/../file",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "data\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a~1link/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "../b/deep"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/path/trailing-slash",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "cat a/",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": ["echo data > a"]
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "not a directory",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "data\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/path/root",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "realpath /../../",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "/\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/path/unicode-case",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo lower > café; echo upper > CAFÉ; cat café CAFÉ",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "lower\nupper\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1café/ino",
+          "differsPath": "/vfs/~1home~1kali~1CAFÉ/ino"
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/inode/rename-preserves-id",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo original > a; ln a anchor; mv a renamed; cat anchor",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "original\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1renamed/ino",
+          "equalsPath": "/vfs/~1home~1kali~1anchor/ino"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a",
+          "absent": true
+        },
+        {
+          "path": "/vfs/~1home~1kali~1anchor/nlink",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 2
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/inode/copy-new-id",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo original > a; cp a copy; echo changed > copy; cat a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "original\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/ino",
+          "differsPath": "/vfs/~1home~1kali~1copy/ino"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/nlink",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 1
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/hardlink/shared-content",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo hello > a; ln a alias; echo changed > alias; cat a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "changed\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/ino",
+          "equalsPath": "/vfs/~1home~1kali~1alias/ino"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/nlink",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 2
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "changed\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/hardlink/unlink-one",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo hello > a; ln a alias; rm a; cat alias",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "hello\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1alias/nlink",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 1
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a",
+          "absent": true
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/relative-target",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo target > a; ln -s a link; readlink link; cat link",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "a\ntarget\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1link/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1link/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "a"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1link/ino",
+          "differsPath": "/vfs/~1home~1kali~1a/ino"
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/absolute",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo target > a; ln -s /home/kali/a link; cat link",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "target\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1link/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "/home/kali/a"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/dangling",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "ln -s missing link; readlink link; cat link",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "missing\n"
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "no such file",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1link/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1missing",
+          "absent": true
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/create-target",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "ln -s missing link; echo new > link; cat missing",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "new\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1link/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1missing/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "new\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/loop",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "ln -s b a; ln -s a b; cat a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "too many levels",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/unlink-only-link",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo data > a; ln -s a link; rm link; cat a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "data\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "data\n"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1link",
+          "absent": true
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/permissions/directory-search",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "chmod 400 dir; cat dir/a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": ["mkdir dir", "echo data > dir/a"]
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "permission denied",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1dir/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 256
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/permissions/search-without-read",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "chmod 100 dir; cat dir/a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": ["mkdir dir", "echo data > dir/a"]
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "data\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1dir/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 64
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/permissions/readonly-file",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "chmod 444 a; echo changed > a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": ["echo data > a"]
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "permission denied",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "data\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/permissions/umask",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "umask 077; touch private; mkdir private-dir; umask",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "0077\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1private/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 384
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1private-dir/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 448
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/sticky/deny-unlink",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "rm /tmp/owned",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": ["sudo sh -c \"echo root > /tmp/owned\""]
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "operation not permitted",
+        "flags": "i"
+      },
+      "exitCode": 1,
+      "state": [
+        {
+          "path": "/vfs/~1tmp~1owned/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "root\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/sticky/setgid-directory",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir group; chmod 2775 group; mkdir group/sub; touch group/file",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1group~1sub/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 1517
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1group~1sub/gid",
+          "equalsPath": "/vfs/~1home~1kali~1group/gid"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1group~1file/gid",
+          "equalsPath": "/vfs/~1home~1kali~1group/gid"
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/metadata/shared-mode",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo data > a; ln a alias; chmod 640 alias",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 416
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1alias/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 416
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/changedAt",
+          "equalsPath": "/vfs/~1home~1kali~1alias/changedAt"
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/metadata/special-bits",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "touch a; chmod u+s,g+s,o+t a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/mode",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 4004
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/timestamps/touch-preserves-data",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo data > a; ln a alias; touch a; cat alias",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "data\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/modifiedAt",
+          "equalsPath": "/vfs/~1home~1kali~1alias/modifiedAt"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/modifiedAt",
+          "differsPath": "/vfs/~1home~1kali~1a/createdAt"
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/device/null",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo discarded > /dev/null; cat /dev/null",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1dev~1null/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "charDevice"
+          }
+        },
+        {
+          "path": "/vfs/~1dev~1null/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/device/hardlink-null",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "ln /dev/null alias; echo discarded > alias; cat alias",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1alias/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "charDevice"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1alias/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": ""
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/save/hardlink-roundtrip",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo data > a; ln a alias; ln -s a link",
+    "roundtrip": true,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1a/ino",
+          "equalsPath": "/vfs/~1home~1kali~1alias/ino"
+        },
+        {
+          "path": "/vfs/~1home~1kali~1alias/nlink",
+          "matcher": {
+            "kind": "STRUCTURED",
+            "value": 2
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1link/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "a"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1a/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "data\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/save/rename-roundtrip",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir a; touch a/data; mv a renamed",
+    "roundtrip": true,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1renamed/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "directory"
+          }
+        },
+        {
+          "path": "/vfs/~1home~1kali~1renamed~1data/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "file"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/isolation/windows-looking-name",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo virtual > 'C:\\Windows\\file'; cat 'C:\\Windows\\file'",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "virtual\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1C:\\Windows\\file/content",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "virtual\n"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/isolation/host-executable",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "cmd.exe /c dir",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "ERRORS"],
+    "errorCase": true,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "REGEX",
+        "pattern": "command not found",
+        "flags": "i"
+      },
+      "exitCode": 127,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/directories/rename-cwd",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir here; cd here; mv /home/kali/here /home/kali/there; pwd",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "/home/kali/there\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/cwd",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "/home/kali/there"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/directories/list-link",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir real; touch real/a; ln -s real shortcut; ls shortcut",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "a\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1shortcut/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/metadata/stat-lstat",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo data > a; ln -s a link; stat -c '%F:%s:%h' link; stat -L -c '%F:%s:%h' link",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "symbolic link:1:1\nregular file:5:1\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1link/kind",
+          "matcher": {
+            "kind": "EXACT",
+            "value": "symlink"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/directories/rmdir",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir empty; rmdir empty",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": [
+        {
+          "path": "/vfs/~1home~1kali~1empty",
+          "absent": true
+        }
+      ]
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/glob-directory",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir real; touch real/a; touch real/b; ln -s real link; echo link/*",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "link/a link/b\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/executable",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "mkdir bin; echo content > a; ln -s /usr/bin/cat bin/readme; PATH=/home/kali/bin:/usr/bin readme a",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "content\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  },
+  {
+    "schemaVersion": 2,
+    "id": "vfs/symlink/script",
+    "softwareId": "bash",
+    "command": "bash",
+    "argv": [],
+    "script": "echo '#!/bin/bash' > run.sh; echo 'echo script-ok' >> run.sh; chmod 755 run.sh; ln -s run.sh shortcut; ./shortcut",
+    "roundtrip": false,
+    "stdin": null,
+    "env": {
+      "LC_ALL": "C.UTF-8"
+    },
+    "cwd": "/home/kali",
+    "tty": {
+      "isTTY": false,
+      "columns": 80,
+      "rows": 24,
+      "ansiSupport": true,
+      "interactive": false
+    },
+    "reference": {
+      "softwareId": "bash",
+      "version": "5.2.37",
+      "kind": "MAN_PAGE",
+      "source": "https://man7.org/linux/man-pages/man7/path_resolution.7.html"
+    },
+    "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+    "errorCase": false,
+    "fixture": {
+      "files": {},
+      "setup": []
+    },
+    "expected": {
+      "stdout": {
+        "kind": "EXACT",
+        "value": "script-ok\n"
+      },
+      "stderr": {
+        "kind": "EXACT",
+        "value": ""
+      },
+      "exitCode": 0,
+      "state": []
+    }
+  }
+]

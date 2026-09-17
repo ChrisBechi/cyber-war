@@ -1,3 +1,4 @@
+import { coreutilsGate, coreutilsReport } from './coreutils.mjs';
 import { compareCase } from './matchers.mjs';
 export function evaluate(
   inventory,
@@ -83,7 +84,12 @@ export function evaluate(
       let result = 'SKIPPED',
         reason = 'No linked current evidence';
       if (spec.applicability === 'NOT_APPLICABLE') reason = spec.reason;
-      else if (name === 'DISCOVERY') {
+      else if (
+        command.coreutils &&
+        ['COMMAND_CONTRACTS', 'GNU_REFERENCE', 'KNOWN_GAPS'].includes(name)
+      ) {
+        ({ result, reason } = coreutilsGate(command, name, byCase, caseResults, actuals));
+      } else if (name === 'DISCOVERY') {
         result = 'PASS';
         reason = 'Runtime registry and validated manifest agree';
       } else if (name === 'REFERENCE_PINNED') {
@@ -217,7 +223,9 @@ export function evaluate(
     commands,
     software,
     subsystems,
+    coreutilsPerformance: capture?.coreutilsPerformance ?? null,
     shellPerformance: capture?.shellPerformance ?? null,
+    vfsPerformance: capture?.vfsPerformance ?? null,
     verification: {
       errors,
       caseResults: [...caseResults.values()],
@@ -347,6 +355,17 @@ export function queue(inventory) {
       'mission use',
       'software ID',
     ],
+    commands: inventory.commands.some((c) => c.coreutils)
+      ? coreutilsReport(inventory)
+          .commands.filter((c) => c.after !== 'VERIFIED')
+          .map((c) => ({
+            softwareId: 'coreutils',
+            command: c.command,
+            wave: c.wave,
+            action: c.action,
+            blockers: c.blockers,
+          }))
+      : [],
     next: pending[0]
       ? { softwareId: pending[0].id, action: pending[0].queueState, blockers: pending[0].blockedBy }
       : null,

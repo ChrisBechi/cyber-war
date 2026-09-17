@@ -147,7 +147,9 @@ pub fn complete(world: &WorldState, line: &str, cursor: usize) -> GameResult<Com
             .map(|n| (n, false))
             .collect()
     } else {
-        normalize(&prefix, &world.terminal.cwd)?;
+        if !prefix.is_empty() {
+            normalize(&prefix, &world.terminal.cwd)?;
+        }
         let (directory, name) = prefix
             .rsplit_once('/')
             .map(|(p, n)| (format!("{p}/"), n))
@@ -166,7 +168,10 @@ pub fn complete(world: &WorldState, line: &str, cursor: usize) -> GameResult<Com
         } else {
             directory.clone()
         };
-        let path = normalize(&expanded, &world.terminal.cwd)?;
+        let path = normalize(
+            if expanded.is_empty() { "." } else { &expanded },
+            &world.terminal.cwd,
+        )?;
         // Permission failures reveal no names. Completion never touches the host filesystem.
         world
             .fs()?
@@ -284,7 +289,10 @@ mod tests {
         for line in ["cat /root/s", "cat /missing/f", "cd unknown"] {
             assert!(tab(&w, line).candidates.is_empty());
         }
-        assert!(complete(&w, "cat C:\\Windows\\", 15).is_err());
+        assert!(complete(&w, "cat C:\\Windows\\", 15)
+            .unwrap()
+            .candidates
+            .is_empty());
         assert!(complete(&w, "cd", 3).is_err());
         assert_eq!(
             crate::terminal::execute(&mut w, "ssh vex@vex.local lab-only").exit_code,

@@ -5,18 +5,9 @@ use crate::{
     world::WorldState,
 };
 
-const MAX_OUTPUT: usize = 4 * 1024 * 1024;
-
-fn output_limit(size: usize) -> GameResult<()> {
-    if size > MAX_OUTPUT {
-        Err(domain("virtual terminal output limit: 4 MiB"))
-    } else {
-        Ok(())
-    }
-}
-
 #[derive(Default, Debug)]
 pub struct Output {
+    pub byte_ordered: Vec<(u8, Vec<u8>)>,
     /// Ordered writes used when a shell duplicates stdout/stderr or runs scripts.
     pub ordered: Vec<(u8, String)>,
     pub archive_job: Option<u32>,
@@ -192,8 +183,6 @@ pub fn execute(
 ) -> Option<GameResult<Output>> {
     match command {
         "pwd" | "cd" => Some(navigation(world, command, args, actor)),
-        "cat" => Some(cat(world, args, actor)),
-        "head" | "tail" => Some(slice(world, command, args, actor)),
         "cp" | "mv" => Some(crate::terminal_transfer::execute(
             world, command, args, actor,
         )),
@@ -249,6 +238,7 @@ fn navigation(
         &world.terminal.cwd,
     )?;
     world.fs()?.directory(&next, actor)?;
+    let next = world.fs()?.resolve(&next, actor, crate::vfs::Follow::Yes)?;
     world
         .terminal
         .env
@@ -260,215 +250,4 @@ fn navigation(
     } else {
         String::new()
     }))
-}
-
-fn read(world: &WorldState, file: &str, actor: &str) -> GameResult<String> {
-    if file == "-" {
-        return world.terminal.stdin.clone().ok_or_else(|| {
-            domain("interactive stdin is not implemented by this virtual terminal")
-        });
-    }
-    world
-        .fs()?
-        .read(&normalize(file, &world.terminal.cwd)?, actor)
-}
-
-fn cat(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
-    let mut opts = options(
-        "cat",
-        args,
-        "nbEsTu",
-        "",
-        &[
-            ("number", 'n'),
-            ("number-nonblank", 'b'),
-            ("show-ends", 'E'),
-            ("show-tabs", 'T'),
-            ("squeeze-blank", 's'),
-        ],
-    )?;
-    if opts.help {
-        return Ok(Output::success(manual("cat").unwrap_or_default()));
-    }
-    if opts.files.is_empty() && world.terminal.stdin.is_some() {
-        opts.files.push("-".into());
-    }
-    if opts.files.is_empty() {
-        return Err(domain(
-            "cat: interactive stdin is not implemented; provide FILE operands",
-        ));
-    }
-    let mut output = Output::default();
-    let mut stdin_consumed = false;
-    let mut number = 1;
-    let mut blank_before = false;
-    let mut line_start = true;
-    for file in &opts.files {
-        if file == "-" {
-            if stdin_consumed {
-                continue;
-            }
-            stdin_consumed = true;
-        }
-        let text = match read(world, file, actor) {
-            Ok(text) => text,
-            Err(error) => {
-                let offset = output.stderr.len();
-                output.error("cat", file, error);
-                output.ordered.push((2, output.stderr[offset..].to_owned()));
-                continue;
-            }
-        };
-        let offset = output.stdout.len();
-        for line in text.split_inclusive('\n') {
-            let terminated = line.ends_with('\n');
-            let body = if terminated {
-                &line[..line.len() - 1]
-            } else {
-                line
-            };
-            let blank = line_start && body.is_empty();
-            if opts.has('s') && blank && blank_before {
-                continue;
-            }
-            blank_before = blank;
-            if line_start && ((opts.has('b') && !blank) || (opts.has('n') && !opts.has('b'))) {
-                output.stdout.push_str(&format!("{number:>6}\t"));
-                number += 1;
-            }
-            let mut body = if opts.has('T') {
-                body.replace('\t', "^I")
-            } else {
-                body.into()
-            };
-            if opts.has('E') && terminated && body.ends_with('\r') {
-                body.pop();
-                body.push_str("^M");
-            }
-            output.stdout.push_str(&body);
-            if terminated {
-                if opts.has('E') {
-                    output.stdout.push('$');
-                }
-                output.stdout.push('\n');
-            }
-            line_start = terminated;
-            output_limit(output.stdout.len())?;
-        }
-        if output.stdout.len() > offset {
-            output.ordered.push((1, output.stdout[offset..].to_owned()));
-        }
-    }
-    Ok(output)
-}
-
-fn slice(world: &WorldState, command: &str, args: &[String], actor: &str) -> GameResult<Output> {
-    let mut opts = options(
-        command,
-        args,
-        "qv",
-        "nc",
-        &[
-            ("lines", 'n'),
-            ("bytes", 'c'),
-            ("quiet", 'q'),
-            ("silent", 'q'),
-            ("verbose", 'v'),
-        ],
-    )?;
-    if opts.help {
-        return Ok(Output::success(manual(command).unwrap_or_default()));
-    }
-    if opts.files.is_empty() && world.terminal.stdin.is_some() {
-        opts.files.push("-".into());
-    }
-    if opts.files.is_empty() {
-        return Err(domain(format!(
-            "{command}: interactive stdin is not implemented; provide FILE operands"
-        )));
-    }
-    let (unit, count) = opts
-        .counts
-        .last()
-        .map(|(unit, count)| (*unit, count.as_str()))
-        .unwrap_or(('n', "10"));
-    let digits = count.strip_prefix(['+', '-']).unwrap_or(count);
-    if digits.is_empty() || !digits.chars().all(|c| c.is_ascii_digit()) {
-        return Err(domain(format!(
-            "{command}: invalid count '{count}'; decimal counts only"
-        )));
-    }
-    let amount = digits
-        .parse::<usize>()
-        .map_err(|_| domain(format!("{command}: count is too large")))?;
-    let headers = opts
-        .flags
-        .last()
-        .map_or(opts.files.len() > 1, |flag| *flag == 'v');
-    let mut output = Output::default();
-    let mut emitted_header = false;
-    let mut stdin_consumed = false;
-    for file in &opts.files {
-        if file == "-" {
-            if stdin_consumed {
-                continue;
-            }
-            stdin_consumed = true;
-        }
-        let result = read(world, file, actor).and_then(|content| {
-            let lines: Vec<&str> = content.split_inclusive('\n').collect();
-            let length = if unit == 'n' {
-                lines.len()
-            } else {
-                content.len()
-            };
-            let (start, end) = if command == "head" {
-                (
-                    0,
-                    if count.starts_with('-') {
-                        length.saturating_sub(amount)
-                    } else {
-                        amount.min(length)
-                    },
-                )
-            } else if count.starts_with('+') {
-                (amount.saturating_sub(1).min(length), length)
-            } else {
-                (length.saturating_sub(amount), length)
-            };
-            if unit == 'n' {
-                Ok(lines[start..end].concat())
-            } else {
-                content.get(start..end).map(str::to_string).ok_or_else(|| {
-                    domain(
-                        "byte range splits UTF-8; raw byte output is not supported by the text VFS",
-                    )
-                })
-            }
-        });
-        match result {
-            Ok(text) => {
-                let offset = output.stdout.len();
-                output_limit(output.stdout.len() + text.len() + file.len() + 12)?;
-                if headers {
-                    if emitted_header {
-                        output.stdout.push('\n');
-                    }
-                    output.stdout.push_str(&format!(
-                        "==> {} <==\n",
-                        if file == "-" { "standard input" } else { file }
-                    ));
-                    emitted_header = true;
-                }
-                output.stdout.push_str(&text);
-                output.ordered.push((1, output.stdout[offset..].to_owned()));
-            }
-            Err(error) => {
-                let offset = output.stderr.len();
-                output.error(command, file, error);
-                output.ordered.push((2, output.stderr[offset..].to_owned()));
-            }
-        }
-    }
-    Ok(output)
 }

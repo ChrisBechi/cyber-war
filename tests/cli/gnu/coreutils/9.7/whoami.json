@@ -1,0 +1,2289 @@
+{
+  "schemaVersion": 2,
+  "provenance": "GNU_REFERENCE",
+  "version": "9.7",
+  "command": "whoami",
+  "locale": "C",
+  "capturedAt": "2026-09-17T19:07:01.154544+00:00",
+  "harnessHash": "0a9c824176d11fb5480471beb194c58560e7c6e702f8907c9c67e540fe990a9d",
+  "environment": {
+    "id": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
+    "lockHash": "f802d3271dc076a788debc364ef368a1a985c5c4e1a03cd4596baa0a51b7bc5e",
+    "os": "Linux",
+    "osRelease": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.22.0\nPRETTY_NAME=\"Alpine Linux v3.22\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\n",
+    "architecture": "x86_64",
+    "isolation": "bubblewrap/unshare-all",
+    "network": "disabled",
+    "locale": "C",
+    "binaryHashes": {
+      "whoami": {
+        "versionLine": "whoami (GNU coreutils) 9.7",
+        "sha256": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600"
+      }
+    },
+    "packages": [
+      "acl-libs-2.3.2-r1",
+      "alpine-baselayout-3.7.0-r0",
+      "alpine-baselayout-data-3.7.0-r0",
+      "alpine-keys-2.5-r0",
+      "alpine-release-3.22.0-r0",
+      "apk-tools-2.14.9-r2",
+      "bubblewrap-0.12.0-r0",
+      "busybox-1.37.0-r20",
+      "busybox-binsh-1.37.0-r20",
+      "ca-certificates-bundle-20241121-r2",
+      "coreutils-9.7-r1",
+      "coreutils-env-9.7-r1",
+      "coreutils-fmt-9.7-r1",
+      "coreutils-sha512sum-9.7-r1",
+      "gdbm-1.24-r0",
+      "libapk2-2.14.9-r2",
+      "libattr-2.5.2-r2",
+      "libbz2-1.0.8-r6",
+      "libcap2-2.78-r0",
+      "libcrypto3-3.5.8-r0",
+      "libexpat-2.8.4-r0",
+      "libffi-3.4.8-r0",
+      "libgcc-14.2.0-r6",
+      "libncursesw-6.5_p20250503-r0",
+      "libpanelw-6.5_p20250503-r0",
+      "libssl3-3.5.8-r0",
+      "libstdc++-14.2.0-r6",
+      "mpdecimal-4.0.1-r0",
+      "musl-1.2.5-r12",
+      "musl-utils-1.2.5-r10",
+      "ncurses-terminfo-base-6.5_p20250503-r0",
+      "pyc-3.12.14-r0",
+      "python3-3.12.14-r0",
+      "python3-pyc-3.12.14-r0",
+      "python3-pycache-pyc0-3.12.14-r0",
+      "readline-8.2.13-r1",
+      "scanelf-1.3.8-r1",
+      "skalibs-libs-2.14.4.0-r0",
+      "sqlite-libs-3.49.2-r1",
+      "ssl_client-1.37.0-r20",
+      "utmps-libs-0.1.3.1-r0",
+      "xz-libs-5.8.4-r0",
+      "zlib-1.3.2-r0"
+    ]
+  },
+  "cases": [
+    {
+      "id": "coreutils/whoami/user",
+      "request": {
+        "id": "coreutils/whoami/user",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "8fa7336753667b5ebe3fb7aaf3a5a4c98678a91c4de062890e937084cb37c7fc",
+      "stdoutHex": "6b616c690a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/root",
+      "request": {
+        "id": "coreutils/whoami/root",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "actor": "root",
+          "uid": 0,
+          "username": "root",
+          "environment": [
+            [
+              "HOME",
+              "/root"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "root"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "root"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e1857940676e1f2b0ec9ae17ee462a52f3a72c5ec532e750cb5bb09f09a5c83c",
+      "stdoutHex": "726f6f740a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/extra",
+      "request": {
+        "id": "coreutils/whoami/extra",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "extra"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "fff0cf5998b03719eb1cdf4de92fee576555468b5303bb03979cc2b44621547c",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e6420276578747261270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/version",
+      "request": {
+        "id": "coreutils/whoami/version",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--version"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "4af64f945953f31edf81dcb03bf11f26ed066eb9eceae821cdf8cbb01c56dbce",
+      "stdoutHex": "77686f616d692028474e5520636f72657574696c732920392e370a436f70797269676874202843292032303235204672656520536f66747761726520466f756e646174696f6e2c20496e632e0a4c6963656e73652047504c76332b3a20474e552047504c2076657273696f6e2033206f72206c61746572203c68747470733a2f2f676e752e6f72672f6c6963656e7365732f67706c2e68746d6c3e2e0a54686973206973206672656520736f6674776172653a20796f7520617265206672656520746f206368616e676520616e64207265646973747269627574652069742e0a5468657265206973204e4f2057415252414e54592c20746f2074686520657874656e74207065726d6974746564206279206c61772e0a0a5772697474656e2062792052696368617264204d6c796e6172696b2e0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/unknown-option",
+      "request": {
+        "id": "coreutils/whoami/unknown-option",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--not-implemented"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "bbe714ae1ca2f866b61cffd6f51731cd2a4a38db16a7a0d3d7e69aa75af5a443",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a20756e7265636f676e697a6564206f7074696f6e20272d2d6e6f742d696d706c656d656e746564270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/help",
+      "request": {
+        "id": "coreutils/whoami/help",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "dd86e9b49b1d1c50aa887d6e0fd1ede261b8690fa5fc1b98c45a1605208ea224",
+      "stdoutHex": "55736167653a202f7573722f62696e2f77686f616d69205b4f5054494f4e5d2e2e2e0a5072696e74207468652075736572206e616d65206173736f6369617465642077697468207468652063757272656e742065666665637469766520757365722049442e0a53616d65206173206964202d756e2e0a0a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f77686f616d693e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c73292077686f616d6920696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/plain-help",
+      "request": {
+        "id": "coreutils/whoami/plain-help",
+        "command": "whoami",
+        "invocation": "whoami",
+        "argv": [
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "cb924599b3a41bcc2a769b57bd62faa8293cdbe799c4d33759de503ee9157998",
+      "stdoutHex": "55736167653a2077686f616d69205b4f5054494f4e5d2e2e2e0a5072696e74207468652075736572206e616d65206173736f6369617465642077697468207468652063757272656e742065666665637469766520757365722049442e0a53616d65206173206964202d756e2e0a0a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f77686f616d693e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c73292077686f616d6920696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/effective-name",
+      "request": {
+        "id": "coreutils/whoami/effective-name",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "actor": "kali",
+          "uid": 1000,
+          "username": "analyst",
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "4cd20c17733583d8a8831be6294284b85f9e53136d72092d0a32f5ebf50fd435",
+      "stdoutHex": "616e616c7973740a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/different-uid",
+      "request": {
+        "id": "coreutils/whoami/different-uid",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "actor": "kali",
+          "uid": 4242,
+          "username": "operator",
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "d9d4f594791fd42b4c05ffc0f868b48ce24077cdfc3fdd4e5301317b86af6907",
+      "stdoutHex": "6f70657261746f720a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/lookup-failure",
+      "request": {
+        "id": "coreutils/whoami/lookup-failure",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "actor": "kali",
+          "uid": 65534,
+          "username": null,
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "f4e4b4e508907450fccd79d16d7c7a1a9f872ae3698d94b03cefa90ddf99acc2",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a2063616e6e6f742066696e64206e616d6520666f7220757365722049442036353533340a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/spoofed-environment",
+      "request": {
+        "id": "coreutils/whoami/spoofed-environment",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C",
+          "USER": "fake",
+          "LOGNAME": "fake"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "fake"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "fake"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "c44cc90e740feb29e9b1adbf6ac597eb912dc37aa7cf7de29076d7733d1cf2d2",
+      "stdoutHex": "6b616c690a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/empty-operand",
+      "request": {
+        "id": "coreutils/whoami/empty-operand",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          ""
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "0d2391b2b00cc31e34c37f77f7ad66df939d17e377549baf20ebd3d210a55298",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e642027270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/dash-operand",
+      "request": {
+        "id": "coreutils/whoami/dash-operand",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--",
+          "-"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e25d30693210f43a3ad9b8cecef6391e4e1bf00f7bc7816a675127ef201284e4",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e6420272d270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/extra-quoted",
+      "request": {
+        "id": "coreutils/whoami/extra-quoted",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "a'\né"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "9029bc9bf2878a9478381a698dda1eee137d55449fdee4448edc9802892671a8",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e642027615c275c6e5c3330335c323531270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/invalid-short",
+      "request": {
+        "id": "coreutils/whoami/invalid-short",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "-x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "f8071da40568dd44f92d6e6922dedfafc748b69c68d131483a125b823e78a96d",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a20696e76616c6964206f7074696f6e202d2d202778270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/invalid-utf8",
+      "request": {
+        "id": "coreutils/whoami/invalid-utf8",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "-é"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "e5ba25d0709a8b8c4fcf6b98a9aff4ff11efd148fe24e5e31b12547530d83c0c",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a20696e76616c6964206f7074696f6e202d2d2027c3270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/help-before-invalid",
+      "request": {
+        "id": "coreutils/whoami/help-before-invalid",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--help",
+          "-x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "d17fe7bb879d2636f6468f6f302d34ee9f52089bbeefd0458bb68851a3ff571b",
+      "stdoutHex": "55736167653a202f7573722f62696e2f77686f616d69205b4f5054494f4e5d2e2e2e0a5072696e74207468652075736572206e616d65206173736f6369617465642077697468207468652063757272656e742065666665637469766520757365722049442e0a53616d65206173206964202d756e2e0a0a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f77686f616d693e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c73292077686f616d6920696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/invalid-before-help",
+      "request": {
+        "id": "coreutils/whoami/invalid-before-help",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "-x",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "2130f7819aeec6bdc3ae289c5ad6665c67897cd68779e6df2fd3f0c7bf6ad503",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a20696e76616c6964206f7074696f6e202d2d202778270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/extra-before-help",
+      "request": {
+        "id": "coreutils/whoami/extra-before-help",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "extra",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "37430887391c0b3d1c9a122d6a65fc84c7807f1603304ece38928316b4a14b7a",
+      "stdoutHex": "55736167653a202f7573722f62696e2f77686f616d69205b4f5054494f4e5d2e2e2e0a5072696e74207468652075736572206e616d65206173736f6369617465642077697468207468652063757272656e742065666665637469766520757365722049442e0a53616d65206173206964202d756e2e0a0a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f77686f616d693e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c73292077686f616d6920696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/posix-extra-before-help",
+      "request": {
+        "id": "coreutils/whoami/posix-extra-before-help",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "extra",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C",
+          "POSIXLY_CORRECT": "1"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "POSIXLY_CORRECT",
+              "1"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "97615a2c30b2a7418abf426398caa393aece506d7f06f51ba77f146e14f204b8",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e6420276578747261270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/help-argument",
+      "request": {
+        "id": "coreutils/whoami/help-argument",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--help=x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "45cc8d0860ddf7c2916a643f8cfc1700273394dbdd2bafb51540dcc4370b9d74",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a206f7074696f6e20272d2d68656c702720646f65736e277420616c6c6f7720616e20617267756d656e740a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/abbreviated-help",
+      "request": {
+        "id": "coreutils/whoami/abbreviated-help",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--h"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "3ce1504d1e9c91f0d13f3f357c8b92118389f56160240aee27e3d7c66fe02bfe",
+      "stdoutHex": "55736167653a202f7573722f62696e2f77686f616d69205b4f5054494f4e5d2e2e2e0a5072696e74207468652075736572206e616d65206173736f6369617465642077697468207468652063757272656e742065666665637469766520757365722049442e0a53616d65206173206964202d756e2e0a0a2020202020202d2d68656c702020202020202020646973706c617920746869732068656c7020616e6420657869740a2020202020202d2d76657273696f6e20202020206f75747075742076657273696f6e20696e666f726d6174696f6e20616e6420657869740a0a474e5520636f72657574696c73206f6e6c696e652068656c703a203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f3e0a5265706f727420616e79207472616e736c6174696f6e206275677320746f203c68747470733a2f2f7472616e736c6174696f6e70726f6a6563742e6f72672f7465616d2f3e0a46756c6c20646f63756d656e746174696f6e203c68747470733a2f2f7777772e676e752e6f72672f736f6674776172652f636f72657574696c732f77686f616d693e0a6f7220617661696c61626c65206c6f63616c6c79207669613a20696e666f202728636f72657574696c73292077686f616d6920696e766f636174696f6e270a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/combined-options",
+      "request": {
+        "id": "coreutils/whoami/combined-options",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--version",
+          "--help"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "363773b2a9d84d11c4a0147a6bf20f00c2e97fc839d00703642455c735fadef4",
+      "stdoutHex": "77686f616d692028474e5520636f72657574696c732920392e370a436f70797269676874202843292032303235204672656520536f66747761726520466f756e646174696f6e2c20496e632e0a4c6963656e73652047504c76332b3a20474e552047504c2076657273696f6e2033206f72206c61746572203c68747470733a2f2f676e752e6f72672f6c6963656e7365732f67706c2e68746d6c3e2e0a54686973206973206672656520736f6674776172653a20796f7520617265206672656520746f206368616e676520616e64207265646973747269627574652069742e0a5468657265206973204e4f2057415252414e54592c20746f2074686520657874656e74207065726d6974746564206279206c61772e0a0a5772697474656e2062792052696368617264204d6c796e6172696b2e0a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/stdin-ignored",
+      "request": {
+        "id": "coreutils/whoami/stdin-ignored",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "00ff0a",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "d3516a3109f3cf23cfc088827060b77925d670d5e40f65d294f3a91abd2d56d0",
+      "stdoutHex": "6b616c690a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/pipe",
+      "request": {
+        "id": "coreutils/whoami/pipe",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "pipe"
+      },
+      "requestDigest": "b9104c9c734b2e979224fac9cd72659d1d77a594c9a61f1d915dc1e865e89627",
+      "stdoutHex": "6b616c690a",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/redirect",
+      "request": {
+        "id": "coreutils/whoami/redirect",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "redirect"
+      },
+      "requestDigest": "c666a730d2998f5e2a3c8c5289ce11bf74affde4768f72105b8caea7d523f43f",
+      "stdoutHex": "",
+      "stderrHex": "",
+      "exitCode": 0,
+      "before": {},
+      "after": {
+        "reference-output": {
+          "inodeGroup": 0,
+          "mode": 420,
+          "nlink": 1,
+          "type": "file",
+          "contentHex": "6b616c690a",
+          "size": 5
+        }
+      },
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/empty-long-name",
+      "request": {
+        "id": "coreutils/whoami/empty-long-name",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "--=x"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "82f24555f7d1470be9e464548afa3ca6e533be392575d0745897689510cfb47c",
+      "stdoutHex": "",
+      "stderrHex": "2f7573722f62696e2f77686f616d693a206f7074696f6e20272d2d3d782720697320616d626967756f75733b20706f73736962696c69746965733a20272d2d68656c702720272d2d76657273696f6e270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/quote-0",
+      "request": {
+        "id": "coreutils/whoami/quote-0",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "a'b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "4416bb9018548c99bafa4987351ef9c89f4d94229e0ea5e2307087a218c4839b",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e642027615c2762270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/quote-1",
+      "request": {
+        "id": "coreutils/whoami/quote-1",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "a\"b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "c2d65424f179d0c3d4d0cd982dcc77e5072b90641dd44e79dd92c91cf545eba3",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e642027612262270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/quote-2",
+      "request": {
+        "id": "coreutils/whoami/quote-2",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "a\\b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "eb5e0895fa6c6006b47ee37f93a6e03d6dde29767e66b1da4f1b97334c2bff12",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e642027615c5c62270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    },
+    {
+      "id": "coreutils/whoami/quote-3",
+      "request": {
+        "id": "coreutils/whoami/quote-3",
+        "command": "whoami",
+        "invocation": "/usr/bin/whoami",
+        "argv": [
+          "\u001b"
+        ],
+        "stdinHex": "",
+        "env": {
+          "LC_ALL": "C"
+        },
+        "cwd": "/home/kali",
+        "fixture": {
+          "files": {},
+          "bytes": {},
+          "directories": [],
+          "modes": {},
+          "setup": []
+        },
+        "process": {
+          "environment": [
+            [
+              "HOME",
+              "/home/kali"
+            ],
+            [
+              "HOSTNAME",
+              "lifeos"
+            ],
+            [
+              "LANG",
+              "C.UTF-8"
+            ],
+            [
+              "LC_ALL",
+              "C"
+            ],
+            [
+              "LOGNAME",
+              "kali"
+            ],
+            [
+              "PATH",
+              "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            [
+              "PWD",
+              "/home/kali"
+            ],
+            [
+              "SHELL",
+              "/bin/bash"
+            ],
+            [
+              "USER",
+              "kali"
+            ]
+          ]
+        },
+        "transport": "direct"
+      },
+      "requestDigest": "8512d12050e591c1abe304b6b4482008a99f616471da552548bdc7df75055031",
+      "stdoutHex": "",
+      "stderrHex": "77686f616d693a206578747261206f706572616e6420275c303333270a54727920272f7573722f62696e2f77686f616d69202d2d68656c702720666f72206d6f726520696e666f726d6174696f6e2e0a",
+      "exitCode": 1,
+      "before": {},
+      "after": {},
+      "reproducible": true
+    }
+  ]
+}

@@ -120,7 +120,7 @@ fn early(command: &str, opts: &Options) -> Option<Output> {
     }
 }
 
-fn wc(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
+fn wc(world: &mut WorldState, args: &[String], actor: &str) -> GameResult<Output> {
     let opts = options(
         "wc",
         args,
@@ -156,14 +156,19 @@ fn wc(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
         .filter(|(_, f)| opts.has(*f) || (opts.flags.is_empty() && *f != 'm'))
         .map(|(i, _)| i)
         .collect();
-    let mut stdin = world.terminal.stdin.clone();
+    let mut stdin = Some(crate::coreutils::io::stdin(world));
     let mut rows = Vec::new();
     let mut sums = [0usize; 4];
     let mut size = 0;
     for file in &files {
-        match read(world, file, actor, &mut stdin) {
-            Ok(text) => {
-                size += text.len();
+        match crate::coreutils::io::read(world, file, actor, &mut stdin) {
+            Ok(bytes) => {
+                let text = if c_locale {
+                    bytes.iter().map(|b| char::from(*b)).collect::<String>()
+                } else {
+                    String::from_utf8_lossy(&bytes).into_owned()
+                };
+                size += bytes.len();
                 bounded(size)?;
                 let blank = |c: char| {
                     if c_locale {
@@ -175,14 +180,14 @@ fn wc(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
                     }
                 };
                 let counts = [
-                    text.bytes().filter(|b| *b == b'\n').count(),
+                    bytes.iter().copied().filter(|b| *b == b'\n').count(),
                     text.split(blank).filter(|word| !word.is_empty()).count(),
                     if c_locale {
-                        text.len()
+                        bytes.len()
                     } else {
-                        text.chars().count()
+                        utf8_char_count(&bytes)
                     },
-                    text.len(),
+                    bytes.len(),
                 ];
                 for (sum, count) in sums.iter_mut().zip(counts) {
                     *sum += count;
@@ -241,6 +246,31 @@ fn wc(world: &WorldState, args: &[String], actor: &str) -> GameResult<Output> {
         );
     }
     Ok(output)
+}
+
+// GNU wc -m in UTF-8 does not count malformed encoding bytes as characters.
+fn utf8_char_count(mut bytes: &[u8]) -> usize {
+    let mut count = 0;
+    while !bytes.is_empty() {
+        match std::str::from_utf8(bytes) {
+            Ok(text) => {
+                count += text.chars().count();
+                break;
+            }
+            Err(error) => {
+                count += std::str::from_utf8(&bytes[..error.valid_up_to()])
+                    .expect("validated prefix")
+                    .chars()
+                    .count();
+                let skip = error.valid_up_to()
+                    + error
+                        .error_len()
+                        .unwrap_or(bytes.len() - error.valid_up_to());
+                bytes = &bytes[skip..];
+            }
+        }
+    }
+    count
 }
 
 // Compare arbitrarily long decimal prefixes without precision loss. The C

@@ -51,17 +51,19 @@ pub fn emit(
 }
 fn projection(world: &mut WorldState, path: &str, text: &str) -> GameResult<()> {
     mkdirs(world, parent(path))?;
-    if let Some(n) = world.vfs.nodes.get_mut(path) {
+    if let Some(mut n) = world.vfs.nodes.get_mut(path) {
         n.metadata.remove("packageProjection");
     }
     world.vfs.write(path, text, "root")?;
-    if let Some(n) = world.vfs.nodes.get_mut(path) {
+    if let Some(mut n) = world.vfs.nodes.get_mut(path) {
         n.mode = 0o444;
         n.metadata.insert("packageProjection".into(), "true".into());
     }
     Ok(())
 }
 pub fn sync(world: &mut WorldState) -> GameResult<()> {
+    world.vfs.collect();
+
     let installed = world
         .packages
         .installed
@@ -121,6 +123,7 @@ pub fn sync(world: &mut WorldState) -> GameResult<()> {
         .map(|i| format!("Package: {}\nAuto-Installed: 1\n\n", i.definition.name))
         .collect::<String>();
     projection(world, "/var/lib/apt/extended_states", &marks)?;
+    world.vfs.collect();
     world.packages.revision += 1;
     Ok(())
 }
@@ -237,7 +240,52 @@ pub fn initialize(world: &mut WorldState) -> GameResult<()> {
 /// Old saves predate the incremental yes engine's packaged executable. Extend
 /// only that known baseline definition; preserve removed/modified/custom files.
 fn extend_baseline_shell_binding(world: &mut WorldState) -> GameResult<()> {
-    let path = "/usr/bin/yes";
+    for name in [
+        "base64",
+        "basename",
+        "cat",
+        "chmod",
+        "chown",
+        "cp",
+        "cut",
+        "date",
+        "df",
+        "dirname",
+        "du",
+        "env",
+        "groups",
+        "head",
+        "id",
+        "ls",
+        "mkdir",
+        "mv",
+        "printenv",
+        "readlink",
+        "realpath",
+        "rm",
+        "seq",
+        "sha256sum",
+        "sort",
+        "stat",
+        "tail",
+        "tee",
+        "touch",
+        "tr",
+        "uname",
+        "uniq",
+        "wc",
+        "whoami",
+        "yes",
+        "ln",
+        "rmdir",
+    ] {
+        extend_baseline_binding(world, name)?;
+    }
+    Ok(())
+}
+fn extend_baseline_binding(world: &mut WorldState, name: &str) -> GameResult<()> {
+    let owned_path = format!("/usr/bin/{name}");
+    let path = owned_path.as_str();
     let eligible = world
         .packages
         .installed

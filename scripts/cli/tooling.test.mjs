@@ -8,6 +8,8 @@ import { scanRuntime, hostGuard } from './host-guard.mjs';
 import { render } from './reports.mjs';
 import { json } from './io.mjs';
 import { loadCases } from './pipeline.mjs';
+import { coreutilsGate, coreutilsSchema, attachCoreutils } from './coreutils.mjs';
+import { caseSources } from './fingerprint.mjs';
 import { ReferenceEnvironment } from './reference-environment.mjs';
 import { cliRuntimeBoundary } from '../../vite.config.ts';
 import { build } from 'vite';
@@ -73,6 +75,56 @@ function dataset() {
   return { inventory, cases: [testCase], capture };
 }
 const run = (d) => evaluate(d.inventory, d.cases, d.capture, { result: 'PASS' });
+test('Coreutils project cases never substitute GNU reference, and declared flags require evidence', () => {
+  const c = {
+    command: 'basename',
+    referenceVersion: '9.7',
+    coreutils: {
+      flags: ['-z'],
+      knownGaps: ['Missing error contract'],
+      contracts: [{ id: 'paths', applicability: 'REQUIRED', evidence: ['base/path'] }],
+    },
+  };
+  const tests = new Map([['base/path', { id: 'base/path', command: 'basename', flags: [] }]]);
+  const results = new Map([['base/path', { result: 'PASS' }]]);
+  assert.equal(coreutilsGate(c, 'COMMAND_CONTRACTS', tests, results).result, 'SKIPPED');
+  assert.notEqual(coreutilsGate(c, 'GNU_REFERENCE', tests, results).result, 'PASS');
+  tests.get('base/path').flags = ['-z'];
+  assert.equal(coreutilsGate(c, 'COMMAND_CONTRACTS', tests, results).result, 'PASS');
+  assert.equal(coreutilsGate(c, 'KNOWN_GAPS', tests, results).result, 'SKIPPED');
+  c.coreutils.knownGaps = [];
+  assert.equal(coreutilsGate(c, 'KNOWN_GAPS', tests, results).result, 'PASS');
+  results.get('base/path').result = 'FAIL';
+  assert.equal(coreutilsGate(c, 'COMMAND_CONTRACTS', tests, results).result, 'SKIPPED');
+});
+test('Coreutils inventory requires every registered executable and exact baseline', () => {
+  const config = coreutilsSchema.parse(json('content/cli-compatibility/coreutils.json'));
+  const inventory = { software: [{ id: 'coreutils', referenceVersion: '9.7' }], commands: [] };
+  assert.throws(() => attachCoreutils(inventory, config), /Orphan/);
+  inventory.software[0].referenceVersion = '8.32';
+  assert.throws(() => attachCoreutils(inventory, config), /baseline/);
+});
+test('Byte mismatch reports bounded offset and handler fingerprints follow dependencies', () => {
+  const t = dataset().cases[0];
+  t.expected.stdoutHex = '00ff80';
+  const a = dataset().capture.cases[0];
+  a.stdoutHex = '00fe80';
+  assert.match(compareCase(t, a).reason, /offset 1/);
+  const sources = [
+    'src-tauri/src/terminal_text.rs',
+    'src-tauri/src/vfs/resolve.rs',
+    'src-tauri/src/coreutils/foundation.rs',
+  ];
+  assert.deepEqual(
+    caseSources({ softwareId: 'coreutils', command: 'basename' }, sources),
+    sources.slice(1),
+  );
+  assert.deepEqual(
+    caseSources({ softwareId: 'coreutils', command: 'basename', script: 'sort a' }, sources),
+    sources,
+  );
+  assert.deepEqual(caseSources({ softwareId: 'coreutils', command: 'env' }, sources), sources);
+});
 test('all required PASS derives VERIFIED; N/A does not block', () =>
   assert.equal(run(dataset()).commands[0].effectiveStatus, 'VERIFIED'));
 test('failed/skipped REQUIRED, missing reference, catalog and missing subsystem block VERIFIED', () => {
@@ -383,4 +435,37 @@ test('dashboard deterministic and derived, no independent status list', () => {
 });
 test('every capability has a typed subsystem', () => {
   for (const value of Object.values(capabilitySubsystem)) assert.equal(typeof value, 'string');
+});
+
+test('VFS dependencies and relational metadata assertions cannot bypass missing evidence', () => {
+  const d = dataset();
+  d.inventory.commands[0].requirements = ['VFS.INODES'];
+  d.inventory.software[0].requirements = ['VFS.INODES'];
+  d.inventory.subsystems[0].state = 'PARTIAL';
+  d.inventory.subsystems[0].capabilities = [
+    { id: 'VFS.INODES', state: 'READY', requiredTests: ['toy/basic'] },
+  ];
+  assert.equal(run(d).commands[0].effectiveStatus, 'VERIFIED');
+  d.capture.cases = [];
+  assert.equal(run(d).subsystems[0].capabilities[0].effectiveState, 'PARTIAL');
+  assert.match(run(d).commands[0].blockedBy.join(), /VFS.INODES/);
+  const c = {
+    id: 'relation',
+    expected: {
+      stdout: { kind: 'EXACT', value: '' },
+      stderr: { kind: 'EXACT', value: '' },
+      exitCode: 0,
+      state: [{ path: '/a', equalsPath: '/b' }],
+    },
+  };
+  assert.equal(compareCase(c, { stdout: '', stderr: '', exitCode: 0, after: {} }).result, 'FAIL');
+  assert.equal(
+    compareCase(c, { stdout: '', stderr: '', exitCode: 0, after: { a: 7, b: 7 } }).result,
+    'PASS',
+  );
+  c.expected.state = [{ path: '/a', differsPath: '/b' }];
+  assert.equal(
+    compareCase(c, { stdout: '', stderr: '', exitCode: 0, after: { a: 7 } }).result,
+    'FAIL',
+  );
 });

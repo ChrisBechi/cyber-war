@@ -34,6 +34,9 @@ pub fn resolve(world: &WorldState, name: &str, actor: &str) -> Option<String> {
             .collect()
     };
     for path in paths {
+        let Ok(path) = world.vfs.resolve(&path, actor, crate::vfs::Follow::Yes) else {
+            continue;
+        };
         let Some(owner) = world.packages.ownership.get(&path) else {
             continue;
         };
@@ -58,15 +61,7 @@ pub fn resolve(world: &WorldState, name: &str, actor: &str) -> Option<String> {
         let Ok(node) = world.vfs.stat(&path, actor) else {
             continue;
         };
-        let executable = if actor == "root" {
-            node.mode & 0o111 != 0
-        } else if node.owner == actor {
-            node.mode & 0o100 != 0
-        } else if node.group == actor {
-            node.mode & 0o010 != 0
-        } else {
-            node.mode & 0o001 != 0
-        };
+        let executable = world.vfs.allowed(node, actor, 1);
         if node.kind == "file" && executable && node.content == file.content && node.blob.is_none()
         {
             return Some(path);
@@ -96,16 +91,7 @@ pub fn unavailable(world: &WorldState, name: &str, actor: &str) -> Output {
                 reason = Some(match fs.stat(&path, actor) {
                     Ok(node) if node.kind == "directory" => "Is a directory",
                     Ok(node) => {
-                        let mask = if actor == "root" {
-                            0o111
-                        } else if node.owner == actor {
-                            0o100
-                        } else if node.group == actor {
-                            0o010
-                        } else {
-                            0o001
-                        };
-                        if node.mode & mask == 0 {
+                        if !fs.allowed(node, actor, 1) {
                             "Permission denied"
                         } else {
                             "Exec format error"

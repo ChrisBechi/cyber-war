@@ -176,9 +176,9 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | axcrypt2john                  | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | axel                          | axel                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | b1ee                          | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| base64                        | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| base64                        | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | base64conv                    | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| basename                      | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| basename                      | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/foundation.rs |
 | bash                          | bash                     | NATIVE       | 5.2.37     | PARTIAL    | src-tauri/src/shell.rs                |
 | bbc                           | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | besside-ng                    | aircrack-ng              | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -226,7 +226,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | calculator                    | mate-calc                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | capinfos                      | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | captype                       | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| cat                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_io.rs          |
+| cat                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | ccache2john                   | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | cd                            | bash                     | BUILTIN      | 5.2.37     | PARTIAL    | src-tauri/src/terminal_io.rs          |
 | certipy-ad                    | certipy-ad               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -341,7 +341,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | dirb                          | dirb                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | dirb-gendict                  | dirb                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | dirbuster                     | dirbuster                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| dirname                       | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| dirname                       | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/foundation.rs |
 | diskcryptor2john              | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | dislocate                     | expect                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | display-im7.q16               | kali-menu                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -395,7 +395,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | enpass2john                   | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | enpass5tojohn                 | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | enum4linux                    | enum4linux               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| env                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| env                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/foundation.rs |
 | ethereum2john                 | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | ethtool                       | ethtool                  | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | eventlogadm                   | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -540,7 +540,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | hciconfig                     | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hcitool                       | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hd                            | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| head                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_io.rs          |
+| head                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | help                          | bash                     | BUILTIN      | 5.2.37     | PARTIAL    | src-tauri/src/terminal.rs             |
 | helpztags                     | vim                      | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | hex2hcd                       | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1040,6 +1040,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | llvm-windres                  | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | llvm-xray                     | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | llvm-yaml-bench               | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
+| ln                            | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
 | locktest                      | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | logger                        | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | login                         | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1295,7 +1296,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | powershell-empire             | powershell-empire        | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | powersploit                   | powersploit              | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | pp-trace                      | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| printenv                      | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| printenv                      | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/foundation.rs |
 | prlimit                       | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | procan                        | socat                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | procps                        | procps                   | LAUNCHER     | 4.0.4      | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1399,6 +1400,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | rfkill                        | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | rlogin-cwd                    | expect                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | rm                            | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_remove.rs      |
+| rmdir                         | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
 | rndc                          | bind9-dnsutils           | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | rndc-confgen                  | bind9-dnsutils           | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | root-terminal                 | kali-menu                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1477,7 +1479,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | sh                            | bash                     | NATIVE       | 5.2.37     | PARTIAL    | src-tauri/src/shell.rs                |
 | sha1deep                      | hashdeep                 | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sha256deep                    | hashdeep                 | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| sha256sum                     | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| sha256sum                     | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | sharesec                      | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sharkd                        | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | showmount                     | nfs-common               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1576,7 +1578,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | starkiller-stop               | powershell-empire        | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | staroffice2john               | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | start-statd                   | nfs-common               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| stat                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| stat                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_query.rs       |
 | statd_spike                   | spike                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | statsprocessor                | statsprocessor           | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | strato                        | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1601,7 +1603,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | switch_root                   | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sysctl                        | procps                   | CATALOG_ONLY | 4.0.4      | UNVERIFIED | src-tauri/src/software.rs::command    |
 | systemctl                     | systemd                  | NATIVE       | 257.5      | PARTIAL    | src-tauri/src/terminal.rs             |
-| tail                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_io.rs          |
+| tail                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | tar                           | tar                      | NATIVE       | NOT PINNED | PARTIAL    | src-tauri/src/archive/cli.rs          |
 | task-manager                  | xfce4-taskmanager        | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | taskset                       | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1620,7 +1622,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | tdbdump                       | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | tdbrestore                    | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | tdbtool                       | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| tee                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| tee                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
 | telegram2john                 | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | teredo-mire                   | miredo                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | terminal                      | qterminal                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1678,6 +1680,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | uclampset                     | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | udptunnel                     | udptunnel                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | ul                            | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
+| umask                         | bash                     | BUILTIN      | 5.2.37     | PARTIAL    | src-tauri/src/terminal.rs             |
 | umount                        | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | umount.nfs                    | nfs-common               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | umount.nfs4                   | nfs-common               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
@@ -1757,7 +1760,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | whereis                       | util-linux               | NATIVE       | NOT PINNED | PARTIAL    | src-tauri/src/terminal.rs             |
 | which                         | debianutils              | NATIVE       | NOT PINNED | PARTIAL    | src-tauri/src/terminal.rs             |
 | whirlpooldeep                 | hashdeep                 | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| whoami                        | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal.rs             |
+| whoami                        | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/foundation.rs |
 | whois                         | whois                    | NATIVE       | NOT PINNED | PARTIAL    | src-tauri/src/terminal.rs             |
 | wifite                        | wifite                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | winbindd                      | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

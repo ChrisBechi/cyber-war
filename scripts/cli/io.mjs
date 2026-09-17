@@ -14,7 +14,23 @@ export function files(dir) {
 export function write(p, value) {
   const path = resolve(root, p);
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value, null, 2) + '\n');
+  const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2) + '\n';
+  if (existsSync(path) && readFileSync(path, 'utf8') === text) return;
+  // Windows preview/indexing can briefly hold a generated report open.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      writeFileSync(path, text);
+      return;
+    } catch (error) {
+      if (
+        process.platform !== 'win32' ||
+        attempt >= 5 ||
+        !['UNKNOWN', 'EBUSY', 'EPERM'].includes(error.code)
+      )
+        throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100 * (attempt + 1));
+    }
+  }
 }
 export function digest(paths) {
   const hash = createHash('sha256');

@@ -6,7 +6,7 @@ export const nodeSchema = z.object({
   id: z.string(),
   parentId: z.string().nullable(),
   name: z.string(),
-  kind: z.enum(['file', 'directory', 'symlink']),
+  kind: z.enum(['file', 'directory', 'symlink', 'charDevice']),
   content: z.string(),
   blob: z
     .object({ hash: z.string(), size: z.number().int().nonnegative(), mime: z.string() })
@@ -15,8 +15,43 @@ export const nodeSchema = z.object({
   group: z.string(),
   mode: z.number(),
   modifiedAt: z.number(),
+  ino: z.number().int().nonnegative().optional(),
+  nlink: z.number().int().nonnegative().optional(),
+  uid: z.number().int().nonnegative().optional(),
+  gid: z.number().int().nonnegative().optional(),
+  createdAt: z.number().optional(),
+  changedAt: z.number().optional(),
+  accessedAt: z.number().optional(),
   metadata: z.record(z.string(), z.string()),
 });
+// Save/IPC v2 carries one payload per inode. UI nodes are a read-only projection.
+export const vfsSchema = z.union([
+  z.object({ nodes: z.record(z.string(), nodeSchema) }),
+  z
+    .object({
+      formatVersion: z.literal(2),
+      entries: z.record(z.string(), z.number().int().positive()),
+      inodes: z.record(z.string(), nodeSchema.omit({ id: true, parentId: true, name: true })),
+    })
+    .transform((wire, ctx) => {
+      const nodes: Record<string, z.infer<typeof nodeSchema>> = {};
+      for (const [path, ino] of Object.entries(wire.entries)) {
+        const inode = wire.inodes[String(ino)];
+        if (!inode || inode.ino !== ino) {
+          ctx.addIssue({ code: 'custom', message: 'Invalid virtual inode reference' });
+          return z.NEVER;
+        }
+        const split = path.lastIndexOf('/');
+        nodes[path] = {
+          ...inode,
+          id: path,
+          parentId: path === '/' ? null : path.slice(0, split) || '/',
+          name: path.slice(split + 1),
+        };
+      }
+      return { nodes };
+    }),
+]);
 export type VfsNode = z.infer<typeof nodeSchema>;
 export const subdomainSchema = z.object({
   label: z.string(),
@@ -159,7 +194,7 @@ export const worldSchema = z.object({
   money: z.number(),
   reputation: z.number(),
   playtimeSeconds: z.number(),
-  vfs: z.object({ nodes: z.record(z.string(), nodeSchema) }),
+  vfs: vfsSchema,
   network: z.object({
     connected: z.boolean(),
     gateway: z.string(),

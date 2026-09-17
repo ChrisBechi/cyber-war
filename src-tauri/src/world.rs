@@ -59,6 +59,8 @@ pub struct TerminalSession {
     #[serde(skip)]
     pub stdin: Option<String>,
     #[serde(skip)]
+    pub stdin_bytes: Option<Vec<u8>>,
+    #[serde(skip)]
     pub io: crate::shell_pipeline::IoState,
 }
 
@@ -166,6 +168,7 @@ impl WorldState {
                 package_pending: None,
                 package_job: None,
                 stdin: None,
+                stdin_bytes: None,
                 io: Default::default(),
             },
             terminal_sessions: BTreeMap::new(),
@@ -214,15 +217,19 @@ impl WorldState {
         }
     }
     pub fn fs_mut(&mut self) -> GameResult<&mut VirtualFileSystem> {
-        match &self.terminal.host {
-            Some(host) => self
-                .network
-                .hosts
-                .get_mut(host)
-                .map(|h| &mut h.files)
-                .ok_or_else(|| domain("session host missing")),
-            None => Ok(&mut self.vfs),
-        }
+        let fs = match &self.terminal.host {
+            Some(host) => {
+                &mut self
+                    .network
+                    .hosts
+                    .get_mut(host)
+                    .ok_or_else(|| domain("session host missing"))?
+                    .files
+            }
+            None => &mut self.vfs,
+        };
+        fs.umask = self.terminal.shell.umask;
+        Ok(fs)
     }
     pub fn notify(&mut self, contact: &str, text: &str) {
         self.contacts.insert(contact.into());
@@ -233,6 +240,56 @@ impl WorldState {
             text: text.replace("[NICKNAME]", &self.nickname),
             read: false,
         });
+    }
+    pub(crate) fn cwd_anchors(&self) -> Vec<(Option<String>, Option<String>, String, u64)> {
+        std::iter::once((None, &self.terminal))
+            .chain(
+                self.terminal_sessions
+                    .iter()
+                    .map(|(id, s)| (Some(id.clone()), s)),
+            )
+            .filter_map(|(id, s)| {
+                let fs = match &s.host {
+                    Some(h) => &self.network.hosts.get(h)?.files,
+                    None => &self.vfs,
+                };
+                fs.stat(&s.cwd, "root")
+                    .ok()
+                    .map(|n| (id, s.host.clone(), s.cwd.clone(), n.ino))
+            })
+            .collect()
+    }
+    pub(crate) fn repair_cwds(
+        &mut self,
+        anchors: Vec<(Option<String>, Option<String>, String, u64)>,
+    ) {
+        for (id, host, old, ino) in anchors {
+            let fs = match &host {
+                Some(h) => match self.network.hosts.get(h) {
+                    Some(h) => &h.files,
+                    None => continue,
+                },
+                None => &self.vfs,
+            };
+            let next = fs.nodes.path_for_inode(ino).cloned().unwrap_or_else(|| {
+                if fs.nodes.contains_key(HOME) {
+                    HOME.into()
+                } else {
+                    "/".into()
+                }
+            });
+            let s = match id {
+                Some(id) => match self.terminal_sessions.get_mut(&id) {
+                    Some(s) => s,
+                    None => continue,
+                },
+                None => &mut self.terminal,
+            };
+            if s.host == host && s.cwd == old && next != old {
+                s.cwd = next.clone();
+                s.env.insert("PWD".into(), next);
+            }
+        }
     }
     pub fn validate(&self) -> GameResult<()> {
         if ![1, 2].contains(&self.schema_version) {
@@ -250,6 +307,9 @@ impl WorldState {
         }
         self.vfs.directory(HOME, "root")?;
         for fs in std::iter::once(&self.vfs).chain(self.network.hosts.values().map(|h| &h.files)) {
+            if !fs.nodes.is_empty() {
+                fs.check_invariants()?;
+            }
             for node in fs.nodes.values() {
                 if let Some(blob) = &node.blob {
                     blob.validate()?;

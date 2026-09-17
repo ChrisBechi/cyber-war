@@ -243,7 +243,6 @@ fn runtime_is_not_serialized_and_host_syntax_has_no_effects() {
     assert!(loaded.terminal.env.is_empty());
     assert!(loaded.terminal.shell.continuation.is_empty());
     for source in [
-        "echo x > C:\\Windows\\x",
         "cmd.exe /c dir",
         "powershell Get-Process",
         "echo $(cmd.exe /c dir)",
@@ -255,6 +254,11 @@ fn runtime_is_not_serialized_and_host_syntax_has_no_effects() {
             "{source}"
         );
     }
+    check(&mut w, "echo x > 'C:\\Windows\\x'", "", 0);
+    assert_eq!(
+        w.vfs.read("/home/kali/C:\\Windows\\x", "kali").unwrap(),
+        "x\n"
+    );
     let before = w.vfs.nodes.clone();
     assert_eq!(
         run(&mut w, "echo x > never;echo 'unterminated").exit_code,

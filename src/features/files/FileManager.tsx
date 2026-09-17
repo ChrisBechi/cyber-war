@@ -846,10 +846,22 @@ export function FileManager({
                     size={view === 'grid' ? 64 : 28}
                   />
                 )}
-                <span className="file-name">{node.name}</span>
+                <span
+                  className="file-name"
+                  title={node.kind === 'symlink' ? `Link simbólico → ${node.content}` : node.name}
+                >
+                  {node.kind === 'symlink' && <span aria-label="Link simbólico">↗ </span>}
+                  {node.name}
+                </span>
                 {view === 'list' && (
                   <small className="files-type">
-                    {node.kind === 'directory' ? 'Pasta' : associationForPath(node.id, node).label}
+                    {node.kind === 'directory'
+                      ? 'Pasta'
+                      : node.kind === 'symlink'
+                        ? 'Link simbólico'
+                        : node.kind === 'charDevice'
+                          ? 'Dispositivo virtual'
+                          : associationForPath(node.id, node).label}
                   </small>
                 )}
               </button>

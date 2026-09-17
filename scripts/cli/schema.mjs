@@ -49,6 +49,20 @@ const shellRequirement = z.enum([
   'SHELL.CONTEXT',
   'SHELL.JOBS',
 ]);
+const vfsRequirement = z.enum([
+  'VFS.PATHS',
+  'VFS.REGULAR_FILES',
+  'VFS.DIRECTORIES',
+  'VFS.INODES',
+  'VFS.SYMLINKS',
+  'VFS.HARDLINKS',
+  'VFS.PERMISSIONS',
+  'VFS.SPECIAL_PERMISSIONS',
+  'VFS.METADATA',
+  'VFS.TIMESTAMPS',
+  'VFS.DEVICES',
+  'VFS.SAVE_ROUNDTRIP',
+]);
 export const subsystemId = z.enum([...new Set(Object.values(capabilitySubsystem))]);
 export const gateNames = [
   'DISCOVERY',
@@ -117,6 +131,7 @@ export const softwareSpec = z
     ]),
     dependencies: z.array(z.string()),
     shellRequirements: z.array(shellRequirement).default([]),
+    vfsRequirements: z.array(vfsRequirement).default([]),
     capabilities: z.array(capability),
     intentionalDeviations: z.array(z.string()),
     unsupportedFeatures: z.array(z.string()),
@@ -128,6 +143,7 @@ export const nativeSpec = z
   .object({
     softwareId: z.string(),
     shellRequirements: z.array(shellRequirement).optional(),
+    vfsRequirements: z.array(vfsRequirement).optional(),
     implementationKind: kinds,
     implementation: z.string(),
     parserKind: z.enum(['SHELL', 'PROGRAM_SPECIFIC', 'CATALOG_ADAPTER']),
@@ -244,10 +260,14 @@ export const assertionSchema = z
     matcher: matcherSchema.optional(),
     absent: z.boolean().optional(),
     unchanged: z.boolean().optional(),
+    equalsPath: z.string().startsWith('/').optional(),
+    differsPath: z.string().startsWith('/').optional(),
   })
   .strict()
   .refine(
-    (v) => [!!v.matcher, !!v.absent, !!v.unchanged].filter(Boolean).length === 1,
+    (v) =>
+      [!!v.matcher, !!v.absent, !!v.unchanged, !!v.equalsPath, !!v.differsPath].filter(Boolean)
+        .length === 1,
     'Choose exactly one assertion',
   );
 export const caseSchema = z
@@ -256,8 +276,49 @@ export const caseSchema = z
     id: z.string().regex(/^[a-z0-9][a-z0-9/_.-]+$/),
     softwareId: z.string(),
     command: z.string().min(1),
+    invocation: z
+      .string()
+      .regex(/^(?:\/usr\/bin\/)?[a-z][a-z0-9-]*$/)
+      .optional(),
+    transport: z.enum(['direct', 'pipe', 'redirect']).optional(),
+    process: z
+      .object({
+        actor: z
+          .string()
+          .regex(/^[a-z][a-z0-9_-]*$/)
+          .optional(),
+        uid: z.number().int().min(0).max(65534).optional(),
+        username: z
+          .string()
+          .regex(/^[a-z][a-z0-9_-]*$/)
+          .nullable()
+          .optional(),
+        environment: z
+          .array(
+            z.tuple([
+              z
+                .string()
+                .min(1)
+                .refine((v) => !v.includes('=') && !v.includes('\0')),
+              z.string().refine((v) => !v.includes('\0')),
+            ]),
+          )
+          .refine(
+            (entries) => new Set(entries.map(([key]) => key)).size === entries.length,
+            'Duplicate environment key',
+          )
+          .optional(),
+      })
+      .strict()
+      .optional(),
+    stdinHex: z
+      .string()
+      .regex(/^(?:[a-f0-9]{2})*$/)
+      .max(8 * 1024 * 1024)
+      .optional(),
     argv: z.array(z.string()),
     script: z.string().optional(),
+    roundtrip: z.boolean().default(false),
     inputEvents: z
       .array(
         z.discriminatedUnion('kind', [
@@ -285,15 +346,24 @@ export const caseSchema = z
     fixture: z
       .object({
         files: z.record(z.string(), z.string()).default({}),
+        bytes: z.record(z.string(), z.string().regex(/^(?:[a-f0-9]{2})*$/)).default({}),
         directories: z.array(z.string()).default([]),
-        modes: z.record(z.string(), z.number().int().min(0).max(511)).default({}),
+        modes: z.record(z.string(), z.number().int().min(0).max(4095)).default({}),
         setup: z.array(z.string()).default([]),
       })
       .strict(),
     expected: z
       .object({
         stdout: matcherSchema,
+        stdoutHex: z
+          .string()
+          .regex(/^(?:[a-f0-9]{2})*$/)
+          .optional(),
         stderr: matcherSchema,
+        stderrHex: z
+          .string()
+          .regex(/^(?:[a-f0-9]{2})*$/)
+          .optional(),
         exitCode: z.number().int(),
         state: z.array(assertionSchema).default([]),
       })

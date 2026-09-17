@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
-  "commandCount": 1794,
+  "commandCount": 1797,
   "summary": {
-    "commandNames": 1794,
-    "uniqueExecutables": 1523,
+    "commandNames": 1797,
+    "uniqueExecutables": 1526,
     "aliases": 1,
     "launcherNames": 270,
     "catalogLaunchers": 303,
     "guiLaunchers": 19,
     "softwareGroups": 279,
-    "realCompat": 1516,
+    "realCompat": 1519,
     "fictionalNative": 7,
     "catalogOnly": 1406,
-    "commands": { "VERIFIED": 0, "PARTIAL": 117, "UNVERIFIED": 1406 },
+    "commands": { "VERIFIED": 4, "PARTIAL": 116, "UNVERIFIED": 1406 },
     "software": { "VERIFIED": 0, "PARTIAL": 42, "UNVERIFIED": 237 },
-    "commandVerification": { "verified": 0, "total": 1516, "percent": 0 },
+    "commandVerification": { "verified": 4, "total": 1519, "percent": 0.2633311389071758 },
     "softwareVerification": { "verified": 0, "total": 243, "percent": 0 },
     "pinnedSoftware": 12,
     "unpinnedSoftware": 231,
-    "commandsTested": 9,
-    "gatesPassed": 3739,
-    "requiredGates": { "passed": 3190, "total": 35022 },
-    "pilotCases": { "PASS": 68, "FAIL": 0, "SKIPPED": 0 },
-    "flagCasesPassed": 8,
-    "errorCasesPassed": 12
+    "commandsTested": 20,
+    "gatesPassed": 3882,
+    "requiredGates": { "passed": 3333, "total": 35174 },
+    "pilotCases": { "PASS": 298, "FAIL": 0, "SKIPPED": 0 },
+    "flagCasesPassed": 95,
+    "errorCasesPassed": 94
   },
   "commands": [
     {
@@ -1424,7 +1424,7 @@
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
-      "effectiveStatus": "PARTIAL"
+      "effectiveStatus": "VERIFIED"
     },
     {
       "command": "bash",
@@ -2855,7 +2855,7 @@
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
-      "effectiveStatus": "PARTIAL"
+      "effectiveStatus": "VERIFIED"
     },
     {
       "command": "diskcryptor2john",
@@ -8942,6 +8942,14 @@
       "effectiveStatus": "UNVERIFIED"
     },
     {
+      "command": "ln",
+      "id": "command.coreutils.ln",
+      "softwareId": "coreutils",
+      "sources": ["native"],
+      "implementationKind": "NATIVE",
+      "effectiveStatus": "PARTIAL"
+    },
+    {
       "command": "locktest",
       "id": "command.samba.locktest",
       "softwareId": "samba",
@@ -11234,7 +11242,7 @@
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
-      "effectiveStatus": "PARTIAL"
+      "effectiveStatus": "VERIFIED"
     },
     {
       "command": "prlimit",
@@ -12093,6 +12101,14 @@
     {
       "command": "rm",
       "id": "command.coreutils.rm",
+      "softwareId": "coreutils",
+      "sources": ["native"],
+      "implementationKind": "NATIVE",
+      "effectiveStatus": "PARTIAL"
+    },
+    {
+      "command": "rmdir",
+      "id": "command.coreutils.rmdir",
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
@@ -14588,6 +14604,14 @@
       "effectiveStatus": "UNVERIFIED"
     },
     {
+      "command": "umask",
+      "id": "command.bash.umask",
+      "softwareId": "bash",
+      "sources": ["native"],
+      "implementationKind": "BUILTIN",
+      "effectiveStatus": "PARTIAL"
+    },
+    {
       "command": "umount",
       "id": "command.rfkill.umount",
       "softwareId": "rfkill",
@@ -15258,7 +15282,7 @@
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
-      "effectiveStatus": "PARTIAL"
+      "effectiveStatus": "VERIFIED"
     },
     {
       "command": "whois",

@@ -42,8 +42,30 @@ export function match(actual, matcher) {
 }
 export function compareCase(test, actual) {
   const errors = [];
+  for (const stream of ['stdout', 'stderr']) {
+    const key = stream + 'Hex';
+    if (test.expected[key] === undefined || actual[key] === test.expected[key]) continue;
+    const expected = Buffer.from(test.expected[key], 'hex');
+    const observed = Buffer.from(actual[key] ?? '', 'hex');
+    let offset = 0;
+    while (
+      offset < expected.length &&
+      offset < observed.length &&
+      expected[offset] === observed[offset]
+    )
+      offset++;
+    errors.push(
+      `${stream} bytes differ at offset ${offset}: expected ${expected.subarray(offset, offset + 16).toString('hex')}, actual ${observed.subarray(offset, offset + 16).toString('hex')}`,
+    );
+  }
   for (const stream of ['stdout', 'stderr'])
-    if (!match(actual[stream], test.expected[stream])) errors.push(`${stream} mismatch`);
+    if (
+      test.expected[stream + 'Hex'] === undefined &&
+      !match(actual[stream], test.expected[stream])
+    )
+      errors.push(
+        `${stream} mismatch: expected ${JSON.stringify(test.expected[stream]).slice(0, 300)}, actual ${JSON.stringify(actual[stream]).slice(0, 300)}`,
+      );
   if (actual.exitCode !== test.expected.exitCode)
     errors.push(`exitCode ${actual.exitCode}, expected ${test.expected.exitCode}`);
   for (const assertion of test.expected.state) {
@@ -52,7 +74,14 @@ export function compareCase(test, actual) {
       ? value === undefined
       : assertion.unchanged
         ? isDeepStrictEqual(value, pointer(actual.before, assertion.path))
-        : match(value, assertion.matcher);
+        : assertion.equalsPath
+          ? value !== undefined &&
+            isDeepStrictEqual(value, pointer(actual.after, assertion.equalsPath))
+          : assertion.differsPath
+            ? value !== undefined &&
+              pointer(actual.after, assertion.differsPath) !== undefined &&
+              !isDeepStrictEqual(value, pointer(actual.after, assertion.differsPath))
+            : match(value, assertion.matcher);
     if (!pass) errors.push(`state ${assertion.path} mismatch`);
   }
   return {

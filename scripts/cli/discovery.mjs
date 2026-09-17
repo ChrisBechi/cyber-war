@@ -10,10 +10,14 @@ import { read, json, files } from './io.mjs';
 
 export const id = (group, name) => `command.${group}.${encodeURIComponent(name)}`;
 const sort = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-function requirements(capabilities, shell = []) {
+function requirements(capabilities, shell = [], vfs = []) {
   const subsystems = capabilities.map((c) => capabilitySubsystem[c]);
   return [
-    ...new Set(subsystems.flatMap((id) => (id === 'SHELL' && shell.length ? shell : [id]))),
+    ...new Set(
+      subsystems.flatMap((id) =>
+        id === 'SHELL' && shell.length ? shell : id === 'VFS' && vfs.length ? vfs : [id],
+      ),
+    ),
   ].sort(sort);
 }
 export function defaults() {
@@ -91,7 +95,7 @@ export function discover(
     const row = {
       id: name,
       ...spec,
-      requirements: requirements(spec.capabilities, spec.shellRequirements),
+      requirements: requirements(spec.capabilities, spec.shellRequirements, spec.vfsRequirements),
       executables: [],
       aliases: [],
       launchers: [],
@@ -228,6 +232,7 @@ export function discover(
       requirements: requirements(
         selected.capabilities,
         selected.shellRequirements ?? family.shellRequirements,
+        selected.vfsRequirements ?? family.vfsRequirements,
       ),
       man: { command: name, referenceSources: family.referenceSources },
       usedByMissions: missions

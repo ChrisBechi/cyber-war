@@ -70,7 +70,9 @@
       "wave": "W1_CORE_LINUX",
       "dependencies": [],
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "intentionalDeviations": [],
+      "intentionalDeviations": [
+        "Virtual Unicode text/blob payloads and deterministic timestamps; no host filesystem, raw block devices, mounts, ACLs or privilege escalation."
+      ],
       "unsupportedFeatures": ["Complete native contract is not yet verified."],
       "shellRequirements": [
         "SHELL.PARSING",
@@ -80,6 +82,18 @@
         "SHELL.PIPELINES",
         "SHELL.REDIRECTION",
         "SHELL.CONTEXT"
+      ],
+      "vfsRequirements": [
+        "VFS.PATHS",
+        "VFS.REGULAR_FILES",
+        "VFS.DIRECTORIES",
+        "VFS.INODES",
+        "VFS.SYMLINKS",
+        "VFS.HARDLINKS",
+        "VFS.PERMISSIONS",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.METADATA",
+        "VFS.TIMESTAMPS"
       ]
     },
     "bzip2": {
@@ -800,20 +814,528 @@
     "base64": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/invalid",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/version",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/invalid",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/version",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/invalid",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/version",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/base64/decode",
+            "coreutils/base64/encode",
+            "coreutils/base64/garbage",
+            "coreutils/base64/unknown-option",
+            "coreutils/base64/wrap"
+          ]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/base64/invalid", "coreutils/base64/unknown-option"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/base64/version"]
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/base64/decode", "coreutils/base64/encode"]
+        }
+      }
     },
     "basename": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/empty-long-name"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero"
+          ]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/empty-long-name",
+            "coreutils/basename/quote-0",
+            "coreutils/basename/quote-1",
+            "coreutils/basename/quote-2",
+            "coreutils/basename/quote-3"
+          ]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/basename/version"]
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "PERMISSIONS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": [
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/plain-help"
+          ]
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/basename/redirect-zero"]
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/basename/pipe-zero"]
+        }
+      }
     },
     "bash": {
       "softwareId": "bash",
@@ -1120,7 +1642,7 @@
     "cat": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal_io.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "STRUCTURED",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
@@ -1128,35 +1650,52 @@
       "gates": {
         "STDIN": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["cat/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/cat/binary", "coreutils/cat/visible"]
         },
         "STDOUT": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["cat/stdin", "cat/file", "cat/pipe", "cat/redirect"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/cat/binary",
+            "coreutils/cat/mixed",
+            "coreutils/cat/stdin-twice",
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/version",
+            "coreutils/cat/visible"
+          ]
         },
         "STDERR": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["cat/stdin", "cat/file", "cat/missing", "cat/permissions", "cat/redirect"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/cat/binary",
+            "coreutils/cat/mixed",
+            "coreutils/cat/stdin-twice",
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/version",
+            "coreutils/cat/visible"
+          ]
         },
         "EXIT_CODE": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
           "testIds": [
-            "cat/stdin",
-            "cat/file",
-            "cat/missing",
-            "cat/permissions",
-            "cat/pipe",
-            "cat/redirect"
+            "coreutils/cat/binary",
+            "coreutils/cat/mixed",
+            "coreutils/cat/stdin-twice",
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/version",
+            "coreutils/cat/visible"
           ]
         },
         "ERRORS": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["cat/missing", "cat/permissions"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/cat/mixed", "coreutils/cat/unknown-option"]
         },
         "PERMISSIONS": {
           "applicability": "REQUIRED",
@@ -1177,6 +1716,48 @@
           "applicability": "REQUIRED",
           "reason": "Supported pilot contract needs this evidence.",
           "testIds": ["cat/redirect"]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/cat/stdin-twice"]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/cat/stdin-twice"]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/visible"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/visible"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/cat/transform",
+            "coreutils/cat/unknown-option",
+            "coreutils/cat/visible"
+          ]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/cat/version"]
         }
       }
     },
@@ -1314,11 +1895,285 @@
     "dirname": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/paths",
+            "coreutils/dirname/zero",
+            "coreutils/dirname/dash",
+            "coreutils/dirname/missing",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/lexical-matrix",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/post-operand-option",
+            "coreutils/dirname/posix-option",
+            "coreutils/dirname/posix-dash",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/stdin-ignored",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero",
+            "coreutils/dirname/large-operands",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/pipe-zero",
+            "coreutils/dirname/redirect-zero"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/zero",
+            "coreutils/dirname/version",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/long-zero",
+            "coreutils/dirname/combined-zero",
+            "coreutils/dirname/abbreviations",
+            "coreutils/dirname/help-before-invalid",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/dirname/combined-zero"]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/dirname/missing",
+            "coreutils/dirname/unknown-option",
+            "coreutils/dirname/plain-missing",
+            "coreutils/dirname/utf8-invalid-short",
+            "coreutils/dirname/invalid-short",
+            "coreutils/dirname/invalid-before-help",
+            "coreutils/dirname/value-not-allowed",
+            "coreutils/dirname/help-value",
+            "coreutils/dirname/empty-long-name"
+          ]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/dirname/version"]
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "PERMISSIONS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/dirname/redirect-zero"]
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/dirname/pipe-zero"]
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": [
+            "coreutils/dirname/help",
+            "coreutils/dirname/plain-help",
+            "coreutils/dirname/help-before-invalid"
+          ]
+        }
+      }
     },
     "dpkg": {
       "softwareId": "dpkg",
@@ -1368,11 +2223,84 @@
     "env": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/env/assign",
+            "coreutils/env/child",
+            "coreutils/env/empty",
+            "coreutils/env/unknown-option",
+            "coreutils/env/unset",
+            "coreutils/env/version"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/env/assign",
+            "coreutils/env/child",
+            "coreutils/env/empty",
+            "coreutils/env/unknown-option",
+            "coreutils/env/unset",
+            "coreutils/env/version"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/env/assign",
+            "coreutils/env/child",
+            "coreutils/env/empty",
+            "coreutils/env/unknown-option",
+            "coreutils/env/unset",
+            "coreutils/env/version"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/assign"]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/assign"]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/empty", "coreutils/env/unknown-option", "coreutils/env/unset"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/empty", "coreutils/env/unknown-option", "coreutils/env/unset"]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/empty", "coreutils/env/unknown-option", "coreutils/env/unset"]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/unknown-option", "coreutils/env/unset"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/env/version"]
+        }
+      }
     },
     "exit": {
       "softwareId": "bash",
@@ -1476,7 +2404,7 @@
     "head": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal_io.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "STRUCTURED",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
@@ -1484,28 +2412,97 @@
       "gates": {
         "STDIN": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["head/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/head/binary"]
         },
         "SHORT_FLAGS": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["head/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option"
+          ]
         },
         "STDOUT": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["head/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/invalid",
+            "coreutils/head/lines",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option",
+            "coreutils/head/version"
+          ]
         },
         "STDERR": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["head/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/invalid",
+            "coreutils/head/lines",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option",
+            "coreutils/head/version"
+          ]
         },
         "EXIT_CODE": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["head/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/invalid",
+            "coreutils/head/lines",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option",
+            "coreutils/head/version"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/head/lines"]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/head/lines"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/head/binary",
+            "coreutils/head/headers",
+            "coreutils/head/negative-or-start",
+            "coreutils/head/unknown-option"
+          ]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/head/invalid", "coreutils/head/unknown-option"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/head/version"]
         }
       }
     },
@@ -1770,11 +2767,338 @@
     "printenv": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/null",
+            "coreutils/printenv/export",
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/help",
+            "coreutils/printenv/default-environment",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-environment",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/values",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/minimal-environment",
+            "coreutils/printenv/duplicate-names",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/stdin-ignored",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null",
+            "coreutils/printenv/large-value",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/null",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/pipe-null",
+            "coreutils/printenv/redirect-null"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/version",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/help",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/ordered-null",
+            "coreutils/printenv/combined-null",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/abbreviations",
+            "coreutils/printenv/help-before-invalid",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/printenv/combined-null"]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/printenv/missing",
+            "coreutils/printenv/multi",
+            "coreutils/printenv/unknown-option",
+            "coreutils/printenv/stop-at-operand",
+            "coreutils/printenv/empty-and-absent",
+            "coreutils/printenv/equals-name",
+            "coreutils/printenv/posix-options",
+            "coreutils/printenv/invalid-short",
+            "coreutils/printenv/invalid-utf8",
+            "coreutils/printenv/unsupported-ignore",
+            "coreutils/printenv/unsupported-unset",
+            "coreutils/printenv/missing-unset",
+            "coreutils/printenv/ignore-invalid-cluster",
+            "coreutils/printenv/unexpected-value",
+            "coreutils/printenv/invalid-before-help",
+            "coreutils/printenv/empty-long-name"
+          ]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/printenv/version"]
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "PERMISSIONS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": [
+            "coreutils/printenv/help",
+            "coreutils/printenv/plain-help",
+            "coreutils/printenv/end-options",
+            "coreutils/printenv/operand-help",
+            "coreutils/printenv/help-before-invalid"
+          ]
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/printenv/redirect-null"]
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/printenv/pipe-null"]
+        }
+      }
     },
     "ps": {
       "softwareId": "procps",
@@ -1904,11 +3228,89 @@
     "sha256sum": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/sha256sum/binary",
+            "coreutils/sha256sum/failed-status",
+            "coreutils/sha256sum/stdin",
+            "coreutils/sha256sum/unknown-option",
+            "coreutils/sha256sum/verify",
+            "coreutils/sha256sum/version"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/sha256sum/binary",
+            "coreutils/sha256sum/failed-status",
+            "coreutils/sha256sum/stdin",
+            "coreutils/sha256sum/unknown-option",
+            "coreutils/sha256sum/verify",
+            "coreutils/sha256sum/version"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/sha256sum/binary",
+            "coreutils/sha256sum/failed-status",
+            "coreutils/sha256sum/stdin",
+            "coreutils/sha256sum/unknown-option",
+            "coreutils/sha256sum/verify",
+            "coreutils/sha256sum/version"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/stdin"]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/stdin"]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/failed-status", "coreutils/sha256sum/unknown-option"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/version"]
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/sha256sum/binary"]
+        }
+      }
     },
     "sort": {
       "softwareId": "coreutils",
@@ -1971,7 +3373,7 @@
     "stat": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/terminal_query.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
@@ -2016,7 +3418,7 @@
     "tail": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal_io.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "STRUCTURED",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
@@ -2024,28 +3426,97 @@
       "gates": {
         "STDIN": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["tail/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tail/binary"]
         },
         "SHORT_FLAGS": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["tail/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option"
+          ]
         },
         "STDOUT": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["tail/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/invalid",
+            "coreutils/tail/lines",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option",
+            "coreutils/tail/version"
+          ]
         },
         "STDERR": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["tail/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/invalid",
+            "coreutils/tail/lines",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option",
+            "coreutils/tail/version"
+          ]
         },
         "EXIT_CODE": {
           "applicability": "REQUIRED",
-          "reason": "Supported pilot contract needs this evidence.",
-          "testIds": ["tail/stdin"]
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/invalid",
+            "coreutils/tail/lines",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option",
+            "coreutils/tail/version"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tail/lines"]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tail/lines"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tail/binary",
+            "coreutils/tail/headers",
+            "coreutils/tail/negative-or-start",
+            "coreutils/tail/unknown-option"
+          ]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tail/invalid", "coreutils/tail/unknown-option"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tail/version"]
         }
       }
     },
@@ -2061,11 +3532,73 @@
     "tee": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tee/append",
+            "coreutils/tee/binary-pipeline",
+            "coreutils/tee/unknown-option",
+            "coreutils/tee/version"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tee/append",
+            "coreutils/tee/binary-pipeline",
+            "coreutils/tee/unknown-option",
+            "coreutils/tee/version"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/tee/append",
+            "coreutils/tee/binary-pipeline",
+            "coreutils/tee/unknown-option",
+            "coreutils/tee/version"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/append", "coreutils/tee/unknown-option"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/append", "coreutils/tee/unknown-option"]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/append", "coreutils/tee/unknown-option"]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/unknown-option"]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/version"]
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/tee/binary-pipeline"]
+        }
+      }
     },
     "top": {
       "softwareId": "procps",
@@ -2182,7 +3715,44 @@
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "STRUCTURED",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/c-chars"]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/c-chars"]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/c-chars"]
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars"]
+        }
+      }
     },
     "wget": {
       "softwareId": "wget",
@@ -2214,11 +3784,316 @@
     "whoami": {
       "softwareId": "coreutils",
       "implementationKind": "NATIVE",
-      "implementation": "src-tauri/src/terminal.rs",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/user",
+            "coreutils/whoami/root",
+            "coreutils/whoami/extra",
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/effective-name",
+            "coreutils/whoami/different-uid",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/spoofed-environment",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/stdin-ignored",
+            "coreutils/whoami/pipe",
+            "coreutils/whoami/redirect",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help"
+          ]
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/version",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/abbreviated-help",
+            "coreutils/whoami/combined-options",
+            "coreutils/whoami/empty-long-name"
+          ]
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/combined-options"
+          ]
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": [
+            "coreutils/whoami/extra",
+            "coreutils/whoami/unknown-option",
+            "coreutils/whoami/lookup-failure",
+            "coreutils/whoami/empty-operand",
+            "coreutils/whoami/dash-operand",
+            "coreutils/whoami/extra-quoted",
+            "coreutils/whoami/invalid-short",
+            "coreutils/whoami/invalid-utf8",
+            "coreutils/whoami/invalid-before-help",
+            "coreutils/whoami/posix-extra-before-help",
+            "coreutils/whoami/help-argument",
+            "coreutils/whoami/empty-long-name",
+            "coreutils/whoami/quote-0",
+            "coreutils/whoami/quote-1",
+            "coreutils/whoami/quote-2",
+            "coreutils/whoami/quote-3"
+          ]
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/whoami/version", "coreutils/whoami/combined-options"]
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "PERMISSIONS": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Pure lexical or environment-query command; no input/file mutation, signals or TTY contract.",
+          "testIds": []
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/whoami/redirect"]
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": [
+            "coreutils/whoami/help",
+            "coreutils/whoami/plain-help",
+            "coreutils/whoami/help-before-invalid",
+            "coreutils/whoami/extra-before-help",
+            "coreutils/whoami/combined-options"
+          ]
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "GNU and project cases exercise this observable contract.",
+          "testIds": ["coreutils/whoami/pipe"]
+        }
+      }
     },
     "whois": {
       "softwareId": "whois",
@@ -2245,7 +4120,24 @@
       "parserKind": "PROGRAM_SPECIFIC",
       "resultContract": "LEGACY_STRING",
       "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
-      "aliasOf": null
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/yes/bounded"]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/yes/bounded"]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/yes/bounded"]
+        }
+      }
     },
     "zcat": {
       "softwareId": "gzip",
@@ -2272,6 +4164,50 @@
       "parserKind": "SHELL",
       "resultContract": "STRUCTURED",
       "capabilities": ["STDIN", "STDOUT", "STDERR", "VFS_READ", "TTY"],
+      "aliasOf": null
+    },
+    "ln": {
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"]
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"]
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"]
+        }
+      }
+    },
+    "umask": {
+      "softwareId": "bash",
+      "implementationKind": "BUILTIN",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "SHELL",
+      "resultContract": "STRUCTURED",
+      "capabilities": ["STDIN", "STDOUT", "STDERR", "VFS_READ", "TTY"],
+      "aliasOf": null
+    },
+    "rmdir": {
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
       "aliasOf": null
     }
   },

@@ -16,7 +16,7 @@ use crate::{
 use std::collections::BTreeSet;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-pub const SHELL_ONLY: &[&str] = &[".", "return", "unset"];
+pub const SHELL_ONLY: &[&str] = &[".", "return", "unset", "umask"];
 pub const HELP: &str = "Cyber War virtual shell — Bash 5.2 subset\nbash|sh SCRIPT [ARGS...] or -c COMMANDS [NAME [ARGS...]]; source|. FILE [ARGS...]\nQuotes, escapes, parameters, assignments/export/unset, IFS splitting, ~, VFS globbing and $(commands).\nLists: ; newline && ||. Pipes and < > >> 2> 2>> 2>&1 1>&2, applied left to right.\nChild shells/pipelines isolate shell context; source shares it. Background jobs remain archive-only.\nLimits: 64 KiB source, 8 nesting levels, 16 pipeline stages, 4 MiB captured output.\nNo loops/functions, eval, exec, here-documents, arithmetic, backticks, advanced parameter operators or arbitrary descriptors. No host execution.\n";
 static NEXT_PID: AtomicU32 = AtomicU32::new(10000);
 pub fn next_pid() -> u32 {
@@ -30,24 +30,29 @@ pub enum Flow {
 #[derive(Clone, Debug)]
 pub struct Runtime {
     pub pid: u32,
+    pub umask: u16,
     pub last_background: Option<u32>,
     pub name: String,
     pub args: Vec<String>,
     pub source_depth: usize,
     pub flow: Option<Flow>,
     pub unset: BTreeSet<String>,
+    /// Order of the virtual process environment, independent of key lookup.
+    pub environment_order: Vec<String>,
     pub continuation: String,
 }
 impl Default for Runtime {
     fn default() -> Self {
         Self {
             pid: next_pid(),
+            umask: 0o022,
             last_background: None,
             name: "bash".into(),
             args: Vec::new(),
             source_depth: 0,
             flow: None,
             unset: BTreeSet::new(),
+            environment_order: Vec::new(),
             continuation: String::new(),
         }
     }
@@ -62,7 +67,7 @@ pub fn identifier(value: &str) -> bool {
 pub fn is_builtin(name: &str) -> bool {
     [
         ".", "source", "return", "exit", "cd", "pwd", "echo", "export", "unset", "true", "false",
-        "type", "command",
+        "type", "command", "umask",
     ]
     .contains(&name)
 }
@@ -82,16 +87,7 @@ pub fn path_file(world: &WorldState, name: &str, actor: &str) -> Option<String> 
         };
         let fs = world.fs().ok()?;
         if let Ok(node) = fs.stat(&path, actor) {
-            let mask = if actor == "root" {
-                0o111
-            } else if node.owner == actor {
-                0o100
-            } else if node.group == actor {
-                0o010
-            } else {
-                0o001
-            };
-            if node.kind == "file" && node.mode & mask != 0 {
+            if node.kind == "file" && fs.allowed(node, actor, 1) {
                 return Some(path);
             }
         }

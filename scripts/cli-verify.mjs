@@ -6,10 +6,22 @@ import { regression } from './cli/verification.mjs';
 import { json, write, root } from './cli/io.mjs';
 import { overridesSchema, debtSchema } from './cli/schema.mjs';
 import { format } from 'prettier';
+import { scope } from './cli/scope.mjs';
+const selected = scope();
 const report = pipeline();
 const errors = [...report.verification.errors];
+for (const c of report.commands.filter(selected.includes))
+  if (c.gates.GNU_REFERENCE?.result === 'FAIL')
+    errors.push(`${c.id}/GNU_REFERENCE: ${c.gates.GNU_REFERENCE.resultReason}`);
 for (const test of report.verification.caseResults)
-  if (test.result !== 'PASS')
+  if (
+    test.result !== 'PASS' &&
+    report.commands.some(
+      (c) =>
+        c.command === report.verification.caseCoverage.find((x) => x.id === test.id)?.command &&
+        selected.includes(c),
+    )
+  )
     errors.push(`Pilot ${test.id}: ${test.result}; run cli:compat with current sources`);
 if (report.verification.hostIsolation.result !== 'PASS')
   errors.push(
@@ -22,6 +34,7 @@ if (process.argv.includes('--strict'))
   for (const c of report.commands)
     if (
       c.classification === 'REAL_COMPAT' &&
+      selected.includes(c) &&
       c.requirement === 'REQUIRED' &&
       c.implementationKind !== 'LAUNCHER' &&
       c.effectiveStatus !== 'VERIFIED'
