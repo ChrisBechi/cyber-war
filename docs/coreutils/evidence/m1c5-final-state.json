@@ -1341,5 +1341,11 @@
     "knownGaps": ["Signal ignoring/output-error modes unsupported", "buffers stdin to EOF"],
     "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
     "implemented": false
+  },
+  "publication": {
+    "status": "PUBLISHED",
+    "branch": "main",
+    "gameCommit": "8dcdc8e",
+    "milestoneCommit": "7a37649"
   }
 }

@@ -1,6 +1,6 @@
 # M1C.5 — Base64 GNU 9.7 certificado
 
-**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PENDING`.**
+**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PUBLISHED`.**
 
 | Medida                              | Antes                                          | Depois                                                |
 | ----------------------------------- | ---------------------------------------------- | ----------------------------------------------------- |
@@ -192,4 +192,7 @@ sobre uma cópia; o banco original foi preservado. A homologação em outra máq
 continua registrada separadamente, conforme a escolha do usuário.
 
 Logs, target, node_modules e capturas exploratórias locais permanecem fora do
-commit. A publicação será registrada depois do push normal.
+commit. O remoto aceitou o push normal para `main`: `8dcdc8e` registra a
+internet virtual e os saves; `7a37649` registra a certificação Base64 M1C.5.
+A atualização de publicação altera somente documentação e não exige repetir
+as suítes já aprovadas.
