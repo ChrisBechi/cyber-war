@@ -1,6 +1,6 @@
 # M1C.7 — wc GNU 9.7 certificado
 
-**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PENDING`.**
+**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PUBLISHED`.**
 
 | Medida                         | Antes                                                   | Depois                         |
 | ------------------------------ | ------------------------------------------------------- | ------------------------------ |
@@ -96,4 +96,4 @@ externos. Nenhum comando seguinte foi implementado.
 - KNOWN GAPS: Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete.
 - DEPENDENCIES: SHELL.CONTEXT, SHELL.EXPANSION, SHELL.GLOBBING, SHELL.LISTS, SHELL.PARSING, SHELL.PIPELINES, SHELL.REDIRECTION, VFS.DIRECTORIES, VFS.HARDLINKS, VFS.INODES, VFS.METADATA, VFS.PATHS, VFS.PERMISSIONS, VFS.REGULAR_FILES, VFS.SPECIAL_PERMISSIONS, VFS.SYMLINKS, VFS.TIMESTAMPS.
 
-Publicação pendente do commit e push normal.
+Publicado na main: commit `0ef5bd0` (feat(coreutils): certify wc against GNU 9.7).
