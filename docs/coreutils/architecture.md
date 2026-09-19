@@ -49,3 +49,26 @@ Cada processo recebe seu próprio `ProcessSignalState`. SIGINT, SIGTERM e SIGPIP
 Registros de input, sinais, processos ativos e handles são transitórios. A persistência continua salvando o estado VFS e os efeitos já confirmados, sem serializar uma execução interativa pendente. O serviço mantém sua política anterior de exclusão durante comandos, sem introduzir snapshots de processos em voo.
 
 A captura GNU de cat usa schema 3: descritores, interação versionada, observações intermediárias e término explícito. O harness usa um PTY canônico real em DEV, com eco desligado para separar os bytes do programa. Barreiras de stdout e de leitura substituem espera por tempo fixo. Mais detalhes e limites em [MILESTONE-1C.2.md](MILESTONE-1C.2.md).
+
+## Base64 incremental (M1C.5)
+
+`coreutils/base64.rs` separa o estado de transformação dos buffers de IO. O
+encoder guarda até dois bytes residuais e a coluna de wrapping. O decoder
+preserva quartetos entre chunks, valida padding/bits residuais e conserva o
+prefixo válido quando encontra erro. Payloads permanecem bytes, inclusive NUL
+e UTF-8 inválido.
+
+O mesmo scheduler, handles VFS, pipes limitados e sinais de cat/head/tail
+executam o comando. `shell/stdio.rs` fornece os adaptadores limitados de blocos
+de entrada e stdout. Os probes da baseline fixada observaram blocos de 30.720
+bytes no encode e 4.096 no decode, mais o buffering musl de stdout. Uma
+interrupção descarta apenas os bytes ainda não publicados; EOF e erro de decode
+publicam o prefixo já válido. O estado algorítmico é constante, e os buffers
+não crescem com o tamanho total da entrada.
+
+A descoberta e a comparação constam no [relatório M1C.5](../milestones/m1c5-report.md).
+O [código GNU v9.7](https://github.com/coreutils/coreutils/blob/v9.7/src/basenc.c)
+orientou probes de blocos e wrapping; as execuções do binário fixado definiram
+as expectativas. O corpus inclui interrupções antes/depois de blocos, todos
+os bytes 0–255, erros tardios e redirecionamento parcial. Fingerprints incluem
+o handler, seu dispatcher compartilhado e as dependências de shell/VFS.

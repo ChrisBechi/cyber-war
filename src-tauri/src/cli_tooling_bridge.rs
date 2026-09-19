@@ -183,6 +183,7 @@ fn run_interaction(
 ) -> terminal::CommandResult {
     use crate::{cli_contract::Event, shell::control};
     assert_eq!(interaction.schema_version, 1);
+    let raw = registration.observe_bytes();
     std::thread::scope(|scope| {
         let worker = scope.spawn(|| control::run(registration, work));
         let mut stdout = Vec::new();
@@ -210,7 +211,11 @@ fn run_interaction(
                             {
                                 Event::Stdout(text) => {
                                     control::acknowledge(key, text.len());
-                                    stdout.extend_from_slice(text.as_bytes());
+                                    let (fd, bytes) = raw
+                                        .recv_timeout(std::time::Duration::from_secs(5))
+                                        .expect("raw TTY stdout");
+                                    assert_eq!(fd, 1);
+                                    stdout.extend(bytes);
                                 }
                                 Event::WaitingForInput => waiting = true,
                                 _ => {}
@@ -221,7 +226,7 @@ fn run_interaction(
                             .push(json!({"stdoutHex":stdout_hex,"running":!worker.is_finished()}));
                     }
                     InteractionStep::Signal { signal } => {
-                        while !waiting {
+                        while !waiting || !control::stdin_drained_and_waiting(key) {
                             match events
                                 .recv_timeout(std::time::Duration::from_secs(5))
                                 .expect("TTY blocked-read barrier")
@@ -229,7 +234,11 @@ fn run_interaction(
                                 Event::WaitingForInput => waiting = true,
                                 Event::Stdout(text) => {
                                     control::acknowledge(key, text.len());
-                                    stdout.extend_from_slice(text.as_bytes());
+                                    let (fd, bytes) = raw
+                                        .recv_timeout(std::time::Duration::from_secs(5))
+                                        .expect("raw TTY stdout");
+                                    assert_eq!(fd, 1);
+                                    stdout.extend(bytes);
                                 }
                                 _ => {}
                             }

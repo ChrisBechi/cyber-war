@@ -13,6 +13,7 @@ pub(super) struct Options {
     pub flags: Vec<char>,
     pub selection: Option<super::head::Selection>,
     pub tail: super::tail::Options,
+    pub wrap: Option<u64>,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -120,6 +121,7 @@ pub(super) fn parse(
             ("verbose", 'v'),
             ("zero-terminated", 'z'),
         ]),
+        "base64" => long.extend([("decode", 'd'), ("ignore-garbage", 'i'), ("wrap", 'w')]),
         "cat" => long.extend([
             ("number-nonblank", 'b'),
             ("number", 'n'),
@@ -188,7 +190,8 @@ pub(super) fn parse(
             };
             let takes_value = (name == "basename" && *ch == 's')
                 || (matches!(name, "head" | "tail") && matches!(*ch, 'n' | 'c'))
-                || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'));
+                || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'))
+                || (name == "base64" && *ch == 'w');
             let optional_value = name == "tail" && *ch == 'f';
             if !takes_value && !optional_value && attached.is_some() {
                 return Err(Box::new(error(
@@ -198,7 +201,7 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if matches!(name, "cat" | "head" | "tail")
+            if matches!(name, "cat" | "head" | "tail" | "base64")
                 && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
@@ -216,7 +219,7 @@ pub(super) fn parse(
                             invocation,
                             &format!(
                                 "option '--{}' requires an argument",
-                                if matches!(name, "head" | "tail") {
+                                if matches!(name, "head" | "tail" | "base64") {
                                     found.unwrap().0
                                 } else {
                                     prefix
@@ -238,6 +241,7 @@ pub(super) fn parse(
                     "basename" => "asz",
                     "dirname" => "z",
                     "printenv" => "0iu",
+                    "base64" => "diw",
                     "cat" => "AbEnestTuv",
                     "head" => "cnqvz0123456789",
                     "tail" => "cnqvzfFs0123456789",
@@ -275,6 +279,7 @@ pub(super) fn parse(
                     || (name == "printenv" && ch == 'u')
                     || (matches!(name, "head" | "tail") && matches!(ch, 'n' | 'c'))
                     || (name == "tail" && ch == 's')
+                    || (name == "base64" && ch == 'w')
                 {
                     let rest = &arg[1 + offset + ch.len_utf8()..];
                     let value = if rest.is_empty() {
@@ -293,7 +298,7 @@ pub(super) fn parse(
                     parsed.push((ch, Some(value)));
                     break;
                 }
-                if ch == 'i' {
+                if name == "printenv" && ch == 'i' {
                     return Err(Box::new(Output {
                         stderr: format!("Try '{invocation} --help' for more information.\n"),
                         status: 2,
@@ -304,6 +309,14 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "base64" {
+                if let Some(value) = value {
+                    out.wrap = Some(super::base64::wrap(&value)?);
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
             if name == "tail" {
                 if matches!(ch, 'n' | 'c') {
                     let value = value.as_deref().unwrap();

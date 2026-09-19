@@ -8,7 +8,6 @@ use crate::{
     vfs::domain,
     world::WorldState,
 };
-use base64::{engine::general_purpose::STANDARD, Engine};
 use sha2::{Digest, Sha256};
 
 pub(super) fn execute(
@@ -20,7 +19,6 @@ pub(super) fn execute(
     let syntax = match name {
         "tail" => "[-qv] [-n COUNT | -c COUNT] [FILE]... (decimal counts; no follow mode)",
         "tee" => "[-a] [FILE]...",
-        "base64" => "[-di] [-w COLS] [FILE]",
         _ => "[-bt] [FILE]... | [-c] [--status | --quiet] [CHECKSUM_FILE]...",
     };
     if let Some(out) = early(name, args, syntax) {
@@ -41,13 +39,6 @@ pub(super) fn execute(
             ],
         )?,
         "tee" => parse(name, args, "a", "", &[("append", 'a')])?,
-        "base64" => parse(
-            name,
-            args,
-            "di",
-            "w",
-            &[("decode", 'd'), ("ignore-garbage", 'i'), ("wrap", 'w')],
-        )?,
         _ => parse(
             name,
             args,
@@ -74,12 +65,6 @@ pub(super) fn execute(
         }
         return Ok(out);
     }
-    if name == "base64" && opts.files.len() > 1 {
-        return Err(operand_error(
-            name,
-            &format!("extra operand '{}'", opts.files[1]),
-        ));
-    }
     if opts.files.is_empty() {
         opts.files.push("-".into());
     }
@@ -89,18 +74,6 @@ pub(super) fn execute(
         Some(selection(name, &opts)?)
     } else {
         None
-    };
-    let wrap = if name == "base64" {
-        opts.counts
-            .last()
-            .map(|(_, s)| {
-                s.parse::<usize>()
-                    .map_err(|_| operand_error(name, &format!("invalid wrap size: '{s}'")))
-            })
-            .transpose()?
-            .unwrap_or(76)
-    } else {
-        0
     };
     for file in &opts.files {
         if crate::shell::control::cancelled() {
@@ -133,35 +106,6 @@ pub(super) fn execute(
                     header_seen = true;
                 }
                 slice(&data, selection.as_ref().unwrap())
-            }
-            "base64" if opts.has('d') => {
-                let encoded: Vec<u8> = data
-                    .into_iter()
-                    .filter(|b| {
-                        *b != b'\n'
-                            && (!opts.has('i') || b.is_ascii_alphanumeric() || b"+/=".contains(b))
-                    })
-                    .collect();
-                match STANDARD.decode(&encoded) {
-                    Ok(bytes) => bytes,
-                    Err(_) => {
-                        io::send(&mut out, 2, b"base64: invalid input\n".to_vec())?;
-                        out.status = 1;
-                        Vec::new()
-                    }
-                }
-            }
-            "base64" => {
-                let encoded = STANDARD.encode(data);
-                if wrap == 0 {
-                    encoded.into_bytes()
-                } else {
-                    encoded
-                        .as_bytes()
-                        .chunks(wrap)
-                        .flat_map(|c| c.iter().copied().chain(*b"\n"))
-                        .collect()
-                }
             }
             "sha256sum" if opts.has('c') => {
                 check(world, &data, actor, &opts, &mut out)?;

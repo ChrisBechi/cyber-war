@@ -8,6 +8,8 @@ dist/
 coverage/
 .vite/
 *.log
+__pycache__/
+*.pyc
 .DS_Store
 Thumbs.db
 src-tauri/target/

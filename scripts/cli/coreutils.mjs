@@ -112,7 +112,7 @@ export function coreutilsGate(command, name, byCase, results, actuals = new Map(
   const path = `tests/cli/gnu/coreutils/${command.referenceVersion}/capture.json`;
   if (
     command.coreutils.area === 'foundation' ||
-    ['cat', 'head', 'tail'].includes(command.command)
+    ['cat', 'head', 'tail', 'base64'].includes(command.command)
   ) {
     const capture = referenceCapture(command),
       invalid = validateReference(command, capture);
@@ -235,7 +235,7 @@ export function coreutilsReport(report) {
         after: c.effectiveStatus,
         projectCases: coverage.filter((t) => t.result === 'PASS').length,
         referenceCases:
-          spec.area === 'foundation' || ['cat', 'head', 'tail'].includes(c.command)
+          spec.area === 'foundation' || ['cat', 'head', 'tail', 'base64'].includes(c.command)
             ? (referenceCapture(c)?.cases.length ?? 0)
             : reference
               ? c.evidenceIds.length

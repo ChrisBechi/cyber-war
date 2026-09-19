@@ -171,7 +171,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | axcrypt2john                  | src-tauri/src/software.rs::command    |
 | axel                          | src-tauri/src/software.rs::command    |
 | b1ee                          | src-tauri/src/software.rs::command    |
-| base64                        | src-tauri/src/coreutils/bytes.rs      |
 | base64conv                    | src-tauri/src/software.rs::command    |
 | basename                      | src-tauri/src/coreutils/foundation.rs |
 | bbc                           | src-tauri/src/software.rs::command    |

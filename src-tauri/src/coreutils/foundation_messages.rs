@@ -1,6 +1,8 @@
 //! Observable GNU 9.7 C-locale help/version catalog. See messages/NOTICE.md.
 pub(super) fn message(name: &str, invocation: &str, kind: &str) -> String {
     let template = match (name, kind) {
+        ("base64", "help") => include_str!("messages/base64-help.txt"),
+        ("base64", "version") => include_str!("messages/base64-version.txt"),
         ("tail", "help") => include_str!("messages/tail-help.txt"),
         ("tail", "version") => include_str!("messages/tail-version.txt"),
         ("head", "help") => include_str!("messages/head-help.txt"),

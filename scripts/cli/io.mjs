@@ -8,6 +8,7 @@ export const read = (p) => readFileSync(resolve(root, p), 'utf8');
 export const json = (p) => JSON.parse(read(p));
 export function files(dir) {
   return readdirSync(resolve(root, dir), { withFileTypes: true })
+    .filter((e) => e.name !== '__pycache__' && !e.name.endsWith('.pyc'))
     .flatMap((e) => (e.isDirectory() ? files(`${dir}/${e.name}`) : [`${dir}/${e.name}`]))
     .sort();
 }
@@ -55,14 +56,17 @@ export const evidenceSources = () => [
   'scripts/cli-verify.mjs',
   'scripts/cli-head-generate.mjs',
   'scripts/cli-tail-generate.mjs',
+  'scripts/cli-base64-generate.mjs',
   'scripts/cli-coreutils-wave.mjs',
   'vite.config.ts',
 ];
 export function cargo(args, extra = {}) {
   const env = { ...process.env, ...extra };
-  let executable = 'cargo';
+  // An explicit toolchain also opts out of the bundled MinGW environment.
+  // This lets Windows CI/developers use their installed MSVC Rust toolchain.
+  let executable = env.CYBERWAR_CARGO || 'cargo';
   const local = resolve(root, '.tools/cargo/bin/cargo.exe');
-  if (process.platform === 'win32' && existsSync(local)) {
+  if (process.platform === 'win32' && !env.CYBERWAR_CARGO && existsSync(local)) {
     executable = local;
     const key = Object.keys(env).find((k) => k.toLowerCase() === 'path') ?? 'PATH';
     env[key] =

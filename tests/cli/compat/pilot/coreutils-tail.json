@@ -26194,7 +26194,8 @@
           "hex": "620a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 2
         },
         {
           "kind": "mutate",
@@ -26203,7 +26204,8 @@
           "hex": "630a640a650a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 8
         },
         {
           "kind": "mutate",
@@ -26212,7 +26214,8 @@
           "hex": "660a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 10
         },
         {
           "kind": "signal",
@@ -26339,7 +26342,8 @@
           "hex": "62"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 1
         },
         {
           "kind": "mutate",
@@ -26348,7 +26352,8 @@
           "hex": "0a630a640a650a660a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 10
         },
         {
           "kind": "mutate",
@@ -26357,7 +26362,8 @@
           "hex": "670a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 12
         },
         {
           "kind": "signal",
@@ -26484,7 +26490,8 @@
           "hex": "6364"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 4
         },
         {
           "kind": "mutate",
@@ -26493,7 +26500,8 @@
           "hex": "65666768696a"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 10
         },
         {
           "kind": "mutate",
@@ -26502,7 +26510,8 @@
           "hex": "6b6c"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 12
         },
         {
           "kind": "signal",
@@ -26629,7 +26638,8 @@
           "hex": "0062"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 4
         },
         {
           "kind": "mutate",
@@ -26638,7 +26648,8 @@
           "hex": "006300640065"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 10
         },
         {
           "kind": "mutate",
@@ -26647,7 +26658,8 @@
           "hex": "0066"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 12
         },
         {
           "kind": "signal",
@@ -26774,7 +26786,8 @@
           "hex": "6200"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 2
         },
         {
           "kind": "mutate",
@@ -26783,7 +26796,8 @@
           "hex": "630064006500"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 8
         },
         {
           "kind": "mutate",
@@ -26792,7 +26806,8 @@
           "hex": "6600"
         },
         {
-          "kind": "wait"
+          "kind": "await",
+          "stdoutBytes": 10
         },
         {
           "kind": "signal",

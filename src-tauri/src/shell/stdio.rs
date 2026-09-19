@@ -1,5 +1,34 @@
 //! Bounded stdout buffering for the pinned musl reference ABI. Byte endpoints
 //! remain unbuffered; a program may opt into this FILE-style adapter.
+pub struct InputBlocks {
+    bytes: Vec<u8>,
+    capacity: usize,
+}
+impl InputBlocks {
+    pub fn new(capacity: usize) -> Self {
+        assert!(capacity > 0);
+        Self {
+            bytes: Vec::new(),
+            capacity,
+        }
+    }
+    pub fn push(&mut self, mut input: &[u8]) -> Vec<Vec<u8>> {
+        let mut blocks = Vec::new();
+        while !input.is_empty() {
+            let length = input.len().min(self.capacity - self.bytes.len());
+            self.bytes.extend_from_slice(&input[..length]);
+            input = &input[length..];
+            if self.bytes.len() == self.capacity {
+                blocks.push(self.take());
+            }
+        }
+        blocks
+    }
+    pub fn take(&mut self) -> Vec<u8> {
+        std::mem::take(&mut self.bytes)
+    }
+}
+
 #[derive(Default)]
 pub struct OutputBuffer {
     bytes: Vec<u8>,

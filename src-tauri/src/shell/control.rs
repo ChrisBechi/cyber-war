@@ -377,6 +377,14 @@ pub fn process_ids(key: &str) -> Vec<u32> {
 }
 
 #[cfg(test)]
+pub fn stdin_drained_and_waiting(key: &str) -> bool {
+    CONTROLS
+        .lock()
+        .get(key)
+        .is_some_and(|c| !c.input.lock().has_ready_input() && c.waiting.load(Ordering::Relaxed))
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     #[test]

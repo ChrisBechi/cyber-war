@@ -176,7 +176,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | axcrypt2john                  | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | axel                          | axel                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | b1ee                          | bluez                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| base64                        | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| base64                        | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/base64.rs     |
 | base64conv                    | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | basename                      | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/foundation.rs |
 | bash                          | bash                     | NATIVE       | 5.2.37     | PARTIAL    | src-tauri/src/shell.rs                |

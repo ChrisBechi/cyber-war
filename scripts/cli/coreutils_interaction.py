@@ -1,5 +1,7 @@
 """DEV-only controlled descriptors/PTY/signals inside the reference namespace."""
 import json
+import array
+import fcntl
 import os
 from pathlib import Path
 import select
@@ -17,6 +19,7 @@ def execute(req, binary, env):
     stdout = subprocess.PIPE
     stderr = subprocess.PIPE
     master = None
+    monitor = None
     if interaction:
         master, slave = os.openpty()
         attrs = termios.tcgetattr(slave)
@@ -25,6 +28,7 @@ def execute(req, binary, env):
         attrs[0] |= termios.ICRNL
         termios.tcsetattr(slave, termios.TCSANOW, attrs)
         stdin = slave
+        monitor = os.dup(slave)
         opened.append(slave)
     if io.get('stdinPath'):
         stdin = os.open(io['stdinPath'], os.O_RDONLY)
@@ -77,10 +81,20 @@ def execute(req, binary, env):
                             raise RuntimeError('Process exited before signal barrier')
                         channel = Path(f'/proc/{child.pid}/wchan').read_text()
                         syscall = Path(f'/proc/{child.pid}/syscall').read_text().split()
-                        if 'read' in channel or (channel == 'wait_woken' and len(syscall) > 1 and syscall[0] == '0' and int(syscall[1], 16) == 0):
+                        # Locked x86_64: read=0, readv=19. musl fread uses readv;
+                        # WSL may expose wchan=0 even while /proc/syscall shows
+                        # the blocked stdin read. Do not replace this with a sleep.
+                        queued = array.array('i', [0])
+                        fcntl.ioctl(monitor, termios.FIONREAD, queued, True)
+                        while child.stdout and select.select([child.stdout], [], [], 0)[0]:
+                            part = os.read(child.stdout.fileno(), 65536)
+                            if not part:
+                                break
+                            collected.extend(part)
+                        if queued[0] == 0 and ('read' in channel or (len(syscall) > 1 and syscall[0] in {'0', '19'} and int(syscall[1], 16) == 0)):
                             break
                         if time.monotonic() > deadline:
-                            raise RuntimeError(f'Process did not reach read barrier: {channel}')
+                            raise RuntimeError(f'Process did not reach read barrier: wchan={channel}, syscall={syscall}')
                         select.select([], [], [], 0.001)
                     os.kill(child.pid, getattr(signal, step['signal']))
                 else:
@@ -103,3 +117,5 @@ def execute(req, binary, env):
         child.wait()
         if master is not None:
             os.close(master)
+        if monitor is not None:
+            os.close(monitor)

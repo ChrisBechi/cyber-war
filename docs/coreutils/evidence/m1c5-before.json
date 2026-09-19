@@ -1,0 +1,681 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-19T16:19:25.601Z",
+  "fingerprint": "69c45fae1334914ea055b7958a4752a1069180176cb3758ab5e293e1724d4a05",
+  "summary": {
+    "commandNames": 1797,
+    "uniqueExecutables": 1526,
+    "aliases": 1,
+    "launcherNames": 270,
+    "catalogLaunchers": 303,
+    "guiLaunchers": 19,
+    "softwareGroups": 279,
+    "realCompat": 1519,
+    "fictionalNative": 7,
+    "catalogOnly": 1406,
+    "commands": {
+      "VERIFIED": 0,
+      "PARTIAL": 120,
+      "UNVERIFIED": 1406
+    },
+    "software": {
+      "VERIFIED": 0,
+      "PARTIAL": 42,
+      "UNVERIFIED": 237
+    },
+    "commandVerification": {
+      "verified": 0,
+      "total": 1519,
+      "percent": 0
+    },
+    "softwareVerification": {
+      "verified": 0,
+      "total": 243,
+      "percent": 0
+    },
+    "pinnedSoftware": 12,
+    "unpinnedSoftware": 231,
+    "commandsTested": 0,
+    "gatesPassed": 1904,
+    "requiredGates": {
+      "passed": 1630,
+      "total": 35174
+    },
+    "pilotCases": {
+      "PASS": 0,
+      "FAIL": 0,
+      "SKIPPED": 881
+    },
+    "flagCasesPassed": 0,
+    "errorCasesPassed": 0
+  },
+  "base64": {
+    "id": "command.coreutils.base64",
+    "command": "base64",
+    "softwareId": "coreutils",
+    "implementationKind": "NATIVE",
+    "implementation": "src-tauri/src/coreutils/bytes.rs",
+    "parserKind": "PROGRAM_SPECIFIC",
+    "resultContract": "LEGACY_STRING",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "aliasOf": null,
+    "gates": {
+      "ALIAS_RESOLUTION": {
+        "applicability": "NOT_APPLICABLE",
+        "reason": "Only applies to declared aliases.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Only applies to declared aliases."
+      },
+      "COMBINED_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "COMMAND_CONTRACTS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version, integration, bytes; flags without explicit evidence: -d, -i, -w, --decode, --ignore-garbage, --wrap"
+      },
+      "CROSS_TOOL_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "DISCOVERY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Runtime registry and validated manifest agree"
+      },
+      "ERRORS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/base64/invalid", "coreutils/base64/unknown-option"],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/invalid: SKIPPED; coreutils/base64/unknown-option: SKIPPED"
+      },
+      "EXIT_CODE": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/invalid",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/version",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/invalid: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/version: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "GNU_REFERENCE": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+      },
+      "HELP": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "HOST_ISOLATION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "FAIL",
+        "resultReason": "Host boundary guard failed"
+      },
+      "KNOWN_GAPS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Decode partial-output behavior and invalid-input diagnostics need full GNU audit"
+      },
+      "LONG_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "PARSER": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "PERMISSIONS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "PIPE": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "POSITIONAL_ARGS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "REDIRECTION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "REFERENCE_PINNED": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Version and reference metadata pinned"
+      },
+      "SHORT_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "SIDE_EFFECTS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "SIGNALS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STATE_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STDERR": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/invalid",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/version",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/invalid: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/version: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "STDIN": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/base64/decode", "coreutils/base64/encode"],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED"
+      },
+      "STDOUT": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/base64/decode",
+          "coreutils/base64/encode",
+          "coreutils/base64/garbage",
+          "coreutils/base64/invalid",
+          "coreutils/base64/unknown-option",
+          "coreutils/base64/version",
+          "coreutils/base64/wrap"
+        ],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/decode: SKIPPED; coreutils/base64/encode: SKIPPED; coreutils/base64/garbage: SKIPPED; coreutils/base64/invalid: SKIPPED; coreutils/base64/unknown-option: SKIPPED; coreutils/base64/version: SKIPPED; coreutils/base64/wrap: SKIPPED"
+      },
+      "TTY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "VERSION": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/base64/version"],
+        "result": "SKIPPED",
+        "resultReason": "coreutils/base64/version: SKIPPED"
+      }
+    },
+    "requirement": "REQUIRED",
+    "source": "native",
+    "sources": ["native"],
+    "classification": "REAL_COMPAT",
+    "referenceVersion": "9.7",
+    "executablePath": "/usr/bin/base64",
+    "packageBindings": [
+      {
+        "packageName": "coreutils",
+        "version": "9.7",
+        "path": "/usr/bin/base64",
+        "binding": "builtin"
+      }
+    ],
+    "packageName": "coreutils",
+    "availability": "BASE_SYSTEM",
+    "requirements": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "man": {
+      "command": "base64",
+      "referenceSources": [
+        {
+          "kind": "OFFICIAL_DOCS",
+          "url": "https://www.gnu.org/software/coreutils/",
+          "notes": "Inherited project baseline; no reference execution attestation."
+        }
+      ]
+    },
+    "usedByMissions": [],
+    "coreutils": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-d", "-i", "-w", "--decode", "--ignore-garbage", "--wrap"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Binary encoding/decoding and configurable wrapping",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/base64/encode",
+            "coreutils/base64/decode",
+            "coreutils/base64/wrap",
+            "coreutils/base64/garbage",
+            "coreutils/base64/unknown-option"
+          ]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/base64/invalid", "coreutils/base64/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/base64/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/base64/encode", "coreutils/base64/decode"]
+        }
+      ],
+      "knownGaps": [
+        "Decode partial-output behavior and invalid-input diagnostics need full GNU audit"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "blockedBy": [
+      "SUBSYSTEM:SHELL.CONTEXT:PARTIAL",
+      "SUBSYSTEM:SHELL.EXPANSION:PARTIAL",
+      "SUBSYSTEM:SHELL.GLOBBING:PARTIAL",
+      "SUBSYSTEM:SHELL.LISTS:PARTIAL",
+      "SUBSYSTEM:SHELL.PARSING:PARTIAL",
+      "SUBSYSTEM:SHELL.PIPELINES:PARTIAL",
+      "SUBSYSTEM:SHELL.REDIRECTION:PARTIAL",
+      "SUBSYSTEM:VFS.DIRECTORIES:PARTIAL",
+      "SUBSYSTEM:VFS.HARDLINKS:PARTIAL",
+      "SUBSYSTEM:VFS.INODES:PARTIAL",
+      "SUBSYSTEM:VFS.METADATA:PARTIAL",
+      "SUBSYSTEM:VFS.PATHS:PARTIAL",
+      "SUBSYSTEM:VFS.PERMISSIONS:PARTIAL",
+      "SUBSYSTEM:VFS.REGULAR_FILES:PARTIAL",
+      "SUBSYSTEM:VFS.SPECIAL_PERMISSIONS:PARTIAL",
+      "SUBSYSTEM:VFS.SYMLINKS:PARTIAL",
+      "SUBSYSTEM:VFS.TIMESTAMPS:PARTIAL"
+    ],
+    "missingGates": [
+      "COMBINED_FLAGS",
+      "COMMAND_CONTRACTS",
+      "CROSS_TOOL_CONSISTENCY",
+      "ERRORS",
+      "EXIT_CODE",
+      "GNU_REFERENCE",
+      "HELP",
+      "HOST_ISOLATION",
+      "KNOWN_GAPS",
+      "LONG_FLAGS",
+      "PARSER",
+      "PERMISSIONS",
+      "PIPE",
+      "POSITIONAL_ARGS",
+      "REDIRECTION",
+      "SHORT_FLAGS",
+      "SIDE_EFFECTS",
+      "SIGNALS",
+      "STATE_CONSISTENCY",
+      "STDERR",
+      "STDIN",
+      "STDOUT",
+      "TTY",
+      "VERSION"
+    ],
+    "effectiveStatus": "PARTIAL",
+    "status": "PARTIAL",
+    "evidenceIds": []
+  },
+  "coreutils": {
+    "totals": {
+      "VERIFIED": 0,
+      "PARTIAL": 37,
+      "UNVERIFIED": 0
+    },
+    "next": {
+      "command": "basename",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-a", "-s", "-z", "--multiple", "--suffix", "--zero", "--help", "--version"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Pure lexical paths, optional suffix and multiple operands",
+          "evidence": [
+            "coreutils/basename/suffix",
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/suffix-equal",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/dash",
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/slash-suffix",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/stdin-ignored",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/quote-controls",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands"
+          ],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/basename/root-empty",
+            "coreutils/basename/lexical",
+            "coreutils/basename/multiple-zero",
+            "coreutils/basename/long-suffix",
+            "coreutils/basename/version",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/path-matrix",
+            "coreutils/basename/long-multiple-zero",
+            "coreutils/basename/suffix-matrix",
+            "coreutils/basename/empty-suffix",
+            "coreutils/basename/abbreviated",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/suffix-value-long-option",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/utf8-operands",
+            "coreutils/basename/suffix-utf8",
+            "coreutils/basename/large-operands"
+          ],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [
+            "coreutils/basename/missing",
+            "coreutils/basename/extra",
+            "coreutils/basename/unknown-option",
+            "coreutils/basename/permutation",
+            "coreutils/basename/posix-permutation",
+            "coreutils/basename/invalid-before-help",
+            "coreutils/basename/missing-suffix",
+            "coreutils/basename/missing-long-suffix",
+            "coreutils/basename/invalid-short",
+            "coreutils/basename/unexpected-long-value",
+            "coreutils/basename/help-argument",
+            "coreutils/basename/extra-quoted",
+            "coreutils/basename/plain-error",
+            "coreutils/basename/utf8-invalid-short",
+            "coreutils/basename/quote-controls"
+          ],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Exact GNU C-locale help/version bytes, invocation name and option precedence",
+          "evidence": [
+            "coreutils/basename/version",
+            "coreutils/basename/option-value-help",
+            "coreutils/basename/help",
+            "coreutils/basename/posix-help-operand",
+            "coreutils/basename/help-value-cluster",
+            "coreutils/basename/help-before-invalid",
+            "coreutils/basename/dash-help",
+            "coreutils/basename/plain-help"
+          ],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [
+            "coreutils/basename/pipe-zero",
+            "coreutils/basename/redirect-zero",
+            "coreutils/basename/plain-help",
+            "coreutils/basename/plain-error"
+          ],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 1,
+      "area": "foundation",
+      "complexity": 1,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 48,
+      "referenceState": "FAIL",
+      "matchedReferenceCases": 0,
+      "requiredGates": 19,
+      "passedGates": 3,
+      "blockers": [
+        "SUBSYSTEM:SHELL.CONTEXT:PARTIAL",
+        "SUBSYSTEM:SHELL.EXPANSION:PARTIAL",
+        "SUBSYSTEM:SHELL.GLOBBING:PARTIAL",
+        "SUBSYSTEM:SHELL.LISTS:PARTIAL",
+        "SUBSYSTEM:SHELL.PARSING:PARTIAL",
+        "SUBSYSTEM:SHELL.PIPELINES:PARTIAL",
+        "SUBSYSTEM:SHELL.REDIRECTION:PARTIAL",
+        "SUBSYSTEM:VFS.DIRECTORIES:PARTIAL",
+        "SUBSYSTEM:VFS.HARDLINKS:PARTIAL",
+        "SUBSYSTEM:VFS.INODES:PARTIAL",
+        "SUBSYSTEM:VFS.METADATA:PARTIAL",
+        "SUBSYSTEM:VFS.PATHS:PARTIAL",
+        "SUBSYSTEM:VFS.PERMISSIONS:PARTIAL",
+        "SUBSYSTEM:VFS.REGULAR_FILES:PARTIAL",
+        "SUBSYSTEM:VFS.SPECIAL_PERMISSIONS:PARTIAL",
+        "SUBSYSTEM:VFS.SYMLINKS:PARTIAL",
+        "SUBSYSTEM:VFS.TIMESTAMPS:PARTIAL",
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:HOST_ISOLATION",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:STDERR",
+        "GATE:STDOUT",
+        "GATE:VERSION"
+      ],
+      "action": "NEEDS_SUBSYSTEM"
+    },
+    "previous": [
+      {
+        "command": "basename"
+      },
+      {
+        "command": "dirname"
+      },
+      {
+        "command": "printenv"
+      },
+      {
+        "command": "whoami"
+      },
+      {
+        "command": "cat"
+      },
+      {
+        "command": "head"
+      },
+      {
+        "command": "tail"
+      }
+    ]
+  },
+  "publishedBaseline": {
+    "source": "docs/coreutils/evidence/m1c4-final-state.json",
+    "fingerprint": "faa2b719ecde2a4585a4df05eced82f50e65dd39ae4916fb6fc00dce49f39096",
+    "stopReason": "VALIDATION_BLOCKED"
+  }
+}

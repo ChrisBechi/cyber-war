@@ -12,18 +12,18 @@
     "realCompat": 1519,
     "fictionalNative": 7,
     "catalogOnly": 1406,
-    "commands": { "VERIFIED": 7, "PARTIAL": 113, "UNVERIFIED": 1406 },
+    "commands": { "VERIFIED": 8, "PARTIAL": 112, "UNVERIFIED": 1406 },
     "software": { "VERIFIED": 0, "PARTIAL": 42, "UNVERIFIED": 237 },
-    "commandVerification": { "verified": 7, "total": 1519, "percent": 0.4608294930875576 },
+    "commandVerification": { "verified": 8, "total": 1519, "percent": 0.5266622778143516 },
     "softwareVerification": { "verified": 0, "total": 243, "percent": 0 },
     "pinnedSoftware": 12,
     "unpinnedSoftware": 231,
     "commandsTested": 20,
-    "gatesPassed": 3914,
-    "requiredGates": { "passed": 3365, "total": 35174 },
-    "pilotCases": { "PASS": 881, "FAIL": 0, "SKIPPED": 0 },
-    "flagCasesPassed": 530,
-    "errorCasesPassed": 331
+    "gatesPassed": 3928,
+    "requiredGates": { "passed": 3379, "total": 35174 },
+    "pilotCases": { "PASS": 1178, "FAIL": 0, "SKIPPED": 0 },
+    "flagCasesPassed": 742,
+    "errorCasesPassed": 460
   },
   "commands": [
     {
@@ -1408,7 +1408,7 @@
       "softwareId": "coreutils",
       "sources": ["native"],
       "implementationKind": "NATIVE",
-      "effectiveStatus": "PARTIAL"
+      "effectiveStatus": "VERIFIED"
     },
     {
       "command": "base64conv",

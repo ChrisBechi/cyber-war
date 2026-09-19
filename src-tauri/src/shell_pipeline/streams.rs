@@ -133,6 +133,7 @@ impl Input {
 enum Engine {
     Yes(Vec<u8>),
     Cat(Box<crate::coreutils::cat::Cat>),
+    Base64(Box<crate::coreutils::base64::Base64>),
     Head(Box<crate::coreutils::head::Head>),
     Tail(Box<crate::coreutils::tail::Tail>),
     Legacy { text: Vec<u8>, read: bool },
@@ -168,7 +169,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    matches!(name, "cat" | "head" | "tail")
+    matches!(name, "cat" | "head" | "tail" | "base64")
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -324,12 +325,18 @@ fn prepare(
     let mut pending = VecDeque::new();
     let mut status = 0;
     if available
-        && matches!(name.rsplit('/').next(), Some("cat" | "head" | "tail"))
+        && matches!(
+            name.rsplit('/').next(),
+            Some("cat" | "head" | "tail" | "base64")
+        )
         && error.is_none()
     {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        let parsed = if name.rsplit('/').next() == Some("head") {
+        let parsed = if name.rsplit('/').next() == Some("base64") {
+            crate::coreutils::base64::Base64::new(name, &stage.arguments[1..], posix)
+                .map(|b| Engine::Base64(Box::new(b)))
+        } else if name.rsplit('/').next() == Some("head") {
             crate::coreutils::head::Head::new(name, &stage.arguments[1..], posix)
                 .map(|h| Engine::Head(Box::new(h)))
         } else if name.rsplit('/').next() == Some("tail") {
@@ -402,6 +409,96 @@ fn step(
                     1,
                     line.repeat((CHUNK / line.len()).max(1)),
                 );
+            }
+        }
+        Engine::Base64(base64) => {
+            if !base64.opened {
+                base64.opened = true;
+                if base64.file != "-" {
+                    process.input.close(pipes);
+                    let result = normalize(&base64.file, &process.session.cwd).and_then(|path| {
+                        let fs = world.fs()?;
+                        let node = fs.stat(&path, &process.session.user)?;
+                        if node.kind == "directory" && !fs.allowed(node, &process.session.user, 4) {
+                            return Err(crate::vfs::domain("Permission denied"));
+                        }
+                        world.fs_mut()?.open(
+                            &path,
+                            crate::vfs::OpenFlags {
+                                read: true,
+                                ..Default::default()
+                            },
+                            0,
+                            &process.session.user,
+                        )
+                    });
+                    match result {
+                        Ok(handle) => base64.handle = Some(handle),
+                        Err(error)
+                            if crate::terminal_io::error_reason(&error) == "Is a directory" =>
+                        {
+                            base64.directory = true
+                        }
+                        Err(error) => {
+                            chunks(
+                                &mut process.pending,
+                                2,
+                                crate::coreutils::base64::diagnostic(&base64.file, error, true),
+                            );
+                            process.status = 1;
+                            process.engine = Engine::Finished;
+                            return Ok(true);
+                        }
+                    }
+                }
+            }
+            let read = if base64.directory {
+                Err(crate::vfs::domain("Is a directory"))
+            } else if let Some(handle) = base64.handle {
+                let blobs = world.blobs.clone();
+                world
+                    .fs_mut()?
+                    .read_handle_bytes(handle, CHUNK, &blobs)
+                    .map(|data| {
+                        if data.is_empty() {
+                            Read::Eof
+                        } else {
+                            Read::Data(data)
+                        }
+                    })
+            } else {
+                process.input.read(world, pipes)
+            };
+            let ended = match read {
+                Ok(Read::Pending | Read::Interrupted) => return Ok(false),
+                Ok(Read::Data(data)) => {
+                    chunks(&mut process.pending, 1, base64.push(&data));
+                    base64.transform.invalid()
+                }
+                Ok(Read::Eof) => {
+                    chunks(&mut process.pending, 1, base64.finish());
+                    true
+                }
+                Err(error) => {
+                    chunks(
+                        &mut process.pending,
+                        2,
+                        crate::coreutils::base64::diagnostic(&base64.file, error, false),
+                    );
+                    process.status = 1;
+                    true
+                }
+            };
+            if ended {
+                if base64.transform.invalid() {
+                    chunks(&mut process.pending, 2, b"base64: invalid input\n".to_vec());
+                    process.status = 1;
+                }
+                if let Some(handle) = base64.handle.take() {
+                    world.fs_mut()?.close(handle)?;
+                }
+                process.input.close(pipes);
+                process.engine = Engine::Finished;
             }
         }
         Engine::Cat(cat) => {
@@ -752,6 +849,7 @@ fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> 
     let handle = match engine {
         Engine::Cat(c) => c.handle.take(),
         Engine::Head(h) => h.handle.take(),
+        Engine::Base64(b) => b.handle.take(),
         _ => None,
     };
     if let Some(handle) = handle {

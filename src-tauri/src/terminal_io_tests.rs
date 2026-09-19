@@ -369,7 +369,9 @@ fn audited_manuals_describe_the_implemented_subset() {
     assert_eq!(tail.exit_code, 0);
     assert_eq!(
         tail.stdout,
-        include_str!("coreutils/messages/tail-help.txt").replace("{invocation}", "tail")
+        include_str!("coreutils/messages/tail-help.txt")
+            .replace("\r\n", "\n")
+            .replace("{invocation}", "tail")
     );
     let manual = execute(&mut w, "man tail");
     assert_eq!(manual.exit_code, 0);

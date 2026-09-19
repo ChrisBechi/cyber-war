@@ -4,11 +4,11 @@
   "version": "9.7",
   "command": "tail",
   "locale": "C",
-  "capturedAt": "2026-09-18T21:57:19.174794+00:00",
-  "harnessHash": "ca175ef7b8d9f3e413bf232764f87453d53c422340d9b9684d1cc614f9136ad7",
+  "capturedAt": "2026-09-19T18:21:45.883732+00:00",
+  "harnessHash": "420c3167aadbf4408737e10ea259a2af9aba350d02a7e8825424c1b27eebf254",
   "environment": {
     "id": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
-    "lockHash": "150d6fed2fc1d003d68f414867874ceabf9292adee081c0b2592c6f1cef92e47",
+    "lockHash": "1df92f6b029ee957251661bd23d98b810d3edffa2f1245b1eb009a5baf77e507",
     "os": "Linux",
     "osRelease": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.22.0\nPRETTY_NAME=\"Alpine Linux v3.22\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\n",
     "architecture": "x86_64",
@@ -18784,7 +18784,8 @@
               "hex": "620a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 2
             },
             {
               "kind": "mutate",
@@ -18793,7 +18794,8 @@
               "hex": "630a640a650a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 8
             },
             {
               "kind": "mutate",
@@ -18802,7 +18804,8 @@
               "hex": "660a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 10
             },
             {
               "kind": "signal",
@@ -18811,7 +18814,7 @@
           ]
         }
       },
-      "requestDigest": "88eef8c3a054010a2cfeaa63fdd847ea7104d46db6c108fead8bfdd3aa9fd0ba",
+      "requestDigest": "4f751dc1329746202b3d54d913a3b778223753db9bf079745dd2526fbb40649d",
       "stdoutHex": "620a630a640a650a660a",
       "stderrHex": "",
       "exitCode": 143,
@@ -18911,7 +18914,8 @@
               "hex": "62"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 1
             },
             {
               "kind": "mutate",
@@ -18920,7 +18924,8 @@
               "hex": "0a630a640a650a660a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 10
             },
             {
               "kind": "mutate",
@@ -18929,7 +18934,8 @@
               "hex": "670a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 12
             },
             {
               "kind": "signal",
@@ -18938,7 +18944,7 @@
           ]
         }
       },
-      "requestDigest": "7db91467e19daec1fab6b67a7d056a8a2f44e96bc69b591ecd80be9a8bc1f4bf",
+      "requestDigest": "d6e12b37bb19ec0eb67c687a1b91209187df563ea4e058107d7145bd229035f5",
       "stdoutHex": "620a630a640a650a660a670a",
       "stderrHex": "",
       "exitCode": 143,
@@ -19038,7 +19044,8 @@
               "hex": "6364"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 4
             },
             {
               "kind": "mutate",
@@ -19047,7 +19054,8 @@
               "hex": "65666768696a"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 10
             },
             {
               "kind": "mutate",
@@ -19056,7 +19064,8 @@
               "hex": "6b6c"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 12
             },
             {
               "kind": "signal",
@@ -19065,7 +19074,7 @@
           ]
         }
       },
-      "requestDigest": "2c19d5a849dd1399340410953e2b8a8f48fdf12a89f00eecfac939a12d25e532",
+      "requestDigest": "201850fa7df1416b2c36de7343eff85e2019868320f7d748988475960eea1635",
       "stdoutHex": "6162636465666768696a6b6c",
       "stderrHex": "7461696c3a206c6f673a2066696c65207472756e63617465640a",
       "exitCode": 143,
@@ -19165,7 +19174,8 @@
               "hex": "0062"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 4
             },
             {
               "kind": "mutate",
@@ -19174,7 +19184,8 @@
               "hex": "006300640065"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 10
             },
             {
               "kind": "mutate",
@@ -19183,7 +19194,8 @@
               "hex": "0066"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 12
             },
             {
               "kind": "signal",
@@ -19192,7 +19204,7 @@
           ]
         }
       },
-      "requestDigest": "bc8c10a815b28a8b2ac1fdf841a1ee2dce6a9f5a2c47a05d2a93a411351c859f",
+      "requestDigest": "f73102441b491f9ed6580672bb9781d4b7ced2216e07cbff6f401e5b5cc6fc69",
       "stdoutHex": "006100620063006400650066",
       "stderrHex": "7461696c3a206c6f673a2066696c65207472756e63617465640a",
       "exitCode": 143,
@@ -19292,7 +19304,8 @@
               "hex": "6200"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 2
             },
             {
               "kind": "mutate",
@@ -19301,7 +19314,8 @@
               "hex": "630064006500"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 8
             },
             {
               "kind": "mutate",
@@ -19310,7 +19324,8 @@
               "hex": "6600"
             },
             {
-              "kind": "wait"
+              "kind": "await",
+              "stdoutBytes": 10
             },
             {
               "kind": "signal",
@@ -19319,7 +19334,7 @@
           ]
         }
       },
-      "requestDigest": "4571167d361a0ecc1b0a1c873dddfde1c6be84faf4d13cd3607fcdcb0142c5e0",
+      "requestDigest": "1f51ea952fe5c6940f3325c5d9df3fff0b37141520d765eab1156d948958e47f",
       "stdoutHex": "62006300640065006600",
       "stderrHex": "",
       "exitCode": 143,
@@ -20202,6 +20217,6 @@
       "reproducible": true
     }
   ],
-  "interactionHash": "9a463dc5a3adbd30d2d3bc53d67c06676b5ccd58e12199b3e207e62009a6df40",
+  "interactionHash": "911da0e8058a046a71ef39b1108792ca8a2fa1196d39597716b8457db813e566",
   "followHash": "cc519e03d94c4aabcefb7b618f4cb1d8313f82f5c71dccd058da4a0b1021d606"
 }

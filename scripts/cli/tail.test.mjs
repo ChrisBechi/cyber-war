@@ -44,6 +44,21 @@ test('tail requests carry versioned follow operations and no invented expectatio
   assert.deepEqual(referenceRequest(pid).interaction.writers, ['writer']);
 });
 
+test('directed follow barriers include the initial GNU output prefix', () => {
+  const cases = json('tests/cli/compat/pilot/coreutils-tail.json');
+  for (const request of tailDirectedRequests().filter((c) => c.id.includes('/directed-start-'))) {
+    const declared = cases.find((c) => c.id === request.id);
+    assert.equal(requestDigest(request), requestDigest(declared));
+    const observed = declared.expected.observations;
+    const barriers = request.interaction.steps.filter((s) => ['wait', 'await'].includes(s.kind));
+    assert.equal(barriers.length, observed.length);
+    for (const [index, barrier] of barriers.entries()) {
+      if (barrier.kind === 'await')
+        assert.equal(barrier.stdoutBytes, observed[index].stdoutHex.length / 2, request.id);
+    }
+  }
+});
+
 test('follow protocol rejects incomplete mutations and ambiguous barriers', () => {
   const schema = caseSchema.shape.interaction;
   const valid = {

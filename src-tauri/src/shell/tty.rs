@@ -17,6 +17,10 @@ pub struct VirtualTty {
 }
 
 impl VirtualTty {
+    #[cfg(test)]
+    pub fn has_ready_input(&self) -> bool {
+        !self.ready.is_empty()
+    }
     pub fn input(&mut self, bytes: &[u8]) -> bool {
         if self.bytes + bytes.len() > CAPACITY {
             return false;

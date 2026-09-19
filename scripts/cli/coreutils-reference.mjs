@@ -36,7 +36,7 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (['cat', 'head', 'tail'].includes(c.command)) {
+  if (['cat', 'head', 'tail', 'base64'].includes(c.command)) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -54,7 +54,11 @@ export function validateReference(command, capture) {
   const lock = json('content/cli-compatibility/coreutils-environment.json');
   if (
     capture.schemaVersion !==
-      (command.command === 'tail' ? 4 : ['cat', 'head'].includes(command.command) ? 3 : 2) ||
+      (command.command === 'tail'
+        ? 4
+        : ['cat', 'head', 'base64'].includes(command.command)
+          ? 3
+          : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
     capture.version !== command.referenceVersion ||
     capture.command !== command.command ||
@@ -69,7 +73,7 @@ export function validateReference(command, capture) {
   )
     return 'Reference harness/environment fingerprint stale';
   if (
-    ['cat', 'head', 'tail'].includes(command.command) &&
+    ['cat', 'head', 'tail', 'base64'].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
@@ -133,7 +137,7 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (['cat', 'head', 'tail'].includes(test.command)) {
+  if (['cat', 'head', 'tail', 'base64'].includes(test.command)) {
     const io = test.io ?? {};
     const endpoints = {
       stdin:

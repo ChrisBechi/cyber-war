@@ -16,17 +16,31 @@ export function tailDirectedRequests() {
     ['bytes', ['-c+8'], 'ab', ['cd', 'efghij', 'kl']],
     ['binary', ['-c+8'], '\0a', ['\0b', '\0c\0d\0e', '\0f']],
     ['nul', ['-zn+5'], 'a\0', ['b\0', 'c\0d\0e\0', 'f\0']],
-  ])
+  ]) {
+    // GNU's +byte follow probes first emit the short initial file after the
+    // seek/truncation diagnostic. Include that already-observed prefix.
+    let observedBytes = args[0].startsWith('-c') ? Buffer.byteLength(initial) : 0;
     cases.push(
       request('tail', 'directed-start-' + id, [...args, '-f', 'log'], {
         stdin: null,
         fixture: { bytes: { '/home/kali/log': hex(initial) } },
         interaction: {
           schemaVersion: 2,
-          steps: [wait, ...parts.flatMap((data) => [append(data), wait]), signal],
+          // The published GNU capture emits every appended byte in these
+          // cases. Wait for that output: a kernel wait alone may still be the
+          // old inotify read, before the append has been consumed.
+          steps: [
+            wait,
+            ...parts.flatMap((data) => {
+              observedBytes += Buffer.byteLength(data);
+              return [append(data), { kind: 'await', stdoutBytes: observedBytes }];
+            }),
+            signal,
+          ],
         },
       }),
     );
+  }
   const tty = { isTTY: true, columns: 80, rows: 24, ansiSupport: true, interactive: true };
   cases.push(
     request('tail', 'directed-tty-repeated-eof', ['-n1', '-f'], {

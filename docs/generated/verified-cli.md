@@ -2,6 +2,7 @@
 
 | Command  | Software  | Missing gates | Blocked by |
 | -------- | --------- | ------------- | ---------- |
+| base64   | coreutils |               |            |
 | basename | coreutils |               |            |
 | cat      | coreutils |               |            |
 | dirname  | coreutils |               |            |
