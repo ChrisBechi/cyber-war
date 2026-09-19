@@ -14,6 +14,7 @@ pub(super) struct Options {
     pub selection: Option<super::head::Selection>,
     pub tail: super::tail::Options,
     pub wrap: Option<u64>,
+    pub tee_mode: super::tee::ErrorMode,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -121,6 +122,11 @@ pub(super) fn parse(
             ("verbose", 'v'),
             ("zero-terminated", 'z'),
         ]),
+        "tee" => long.extend([
+            ("append", 'a'),
+            ("ignore-interrupts", 'i'),
+            ("output-error", 'p'),
+        ]),
         "base64" => long.extend([("decode", 'd'), ("ignore-garbage", 'i'), ("wrap", 'w')]),
         "cat" => long.extend([
             ("number-nonblank", 'b'),
@@ -192,7 +198,7 @@ pub(super) fn parse(
                 || (matches!(name, "head" | "tail") && matches!(*ch, 'n' | 'c'))
                 || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'))
                 || (name == "base64" && *ch == 'w');
-            let optional_value = name == "tail" && *ch == 'f';
+            let optional_value = (name == "tail" && *ch == 'f') || (name == "tee" && *ch == 'p');
             if !takes_value && !optional_value && attached.is_some() {
                 return Err(Box::new(error(
                     name,
@@ -201,7 +207,7 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if matches!(name, "cat" | "head" | "tail" | "base64")
+            if matches!(name, "cat" | "head" | "tail" | "base64" | "tee")
                 && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
@@ -242,6 +248,7 @@ pub(super) fn parse(
                     "dirname" => "z",
                     "printenv" => "0iu",
                     "base64" => "diw",
+                    "tee" => "aip",
                     "cat" => "AbEnestTuv",
                     "head" => "cnqvz0123456789",
                     "tail" => "cnqvzfFs0123456789",
@@ -309,6 +316,14 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "tee" {
+                if ch == 'p' {
+                    out.tee_mode = super::tee::ErrorMode::parse(value.as_deref(), invocation)?;
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
             if name == "base64" {
                 if let Some(value) = value {
                     out.wrap = Some(super::base64::wrap(&value)?);

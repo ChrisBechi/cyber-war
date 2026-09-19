@@ -175,7 +175,7 @@ pub(super) fn run(
                         waiting = false;
                         continue;
                     }
-                    InteractionStep::Signal { signal } => {
+                    InteractionStep::Signal { signal, .. } => {
                         while !waiting {
                             receive(&mut stdout, &mut stderr, &mut waiting);
                         }

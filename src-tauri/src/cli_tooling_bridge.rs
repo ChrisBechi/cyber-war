@@ -121,6 +121,8 @@ enum InteractionStep {
     Eof,
     Signal {
         signal: crate::shell::signals::VirtualSignal,
+        #[serde(rename = "waitFor")]
+        wait_for: Option<String>,
     },
 }
 #[derive(Deserialize)]
@@ -225,7 +227,22 @@ fn run_interaction(
                         observations
                             .push(json!({"stdoutHex":stdout_hex,"running":!worker.is_finished()}));
                     }
-                    InteractionStep::Signal { signal } => {
+                    InteractionStep::Signal { signal, wait_for } => {
+                        if wait_for.as_deref() == Some("output") {
+                            let deadline =
+                                std::time::Instant::now() + std::time::Duration::from_secs(5);
+                            while !control::output_blocked(key) {
+                                assert!(
+                                    !worker.is_finished() && std::time::Instant::now() < deadline,
+                                    "output barrier {key}"
+                                );
+                                std::thread::sleep(std::time::Duration::from_millis(1));
+                            }
+                            let pids = control::process_ids(key);
+                            assert_eq!(pids.len(), 1);
+                            assert!(control::signal(key, Some(pids[0]), *signal));
+                            continue;
+                        }
                         while !waiting || !control::stdin_drained_and_waiting(key) {
                             match events
                                 .recv_timeout(std::time::Duration::from_secs(5))

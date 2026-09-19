@@ -1622,7 +1622,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | tdbdump                       | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | tdbrestore                    | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | tdbtool                       | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| tee                           | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| tee                           | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/tee.rs        |
 | telegram2john                 | john                     | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | teredo-mire                   | miredo                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | terminal                      | qterminal                | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

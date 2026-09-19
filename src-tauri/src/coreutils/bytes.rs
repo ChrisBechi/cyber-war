@@ -18,7 +18,6 @@ pub(super) fn execute(
 ) -> GameResult<Output> {
     let syntax = match name {
         "tail" => "[-qv] [-n COUNT | -c COUNT] [FILE]... (decimal counts; no follow mode)",
-        "tee" => "[-a] [FILE]...",
         _ => "[-bt] [FILE]... | [-c] [--status | --quiet] [CHECKSUM_FILE]...",
     };
     if let Some(out) = early(name, args, syntax) {
@@ -38,7 +37,6 @@ pub(super) fn execute(
                 ("bytes", 'c'),
             ],
         )?,
-        "tee" => parse(name, args, "a", "", &[("append", 'a')])?,
         _ => parse(
             name,
             args,
@@ -54,17 +52,6 @@ pub(super) fn execute(
         )?,
     };
     let mut input = Some(io::stdin(world));
-    if name == "tee" {
-        let data = input.take().unwrap_or_default();
-        let mut out = Output::default();
-        io::send(&mut out, 1, data.clone())?;
-        for file in &opts.files {
-            if let Err(error) = io::write(world, file, &data, actor, opts.has('a')) {
-                diagnostic(&mut out, name, file, error)?;
-            }
-        }
-        return Ok(out);
-    }
     if opts.files.is_empty() {
         opts.files.push("-".into());
     }

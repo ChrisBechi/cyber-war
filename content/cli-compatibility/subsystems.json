@@ -156,7 +156,7 @@
           ],
           "evidenceIds": ["shell::foundation_tests"],
           "limitations": [
-            "Incremental yes and stdin cat/head; other handlers use bounded 4 MiB adapters and cannot consume indefinite producers incrementally.",
+            "Incremental yes, cat, head, tail, base64 and tee share bounded streams; legacy handlers still use 4 MiB adapters and cannot consume indefinite producers incrementally.",
             "Pipes carry UTF-8 text; arbitrary binary streams remain unsupported."
           ]
         },

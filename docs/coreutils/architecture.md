@@ -4,7 +4,7 @@
 
 O discovery M0 determina quais executáveis pertencem a Coreutils. `content/cli-compatibility/coreutils.json` descreve cada subset, flags, contratos obrigatórios, implementação e lacunas. O manifest geral continua sendo a fonte da versão GNU. Não existe campo de promoção manual no manifest Coreutils.
 
-`coreutils/foundation.rs` trata nomes de caminhos e ambiente. `coreutils/cat.rs` mantém a transformação incremental de cat no scheduler compartilhado. `coreutils/bytes.rs` trata recortes, duplicação, Base64 e SHA-256. `terminal_text.rs` conserva wc/sort/uniq; os handlers de consulta, cópia e remoção existentes continuam usando M1B. `coreutils/legacy.rs` rejeita opções desconhecidas antes que parsers antigos as descartem e produz ajuda a partir dos contratos. O dispatch continua validando pacote, PATH e permissão de execução antes do handler.
+`coreutils/foundation.rs` trata nomes de caminhos e ambiente. `coreutils/cat.rs` mantém a transformação incremental de cat no scheduler compartilhado. `coreutils/head.rs`, `tail.rs`, `base64.rs` e `tee.rs` integram os engines incrementais ao mesmo scheduler. `coreutils/bytes.rs` conserva SHA-256 e o recorte legado. `terminal_text.rs` conserva wc/sort/uniq; os handlers de consulta, cópia e remoção existentes continuam usando M1B. `coreutils/legacy.rs` rejeita opções desconhecidas antes que parsers antigos as descartem e produz ajuda a partir dos contratos. O dispatch continua validando pacote, PATH e permissão de execução antes do handler.
 
 ## Resolução e pacotes
 
@@ -44,7 +44,7 @@ Todas as opções de cat usam um único estado incremental: numeração, início
 
 `VirtualTty` mantém linha parcial, fila de leituras e eventos EOF. Sem dados retorna Pending; newline libera a linha. Ctrl+D com texto libera esse texto, sem fechar a entrada; Ctrl+D sem texto gera um EOF consumível. Assim, outro operando `-` pode voltar a ler. A UI faz eco e edição, serializa input/EOF e envia interrupções sem aguardar a fila. Não há termios, modos raw, PTY completo ou job control no jogo.
 
-Cada processo recebe seu próprio `ProcessSignalState`. SIGINT, SIGTERM e SIGPIPE têm disposição terminante; o resultado distingue `Exit(code)` de `Signal(signal)`, com status shell 128+signal. O scheduler fecha descritores e canais ao terminar. Entrega direcionada por PID não cancela processos irmãos. Interrupções acordam leitores e escritores bloqueados por capacidade; o buffer de apresentação reserva espaço antes de contabilizar os bytes entregues. Filas de pipe e input têm 64 KiB; saída agregada mantém o limite de 4 MiB (com reserva para diagnóstico).
+Cada processo recebe seu próprio `ProcessSignalState`. SIGINT, SIGTERM e SIGPIPE têm disposição terminante por padrão; o estado compartilhado também aceita disposição ignorada por processo, usada por `tee -i` e pelos modos output-error. SIGKILL nunca é ignorado; o resultado distingue `Exit(code)` de `Signal(signal)`, com status shell 128+signal. O scheduler fecha descritores e canais ao terminar. Entrega direcionada por PID não cancela processos irmãos. Interrupções acordam leitores e escritores bloqueados por capacidade; o buffer de apresentação reserva espaço antes de contabilizar os bytes entregues. Filas de pipe e input têm 64 KiB; saída agregada mantém o limite de 4 MiB (com reserva para diagnóstico).
 
 Registros de input, sinais, processos ativos e handles são transitórios. A persistência continua salvando o estado VFS e os efeitos já confirmados, sem serializar uma execução interativa pendente. O serviço mantém sua política anterior de exclusão durante comandos, sem introduzir snapshots de processos em voo.
 
@@ -72,3 +72,22 @@ orientou probes de blocos e wrapping; as execuções do binário fixado definira
 as expectativas. O corpus inclui interrupções antes/depois de blocos, todos
 os bytes 0–255, erros tardios e redirecionamento parcial. Fingerprints incluem
 o handler, seu dispatcher compartilhado e as dependências de shell/VFS.
+
+## Tee — fan-out incremental
+
+`coreutils/tee.rs` abre os destinos na ordem dos operands e conserva seus handles
+até EOF, falha ou sinal. O scheduler publica cada bloco em stdout antes de
+escrevê-lo nos arquivos, mantendo um bloco de entrada de até 1024 bytes e uma cópia limitada na saída.
+Esse limite foi observado na baseline musl por testes de append com aliases de
+inode; o engine não acumula stdin. O armazenamento dos arquivos continua no VFS.
+
+Falhas de stdout retornam à política do fan-out: os modos warn continuam nos
+destinos válidos, os modos exit interrompem quando aplicável e nopipe ignora
+EPIPE. A disposição padrão mantém SIGPIPE. A extensão de dispositivos do VFS
+inclui `/dev/full`, que abre normalmente e falha ao escrever; isso exercita
+estado parcial sem um filesystem específico do comando.
+
+O harness reutiliza PTY, sinais e snapshots. Barreiras de escrita usam uma janela
+explícita de 64 KiB e aguardam a morte do filho antes de drenar a saída quando o
+sinal é terminante. Isso evita que a própria coleta libere uma escrita extra.
+Captura dupla e verificação independente permanecem obrigatórias.

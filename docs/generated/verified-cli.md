@@ -9,4 +9,5 @@
 | head     | coreutils |               |            |
 | printenv | coreutils |               |            |
 | tail     | coreutils |               |            |
+| tee      | coreutils |               |            |
 | whoami   | coreutils |               |            |

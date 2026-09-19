@@ -32,6 +32,8 @@ pub struct Control {
     output: Option<tauri::ipc::Channel<crate::cli_contract::Event>>,
     in_flight: AtomicUsize,
     #[cfg(test)]
+    output_waiting: AtomicBool,
+    #[cfg(test)]
     byte_observer: Mutex<Option<ByteObserver>>,
 }
 impl Control {
@@ -176,8 +178,12 @@ pub fn emit_chunk(fd: u8, text: &str) -> bool {
     while control.in_flight.load(Ordering::Relaxed) + bytes > INPUT_CAPACITY
         && !interrupted(&control)
     {
+        #[cfg(test)]
+        control.output_waiting.store(true, Ordering::SeqCst);
         control.wake.wait_for(&mut input, Duration::from_millis(10));
     }
+    #[cfg(test)]
+    control.output_waiting.store(false, Ordering::SeqCst);
     drop(input);
     if interrupted(&control) {
         return false;
@@ -374,6 +380,14 @@ pub fn process_ids(key: &str) -> Vec<u32> {
         .get(key)
         .map(|c| c.processes.lock().keys().copied().collect())
         .unwrap_or_default()
+}
+
+#[cfg(test)]
+pub fn output_blocked(key: &str) -> bool {
+    CONTROLS
+        .lock()
+        .get(key)
+        .is_some_and(|c| c.output_waiting.load(Ordering::SeqCst))
 }
 
 #[cfg(test)]

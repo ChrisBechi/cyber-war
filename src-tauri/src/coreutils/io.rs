@@ -68,31 +68,6 @@ pub(crate) fn write_handle(world: &mut WorldState, handle: u64, data: &[u8]) -> 
     world.blobs = blobs;
     Ok(())
 }
-pub(crate) fn write(
-    world: &mut WorldState,
-    file: &str,
-    data: &[u8],
-    actor: &str,
-    append: bool,
-) -> GameResult<()> {
-    let path = normalize(file, &world.terminal.cwd)?;
-    let h = world.fs_mut()?.open(
-        &path,
-        OpenFlags {
-            write: true,
-            create: true,
-            truncate: !append,
-            append,
-            ..Default::default()
-        },
-        0o666,
-        actor,
-    )?;
-    let result = write_handle(world, h, data);
-    let closed = world.fs_mut()?.close(h);
-    closed?;
-    result
-}
 pub(crate) fn send(out: &mut crate::terminal_io::Output, fd: u8, bytes: Vec<u8>) -> GameResult<()> {
     let size: usize = out.byte_ordered.iter().map(|(_, b)| b.len()).sum();
     if size.saturating_add(bytes.len()) > LIMIT {

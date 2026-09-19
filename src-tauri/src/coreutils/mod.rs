@@ -10,6 +10,9 @@ pub(crate) mod io;
 mod legacy;
 mod options;
 pub(crate) mod tail;
+pub(crate) mod tee;
+#[cfg(test)]
+mod tee_tests;
 pub(crate) use legacy::help;
 #[cfg(test)]
 mod base64_tests;
@@ -33,8 +36,8 @@ pub(crate) fn execute(
         "basename" | "dirname" | "printenv" | "whoami" | "env" => {
             foundation::execute(world, name, args, actor, invocation)
         }
-        "cat" | "head" | "tail" | "base64" => cat::execute(world, invocation, args, actor),
-        "tee" | "sha256sum" => bytes::execute(world, name, args, actor),
+        "cat" | "head" | "tail" | "base64" | "tee" => cat::execute(world, invocation, args, actor),
+        "sha256sum" => bytes::execute(world, name, args, actor),
         _ => match legacy::validate(name, args) {
             Ok(Some(out)) => Ok(out),
             Ok(None) => return None,

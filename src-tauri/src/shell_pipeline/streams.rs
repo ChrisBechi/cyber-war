@@ -16,6 +16,20 @@ const CHUNK: usize = 4096;
 const CAPACITY: usize = 64 * 1024;
 const ADAPTER_LIMIT: usize = 4 * 1024 * 1024;
 #[cfg(test)]
+thread_local! { static READ_PATTERN: std::cell::RefCell<VecDeque<usize>> = const { std::cell::RefCell::new(VecDeque::new()) }; }
+#[cfg(test)]
+pub(crate) fn with_read_pattern<T>(pattern: &[usize], work: impl FnOnce() -> T) -> T {
+    assert!(pattern.iter().all(|n| *n > 0));
+    struct Restore(VecDeque<usize>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            READ_PATTERN.with(|p| *p.borrow_mut() = std::mem::take(&mut self.0));
+        }
+    }
+    let _restore = Restore(READ_PATTERN.with(|p| p.replace(pattern.iter().copied().collect())));
+    work()
+}
+#[cfg(test)]
 thread_local! { static LAST_PEAK: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
 #[cfg(test)]
 thread_local! { static CLOSED_CONSUMER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
@@ -95,6 +109,13 @@ impl Input {
         pipes: &mut [Pipe],
         limit: usize,
     ) -> GameResult<Read> {
+        #[cfg(test)]
+        let limit = READ_PATTERN.with(|p| {
+            let mut p = p.borrow_mut();
+            let Some(n) = p.pop_front() else { return limit };
+            p.push_back(n);
+            limit.min(n)
+        });
         Ok(match self {
             Self::Text(text, offset) => {
                 if *offset == text.len() {
@@ -134,6 +155,7 @@ enum Engine {
     Yes(Vec<u8>),
     Cat(Box<crate::coreutils::cat::Cat>),
     Base64(Box<crate::coreutils::base64::Base64>),
+    Tee(Box<crate::coreutils::tee::Tee>),
     Head(Box<crate::coreutils::head::Head>),
     Tail(Box<crate::coreutils::tail::Tail>),
     Legacy { text: Vec<u8>, read: bool },
@@ -169,7 +191,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    matches!(name, "cat" | "head" | "tail" | "base64")
+    matches!(name, "cat" | "head" | "tail" | "base64" | "tee")
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -327,13 +349,16 @@ fn prepare(
     if available
         && matches!(
             name.rsplit('/').next(),
-            Some("cat" | "head" | "tail" | "base64")
+            Some("cat" | "head" | "tail" | "base64" | "tee")
         )
         && error.is_none()
     {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        let parsed = if name.rsplit('/').next() == Some("base64") {
+        let parsed = if name.rsplit('/').next() == Some("tee") {
+            crate::coreutils::tee::Tee::new(name, &stage.arguments[1..], posix)
+                .map(|t| Engine::Tee(Box::new(t)))
+        } else if name.rsplit('/').next() == Some("base64") {
             crate::coreutils::base64::Base64::new(name, &stage.arguments[1..], posix)
                 .map(|b| Engine::Base64(Box::new(b)))
         } else if name.rsplit('/').next() == Some("head") {
@@ -376,6 +401,15 @@ fn prepare(
     let stdout_buffer = (matches!(engine, Engine::Tail(_))
         && matches!(destinations[1], Destination::File(_)))
     .then(crate::shell::stdio::OutputBuffer::default);
+    let signals = control::register_process(pid);
+    if let Engine::Tee(tee) = &engine {
+        if tee.ignore_interrupts {
+            signals.ignore(VirtualSignal::Int);
+        }
+        if tee.mode != crate::coreutils::tee::ErrorMode::Signal {
+            signals.ignore(VirtualSignal::Pipe);
+        }
+    }
     Ok(Process {
         pid,
         session: world.terminal.clone(),
@@ -387,7 +421,7 @@ fn prepare(
         status,
         done: false,
         archive_job: None,
-        signals: control::register_process(pid),
+        signals,
         termination: None,
         stdout_buffer,
     })
@@ -409,6 +443,40 @@ fn step(
                     1,
                     line.repeat((CHUNK / line.len()).max(1)),
                 );
+            }
+        }
+        Engine::Tee(tee) => {
+            let (errors, finished) = if !tee.opened {
+                tee.open(world)
+            } else if tee.data.is_some() {
+                tee.write_files(world)
+            } else if !tee.active() {
+                (Vec::new(), true)
+            } else {
+                match process
+                    .input
+                    .read_limit(world, pipes, crate::coreutils::tee::READ_SIZE)
+                {
+                    Ok(Read::Data(data)) => {
+                        if tee.stdout {
+                            chunks(&mut process.pending, 1, data.clone());
+                        }
+                        tee.data = Some(data);
+                        (Vec::new(), false)
+                    }
+                    Ok(Read::Eof) => (Vec::new(), true),
+                    Ok(Read::Pending | Read::Interrupted) => return Ok(false),
+                    Err(error) => (crate::coreutils::tee::diagnostic("read error", error), true),
+                }
+            };
+            if !errors.is_empty() {
+                process.status = 1;
+                chunks(&mut process.pending, 2, errors);
+            }
+            if finished {
+                tee.close(world)?;
+                process.engine = Engine::Finished;
+                process.input.close(pipes);
             }
         }
         Engine::Base64(base64) => {
@@ -843,6 +911,9 @@ fn step(
 }
 
 fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> {
+    if let Engine::Tee(tee) = engine {
+        tee.close(world)?;
+    }
     if let Engine::Tail(tail) = engine {
         tail.close(world)?;
     }
@@ -873,6 +944,37 @@ fn terminate(
     }
     process.engine = Engine::Finished;
     Ok(())
+}
+
+// The shared delivery path reports stdout failures to fan-out commands before
+// applying its default SIGPIPE/abort behavior. Other destinations can survive.
+fn tee_output_error(
+    world: &mut WorldState,
+    process: &mut Process,
+    pipe: bool,
+    reason: impl std::fmt::Display,
+) -> GameResult<bool> {
+    let Engine::Tee(tee) = &mut process.engine else {
+        return Ok(false);
+    };
+    if pipe && tee.mode == crate::coreutils::tee::ErrorMode::Signal {
+        return Ok(false);
+    }
+    tee.stdout = false;
+    process.pending.retain(|(fd, _)| *fd != 1);
+    if tee.mode.diagnose(pipe) {
+        process.status = 1;
+        chunks(
+            &mut process.pending,
+            2,
+            crate::coreutils::tee::diagnostic("standard output", reason),
+        );
+    }
+    if tee.mode.fatal(pipe) {
+        tee.close(world)?;
+        process.engine = Engine::Finished;
+    }
+    Ok(true)
 }
 
 pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output> {
@@ -907,6 +1009,14 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                     continue;
                 }
                 world.terminal = process.session.clone();
+                if matches!(&process.engine, Engine::Tee(t) if t.opened && t.stdout && matches!(t.mode, crate::coreutils::tee::ErrorMode::WarnNoPipe | crate::coreutils::tee::ErrorMode::ExitNoPipe))
+                    && matches!(process.input, Input::Terminal | Input::Pipe(_))
+                    && matches!(process.destinations[1], Destination::Pipe)
+                    && pipes[index].reader_closed
+                {
+                    tee_output_error(world, process, true, "Broken pipe")?;
+                    progress = true;
+                }
                 if matches!(&process.engine,Engine::Tail(t) if t.monitor_output())
                     && matches!(process.destinations[1], Destination::Pipe)
                     && pipes[index].reader_closed
@@ -918,6 +1028,7 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                     .scheduler
                     .signals
                     .remove(&process.pid)
+                    .filter(|signal| !process.signals.ignored(*signal))
                     .or_else(|| process.signals.take())
                     .or_else(control::termination_signal)
                 {
@@ -927,14 +1038,19 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                 if process.pending.is_empty() {
                     progress |= step(world, process, &stages[index], &mut pipes)?;
                 }
-                if let Some((fd, text)) = process.pending.front() {
-                    let destination = process.destinations[*fd as usize];
+                if let Some((fd, text)) = process.pending.front().cloned() {
+                    let destination = process.destinations[fd as usize];
+                    let mut remove_pending = true;
                     let sent = if matches!(destination, Destination::Pipe) {
                         match pipes[index].push(text.clone()) {
                             Ok(sent) => sent,
                             Err(()) => {
-                                process.signals.send(VirtualSignal::Pipe);
-                                terminate(world, process, VirtualSignal::Pipe)?;
+                                if fd == 1 && tee_output_error(world, process, true, "Broken pipe")?
+                                {
+                                    remove_pending = false;
+                                } else {
+                                    terminate(world, process, VirtualSignal::Pipe)?;
+                                }
                                 true
                             }
                         }
@@ -943,7 +1059,7 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                             emit_bytes(
                                 world,
                                 destination,
-                                text,
+                                &text,
                                 &mut process.files,
                                 &mut output,
                                 &mut Vec::new(),
@@ -951,24 +1067,30 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                         }) {
                             Ok(()) => true,
                             Err(error) => {
-                                close_operand(world, &mut process.engine)?;
-                                process.pending.clear();
-                                process.engine = Engine::Finished;
-                                process.status = 1;
-                                let diagnostic = format!("bash: write error: {error}\n");
-                                if output.stdout.len() + output.stderr.len() < ADAPTER_LIMIT {
-                                    output.stderr.push_str(&diagnostic);
-                                    output
-                                        .byte_ordered
-                                        .push((2, diagnostic.as_bytes().to_vec()));
-                                    output.ordered.push((2, diagnostic));
+                                if fd == 1 && tee_output_error(world, process, false, &error)? {
+                                    remove_pending = false;
+                                } else {
+                                    close_operand(world, &mut process.engine)?;
+                                    process.pending.clear();
+                                    process.engine = Engine::Finished;
+                                    process.status = 1;
+                                    let diagnostic = format!("bash: write error: {error}\n");
+                                    if output.stdout.len() + output.stderr.len() < ADAPTER_LIMIT {
+                                        output.stderr.push_str(&diagnostic);
+                                        output
+                                            .byte_ordered
+                                            .push((2, diagnostic.as_bytes().to_vec()));
+                                        output.ordered.push((2, diagnostic));
+                                    }
                                 }
                                 true
                             }
                         }
                     };
                     if sent {
-                        process.pending.pop_front();
+                        if remove_pending {
+                            process.pending.pop_front();
+                        }
                         progress = true;
                     }
                 }

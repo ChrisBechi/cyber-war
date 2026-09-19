@@ -1,6 +1,6 @@
 //! Process-local virtual signals. These never deliver signals to the host OS.
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicU8, Ordering};
+use std::sync::atomic::{AtomicU16, AtomicU8, Ordering};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VirtualSignal {
@@ -38,17 +38,28 @@ impl Termination {
         }
     }
 }
-/// The supported signals have the default terminating disposition. Handler
-/// installation, masks, stopped processes and job control are outside this model.
+/// Default terminating or ignored dispositions. No host signal handlers.
 #[derive(Default)]
 pub struct ProcessSignalState {
     pending: AtomicU8,
+    ignored: AtomicU16,
 }
 impl ProcessSignalState {
     pub fn pending(&self) -> bool {
         self.pending.load(Ordering::SeqCst) != 0
     }
+    pub fn ignore(&self, signal: VirtualSignal) {
+        if signal != VirtualSignal::Kill {
+            self.ignored.fetch_or(1 << signal as u8, Ordering::SeqCst);
+        }
+    }
+    pub fn ignored(&self, signal: VirtualSignal) -> bool {
+        self.ignored.load(Ordering::SeqCst) & (1 << signal as u8) != 0
+    }
     pub fn send(&self, signal: VirtualSignal) {
+        if self.ignored(signal) {
+            return;
+        }
         let _ = self
             .pending
             .compare_exchange(0, signal as u8, Ordering::SeqCst, Ordering::SeqCst);

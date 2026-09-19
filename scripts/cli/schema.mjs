@@ -413,7 +413,11 @@ export const caseSchema = z
                 .strict(),
               z.object({ kind: z.literal('eof') }).strict(),
               z
-                .object({ kind: z.literal('signal'), signal: z.enum(['SIGINT', 'SIGTERM']) })
+                .object({
+                  kind: z.literal('signal'),
+                  signal: z.enum(['SIGINT', 'SIGTERM']),
+                  waitFor: z.literal('output').optional(),
+                })
                 .strict(),
             ]),
           )
@@ -440,6 +444,13 @@ export const caseSchema = z
         const stopped = new Set();
         for (const [index, step] of interaction.steps.entries()) {
           const path = ['steps', index];
+          if (step.kind === 'signal' && step.waitFor && interaction.schemaVersion !== 1) {
+            context.addIssue({
+              code: 'custom',
+              path,
+              message: 'Output backpressure signals require interaction protocol version 1',
+            });
+          }
           if (!allowed.includes(step.kind)) {
             context.addIssue({
               code: 'custom',

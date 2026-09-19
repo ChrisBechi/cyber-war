@@ -13,7 +13,7 @@ const closedCoreutils = new Set(
   Object.entries(json('content/cli-compatibility/coreutils.json').commands)
     .filter(
       ([name, s]) =>
-        (s.area === 'foundation' || ['cat', 'head', 'tail', 'base64'].includes(name)) &&
+        (s.area === 'foundation' || ['cat', 'head', 'tail', 'base64', 'tee'].includes(name)) &&
         existsSync(resolve(root, `tests/cli/gnu/coreutils/${baseline}/${name}.json`)),
     )
     .map(([name]) => name),

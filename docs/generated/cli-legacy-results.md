@@ -1588,7 +1588,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | tdbdump                       | src-tauri/src/software.rs::command    |
 | tdbrestore                    | src-tauri/src/software.rs::command    |
 | tdbtool                       | src-tauri/src/software.rs::command    |
-| tee                           | src-tauri/src/coreutils/bytes.rs      |
 | telegram2john                 | src-tauri/src/software.rs::command    |
 | teredo-mire                   | src-tauri/src/software.rs::command    |
 | terminal                      | src-tauri/src/software.rs::command    |

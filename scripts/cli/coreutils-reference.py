@@ -40,7 +40,7 @@ def request(case):
             'argv': case['argv'], 'stdinHex': case.get('stdinHex', (case.get('stdin') or '').encode().hex()),
             'env': case['env'], 'cwd': case['cwd'], 'fixture': {k: case.get('fixture', {}).get(k, [] if k in ['directories', 'setup'] else {}) for k in ['files', 'bytes', 'directories', 'modes', 'setup']},
             'process': case.get('process'), 'transport': case.get('transport', 'direct')}
-    if case['command'] in {'cat', 'head', 'tail', 'base64'}:
+    if case['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
         req.update(io=case.get('io'), interaction=case.get('interaction'))
         req['fixture'].update({k: case.get('fixture', {}).get(k, {}) for k in ['hardlinks', 'symlinks']})
     return req
@@ -100,7 +100,7 @@ def worker(path):
     req = json.loads(Path(path).read_text())
     env = environment(req)
     argv = [req['invocation'], *req['argv']]
-    if req['command'] in {'cat', 'head', 'tail', 'base64'}:
+    if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
         if (req.get('interaction') or {}).get('schemaVersion') == 2:
             from coreutils_follow import execute
         else:
@@ -197,7 +197,7 @@ def capture(case, bwrap):
         result = {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
                 'stdoutHex': out.hex(), 'stderrHex': err.hex(), 'exitCode': completed.returncode,
                 'before': before, 'after': snapshot(home)}
-        if req['command'] in {'cat', 'head', 'tail', 'base64'}:
+        if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
             if completed.returncode != 0 or not out:
                 raise RuntimeError(f'Worker failed for {case["id"]}: status={completed.returncode}, stderr={err[:4000]!r}')
             result.update(json.loads(out))
@@ -267,13 +267,13 @@ def main():
         payload = {'schemaVersion': 2, 'provenance': 'GNU_PROBE' if args.probe else 'GNU_REFERENCE', 'version': version,
                    'command': name, 'locale': 'C', 'capturedAt': datetime.now(timezone.utc).isoformat(),
                    'harnessHash': source_hash(HARNESS_PATH), 'environment': {**env, 'binaryHashes': {name: binaries[name]}}, 'cases': rows}
-        if name in {'cat', 'head', 'tail', 'base64'}:
+        if name in {'cat', 'head', 'tail', 'base64', 'tee'}:
             payload.update(schemaVersion=3, interactionHash=source_hash('scripts/cli/coreutils_interaction.py'))
         if name == 'tail':
             payload.update(schemaVersion=4, followHash=source_hash('scripts/cli/coreutils_follow.py'))
         if args.verify:
             original = json.loads(target.read_text())
-            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64'} else []) + (['followHash'] if name == 'tail' else []):
+            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64', 'tee'} else []) + (['followHash'] if name == 'tail' else []):
                 if original[key] != payload[key]:
                     raise RuntimeError(f'Reference reproduction differs: {name}/{key}; golden unchanged')
         else:

@@ -231,7 +231,8 @@ impl Default for VirtualFileSystem {
         }
         fs.seed("/dev/null", "charDevice", "", "root");
         fs.seed("/dev/zero", "charDevice", "", "root");
-        for path in ["/dev/null", "/dev/zero"] {
+        fs.seed("/dev/full", "charDevice", "", "root");
+        for path in ["/dev/null", "/dev/zero", "/dev/full"] {
             if let Some(mut n) = fs.nodes.get_mut(path) {
                 n.mode = 0o666;
                 n.metadata
@@ -642,6 +643,9 @@ impl VirtualFileSystem {
             return Err(error(Errno::Access));
         }
         if node.kind == "charDevice" {
+            if node.metadata.get("device").is_some_and(|d| d == "full") {
+                return Err(error(Errno::NoSpace));
+            }
             return if node
                 .metadata
                 .get("device")

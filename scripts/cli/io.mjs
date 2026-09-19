@@ -57,6 +57,7 @@ export const evidenceSources = () => [
   'scripts/cli-head-generate.mjs',
   'scripts/cli-tail-generate.mjs',
   'scripts/cli-base64-generate.mjs',
+  'scripts/cli-tee-generate.mjs',
   'scripts/cli-coreutils-wave.mjs',
   'vite.config.ts',
 ];

@@ -118,7 +118,7 @@ impl<'de> Deserialize<'de> for VirtualFileSystem {
                 return Ok(fs);
             }
             if fs.nodes.get("/dev").is_some_and(|n| n.kind == "directory") {
-                for name in ["null", "zero"] {
+                for name in ["null", "zero", "full"] {
                     let path = format!("/dev/{name}");
                     if !fs.nodes.contains_key(&path) {
                         fs.seed(&path, "charDevice", "", "root");

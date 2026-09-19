@@ -70,7 +70,7 @@ impl VirtualFileSystem {
         {
             return Err(error(Errno::Access));
         }
-        if flags.truncate && !created {
+        if flags.truncate && !created && node.kind == "file" {
             self.write(&resolved, "", actor)?;
         }
         let node = self.stat(&resolved, actor)?;
@@ -107,7 +107,7 @@ impl VirtualFileSystem {
         if let Some(device) = &h.device {
             return match device.as_str() {
                 "null" => Ok(Vec::new()),
-                "zero" => Ok(vec![0; count]),
+                "zero" | "full" => Ok(vec![0; count]),
                 _ => Err(error(Errno::Invalid)),
             };
         }
@@ -199,7 +199,9 @@ impl VirtualFileSystem {
             return Ok(0);
         }
         if let Some(device) = &h.device {
-            return if device == "null" || device == "zero" {
+            return if device == "full" {
+                Err(error(Errno::NoSpace))
+            } else if device == "null" || device == "zero" {
                 Ok(bytes.len())
             } else {
                 Err(error(Errno::Invalid))
