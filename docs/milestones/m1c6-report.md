@@ -1,6 +1,6 @@
 # M1C.6 — Tee GNU 9.7 certificado
 
-**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PENDING`.**
+**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PUBLISHED`.**
 
 | Medida                             | Antes                                                  | Depois                                               |
 | ---------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
@@ -121,3 +121,5 @@ artifacts, target e node_modules não fazem parte da publicação.
   REGULAR_FILES, SPECIAL_PERMISSIONS, SYMLINKS e TIMESTAMPS.
 
 `wc` não foi implementado. O milestone encerra após a certificação de tee.
+
+Publicado na `main`: commit `3f0dcf5` (`feat(coreutils): certify tee against GNU 9.7`).

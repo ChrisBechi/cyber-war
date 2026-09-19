@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stopReason": "MILESTONE_COMPLETE",
-  "publicationStatus": "PENDING",
+  "publicationStatus": "PUBLISHED",
   "baselineCommit": "fec9897",
   "executedAt": "2026-09-19T19:38:29.034Z",
   "fingerprint": "03d301a2141af39d5a90eb3c023d340fd5ceb44f01070d81eebb5f799905eb02",
@@ -455,5 +455,11 @@
       "VFS.TIMESTAMPS"
     ],
     "implemented": false
+  },
+  "publication": {
+    "commit": "3f0dcf5",
+    "branch": "main",
+    "remote": "origin",
+    "pushed": true
   }
 }
