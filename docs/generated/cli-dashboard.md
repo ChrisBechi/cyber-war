@@ -2,30 +2,30 @@
 
 Generated from runtime registrations and current evidence. PARTIAL is not certification.
 
-| Metric               | Value                                                    |
-| -------------------- | -------------------------------------------------------- |
-| commandNames         | 1797                                                     |
-| uniqueExecutables    | 1526                                                     |
-| aliases              | 1                                                        |
-| launcherNames        | 270                                                      |
-| catalogLaunchers     | 303                                                      |
-| guiLaunchers         | 19                                                       |
-| softwareGroups       | 279                                                      |
-| realCompat           | 1519                                                     |
-| fictionalNative      | 7                                                        |
-| catalogOnly          | 1406                                                     |
-| commands             | {"VERIFIED":9,"PARTIAL":111,"UNVERIFIED":1406}           |
-| software             | {"VERIFIED":0,"PARTIAL":42,"UNVERIFIED":237}             |
-| commandVerification  | {"verified":9,"total":1519,"percent":0.5924950625411455} |
-| softwareVerification | {"verified":0,"total":243,"percent":0}                   |
-| pinnedSoftware       | 12                                                       |
-| unpinnedSoftware     | 231                                                      |
-| commandsTested       | 20                                                       |
-| gatesPassed          | 3942                                                     |
-| requiredGates        | {"passed":3393,"total":35174}                            |
-| pilotCases           | {"PASS":1336,"FAIL":0,"SKIPPED":0}                       |
-| flagCasesPassed      | 841                                                      |
-| errorCasesPassed     | 536                                                      |
+| Metric               | Value                                                     |
+| -------------------- | --------------------------------------------------------- |
+| commandNames         | 1797                                                      |
+| uniqueExecutables    | 1526                                                      |
+| aliases              | 1                                                         |
+| launcherNames        | 270                                                       |
+| catalogLaunchers     | 303                                                       |
+| guiLaunchers         | 19                                                        |
+| softwareGroups       | 279                                                       |
+| realCompat           | 1519                                                      |
+| fictionalNative      | 7                                                         |
+| catalogOnly          | 1406                                                      |
+| commands             | {"VERIFIED":10,"PARTIAL":110,"UNVERIFIED":1406}           |
+| software             | {"VERIFIED":0,"PARTIAL":42,"UNVERIFIED":237}              |
+| commandVerification  | {"verified":10,"total":1519,"percent":0.6583278472679395} |
+| softwareVerification | {"verified":0,"total":243,"percent":0}                    |
+| pinnedSoftware       | 12                                                        |
+| unpinnedSoftware     | 231                                                       |
+| commandsTested       | 20                                                        |
+| gatesPassed          | 3958                                                      |
+| requiredGates        | {"passed":3409,"total":35174}                             |
+| pilotCases           | {"PASS":1753,"FAIL":0,"SKIPPED":0}                        |
+| flagCasesPassed      | 1194                                                      |
+| errorCasesPassed     | 631                                                       |
 
 ## Subsystem readiness
 
@@ -63,6 +63,6 @@ Generated from runtime registrations and current evidence. PARTIAL is not certif
 
 ## Coreutils
 
-{"VERIFIED":9,"PARTIAL":28,"UNVERIFIED":0}
+{"VERIFIED":10,"PARTIAL":27,"UNVERIFIED":0}
 
 [Per-command contracts, waves and evidence](coreutils-compatibility.md).

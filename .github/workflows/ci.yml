@@ -23,6 +23,7 @@ jobs:
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command tail
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command base64
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command tee
+      - run: python3 scripts/cli/coreutils-environment.py run --verify --command wc
 
   frontend:
     runs-on: ubuntu-latest
@@ -68,6 +69,7 @@ jobs:
       - run: pnpm cli:verify --command tail --strict
       - run: pnpm cli:verify --command base64 --strict
       - run: pnpm cli:verify --command tee --strict
+      - run: pnpm cli:verify --command wc --strict
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -6,6 +6,7 @@ import { loadCases, pipeline, currentCapture } from './cli/pipeline.mjs';
 import { scope } from './cli/scope.mjs';
 import { caseFingerprints } from './cli/fingerprint.mjs';
 import { generate } from './cli/reports.mjs';
+import { readCapture, writeCapture } from './cli/capture-storage.mjs';
 const selected = scope();
 const baseline = json('content/cli-compatibility/manifest.json').software.coreutils
   .referenceVersion;
@@ -13,7 +14,8 @@ const closedCoreutils = new Set(
   Object.entries(json('content/cli-compatibility/coreutils.json').commands)
     .filter(
       ([name, s]) =>
-        (s.area === 'foundation' || ['cat', 'head', 'tail', 'base64', 'tee'].includes(name)) &&
+        (s.area === 'foundation' ||
+          ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(name)) &&
         existsSync(resolve(root, `tests/cli/gnu/coreutils/${baseline}/${name}.json`)),
     )
     .map(([name]) => name),
@@ -144,7 +146,7 @@ if (!selected.names)
     '--ignored',
     '--nocapture',
   ]);
-const actual = json('artifacts/cli-case-actual.json');
+const actual = readCapture();
 if (!selected.names)
   cargo([
     'test',
@@ -165,7 +167,7 @@ if (digest(evidenceSources()) !== executionFingerprint)
 if (selected.names) {
   const ids = new Set(actual.cases.map((c) => c.id));
   actual.cases.push(...previous.filter((c) => !ids.has(c.id)));
-  write('artifacts/cli-case-actual.json', actual);
+  writeCapture('artifacts/cli-case-actual.json', actual);
 }
 const currentIds = new Set(actual.cases.map((c) => c.id));
 

@@ -1745,7 +1745,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | wasm-ld                       | clang                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | watch                         | procps                   | CATALOG_ONLY | 4.0.4      | UNVERIFIED | src-tauri/src/software.rs::command    |
 | wbinfo                        | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| wc                            | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/terminal_text.rs        |
+| wc                            | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/wc.rs         |
 | wce                           | wce                      | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | wcurl                         | curl                     | CATALOG_ONLY | 8.14.1     | UNVERIFIED | src-tauri/src/software.rs::command    |
 | wdctl                         | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

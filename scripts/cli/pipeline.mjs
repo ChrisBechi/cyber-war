@@ -7,6 +7,7 @@ import { files, json, read, root, digest, evidenceSources, runtimeRegistry } fro
 import { loadDiscovery } from './discovery.mjs';
 import { evaluate, metrics, queue } from './verification.mjs';
 import { hostGuard } from './host-guard.mjs';
+import { readCapture } from './capture-storage.mjs';
 export function loadCases() {
   const cases = files('tests/cli/compat/pilot')
     .filter((p) => p.endsWith('.json'))
@@ -58,7 +59,7 @@ export function currentCapture() {
     digest([perfPath]) === evidence.coreutilsPerformanceHash
       ? json(perfPath)
       : null;
-  const captured = json(raw);
+  const captured = readCapture(raw);
   if (!fresh) {
     const current = caseFingerprints(loadCases());
     captured.cases = captured.cases.filter(

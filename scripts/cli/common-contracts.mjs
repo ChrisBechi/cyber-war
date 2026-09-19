@@ -1,6 +1,12 @@
 // Request generation is independent of expectations. Only captured GNU bytes
 // may become golden expectations; each command still needs its own reference.
-import { canonical, requestDigest, referenceRequest, sourceHash } from './coreutils-reference.mjs';
+import {
+  canonical,
+  requestDigest,
+  referenceRequest,
+  sourceHash,
+  verificationFresh,
+} from './coreutils-reference.mjs';
 
 export function request(command, id, argv, extra = {}) {
   return {
@@ -62,9 +68,10 @@ export function capturedExpectations(test, capture) {
     capture.version !== '9.7' ||
     capture.command !== test.command ||
     capture.locale !== 'C' ||
-    capture.harnessHash !== sourceHash('scripts/cli/coreutils-reference.py')
+    (capture.harnessHash !== sourceHash('scripts/cli/coreutils-reference.py') &&
+      !verificationFresh(test.command, capture))
   )
-    throw new Error('Stale or incompatible GNU capture');
+    throw new Error('Stale or incompatible GNU capture (fingerprint mismatch)');
   const row = capture.cases.find((r) => r.id === test.id);
   if (
     !row?.reproducible ||

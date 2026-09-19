@@ -10,4 +10,5 @@
 | printenv | coreutils |               |            |
 | tail     | coreutils |               |            |
 | tee      | coreutils |               |            |
+| wc       | coreutils |               |            |
 | whoami   | coreutils |               |            |

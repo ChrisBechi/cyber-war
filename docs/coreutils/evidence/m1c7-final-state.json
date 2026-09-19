@@ -1,0 +1,485 @@
+{
+  "schemaVersion": 1,
+  "stopReason": "MILESTONE_COMPLETE",
+  "publicationStatus": "PENDING",
+  "baselineCommit": "3e1bf13",
+  "executedAt": "2026-09-19T20:53:26.059Z",
+  "fingerprint": "1d22fa44ac6868c621d1f1e857f61064327c5a81aee37273a7ea87a959600042",
+  "captureHash": "ecb21c8337f62b9c2c78a748c2748656fa90cb433a43da906b5bfecb27dd66e7",
+  "performanceHash": "23a3539f4fbdad1a1cb987028d6587633ce29565f2b3d388fe58e602ffe73acd",
+  "coreutilsPerformanceHash": "3852badce606cb2be5328476d560560d135a9117a6ea55565eac63ab492fcb52",
+  "vfsPerformanceHash": "eb5baa5bd5c95b414c3780749ffcbd5d943999baca7f90b5d2b7694fd72471f3",
+  "before": {
+    "coreutils": {
+      "VERIFIED": 9,
+      "PARTIAL": 28,
+      "UNVERIFIED": 0
+    },
+    "wcStatus": "PARTIAL",
+    "projectCases": 4,
+    "gnuCases": 0
+  },
+  "coreutils": {
+    "VERIFIED": 10,
+    "PARTIAL": 27,
+    "UNVERIFIED": 0
+  },
+  "wc": {
+    "status": "VERIFIED",
+    "implementation": "src-tauri/src/coreutils/wc.rs",
+    "projectCases": 421,
+    "gnuCases": 421,
+    "gnuMatches": 421,
+    "contracts": [
+      {
+        "id": "invocation",
+        "result": "PASS",
+        "cases": 70
+      },
+      {
+        "id": "options",
+        "result": "PASS",
+        "cases": 67
+      },
+      {
+        "id": "errors",
+        "result": "PASS",
+        "cases": 95
+      },
+      {
+        "id": "help-version",
+        "result": "PASS",
+        "cases": 6
+      },
+      {
+        "id": "integration",
+        "result": "PASS",
+        "cases": 202
+      },
+      {
+        "id": "bytes",
+        "result": "PASS",
+        "cases": 63
+      },
+      {
+        "id": "streaming",
+        "result": "PASS",
+        "cases": 26
+      },
+      {
+        "id": "counting",
+        "result": "PASS",
+        "cases": 142
+      },
+      {
+        "id": "word-classification",
+        "result": "PASS",
+        "cases": 77
+      },
+      {
+        "id": "display-width",
+        "result": "PASS",
+        "cases": 48
+      },
+      {
+        "id": "formatting",
+        "result": "PASS",
+        "cases": 93
+      },
+      {
+        "id": "totals",
+        "result": "PASS",
+        "cases": 36
+      },
+      {
+        "id": "files0-from",
+        "result": "PASS",
+        "cases": 63
+      },
+      {
+        "id": "signals",
+        "result": "PASS",
+        "cases": 4
+      },
+      {
+        "id": "tty",
+        "result": "PASS",
+        "cases": 10
+      }
+    ],
+    "gates": {
+      "ALIAS_RESOLUTION": {
+        "applicability": "NOT_APPLICABLE",
+        "result": "SKIPPED"
+      },
+      "COMBINED_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "COMMAND_CONTRACTS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "CROSS_TOOL_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "DISCOVERY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "ERRORS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "EXIT_CODE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "GNU_REFERENCE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "HELP": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "HOST_ISOLATION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "KNOWN_GAPS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "LONG_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PARSER": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PERMISSIONS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PIPE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "POSITIONAL_ARGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "REDIRECTION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "REFERENCE_PINNED": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SHORT_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SIDE_EFFECTS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SIGNALS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STATE_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDERR": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDIN": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDOUT": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "TTY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "VERSION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      }
+    },
+    "knownGaps": [],
+    "dependencies": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "SIGNALS.STREAMS",
+      "TTY.CANONICAL_IO",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ]
+  },
+  "references": [
+    {
+      "command": "base64",
+      "cases": 304,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:31:59.016584+00:00",
+      "sourceHash": "8deb4605620b85bdf00d6e82a78e24a6aa7fd2048cf845cb07b2f90ca1703fe0"
+    },
+    {
+      "command": "basename",
+      "cases": 48,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:25.613750+00:00",
+      "sourceHash": "765ab1226d3024f00ab9f5d53e31f9f36f45df3c4a5c0288c0342bcac402e282"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:22:46.546500+00:00",
+      "sourceHash": "d495aa219af4e5026eb60a27c3d28d2f1a1645bcde38fb4ba3d2af8bdf3492af"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:34.662882+00:00",
+      "sourceHash": "7ae4f6f03de32fad004a668db17bff1274cd623db0b8dbcafeb3b545e10d3d08"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:25:08.443022+00:00",
+      "sourceHash": "fc754d406074ce57d1ecb98855de36156f4497593d6318d46984b87f88228f6f"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:46.794123+00:00",
+      "sourceHash": "22d1622b7792b684dc6760c178ac794be347ad1182a79c8da3a263f85967244d"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:28:39.362593+00:00",
+      "sourceHash": "d50aa3f515ae2345c65cb4ee58b9042feefa536d7e5d9f0d757949e0c96a114a"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:18:03.999728+00:00",
+      "sourceHash": "313a9249f530d66e292299fc53232aecd7de75f15f551284e8e118940f5bfabc"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T20:41:07.359155+00:00",
+      "sourceHash": "3e5f3a6663254547edb4aa6de17d9b6917ba6d95918608b0f4441502c851565e"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:56.454299+00:00",
+      "sourceHash": "6d71f4ae44ab8d34d5dd8056025924b4ab23ad61dab47c03bddaef7d4805b7c6"
+    }
+  ],
+  "priorGNU": [
+    {
+      "command": "basename",
+      "cases": 48,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "base64",
+      "cases": 304,
+      "goldenBytesUnchanged": true
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "goldenBytesUnchanged": true
+    }
+  ],
+  "validation": {
+    "rust": {
+      "passed": 282,
+      "failed": 0,
+      "optionalIgnored": 14,
+      "mode": "serial"
+    },
+    "frontend": {
+      "passed": 243,
+      "files": 40,
+      "workers": 2
+    },
+    "tooling": {
+      "passed": 52,
+      "failed": 0
+    },
+    "legacy": {
+      "passed": 76
+    },
+    "declarative": {
+      "PASS": 1753,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "normalVerify": true,
+    "strict": {
+      "foundation": "PASS",
+      "cat": "PASS",
+      "head": "PASS",
+      "tail": "PASS",
+      "base64": "PASS",
+      "tee": "PASS",
+      "wc": "PASS"
+    },
+    "globalStrict": {
+      "passed": false,
+      "knownDebt": 1510,
+      "additionalErrors": 0
+    },
+    "rustfmt": "PASS",
+    "clippy": "PASS",
+    "prettier": "PASS",
+    "eslint": "PASS",
+    "stylelint": "PASS",
+    "typescript": "PASS",
+    "content": "PASS",
+    "webBuild": "PASS",
+    "windowsRelease": "PASS",
+    "hostGuard": {
+      "result": "PASS",
+      "failures": [],
+      "exceptions": [
+        {
+          "path": "src-tauri/src/lib.rs",
+          "fragment": "std::fs::create_dir_all(&data)?;",
+          "reason": "Tauri creates its own application save directory."
+        },
+        {
+          "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+          "reason": "Compiler excludes the entire opted-in QA reporter from release."
+        }
+      ],
+      "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+    }
+  },
+  "captureStorage": {
+    "schemaVersion": 3,
+    "cases": 1753,
+    "indexBytes": 200319,
+    "cacheRecords": 8,
+    "completeSnapshots": true,
+    "shardHashes": "SHA-256"
+  },
+  "builds": [
+    {
+      "path": "src-tauri/target/release/game-hacker.exe",
+      "bytes": 92857856,
+      "sha256": "3fe871bcf25e31c3e7cb4ed8fdbde097d2493a48e55133db3da2b79b9c1b71de"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/nsis/Cyber War_0.4.2_x64-setup.exe",
+      "bytes": 84515656,
+      "sha256": "9dba36d099e21f867f6f264af05439f8b688dd87dc0772dc0a1864930310ac83"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/msi/Cyber War_0.4.2_x64_en-US.msi",
+      "bytes": 85282816,
+      "sha256": "b5e57fc7a41f42aad9ec98a945ffe8f9588d8d5f56591198bf980ba3ec82418c"
+    }
+  ],
+  "packaging": {
+    "resources": ["resources/archive-licenses.txt"],
+    "externalBin": []
+  },
+  "next": {
+    "command": "sha256sum",
+    "classification": "SMALL_SHARED_EXTENSION",
+    "complexity": 3,
+    "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+    "knownGaps": [
+      "Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete"
+    ],
+    "dependencies": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "implemented": false
+  }
+}

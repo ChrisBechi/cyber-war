@@ -4,6 +4,7 @@ use super::*;
 use crate::shell::control;
 use crate::shell::signals::{ProcessSignalState, Termination, VirtualSignal};
 use std::sync::Arc;
+mod wc;
 enum Read {
     Data(Vec<u8>),
     Eof,
@@ -158,6 +159,7 @@ enum Engine {
     Tee(Box<crate::coreutils::tee::Tee>),
     Head(Box<crate::coreutils::head::Head>),
     Tail(Box<crate::coreutils::tail::Tail>),
+    Wc(Box<crate::coreutils::wc::Wc>),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
@@ -191,7 +193,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    matches!(name, "cat" | "head" | "tail" | "base64" | "tee")
+    matches!(name, "cat" | "head" | "tail" | "base64" | "tee" | "wc")
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -349,13 +351,16 @@ fn prepare(
     if available
         && matches!(
             name.rsplit('/').next(),
-            Some("cat" | "head" | "tail" | "base64" | "tee")
+            Some("cat" | "head" | "tail" | "base64" | "tee" | "wc")
         )
         && error.is_none()
     {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        let parsed = if name.rsplit('/').next() == Some("tee") {
+        let parsed = if name.rsplit('/').next() == Some("wc") {
+            crate::coreutils::wc::Wc::new(name, &stage.arguments[1..], posix, world)
+                .map(|w| Engine::Wc(Box::new(w)))
+        } else if name.rsplit('/').next() == Some("tee") {
             crate::coreutils::tee::Tee::new(name, &stage.arguments[1..], posix)
                 .map(|t| Engine::Tee(Box::new(t)))
         } else if name.rsplit('/').next() == Some("base64") {
@@ -665,6 +670,7 @@ fn step(
                 }
             }
         }
+        Engine::Wc(_) => return wc::step(world, process, pipes),
         Engine::Head(head) => {
             if head.current.is_none() {
                 let Some(file) = head.files.pop_front() else {
@@ -911,6 +917,14 @@ fn step(
 }
 
 fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> {
+    if let Engine::Wc(wc) = engine {
+        for handle in [wc.handle.take(), wc.list_handle.take()]
+            .into_iter()
+            .flatten()
+        {
+            world.fs_mut()?.close(handle)?;
+        }
+    }
     if let Engine::Tee(tee) = engine {
         tee.close(world)?;
     }

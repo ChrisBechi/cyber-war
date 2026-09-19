@@ -13,6 +13,70 @@ import { caseSources } from './fingerprint.mjs';
 import { ReferenceEnvironment } from './reference-environment.mjs';
 import { cliRuntimeBoundary } from '../../vite.config.ts';
 import { build } from 'vite';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { resolve, sep } from 'node:path';
+import { root } from './io.mjs';
+import { readCapture, writeCapture } from './capture-storage.mjs';
+
+test('case shards retain complete results across eviction, merging and legacy reads', () => {
+  const base = resolve(root, 'artifacts');
+  const dir = mkdtempSync(resolve(base, 'capture-storage-test-'));
+  assert.ok(dir.startsWith(base + sep));
+  try {
+    const rows = Array.from({ length: 24 }, (_, i) => ({
+      id: `case/${i}`,
+      stdout: 'é\0\n' + i,
+      stdoutHex: 'c3a9000a',
+      stderr: '',
+      exitCode: 0,
+      before: { vfs: { a: { content: 'before', mode: 420 } } },
+      after: { vfs: { a: { content: 'after', mode: 384 } } },
+      files: { a: '00ff' },
+      termination: { kind: 'exit', code: 0 },
+      extra: { preserved: true },
+    }));
+    const path = resolve(dir, 'capture.json');
+    writeCapture(path, { schemaVersion: 2, cases: rows });
+    const capture = readCapture(path);
+    for (const i of [...rows.keys(), ...rows.keys()].reverse()) {
+      assert.deepEqual(JSON.parse(JSON.stringify(capture.cases[i])), rows[i]);
+      assert.equal('extra' in capture.cases[i], true);
+      assert.equal('missing' in capture.cases[i], false);
+    }
+    const merged = { schemaVersion: 2, cases: [...capture.cases, { id: 'new', stdout: 'new' }] };
+    writeCapture(path, merged);
+    assert.deepEqual(JSON.parse(JSON.stringify(readCapture(path))).cases, [
+      ...rows,
+      { id: 'new', stdout: 'new' },
+    ]);
+    const legacy = resolve(dir, 'legacy.json');
+    writeFileSync(legacy, JSON.stringify({ schemaVersion: 2, cases: rows }));
+    assert.deepEqual(readCapture(legacy), { schemaVersion: 2, cases: rows });
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('case shard bytes and identities are bound to the evidence index', () => {
+  const base = resolve(root, 'artifacts');
+  const dir = mkdtempSync(resolve(base, 'capture-storage-test-'));
+  assert.ok(dir.startsWith(base + sep));
+  try {
+    const path = resolve(dir, 'capture.json');
+    writeCapture(path, { cases: [{ id: 'case/one', stdout: 'original' }] });
+    const index = JSON.parse(readFileSync(path, 'utf8'));
+    const shard = resolve(dir, 'capture.cases', index.cases[0].sha256 + '.json');
+    const original = readFileSync(shard);
+    writeFileSync(shard, JSON.stringify({ id: 'case/one', stdout: 'changed' }));
+    assert.throws(() => readCapture(path).cases[0].stdout, /fingerprint mismatch/);
+    writeFileSync(shard, original);
+    index.cases[0].id = 'different';
+    writeFileSync(path, JSON.stringify(index));
+    assert.throws(() => readCapture(path).cases[0].stdout, /identity mismatch/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 function dataset() {
   const gates = defaults();

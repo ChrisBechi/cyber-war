@@ -1,0 +1,662 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "3e1bf13",
+  "fingerprint": "03d301a2141af39d5a90eb3c023d340fd5ceb44f01070d81eebb5f799905eb02",
+  "wc": {
+    "id": "command.coreutils.wc",
+    "command": "wc",
+    "softwareId": "coreutils",
+    "implementationKind": "NATIVE",
+    "implementation": "src-tauri/src/terminal_text.rs",
+    "parserKind": "PROGRAM_SPECIFIC",
+    "resultContract": "STRUCTURED",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "aliasOf": null,
+    "gates": {
+      "ALIAS_RESOLUTION": {
+        "applicability": "NOT_APPLICABLE",
+        "reason": "Only applies to declared aliases.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Only applies to declared aliases."
+      },
+      "COMBINED_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/c-chars"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/c-chars: PASS"
+      },
+      "COMMAND_CONTRACTS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Missing/failing required contracts: invocation, errors, help-version; flags without explicit evidence: -l, -w, -c, --lines, --words, --chars, --bytes, --total"
+      },
+      "CROSS_TOOL_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "DISCOVERY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Runtime registry and validated manifest agree"
+      },
+      "ERRORS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "EXIT_CODE": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/bytes: PASS; coreutils/wc/c-chars: PASS; coreutils/wc/cross-pipe: PASS"
+      },
+      "GNU_REFERENCE": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+      },
+      "HELP": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "HOST_ISOLATION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Current source/build guard passed"
+      },
+      "KNOWN_GAPS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Display width and files0-from unsupported; malformed UTF-8 word classification needs reference"
+      },
+      "LONG_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/c-chars"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/c-chars: PASS"
+      },
+      "PARSER": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "PERMISSIONS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "PIPE": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "POSITIONAL_ARGS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "REDIRECTION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "REFERENCE_PINNED": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Version and reference metadata pinned"
+      },
+      "SHORT_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/c-chars"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/c-chars: PASS"
+      },
+      "SIDE_EFFECTS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "SIGNALS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STATE_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STDERR": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/bytes: PASS; coreutils/wc/c-chars: PASS; coreutils/wc/cross-pipe: PASS"
+      },
+      "STDIN": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/bytes: PASS; coreutils/wc/c-chars: PASS"
+      },
+      "STDOUT": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"],
+        "result": "PASS",
+        "resultReason": "coreutils/wc/bytes: PASS; coreutils/wc/c-chars: PASS; coreutils/wc/cross-pipe: PASS"
+      },
+      "TTY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "VERSION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      }
+    },
+    "requirement": "REQUIRED",
+    "source": "native",
+    "sources": ["native"],
+    "classification": "REAL_COMPAT",
+    "referenceVersion": "9.7",
+    "executablePath": "/usr/bin/wc",
+    "packageBindings": [
+      {
+        "packageName": "coreutils",
+        "version": "9.7",
+        "path": "/usr/bin/wc",
+        "binding": "builtin"
+      }
+    ],
+    "packageName": "coreutils",
+    "availability": "BASE_SYSTEM",
+    "requirements": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "man": {
+      "command": "wc",
+      "referenceSources": [
+        {
+          "kind": "OFFICIAL_DOCS",
+          "url": "https://www.gnu.org/software/coreutils/",
+          "notes": "Inherited project baseline; no reference execution attestation."
+        }
+      ]
+    },
+    "usedByMissions": [],
+    "coreutils": {
+      "area": "reading",
+      "complexity": 2,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "flags": ["-l", "-w", "-m", "-c", "--lines", "--words", "--chars", "--bytes", "--total"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Byte/newline counts and word/character counts in C and C.UTF-8",
+          "evidence": []
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": ["coreutils/wc/c-chars", "coreutils/wc/utf8-malformed-count"]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": []
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": []
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/wc/cross-pipe"]
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/wc/bytes", "coreutils/wc/c-chars"]
+        }
+      ],
+      "knownGaps": [
+        "Display width and files0-from unsupported",
+        "malformed UTF-8 word classification needs reference"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "blockedBy": [],
+    "missingGates": [
+      "COMMAND_CONTRACTS",
+      "CROSS_TOOL_CONSISTENCY",
+      "ERRORS",
+      "GNU_REFERENCE",
+      "HELP",
+      "KNOWN_GAPS",
+      "PARSER",
+      "PERMISSIONS",
+      "PIPE",
+      "POSITIONAL_ARGS",
+      "REDIRECTION",
+      "SIDE_EFFECTS",
+      "SIGNALS",
+      "STATE_CONSISTENCY",
+      "TTY",
+      "VERSION"
+    ],
+    "effectiveStatus": "PARTIAL",
+    "status": "PARTIAL",
+    "evidenceIds": ["coreutils/wc/bytes", "coreutils/wc/c-chars", "coreutils/wc/cross-pipe"]
+  },
+  "projectCases": [
+    {
+      "schemaVersion": 2,
+      "id": "coreutils/wc/bytes",
+      "softwareId": "coreutils",
+      "command": "wc",
+      "invocation": "/usr/bin/wc",
+      "argv": ["-c", "data"],
+      "roundtrip": false,
+      "inputEvents": [],
+      "stdin": null,
+      "env": {
+        "LC_ALL": "C"
+      },
+      "cwd": "/home/kali",
+      "tty": {
+        "isTTY": false,
+        "columns": 80,
+        "rows": 24,
+        "ansiSupport": false,
+        "interactive": false
+      },
+      "reference": {
+        "softwareId": "coreutils",
+        "version": "9.7",
+        "kind": "MAN_PAGE",
+        "source": "https://manpages.debian.org/trixie/coreutils/wc.1.en.html"
+      },
+      "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STDIN"],
+      "flags": [],
+      "errorCase": false,
+      "fixture": {
+        "files": {},
+        "bytes": {
+          "/home/kali/data": "00ff80c3a90a7a"
+        },
+        "directories": [],
+        "modes": {},
+        "setup": []
+      },
+      "expected": {
+        "stdout": {
+          "kind": "EXACT",
+          "value": "7 data\n"
+        },
+        "stderr": {
+          "kind": "EXACT",
+          "value": ""
+        },
+        "exitCode": 0,
+        "state": []
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "coreutils/wc/c-chars",
+      "softwareId": "coreutils",
+      "command": "wc",
+      "invocation": "/usr/bin/wc",
+      "argv": ["-m", "data"],
+      "roundtrip": false,
+      "inputEvents": [],
+      "stdin": null,
+      "env": {
+        "LC_ALL": "C"
+      },
+      "cwd": "/home/kali",
+      "tty": {
+        "isTTY": false,
+        "columns": 80,
+        "rows": 24,
+        "ansiSupport": false,
+        "interactive": false
+      },
+      "reference": {
+        "softwareId": "coreutils",
+        "version": "9.7",
+        "kind": "MAN_PAGE",
+        "source": "https://manpages.debian.org/trixie/coreutils/wc.1.en.html"
+      },
+      "gates": [
+        "STDOUT",
+        "STDERR",
+        "EXIT_CODE",
+        "SHORT_FLAGS",
+        "LONG_FLAGS",
+        "COMBINED_FLAGS",
+        "STDIN"
+      ],
+      "flags": ["-m"],
+      "errorCase": false,
+      "fixture": {
+        "files": {},
+        "bytes": {
+          "/home/kali/data": "00ff80c3a90a7a"
+        },
+        "directories": [],
+        "modes": {},
+        "setup": []
+      },
+      "expected": {
+        "stdout": {
+          "kind": "EXACT",
+          "value": "7 data\n"
+        },
+        "stderr": {
+          "kind": "EXACT",
+          "value": ""
+        },
+        "exitCode": 0,
+        "state": []
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "coreutils/wc/cross-pipe",
+      "softwareId": "coreutils",
+      "command": "wc",
+      "invocation": "/usr/bin/wc",
+      "argv": [],
+      "script": "cat data | head -c 4 | wc -c",
+      "roundtrip": false,
+      "inputEvents": [],
+      "stdin": null,
+      "env": {
+        "LC_ALL": "C"
+      },
+      "cwd": "/home/kali",
+      "tty": {
+        "isTTY": false,
+        "columns": 80,
+        "rows": 24,
+        "ansiSupport": false,
+        "interactive": false
+      },
+      "reference": {
+        "softwareId": "coreutils",
+        "version": "9.7",
+        "kind": "MAN_PAGE",
+        "source": "https://manpages.debian.org/trixie/coreutils/wc.1.en.html"
+      },
+      "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+      "flags": [],
+      "errorCase": false,
+      "fixture": {
+        "files": {},
+        "bytes": {
+          "/home/kali/data": "00ff80c3a90a7a"
+        },
+        "directories": [],
+        "modes": {},
+        "setup": []
+      },
+      "expected": {
+        "stdout": {
+          "kind": "EXACT",
+          "value": "4\n"
+        },
+        "stderr": {
+          "kind": "EXACT",
+          "value": ""
+        },
+        "exitCode": 0,
+        "state": []
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "coreutils/wc/utf8-malformed-count",
+      "softwareId": "coreutils",
+      "command": "wc",
+      "invocation": "/usr/bin/wc",
+      "argv": ["-m", "data"],
+      "roundtrip": false,
+      "inputEvents": [],
+      "stdin": null,
+      "env": {
+        "LC_ALL": "C.UTF-8"
+      },
+      "cwd": "/home/kali",
+      "tty": {
+        "isTTY": false,
+        "columns": 80,
+        "rows": 24,
+        "ansiSupport": false,
+        "interactive": false
+      },
+      "reference": {
+        "softwareId": "coreutils",
+        "version": "9.7",
+        "kind": "MAN_PAGE",
+        "source": "https://manpages.debian.org/trixie/coreutils/wc.1.en.html"
+      },
+      "gates": ["STDOUT", "STDERR", "EXIT_CODE"],
+      "flags": [],
+      "errorCase": false,
+      "fixture": {
+        "files": {},
+        "bytes": {
+          "/home/kali/data": "00ff80c3a90a7a"
+        },
+        "directories": [],
+        "modes": {},
+        "setup": []
+      },
+      "expected": {
+        "stdout": {
+          "kind": "EXACT",
+          "value": "4 data\n"
+        },
+        "stderr": {
+          "kind": "EXACT",
+          "value": ""
+        },
+        "exitCode": 0,
+        "state": []
+      }
+    }
+  ],
+  "coreutils": {
+    "VERIFIED": 9,
+    "PARTIAL": 28,
+    "UNVERIFIED": 0
+  },
+  "next": {
+    "command": "wc",
+    "aliases": [],
+    "baseline": "9.7",
+    "implementation": "src-tauri/src/terminal_text.rs",
+    "implementationKind": "NATIVE",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "flags": ["-l", "-w", "-m", "-c", "--lines", "--words", "--chars", "--bytes", "--total"],
+    "contracts": [
+      {
+        "id": "invocation",
+        "applicability": "REQUIRED",
+        "description": "Byte/newline counts and word/character counts in C and C.UTF-8",
+        "evidence": [],
+        "result": "NO_EVIDENCE"
+      },
+      {
+        "id": "options",
+        "applicability": "REQUIRED",
+        "description": "Supported options, combinations, --, unknown options and required operands",
+        "evidence": ["coreutils/wc/c-chars", "coreutils/wc/utf8-malformed-count"],
+        "result": "PASS"
+      },
+      {
+        "id": "errors",
+        "applicability": "REQUIRED",
+        "description": "Separate stderr, exact status, partial success and operand order",
+        "evidence": [],
+        "result": "NO_EVIDENCE"
+      },
+      {
+        "id": "help-version",
+        "applicability": "REQUIRED",
+        "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+        "evidence": [],
+        "result": "NO_EVIDENCE"
+      },
+      {
+        "id": "integration",
+        "applicability": "REQUIRED",
+        "description": "Explicit packaged executable, shell argv, streams and host isolation",
+        "evidence": ["coreutils/wc/cross-pipe"],
+        "result": "PASS"
+      },
+      {
+        "id": "bytes",
+        "applicability": "REQUIRED",
+        "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+        "evidence": ["coreutils/wc/bytes", "coreutils/wc/c-chars"],
+        "result": "PASS"
+      }
+    ],
+    "wave": 2,
+    "area": "reading",
+    "complexity": 2,
+    "missionUses": [],
+    "before": "PARTIAL",
+    "after": "PARTIAL",
+    "projectCases": 4,
+    "referenceCases": 0,
+    "referenceState": "SKIPPED",
+    "matchedReferenceCases": 0,
+    "requiredGates": 26,
+    "passedGates": 10,
+    "blockers": [
+      "GATE:COMMAND_CONTRACTS",
+      "GATE:CROSS_TOOL_CONSISTENCY",
+      "GATE:ERRORS",
+      "GATE:GNU_REFERENCE",
+      "GATE:HELP",
+      "GATE:KNOWN_GAPS",
+      "GATE:PARSER",
+      "GATE:PERMISSIONS",
+      "GATE:PIPE",
+      "GATE:POSITIONAL_ARGS",
+      "GATE:REDIRECTION",
+      "GATE:SIDE_EFFECTS",
+      "GATE:SIGNALS",
+      "GATE:STATE_CONSISTENCY",
+      "GATE:TTY",
+      "GATE:VERSION",
+      "GAP:Display width and files0-from unsupported",
+      "GAP:malformed UTF-8 word classification needs reference"
+    ],
+    "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+  },
+  "gnuCases": 1220,
+  "declarative": {
+    "PASS": 1336,
+    "FAIL": 0,
+    "SKIPPED": 0
+  },
+  "hostGuard": {
+    "result": "PASS",
+    "failures": [],
+    "exceptions": [
+      {
+        "path": "src-tauri/src/lib.rs",
+        "fragment": "std::fs::create_dir_all(&data)?;",
+        "reason": "Tauri creates its own application save directory."
+      },
+      {
+        "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+        "reason": "Compiler excludes the entire opted-in QA reporter from release."
+      }
+    ],
+    "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+  }
+}

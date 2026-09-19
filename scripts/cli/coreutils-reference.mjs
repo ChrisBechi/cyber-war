@@ -36,7 +36,7 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (['cat', 'head', 'tail', 'base64', 'tee'].includes(c.command)) {
+  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(c.command)) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -48,15 +48,45 @@ export function referenceCapture(command) {
   const path = `tests/cli/gnu/coreutils/${command.referenceVersion}/${command.command}.json`;
   return existsSync(resolve(root, path)) ? json(path) : null;
 }
+// An independent double replay can refresh provenance without rewriting a
+// single golden byte. Adding a sibling binary to the lock does not invalidate
+// this command. Shared harness edits still require an independent replay.
+export function verificationFresh(command, capture) {
+  if (!Array.isArray(capture.cases)) return false;
+  const path = `tests/cli/gnu/coreutils/${capture.version}/${command}-verification.json`;
+  if (!existsSync(resolve(root, path))) return false;
+  const receipt = json(path),
+    lock = json('content/cli-compatibility/coreutils-environment.json');
+  const dependencies = {
+    harnessHash: sourceHash('scripts/cli/coreutils-reference.py'),
+    environmentHash: hash(
+      canonical({ ...lock, binaryHashes: { [command]: lock.binaryHashes[command] } }),
+    ),
+    ...(['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(command)
+      ? { interactionHash: sourceHash('scripts/cli/coreutils_interaction.py') }
+      : {}),
+    ...(command === 'tail' ? { followHash: sourceHash('scripts/cli/coreutils_follow.py') } : {}),
+  };
+  return (
+    receipt.schemaVersion === 1 &&
+    receipt.command === command &&
+    receipt.identicalRuns === 2 &&
+    receipt.cases === capture.cases.length &&
+    Number.isFinite(Date.parse(receipt.verifiedAt)) &&
+    receipt.captureHash === hash(JSON.stringify(capture, null, 2) + '\n') &&
+    canonical(receipt.dependencies) === canonical(dependencies)
+  );
+}
 export function validateReference(command, capture) {
   if (!capture) return 'No GNU reference capture';
   const binary = capture.environment?.binaryHashes?.[command.command];
   const lock = json('content/cli-compatibility/coreutils-environment.json');
+  const refreshed = verificationFresh(command.command, capture);
   if (
     capture.schemaVersion !==
       (command.command === 'tail'
         ? 4
-        : ['cat', 'head', 'base64', 'tee'].includes(command.command)
+        : ['cat', 'head', 'base64', 'tee', 'wc'].includes(command.command)
           ? 3
           : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
@@ -67,21 +97,24 @@ export function validateReference(command, capture) {
   )
     return 'Reference provenance/baseline/schema/locale mismatch';
   if (
-    capture.harnessHash !== sourceHash('scripts/cli/coreutils-reference.py') ||
-    capture.environment?.lockHash !==
-      sourceHash('content/cli-compatibility/coreutils-environment.json')
-  )
-    return 'Reference harness/environment fingerprint stale';
-  if (
-    ['cat', 'head', 'tail', 'base64', 'tee'].includes(command.command) &&
+    !refreshed &&
+    ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
   if (
+    !refreshed &&
     command.command === 'tail' &&
     capture.followHash !== sourceHash('scripts/cli/coreutils_follow.py')
   )
     return 'Reference follow harness fingerprint stale';
+  if (
+    !refreshed &&
+    (capture.harnessHash !== sourceHash('scripts/cli/coreutils-reference.py') ||
+      capture.environment?.lockHash !==
+        sourceHash('content/cli-compatibility/coreutils-environment.json'))
+  )
+    return 'Reference harness/environment fingerprint stale';
   if (
     capture.environment?.os !== 'Linux' ||
     capture.environment?.id !== lock.id ||
@@ -137,7 +170,7 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (['cat', 'head', 'tail', 'base64', 'tee'].includes(test.command)) {
+  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command)) {
     const io = test.io ?? {};
     const endpoints = {
       stdin:

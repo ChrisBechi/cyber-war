@@ -15,6 +15,8 @@ pub(super) struct Options {
     pub tail: super::tail::Options,
     pub wrap: Option<u64>,
     pub tee_mode: super::tee::ErrorMode,
+    pub wc_total: super::wc::Total,
+    pub files0: Option<String>,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -128,6 +130,15 @@ pub(super) fn parse(
             ("output-error", 'p'),
         ]),
         "base64" => long.extend([("decode", 'd'), ("ignore-garbage", 'i'), ("wrap", 'w')]),
+        "wc" => long.extend([
+            ("bytes", 'c'),
+            ("chars", 'm'),
+            ("lines", 'l'),
+            ("words", 'w'),
+            ("files0-from", '\u{1}'),
+            ("max-line-length", 'L'),
+            ("total", '\u{2}'),
+        ]),
         "cat" => long.extend([
             ("number-nonblank", 'b'),
             ("number", 'n'),
@@ -197,7 +208,8 @@ pub(super) fn parse(
             let takes_value = (name == "basename" && *ch == 's')
                 || (matches!(name, "head" | "tail") && matches!(*ch, 'n' | 'c'))
                 || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'))
-                || (name == "base64" && *ch == 'w');
+                || (name == "base64" && *ch == 'w')
+                || (name == "wc" && matches!(*ch, '\u{1}' | '\u{2}'));
             let optional_value = (name == "tail" && *ch == 'f') || (name == "tee" && *ch == 'p');
             if !takes_value && !optional_value && attached.is_some() {
                 return Err(Box::new(error(
@@ -207,7 +219,7 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if matches!(name, "cat" | "head" | "tail" | "base64" | "tee")
+            if matches!(name, "cat" | "head" | "tail" | "base64" | "tee" | "wc")
                 && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
@@ -225,7 +237,7 @@ pub(super) fn parse(
                             invocation,
                             &format!(
                                 "option '--{}' requires an argument",
-                                if matches!(name, "head" | "tail" | "base64") {
+                                if matches!(name, "head" | "tail" | "base64" | "wc") {
                                     found.unwrap().0
                                 } else {
                                     prefix
@@ -249,6 +261,7 @@ pub(super) fn parse(
                     "printenv" => "0iu",
                     "base64" => "diw",
                     "tee" => "aip",
+                    "wc" => "clLmw",
                     "cat" => "AbEnestTuv",
                     "head" => "cnqvz0123456789",
                     "tail" => "cnqvzfFs0123456789",
@@ -316,6 +329,17 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "wc" {
+                match ch {
+                    '\u{1}' => out.files0 = value,
+                    '\u{2}' => {
+                        out.wc_total =
+                            super::wc::Total::parse(value.as_deref().unwrap(), invocation)?
+                    }
+                    _ => out.flags.push(ch),
+                }
+                continue;
+            }
             if name == "tee" {
                 if ch == 'p' {
                     out.tee_mode = super::tee::ErrorMode::parse(value.as_deref(), invocation)?;

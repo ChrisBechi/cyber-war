@@ -40,7 +40,7 @@ def request(case):
             'argv': case['argv'], 'stdinHex': case.get('stdinHex', (case.get('stdin') or '').encode().hex()),
             'env': case['env'], 'cwd': case['cwd'], 'fixture': {k: case.get('fixture', {}).get(k, [] if k in ['directories', 'setup'] else {}) for k in ['files', 'bytes', 'directories', 'modes', 'setup']},
             'process': case.get('process'), 'transport': case.get('transport', 'direct')}
-    if case['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
+    if case['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'}:
         req.update(io=case.get('io'), interaction=case.get('interaction'))
         req['fixture'].update({k: case.get('fixture', {}).get(k, {}) for k in ['hardlinks', 'symlinks']})
     return req
@@ -100,7 +100,7 @@ def worker(path):
     req = json.loads(Path(path).read_text())
     env = environment(req)
     argv = [req['invocation'], *req['argv']]
-    if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
+    if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'}:
         if (req.get('interaction') or {}).get('schemaVersion') == 2:
             from coreutils_follow import execute
         else:
@@ -197,7 +197,7 @@ def capture(case, bwrap):
         result = {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
                 'stdoutHex': out.hex(), 'stderrHex': err.hex(), 'exitCode': completed.returncode,
                 'before': before, 'after': snapshot(home)}
-        if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee'}:
+        if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'}:
             if completed.returncode != 0 or not out:
                 raise RuntimeError(f'Worker failed for {case["id"]}: status={completed.returncode}, stderr={err[:4000]!r}')
             result.update(json.loads(out))
@@ -209,6 +209,7 @@ def main():
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument('--capture', action='store_true')
     action.add_argument('--verify', action='store_true')
+    parser.add_argument('--record-verification', action='store_true', help='Verify unchanged golden observations and record fresh per-command provenance; never recapture expectations')
     parser.add_argument('--replace', action='store_true')
     scope = parser.add_mutually_exclusive_group(required=True)
     scope.add_argument('--command')
@@ -216,6 +217,8 @@ def main():
     parser.add_argument('--output-dir')
     parser.add_argument('--probe', help='DEV inputs; writes observations outside approved goldens')
     args = parser.parse_args()
+    if args.record_verification and (not args.verify or args.probe):
+        parser.error('--record-verification requires independent canonical --verify')
     if args.replace and not args.capture:
         parser.error('--replace requires --capture')
     if sys.platform != 'linux' or not shutil.which('bwrap'):
@@ -267,15 +270,32 @@ def main():
         payload = {'schemaVersion': 2, 'provenance': 'GNU_PROBE' if args.probe else 'GNU_REFERENCE', 'version': version,
                    'command': name, 'locale': 'C', 'capturedAt': datetime.now(timezone.utc).isoformat(),
                    'harnessHash': source_hash(HARNESS_PATH), 'environment': {**env, 'binaryHashes': {name: binaries[name]}}, 'cases': rows}
-        if name in {'cat', 'head', 'tail', 'base64', 'tee'}:
+        if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'}:
             payload.update(schemaVersion=3, interactionHash=source_hash('scripts/cli/coreutils_interaction.py'))
         if name == 'tail':
             payload.update(schemaVersion=4, followHash=source_hash('scripts/cli/coreutils_follow.py'))
         if args.verify:
             original = json.loads(target.read_text())
-            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64', 'tee'} else []) + (['followHash'] if name == 'tail' else []):
-                if original[key] != payload[key]:
+            receipt_path = output / f'{name}-verification.json'
+            receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else None
+            dependencies = {'harnessHash': source_hash(HARNESS_PATH),
+                            'environmentHash': sha(canonical({**lock, 'binaryHashes': {name: lock['binaryHashes'][name]}}).encode())}
+            if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'}:
+                dependencies['interactionHash'] = source_hash('scripts/cli/coreutils_interaction.py')
+            if name == 'tail':
+                dependencies['followHash'] = source_hash('scripts/cli/coreutils_follow.py')
+            refreshed = args.record_verification or (receipt and receipt.get('captureHash') == source_hash(str(target)) and receipt.get('dependencies') == dependencies)
+            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc'} else []) + (['followHash'] if name == 'tail' else []):
+                before, after = original[key], payload[key]
+                if refreshed and key in ['harnessHash', 'interactionHash', 'followHash']:
+                    continue
+                if refreshed and key == 'environment':
+                    before = {k: v for k, v in before.items() if k != 'lockHash'}
+                    after = {k: v for k, v in after.items() if k != 'lockHash'}
+                if before != after:
                     raise RuntimeError(f'Reference reproduction differs: {name}/{key}; golden unchanged')
+            if args.record_verification:
+                receipt_path.write_text(json.dumps({'schemaVersion': 1, 'command': name, 'captureHash': source_hash(str(target)), 'dependencies': dependencies, 'cases': len(rows), 'identicalRuns': 2, 'verifiedAt': datetime.now(timezone.utc).isoformat()}, indent=2) + '\n', encoding='utf-8')
         else:
             output.mkdir(parents=True, exist_ok=True)
             target.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')

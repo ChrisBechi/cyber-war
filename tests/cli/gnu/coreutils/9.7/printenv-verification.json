@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "command": "printenv",
+  "captureHash": "4b7ccb9543a81c3f0b03a8e23ea6b9e3a915aebd67896a02c669ef12b57495f3",
+  "dependencies": {
+    "harnessHash": "2b60d2c2a58aac1f5f46bfedc59de5d323af7b0d47a87d60a597f72543e05b57",
+    "environmentHash": "4d530476d29c5651ec1ab120a13998c05d24148fc01f4062112f658f16254fbe"
+  },
+  "cases": 36,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-19T20:13:38.056760+00:00"
+}

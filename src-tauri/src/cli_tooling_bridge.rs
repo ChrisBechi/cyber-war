@@ -5,6 +5,7 @@ compile_error!("CLI development bridge must never be compiled into production.")
 use crate::{cli_contract::Tty, terminal, world::WorldState};
 use serde::Deserialize;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
 fn artifact(name: &str, value: &Value) {
@@ -291,10 +292,12 @@ fn cli_tooling_capture() {
     // complete VFS snapshots; collecting all Value trees multiplied memory use.
     use std::io::Write;
     let target = path.with_file_name("cli-case-actual.json");
+    let cases_directory = target.with_extension("cases");
+    std::fs::create_dir_all(&cases_directory).unwrap();
     let temporary = path.with_file_name("cli-case-actual.partial.json");
     let mut writer = std::io::BufWriter::new(std::fs::File::create(&temporary).unwrap());
     writer
-        .write_all(b"{\"schemaVersion\":2,\"cases\":[")
+        .write_all(b"{\"schemaVersion\":3,\"cases\":[")
         .unwrap();
     for (index, mut case) in request.cases.into_iter().enumerate() {
         if index > 0 {
@@ -508,9 +511,12 @@ fn cli_tooling_capture() {
         }
         w.vfs.collect();
         w.vfs.check_invariants().unwrap();
-        serde_json::to_writer(&mut writer, &json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
+        let row = serde_json::to_vec(&json!({"id":case.id,"stdout":result.stdout,"stdoutHex": result.stdout_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"durationMs":started.elapsed().as_secs_f64()*1000.0,"stderr":result.stderr,
             "stderrHex":result.stderr_bytes.iter().map(|b| format!("{b:02x}")).collect::<String>(),"exitCode":result.exit_code,"termination":result.termination,"observations":observations,"ordered":result.ordered,"before":before,"after":snapshot(&w),"tty":tty,
             "files":w.vfs.nodes.iter().filter(|(p,n)| p.starts_with("/home/kali/") && n.kind == "file").map(|(p,n)| (p.clone(), n.blob.as_ref().map(|b| w.blobs[&b.hash].as_slice()).unwrap_or(n.content.as_bytes()).iter().map(|b|format!("{b:02x}")).collect::<String>())).collect::<BTreeMap<_,_>>()})).unwrap();
+        let sha256 = format!("{:x}", Sha256::digest(&row));
+        std::fs::write(cases_directory.join(format!("{sha256}.json")), row).unwrap();
+        serde_json::to_writer(&mut writer, &json!({"id":case.id,"sha256":sha256})).unwrap();
     }
     writer.write_all(b"]}").unwrap();
     writer.flush().unwrap();

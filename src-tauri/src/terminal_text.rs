@@ -11,29 +11,19 @@ const LIMIT: usize = 4 * 1024 * 1024;
 const RECORD_LIMIT: usize = 65_536;
 
 pub(crate) fn manual(command: &str) -> Option<String> {
+    if command == "wc" {
+        return Some(crate::coreutils::wc::manual());
+    }
     let syntax = match command {
-        "wc" => "wc [-lwmc] [--lines] [--words] [--chars] [--bytes] [--total=auto|always|only|never] [--] [FILE...]",
         "sort" => "sort [-bnfruscCz] [-o FILE] [--numeric-sort] [--reverse] [--unique] [--stable] [--ignore-case] [--ignore-leading-blanks] [--check[=diagnose-first|quiet|silent]] [--output=FILE] [--zero-terminated] [--] [FILE...]",
         "uniq" => "uniq [-cduiz] [-f N] [-s N] [-w N] [--count] [--repeated] [--unique] [--ignore-case] [--skip-fields=N] [--skip-chars=N] [--check-chars=N] [--zero-terminated] [--] [INPUT [OUTPUT]]",
         _ => return None,
     };
     let detail = match command {
-        "wc" => "Counts newlines, words, characters and bytes in that fixed order. Defaults to lines/words/bytes. Multiple operands produce totals; - consumes stdin once. Errors preserve successful counts. C uses byte characters and ASCII whitespace; C.UTF-8 uses Unicode characters/whitespace. Display-width (-L), binary input and files0-from are unsupported.",
         "sort" => "Combines all inputs; supplies a missing final delimiter. Numeric keys use exact decimal prefixes, not floating point. -s disables the final full-line comparison; -u keeps the first equal key. -c/-C return 1 for disorder, 2 for errors. -o reads inputs before writing, including the same file. Byte collation for C/C.UTF-8 only. Field keys, merge, other numeric modes and external sorting are unsupported.",
         _ => "Counts only adjacent groups; -d keeps repeated groups, -u keeps single groups. Field skips happen before character skips; comparison width limits the remaining key. Case comparison is ASCII for C and Unicode lowercase for C.UTF-8. In this text subset -s/-w operate on Unicode characters; arbitrary byte slicing, locale-specific folding and group separator flags are unsupported. OUTPUT is truncated when opened.",
     };
     Some(format!("{command}(1) — CYBER WAR virtual subset\n\nSYNOPSIS\n  {syntax}\n\n{detail}\n\nNo file or '-' reads virtual stdin. Interactive stdin is not implemented.\nInput and output are bounded to 4 MiB; files remain subject to VFS limits.\n--help and --version are supported; the version banner contains the baseline line only.\n"))
-}
-
-fn send(output: &mut Output, fd: u8, text: String) {
-    if fd == 1 {
-        output.stdout.push_str(&text);
-    } else {
-        output.stderr.push_str(&text);
-    }
-    if !text.is_empty() {
-        output.ordered.push((fd, text));
-    }
 }
 
 fn read(
@@ -95,7 +85,7 @@ pub(crate) fn execute(
     actor: &str,
 ) -> GameResult<Output> {
     let result = match command {
-        "wc" => wc(world, args, actor),
+        "wc" => crate::coreutils::cat::execute(world, "wc", args, actor),
         "sort" => sort(world, args, actor),
         "uniq" => uniq(world, args, actor),
         _ => unreachable!(),
@@ -118,159 +108,6 @@ fn early(command: &str, opts: &Options) -> Option<Output> {
     } else {
         None
     }
-}
-
-fn wc(world: &mut WorldState, args: &[String], actor: &str) -> GameResult<Output> {
-    let opts = options(
-        "wc",
-        args,
-        "lwmc",
-        "\u{1}",
-        &[
-            ("lines", 'l'),
-            ("words", 'w'),
-            ("chars", 'm'),
-            ("bytes", 'c'),
-            ("total", '\u{1}'),
-            ("version", 'V'),
-        ],
-    )?;
-    if let Some(output) = early("wc", &opts) {
-        return Ok(output);
-    }
-    let total = opts
-        .counts
-        .last()
-        .map(|(_, value)| value.as_str())
-        .unwrap_or("auto");
-    if !["auto", "always", "only", "never"].contains(&total) {
-        return Err(domain(format!(
-            "wc: invalid argument '{total}' for 'total type'"
-        )));
-    }
-    let c_locale = locale(world, "LC_CTYPE")?;
-    let files = inputs(&opts);
-    let selected: Vec<usize> = "lwmc"
-        .chars()
-        .enumerate()
-        .filter(|(_, f)| opts.has(*f) || (opts.flags.is_empty() && *f != 'm'))
-        .map(|(i, _)| i)
-        .collect();
-    let mut stdin = Some(crate::coreutils::io::stdin(world));
-    let mut rows = Vec::new();
-    let mut sums = [0usize; 4];
-    let mut size = 0;
-    for file in &files {
-        match crate::coreutils::io::read(world, file, actor, &mut stdin) {
-            Ok(bytes) => {
-                let text = if c_locale {
-                    bytes.iter().map(|b| char::from(*b)).collect::<String>()
-                } else {
-                    String::from_utf8_lossy(&bytes).into_owned()
-                };
-                size += bytes.len();
-                bounded(size)?;
-                let blank = |c: char| {
-                    if c_locale {
-                        c.is_ascii_whitespace()
-                    } else {
-                        c.is_whitespace()
-                            || (!world.terminal.env.contains_key("POSIXLY_CORRECT")
-                                && c == '\u{2060}')
-                    }
-                };
-                let counts = [
-                    bytes.iter().copied().filter(|b| *b == b'\n').count(),
-                    text.split(blank).filter(|word| !word.is_empty()).count(),
-                    if c_locale {
-                        bytes.len()
-                    } else {
-                        utf8_char_count(&bytes)
-                    },
-                    bytes.len(),
-                ];
-                for (sum, count) in sums.iter_mut().zip(counts) {
-                    *sum += count;
-                }
-                rows.push((file.clone(), Ok(counts)));
-            }
-            Err(error) => rows.push((file.clone(), Err(error))),
-        }
-    }
-    let width = if total == "only" || (files.len() == 1 && selected.len() == 1) {
-        1
-    } else if files.iter().any(|f| f == "-") {
-        7
-    } else {
-        sums[3].to_string().len()
-    };
-    let format_counts = |counts: &[usize; 4], label: &str| {
-        let values = selected
-            .iter()
-            .map(|i| format!("{:>width$}", counts[*i]))
-            .collect::<Vec<_>>()
-            .join(" ");
-        format!(
-            "{values}{}\n",
-            if label.is_empty() {
-                String::new()
-            } else {
-                format!(" {label}")
-            }
-        )
-    };
-    let mut output = Output::default();
-    for (file, counts) in rows {
-        match counts {
-            Ok(counts) if total != "only" => send(
-                &mut output,
-                1,
-                format_counts(&counts, if opts.files.is_empty() { "" } else { &file }),
-            ),
-            Ok(_) => {}
-            Err(error) => {
-                output.status = 1;
-                send(
-                    &mut output,
-                    2,
-                    format!("wc: {file}: {}\n", error_reason(error)),
-                );
-            }
-        }
-    }
-    if total == "always" || total == "only" || (total == "auto" && files.len() > 1) {
-        send(
-            &mut output,
-            1,
-            format_counts(&sums, if total == "only" { "" } else { "total" }),
-        );
-    }
-    Ok(output)
-}
-
-// GNU wc -m in UTF-8 does not count malformed encoding bytes as characters.
-fn utf8_char_count(mut bytes: &[u8]) -> usize {
-    let mut count = 0;
-    while !bytes.is_empty() {
-        match std::str::from_utf8(bytes) {
-            Ok(text) => {
-                count += text.chars().count();
-                break;
-            }
-            Err(error) => {
-                count += std::str::from_utf8(&bytes[..error.valid_up_to()])
-                    .expect("validated prefix")
-                    .chars()
-                    .count();
-                let skip = error.valid_up_to()
-                    + error
-                        .error_len()
-                        .unwrap_or(bytes.len() - error.valid_up_to());
-                bytes = &bytes[skip..];
-            }
-        }
-    }
-    count
 }
 
 // Compare arbitrarily long decimal prefixes without precision loss. The C

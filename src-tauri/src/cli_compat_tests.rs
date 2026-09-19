@@ -530,7 +530,7 @@ fn cli_compat_text_errors_limits_and_output_paths_do_not_hide_data_loss() {
     assert_eq!(r.exit_code, 2);
     assert!(r.stderr.contains("65536"));
     assert_eq!(w.vfs.read("/home/kali/out", "kali").unwrap(), "keep");
-    for name in ["wc", "sort", "uniq"] {
+    for name in ["sort", "uniq"] {
         assert_eq!(
             execute(&mut w, &format!("{name} --version")).stdout,
             format!("{name} (GNU coreutils) 9.7\n")

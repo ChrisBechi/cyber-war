@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "command": "head",
+  "captureHash": "2ba8fa455f43c6d83bd47a057cc3f2ecd31edbee8aa6076a716456aa89c428b3",
+  "dependencies": {
+    "harnessHash": "2b60d2c2a58aac1f5f46bfedc59de5d323af7b0d47a87d60a597f72543e05b57",
+    "environmentHash": "793b794c8d768319fe654e6d13af83d41bd81820acf4437729f470f4f2d3a2f5",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
+  },
+  "cases": 215,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-19T20:15:04.952478+00:00"
+}

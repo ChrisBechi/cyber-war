@@ -82,11 +82,11 @@ cargo test / debug; wall-clock; no host command execution
 
 | Measurement                         | Mean ms / value |
 | ----------------------------------- | --------------- |
-| Simple parse                        | 0.015           |
-| Moderate script parse               | 6.863           |
-| Three-stage, 100000 lines           | 18.523          |
+| Simple parse                        | 0.011           |
+| Moderate script parse               | 6.229           |
+| Three-stage, 100000 lines           | 10.691          |
 | Peak pipe bytes                     | 65536           |
 | Pipe capacity bytes                 | 65536           |
-| Glob 100 entries (100 requested)    | 2.952           |
-| Glob 1000 entries (1000 requested)  | 20.352          |
-| Glob 9946 entries (10000 requested) | 111.040         |
+| Glob 100 entries (100 requested)    | 2.754           |
+| Glob 1000 entries (1000 requested)  | 8.600           |
+| Glob 9946 entries (10000 requested) | 95.801          |

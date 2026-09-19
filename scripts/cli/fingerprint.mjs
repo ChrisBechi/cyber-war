@@ -17,6 +17,9 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/coreutils/base64.rs',
     'src-tauri/src/coreutils/tee.rs',
     'src-tauri/src/coreutils/tee_tests.rs',
+    'src-tauri/src/coreutils/wc.rs',
+    'src-tauri/src/coreutils/wc_tests.rs',
+    'src-tauri/src/shell_pipeline/streams/wc.rs',
     'src-tauri/src/coreutils/base64_tests.rs',
     'src-tauri/src/coreutils/foundation.rs',
     'src-tauri/src/coreutils/cat.rs',
@@ -25,6 +28,14 @@ export function caseSources(test, sources = evidenceSources()) {
   ]);
   const foundation = ['basename', 'dirname', 'printenv', 'whoami'].includes(test.command);
   return sources.filter((p) => {
+    if (
+      [
+        'scripts/cli/wc-cases.mjs',
+        'scripts/cli-wc-generate.mjs',
+        'scripts/cli/wc.test.mjs',
+      ].includes(p)
+    )
+      return test.command === 'wc';
     if (
       [
         'scripts/cli/tee-cases.mjs',
@@ -46,15 +57,16 @@ export function caseSources(test, sources = evidenceSources()) {
     if (p.startsWith('content/cli-compatibility/')) return false;
     if (p.startsWith('src-tauri/src/coreutils/messages/'))
       return (
-        (foundation || ['cat', 'head', 'tail', 'base64', 'tee'].includes(test.command)) &&
+        (foundation || ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command)) &&
         p.includes('/' + test.command + '-')
       );
     if (p.endsWith('/foundation_options.rs') || p.endsWith('/foundation_messages.rs'))
-      return foundation || ['cat', 'head', 'tail', 'base64', 'tee'].includes(test.command);
+      return foundation || ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command);
     return (
       !leaf.has(p) ||
       p === impl ||
-      (['head', 'tail', 'base64', 'tee'].includes(test.command) && p.endsWith('/cat.rs')) ||
+      (['head', 'tail', 'base64', 'tee', 'wc'].includes(test.command) && p.endsWith('/cat.rs')) ||
+      (test.command === 'wc' && (p.endsWith('/wc_tests.rs') || p.endsWith('/streams/wc.rs'))) ||
       (test.command === 'base64' && p.endsWith('/base64_tests.rs')) ||
       (test.command === 'tee' && p.endsWith('/tee_tests.rs')) ||
       (test.command === 'tail' && p.endsWith('/head.rs')) ||

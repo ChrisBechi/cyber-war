@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "command": "basename",
+  "captureHash": "4febf941c657f094e538d1aea7f90016ab7b763600948cc6735eb2eaf2db938d",
+  "dependencies": {
+    "harnessHash": "2b60d2c2a58aac1f5f46bfedc59de5d323af7b0d47a87d60a597f72543e05b57",
+    "environmentHash": "ef2282cbce5b110ef1d958eabe5c0e8b669848fe62319608d1cf4685e3e2490b"
+  },
+  "cases": 48,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-19T20:13:22.572391+00:00"
+}

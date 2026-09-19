@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "command": "tail",
+  "captureHash": "f7139f802afe3ba04d753cba07eeee369348cbf13e07becc580b5af72da08c6e",
+  "dependencies": {
+    "harnessHash": "2b60d2c2a58aac1f5f46bfedc59de5d323af7b0d47a87d60a597f72543e05b57",
+    "environmentHash": "c7285f872601b12aebe902f684e45ee178de6aa29c4433413a367dd59e93cc18",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be",
+    "followHash": "cc519e03d94c4aabcefb7b618f4cb1d8313f82f5c71dccd058da4a0b1021d606"
+  },
+  "cases": 306,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-19T20:17:07.598283+00:00"
+}
