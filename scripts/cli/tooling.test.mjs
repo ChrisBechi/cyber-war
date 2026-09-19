@@ -218,6 +218,25 @@ test('a program requires only declared shell capabilities while jobs stay partia
   d.capture.cases[0].stdout = 'bad';
   assert.deepEqual(run(d).commands[0].blockedBy, ['SUBSYSTEM:SHELL.PIPELINES:PARTIAL']);
 });
+
+test('automatic capability readiness requires real GNU differential evidence', () => {
+  const d = dataset();
+  d.inventory.subsystems[0].capabilities = [
+    {
+      id: 'VFS.EVENTS',
+      state: 'PARTIAL',
+      readiness: 'GNU_DIFFERENTIAL',
+      requiredTests: ['toy/basic'],
+    },
+    { id: 'VFS.WATCH', state: 'PARTIAL', readiness: 'GNU_DIFFERENTIAL', requiredTests: [] },
+    { id: 'VFS.DEVICES', state: 'PARTIAL', requiredTests: ['toy/basic'] },
+  ];
+  const report = run(d);
+  assert.deepEqual(
+    report.subsystems[0].capabilities.map((c) => c.effectiveState),
+    ['PARTIAL', 'PARTIAL', 'PARTIAL'],
+  );
+});
 test('family with two verified and one partial remains PARTIAL', () => {
   const d = dataset();
   for (const n of ['b', 'c']) {
@@ -432,6 +451,44 @@ test('dashboard deterministic and derived, no independent status list', () => {
   report.queue = queue(report);
   assert.deepEqual(render(report), render(report));
   assert.match(render(report)['cli-dashboard.md'], /commandVerification/);
+});
+
+test('tail binds tested stream capabilities while preserving VFS requirements and general subsystem debt', () => {
+  const manifest = json('content/cli-compatibility/manifest.json');
+  const subsystems = json('content/cli-compatibility/subsystems.json');
+  const build = (m) =>
+    discover(
+      json('artifacts/cli-runtime-registry.json'),
+      m,
+      json('content/software/kali-default.json'),
+      json('content/cli-compatibility/baseline.json'),
+      subsystems,
+    );
+  const tail = build(manifest).commands.find((c) => c.command === 'tail');
+  for (const id of [
+    ...manifest.software.coreutils.vfsRequirements,
+    'VFS.EVENTS',
+    'VFS.WATCH',
+    'PROCESS.LIFETIME',
+    'SIGNALS.STREAMS',
+    'TTY.CANONICAL_IO',
+  ])
+    assert.ok(tail.requirements.includes(id), id);
+  for (const id of ['PROCESS', 'SIGNALS', 'TTY']) {
+    assert.equal(subsystems.subsystems.find((s) => s.id === id).state, 'PARTIAL');
+    assert.ok(!tail.requirements.includes(id));
+  }
+  delete manifest.native.tail.runtimeRequirements;
+  const general = build(manifest).commands.find((c) => c.command === 'tail');
+  for (const id of ['PROCESS', 'SIGNALS', 'TTY']) assert.ok(general.requirements.includes(id));
+  for (const invalid of [
+    { TTY: [] },
+    { TTY: ['VFS.WATCH'] },
+    { PROCESS: ['PROCESS.LIFETIME'], HOST: ['HOST.EXEC'] },
+  ]) {
+    manifest.native.tail.runtimeRequirements = invalid;
+    assert.throws(() => manifestSchema.parse(manifest));
+  }
 });
 test('every capability has a typed subsystem', () => {
   for (const value of Object.values(capabilitySubsystem)) assert.equal(typeof value, 'string');

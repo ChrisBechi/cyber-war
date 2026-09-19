@@ -8,9 +8,12 @@ pub(crate) mod head;
 pub(crate) mod io;
 mod legacy;
 mod options;
+pub(crate) mod tail;
 pub(crate) use legacy::help;
 #[cfg(test)]
 mod performance_tests;
+#[cfg(test)]
+mod tail_tests;
 #[cfg(test)]
 mod tests;
 
@@ -27,8 +30,8 @@ pub(crate) fn execute(
         "basename" | "dirname" | "printenv" | "whoami" | "env" => {
             foundation::execute(world, name, args, actor, invocation)
         }
-        "cat" | "head" => cat::execute(world, invocation, args, actor),
-        "tail" | "tee" | "base64" | "sha256sum" => bytes::execute(world, name, args, actor),
+        "cat" | "head" | "tail" => cat::execute(world, invocation, args, actor),
+        "tee" | "base64" | "sha256sum" => bytes::execute(world, name, args, actor),
         _ => match legacy::validate(name, args) {
             Ok(Some(out)) => Ok(out),
             Ok(None) => return None,

@@ -13,7 +13,6 @@
     "cat/redirect",
     "ls/basic",
     "ls/hidden",
-    "tail/stdin",
     "ls/cross-tool"
   ],
   "notes": "Versioned declared expectations for existing virtual behavior; not collected from an external Kali reference environment."

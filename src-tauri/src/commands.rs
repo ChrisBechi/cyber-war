@@ -220,18 +220,14 @@ pub async fn execute_terminal(
     let control =
         crate::shell::control::register_output(session_id.as_deref().unwrap_or("default"), output);
     tauri::async_runtime::spawn_blocking(move || {
-        crate::shell::control::run(&control, || {
-            app.state::<Mutex<GameService>>().lock().mutate(
-                |_, world, _| {
-                    crate::terminal_sessions::with_session(world, session_id.as_deref(), |world| {
-                        if let Some(presentation) = presentation {
-                            world.terminal.presentation = presentation;
-                        }
-                        Ok(terminal::execute_interactive(world, &command))
-                    })
-                },
-                false,
-            )
+        let service = app.state::<Mutex<GameService>>();
+        GameService::transact_cooperatively(&service, &control, |world| {
+            crate::terminal_sessions::with_session(world, session_id.as_deref(), |world| {
+                if let Some(presentation) = presentation {
+                    world.terminal.presentation = presentation;
+                }
+                Ok(terminal::execute_interactive(world, &command))
+            })
         })
     })
     .await

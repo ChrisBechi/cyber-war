@@ -134,6 +134,7 @@ enum Engine {
     Yes(Vec<u8>),
     Cat(Box<crate::coreutils::cat::Cat>),
     Head(Box<crate::coreutils::head::Head>),
+    Tail(Box<crate::coreutils::tail::Tail>),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
@@ -150,6 +151,7 @@ struct Process {
     archive_job: Option<u32>,
     signals: Arc<ProcessSignalState>,
     termination: Option<Termination>,
+    stdout_buffer: Option<crate::shell::stdio::OutputBuffer>,
 }
 
 fn chunks(pending: &mut VecDeque<(u8, Vec<u8>)>, fd: u8, text: Vec<u8>) {
@@ -166,7 +168,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    matches!(name, "cat" | "head")
+    matches!(name, "cat" | "head" | "tail")
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -321,12 +323,18 @@ fn prepare(
     let mut engine = engine(stage, available);
     let mut pending = VecDeque::new();
     let mut status = 0;
-    if available && matches!(name.rsplit('/').next(), Some("cat" | "head")) && error.is_none() {
+    if available
+        && matches!(name.rsplit('/').next(), Some("cat" | "head" | "tail"))
+        && error.is_none()
+    {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
         let parsed = if name.rsplit('/').next() == Some("head") {
             crate::coreutils::head::Head::new(name, &stage.arguments[1..], posix)
                 .map(|h| Engine::Head(Box::new(h)))
+        } else if name.rsplit('/').next() == Some("tail") {
+            crate::coreutils::tail::Tail::new(name, &stage.arguments[1..], posix)
+                .map(|t| Engine::Tail(Box::new(t)))
         } else {
             crate::coreutils::cat::Cat::new(name, &stage.arguments[1..], posix)
                 .map(|c| Engine::Cat(Box::new(c)))
@@ -358,6 +366,9 @@ fn prepare(
         user: actor,
         running: true,
     });
+    let stdout_buffer = (matches!(engine, Engine::Tail(_))
+        && matches!(destinations[1], Destination::File(_)))
+    .then(crate::shell::stdio::OutputBuffer::default);
     Ok(Process {
         pid,
         session: world.terminal.clone(),
@@ -371,6 +382,7 @@ fn prepare(
         archive_job: None,
         signals: control::register_process(pid),
         termination: None,
+        stdout_buffer,
     })
 }
 fn step(
@@ -617,6 +629,55 @@ fn step(
                 }
             }
         }
+        Engine::Tail(tail) => {
+            use crate::coreutils::tail::Step;
+            let stdin_file = match process.input {
+                Input::File(h) => Some(h),
+                _ => None,
+            };
+            match tail.step(world, stdin_file, process.pid)? {
+                Step::Output(fd, bytes) => {
+                    let bytes = if fd == 1 {
+                        process
+                            .stdout_buffer
+                            .as_mut()
+                            .map_or_else(|| bytes.clone(), |buffer| buffer.push(&bytes))
+                    } else {
+                        bytes
+                    };
+                    chunks(&mut process.pending, fd, bytes);
+                }
+                Step::Progress => {}
+                Step::Input => match process.input.read(world, pipes)? {
+                    Read::Pending | Read::Interrupted => return Ok(false),
+                    Read::Data(bytes) => tail.feed(Some(&bytes)),
+                    Read::Eof => tail.feed(None),
+                },
+                Step::Wait => {
+                    if let Some(buffer) = &mut process.stdout_buffer {
+                        let bytes = buffer.flush();
+                        if !bytes.is_empty() {
+                            chunks(&mut process.pending, 1, bytes);
+                            return Ok(true);
+                        }
+                    }
+                    world
+                        .scheduler
+                        .waiting
+                        .insert(process.pid, tail.wait_set(world));
+                    return Ok(false);
+                }
+                Step::Done => {
+                    if let Some(buffer) = &mut process.stdout_buffer {
+                        chunks(&mut process.pending, 1, buffer.flush());
+                    }
+                    process.status = tail.status;
+                    process.engine = Engine::Finished;
+                    process.input.close(pipes);
+                }
+            }
+            world.scheduler.waiting.remove(&process.pid);
+        }
         Engine::Legacy { text, read } => {
             if *read {
                 match process.input.read(world, pipes)? {
@@ -685,6 +746,9 @@ fn step(
 }
 
 fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> {
+    if let Engine::Tail(tail) = engine {
+        tail.close(world)?;
+    }
     let handle = match engine {
         Engine::Cat(c) => c.handle.take(),
         Engine::Head(h) => h.handle.take(),
@@ -706,6 +770,9 @@ fn terminate(
     process.termination = Some(termination);
     process.status = termination.status();
     process.pending.clear();
+    if let Some(buffer) = &mut process.stdout_buffer {
+        buffer.clear();
+    }
     process.engine = Engine::Finished;
     Ok(())
 }
@@ -734,6 +801,7 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
             processes.last_mut().unwrap().destinations[1] = Destination::Pipe;
         }
         while processes.iter().any(|p| !p.done) {
+            let wake_epoch = control::event_epoch();
             let mut progress = false;
             for index in (0..processes.len()).rev() {
                 let process = &mut processes[index];
@@ -741,7 +809,20 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                     continue;
                 }
                 world.terminal = process.session.clone();
-                if let Some(signal) = process.signals.take().or_else(control::termination_signal) {
+                if matches!(&process.engine,Engine::Tail(t) if t.monitor_output())
+                    && matches!(process.destinations[1], Destination::Pipe)
+                    && pipes[index].reader_closed
+                {
+                    terminate(world, process, VirtualSignal::Pipe)?;
+                    progress = true;
+                }
+                if let Some(signal) = world
+                    .scheduler
+                    .signals
+                    .remove(&process.pid)
+                    .or_else(|| process.signals.take())
+                    .or_else(control::termination_signal)
+                {
                     terminate(world, process, signal)?;
                     progress = true;
                 }
@@ -825,7 +906,28 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
                 }
             }
             if !progress {
-                control::wait();
+                let mut waiting = crate::shell::wait::WaitSet::default();
+                for process in &processes {
+                    if process.done {
+                        continue;
+                    }
+                    waiting.processes.push((process.pid, true));
+                    if let Some(condition) = world.scheduler.waiting.get(&process.pid) {
+                        waiting.extend(condition);
+                    } else {
+                        waiting.input = true;
+                        world.scheduler.waiting.insert(
+                            process.pid,
+                            crate::shell::wait::WaitSet {
+                                input: true,
+                                ..Default::default()
+                            },
+                        );
+                    }
+                }
+                if !world.scheduler.advance_idle(&waiting) {
+                    control::wait_world(world, waiting, wake_epoch);
+                }
             }
         }
         Ok(())
@@ -834,6 +936,7 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
         .processes
         .retain(|p| !processes.iter().any(|running| running.pid == p.pid));
     for process in &mut processes {
+        world.scheduler.finish(process.pid);
         control::unregister_process(process.pid);
         world.terminal.host = process.session.host.clone();
         close_operand(world, &mut process.engine)?;

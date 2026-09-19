@@ -966,6 +966,7 @@ fn process_contract(
         match arg.as_str() {
             "--" => end = true,
             "-0" => signal = 0,
+            "-2" | "-INT" | "-SIGINT" => signal = 2,
             "-9" | "-KILL" | "-SIGKILL" => signal = 9,
             "-15" | "-TERM" | "-SIGTERM" => signal = 15,
             "-x" if name == "pkill" => exact = true,
@@ -1048,7 +1049,7 @@ fn signal_local_targets(
     actor: &str,
     signal: u8,
 ) -> GameResult<()> {
-    if ![0, 9, 15].contains(&signal) {
+    if ![0, 2, 9, 15].contains(&signal) {
         return Err(domain("kill: unsupported signal"));
     }
     for (pid, _, user) in &targets {
@@ -1059,6 +1060,12 @@ fn signal_local_targets(
     if signal != 0 {
         let mut states = service_states(world);
         for (pid, unit, _) in targets {
+            if world.scheduler.waiting.contains_key(&pid) {
+                world.scheduler.signals.insert(
+                    pid,
+                    crate::shell::signals::VirtualSignal::from_number(signal).unwrap(),
+                );
+            }
             if let Some(process) = world.processes.iter_mut().find(|p| p.pid == pid) {
                 process.running = false;
             }
@@ -1292,7 +1299,7 @@ pub(crate) fn virtual_env(world: &WorldState, actor: &str) -> BTreeMap<String, S
 }
 
 fn manual_page(command: &str) -> String {
-    if command == "cat" {
+    if matches!(command, "cat" | "tail") {
         return crate::terminal_io::manual(command).unwrap();
     }
     if let Some(manual) = crate::coreutils::help(command) {

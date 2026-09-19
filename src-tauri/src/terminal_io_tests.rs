@@ -175,15 +175,13 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
     for cmd in [
         "cat --invented a",
         "head -f a",
-        "tail -f a",
-        "tail --follow a",
+        "tail --follow=invalid a",
         "tail -n",
         "head -n bad a",
         "cp --backup a Documents/a",
         "mv -r a Documents/a",
         "rm --invented a",
         "rm -I a",
-        "tail -",
     ] {
         let result = execute(&mut w, cmd);
         assert_ne!(result.exit_code, 0, "{cmd}");
@@ -191,6 +189,7 @@ fn unsupported_flags_and_stdin_are_explicit_and_nonmutating() {
         assert_eq!(serde_json::to_string(&w.vfs).unwrap(), before, "{cmd}");
     }
     // These former subset rejections are accepted by the pinned GNU reference.
+    ok(&mut w, "tail -", "");
     ok(&mut w, "head -c2K a", "original");
     ok(
         &mut w,
@@ -355,7 +354,7 @@ fn excessive_text_output_is_bounded_and_does_not_change_files() {
 #[test]
 fn audited_manuals_describe_the_implemented_subset() {
     let mut w = world();
-    for command in ["pwd", "cd", "tail", "cp", "mv", "rm"] {
+    for command in ["pwd", "cd", "cp", "mv", "rm"] {
         let help = execute(&mut w, &format!("{command} --help"));
         assert_eq!(help.exit_code, 0, "{command}");
         assert!(help.stdout.contains("virtual subset"));
@@ -366,6 +365,18 @@ fn audited_manuals_describe_the_implemented_subset() {
     assert!(head.stdout.contains("--zero-terminated"));
     assert!(head.stdout.contains("NUM may have a multiplier suffix:"));
     ok(&mut w, "man head", &head.stdout);
+    let tail = execute(&mut w, "tail --help");
+    assert_eq!(tail.exit_code, 0);
+    assert_eq!(
+        tail.stdout,
+        include_str!("coreutils/messages/tail-help.txt").replace("{invocation}", "tail")
+    );
+    let manual = execute(&mut w, "man tail");
+    assert_eq!(manual.exit_code, 0);
+    assert!(manual
+        .stdout
+        .contains("virtual inode and pathname subscriptions"));
+    assert!(manual.stdout.contains("SIGPIPE"));
     let help = execute(&mut w, "cat --help");
     assert_eq!(help.exit_code, 0);
     assert!(help

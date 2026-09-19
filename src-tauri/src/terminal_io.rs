@@ -154,6 +154,9 @@ pub(crate) fn options(
 }
 
 pub fn manual(command: &str) -> Option<String> {
+    if command == "tail" {
+        return Some(format!("{}\nCYBER WAR compatibility scope\n\nFile follow uses virtual inode and pathname subscriptions. SIGINT, SIGTERM and SIGPIPE interrupt the process. --pid observes virtual processes only. Intervals use discrete simulation time, never host time. Output and suffix buffers have explicit virtual limits; general shell job control and additional device types remain outside this subset.\nCertification status and evidence: docs/coreutils/MILESTONE-1C.4.md.\n",crate::coreutils::help(command)?));
+    }
     if command == "cat" {
         return Some(format!("{}\nCYBER WAR compatibility scope\n\nByte streams use the selected local/SSH virtual filesystem. All documented options are supported; -b overrides -n and transformation state continues across operands and chunks.\nThe canonical virtual TTY distinguishes pending input, complete lines and EOF. Ctrl+D flushes a partial line; on an empty line it ends the current read. Echo belongs to the UI. SIGINT, SIGTERM and SIGPIPE terminate the virtual process with status 130, 143 and 141. Full POSIX terminal modes and job control are outside this scope.\nResources are bounded; see docs/coreutils/MILESTONE-1C.2.md for limits and GNU evidence.\n", crate::coreutils::cat::help()));
     }

@@ -1603,7 +1603,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | switch_root                   | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sysctl                        | procps                   | CATALOG_ONLY | 4.0.4      | UNVERIFIED | src-tauri/src/software.rs::command    |
 | systemctl                     | systemd                  | NATIVE       | 257.5      | PARTIAL    | src-tauri/src/terminal.rs             |
-| tail                          | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| tail                          | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/tail.rs       |
 | tar                           | tar                      | NATIVE       | NOT PINNED | PARTIAL    | src-tauri/src/archive/cli.rs          |
 | task-manager                  | xfce4-taskmanager        | LAUNCHER     | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | taskset                       | rfkill                   | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

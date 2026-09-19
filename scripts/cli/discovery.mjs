@@ -10,12 +10,16 @@ import { read, json, files } from './io.mjs';
 
 export const id = (group, name) => `command.${group}.${encodeURIComponent(name)}`;
 const sort = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-function requirements(capabilities, shell = [], vfs = []) {
+function requirements(capabilities, shell = [], vfs = [], runtime = {}) {
   const subsystems = capabilities.map((c) => capabilitySubsystem[c]);
   return [
     ...new Set(
       subsystems.flatMap((id) =>
-        id === 'SHELL' && shell.length ? shell : id === 'VFS' && vfs.length ? vfs : [id],
+        id === 'SHELL' && shell.length
+          ? shell
+          : id === 'VFS' && vfs.length
+            ? vfs
+            : (runtime[id] ?? [id]),
       ),
     ),
   ].sort(sort);
@@ -233,6 +237,7 @@ export function discover(
         selected.capabilities,
         selected.shellRequirements ?? family.shellRequirements,
         selected.vfsRequirements ?? family.vfsRequirements,
+        selected.runtimeRequirements,
       ),
       man: { command: name, referenceSources: family.referenceSources },
       usedByMissions: missions

@@ -163,7 +163,7 @@ export function TerminalWindow({
       const consumed = { 1: 0, 2: 0 };
       let streamEnded = false;
       const output = new Channel<{
-        kind: 'stdout' | 'stderr' | 'waitingForInput' | 'exited';
+        kind: 'stdout' | 'stderr' | 'waitingForInput' | 'waitingForChange' | 'exited';
         data?: string | number;
       }>();
       output.onmessage = (event) => {

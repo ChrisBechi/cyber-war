@@ -82,11 +82,35 @@ struct IoFixture {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct InteractionFixture {
     schema_version: u8,
+    #[serde(default)]
+    writers: Vec<String>,
     steps: Vec<InteractionStep>,
 }
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase", deny_unknown_fields)]
 enum InteractionStep {
+    StopWriter {
+        writer: String,
+        signal: Option<crate::shell::signals::VirtualSignal>,
+    },
+    MutateBatch {
+        steps: Vec<InteractionStep>,
+    },
+    Wait,
+    Await {
+        #[serde(default, rename = "stdoutBytes")]
+        stdout_bytes: usize,
+        #[serde(default, rename = "stderrBytes")]
+        stderr_bytes: usize,
+    },
+    Mutate {
+        operation: String,
+        path: String,
+        target: Option<String>,
+        hex: Option<String>,
+        size: Option<usize>,
+        mode: Option<u16>,
+    },
     Write {
         hex: String,
     },
@@ -214,6 +238,7 @@ fn run_interaction(
                         assert_eq!(pids.len(), 1, "signal targets one virtual process");
                         assert!(control::signal(key, Some(pids[0]), *signal));
                     }
+                    _ => panic!("Version 2 step in TTY protocol"),
                 }
             }
         }));
@@ -227,6 +252,8 @@ fn run_interaction(
         result
     })
 }
+#[path = "cli_follow_bridge.rs"]
+mod follow;
 #[test]
 #[ignore = "development case capture; invoked explicitly by cli:compat"]
 fn cli_tooling_capture() {
@@ -243,7 +270,7 @@ fn cli_tooling_capture() {
     writer
         .write_all(b"{\"schemaVersion\":2,\"cases\":[")
         .unwrap();
-    for (index, case) in request.cases.into_iter().enumerate() {
+    for (index, mut case) in request.cases.into_iter().enumerate() {
         if index > 0 {
             writer.write_all(b",").unwrap();
         }
@@ -327,6 +354,20 @@ fn cli_tooling_capture() {
         // engines currently consume columns and descriptor TTY state only.
         let tty = json!({"isTTY":case.tty.is_tty,"rows":case.tty.rows,"columns":case.tty.columns,"ansiSupport":case.tty.ansi_support,"interactive":case.tty.interactive});
         let before = snapshot(&w);
+        if let Some(interaction) = &case.interaction {
+            for (index, name) in interaction.writers.iter().enumerate() {
+                let pid = 100_000 + index as u32;
+                w.processes.push(crate::world::VirtualProcess {
+                    pid,
+                    name: name.clone(),
+                    user: "kali".into(),
+                    running: true,
+                });
+                for arg in &mut case.argv {
+                    *arg = arg.replace(&format!("{{{name}}}"), &pid.to_string());
+                }
+            }
+        }
         let (sender, receiver) = std::sync::mpsc::channel();
         let output = case.interaction.as_ref().map(|_| {
             tauri::ipc::Channel::new(move |body| {
@@ -349,9 +390,9 @@ fn cli_tooling_capture() {
             }
         }
         let closed_consumer = case.io.as_ref().is_some_and(|io| io.closed_consumer);
-        let work = || {
+        let work = |w: &mut WorldState| {
             if let Some(script) = case.script {
-                terminal::execute(&mut w, &script)
+                terminal::execute(w, &script)
             } else if case.transport.as_deref().is_some_and(|t| t != "direct") || case.io.is_some()
             {
                 let quote = |value: &str| format!("'{}'", value.replace('\'', "'\\''"));
@@ -382,31 +423,43 @@ fn cli_tooling_capture() {
                 } else {
                     command
                 };
-                terminal::execute(&mut w, &script)
+                terminal::execute(w, &script)
             } else {
                 let parts = std::iter::once(case.invocation.unwrap_or(case.command))
                     .chain(case.argv)
                     .collect();
-                terminal::execute_parts(&mut w, Ok(parts))
+                terminal::execute_parts(w, Ok(parts))
             }
         };
         let started = std::time::Instant::now();
         let mut observations = Vec::new();
         let result = if let Some(interaction) = case.interaction {
-            run_interaction(
-                &case.id,
-                &control,
-                &interaction,
-                receiver,
-                &mut observations,
-                work,
-            )
+            if interaction.schema_version == 2 {
+                follow::run(
+                    &case.id,
+                    &control,
+                    &interaction,
+                    receiver,
+                    &mut observations,
+                    &mut w,
+                    work,
+                )
+            } else {
+                run_interaction(
+                    &case.id,
+                    &control,
+                    &interaction,
+                    receiver,
+                    &mut observations,
+                    || work(&mut w),
+                )
+            }
         } else if closed_consumer {
-            crate::shell_pipeline::streams::with_closed_consumer(work)
+            crate::shell_pipeline::streams::with_closed_consumer(|| work(&mut w))
         } else if case.input_events.is_empty() {
-            work()
+            work(&mut w)
         } else {
-            crate::shell::control::run(&control, work)
+            crate::shell::control::run(&control, || work(&mut w))
         };
         assert_eq!(
             w.vfs.open_handle_count(),
@@ -414,6 +467,9 @@ fn cli_tooling_capture() {
             "leaked descriptor: {}",
             case.id
         );
+        assert_eq!(w.vfs.watcher_count(), 0, "leaked watcher: {}", case.id);
+        assert_eq!(w.scheduler.timer_count(), 0, "leaked timer: {}", case.id);
+        assert!(w.scheduler.waiting.is_empty(), "leaked wait: {}", case.id);
         assert!(
             crate::shell::control::process_ids(&case.id).is_empty(),
             "leaked process registration: {}",

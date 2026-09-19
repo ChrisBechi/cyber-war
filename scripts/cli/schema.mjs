@@ -62,6 +62,8 @@ const vfsRequirement = z.enum([
   'VFS.TIMESTAMPS',
   'VFS.DEVICES',
   'VFS.SAVE_ROUNDTRIP',
+  'VFS.EVENTS',
+  'VFS.WATCH',
 ]);
 export const subsystemId = z.enum([...new Set(Object.values(capabilitySubsystem))]);
 export const gateNames = [
@@ -144,6 +146,14 @@ export const nativeSpec = z
     softwareId: z.string(),
     shellRequirements: z.array(shellRequirement).optional(),
     vfsRequirements: z.array(vfsRequirement).optional(),
+    runtimeRequirements: z
+      .object({
+        PROCESS: z.array(z.literal('PROCESS.LIFETIME')).min(1).optional(),
+        SIGNALS: z.array(z.literal('SIGNALS.STREAMS')).min(1).optional(),
+        TTY: z.array(z.literal('TTY.CANONICAL_IO')).min(1).optional(),
+      })
+      .strict()
+      .optional(),
     implementationKind: kinds,
     implementation: z.string(),
     parserKind: z.enum(['SHELL', 'PROGRAM_SPECIFIC', 'CATALOG_ADAPTER']),
@@ -211,6 +221,7 @@ export const subsystemSchema = z
                 .object({
                   id: z.string().regex(/^[A-Z]+\.[A-Z_]+$/),
                   state: z.enum(['MISSING', 'PARTIAL', 'READY']),
+                  readiness: z.enum(['DECLARED', 'GNU_DIFFERENTIAL']).optional(),
                   reason: z.string().min(12),
                   requiredTests: z.array(z.string()),
                   evidenceIds: z.array(z.string()),
@@ -270,6 +281,73 @@ export const assertionSchema = z
         .length === 1,
     'Choose exactly one assertion',
   );
+const mutationPath = z
+  .string()
+  .startsWith('/home/kali/')
+  .refine((value) => !value.split('/').includes('..') && !value.includes('\0'));
+const mutationStepSchema = z
+  .object({
+    kind: z.literal('mutate'),
+    operation: z.enum([
+      'write',
+      'append',
+      'truncate',
+      'rename',
+      'unlink',
+      'chmod',
+      'mkdir',
+      'hardlink',
+      'symlink',
+    ]),
+    path: mutationPath,
+    target: z.string().optional(),
+    hex: z
+      .string()
+      .regex(/^(?:[a-f0-9]{2})*$/)
+      .optional(),
+    size: z.number().int().nonnegative().optional(),
+    mode: z.number().int().min(0).max(4095).optional(),
+  })
+  .strict()
+  .superRefine((step, context) => {
+    const fields = {
+      write: ['hex'],
+      append: ['hex'],
+      truncate: ['size'],
+      rename: ['target'],
+      unlink: [],
+      chmod: ['mode'],
+      mkdir: [],
+      hardlink: ['target'],
+      symlink: ['target'],
+    }[step.operation];
+    for (const field of ['hex', 'size', 'target', 'mode']) {
+      if (fields.includes(field) !== (step[field] !== undefined)) {
+        context.addIssue({
+          code: 'custom',
+          path: [field],
+          message: `${step.operation} requires exactly: ${fields.join(', ') || 'path only'}`,
+        });
+      }
+    }
+    if (
+      ['rename', 'hardlink'].includes(step.operation) &&
+      !mutationPath.safeParse(step.target).success
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['target'],
+        message: 'Mutation destination must remain in the isolated fixture',
+      });
+    }
+    if (step.operation === 'symlink' && step.target?.includes('\0')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['target'],
+        message: 'NUL in link target',
+      });
+    }
+  });
 export const caseSchema = z
   .object({
     schemaVersion: z.literal(2),
@@ -288,10 +366,36 @@ export const caseSchema = z
       .optional(),
     interaction: z
       .object({
-        schemaVersion: z.literal(1),
+        schemaVersion: z.union([z.literal(1), z.literal(2)]),
+        writers: z
+          .array(z.string().regex(/^[a-z][a-z0-9_]*$/))
+          .max(8)
+          .optional(),
         steps: z
           .array(
             z.discriminatedUnion('kind', [
+              z
+                .object({
+                  kind: z.literal('stopWriter'),
+                  writer: z.string().regex(/^[a-z][a-z0-9_]*$/),
+                  signal: z.enum(['SIGINT', 'SIGTERM']).optional(),
+                })
+                .strict(),
+              z.object({ kind: z.literal('wait') }).strict(),
+              z
+                .object({
+                  kind: z.literal('await'),
+                  stdoutBytes: z.number().int().nonnegative().optional(),
+                  stderrBytes: z.number().int().nonnegative().optional(),
+                })
+                .strict(),
+              mutationStepSchema,
+              z
+                .object({
+                  kind: z.literal('mutateBatch'),
+                  steps: z.array(mutationStepSchema).min(1).max(16),
+                })
+                .strict(),
               z
                 .object({
                   kind: z.literal('write'),
@@ -317,6 +421,55 @@ export const caseSchema = z
           .max(32),
       })
       .strict()
+      .superRefine((interaction, context) => {
+        const allowed =
+          interaction.schemaVersion === 1
+            ? ['write', 'expect', 'eof', 'signal']
+            : ['wait', 'await', 'mutate', 'mutateBatch', 'stopWriter', 'signal'];
+        const writers = interaction.writers ?? [];
+        if (
+          new Set(writers).size !== writers.length ||
+          (interaction.schemaVersion === 1 && writers.length)
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['writers'],
+            message: 'Unique writers require protocol version 2',
+          });
+        }
+        const stopped = new Set();
+        for (const [index, step] of interaction.steps.entries()) {
+          const path = ['steps', index];
+          if (!allowed.includes(step.kind)) {
+            context.addIssue({
+              code: 'custom',
+              path,
+              message: 'Step is not supported by this protocol version',
+            });
+          }
+          if (
+            step.kind === 'await' &&
+            step.stdoutBytes === undefined &&
+            step.stderrBytes === undefined
+          ) {
+            context.addIssue({
+              code: 'custom',
+              path,
+              message: 'Output barrier requires an explicit byte count',
+            });
+          }
+          if (step.kind === 'stopWriter') {
+            if (!writers.includes(step.writer) || stopped.has(step.writer)) {
+              context.addIssue({
+                code: 'custom',
+                path,
+                message: 'Writer must be declared and may stop only once',
+              });
+            }
+            stopped.add(step.writer);
+          }
+        }
+      })
       .optional(),
     invocation: z
       .string()
@@ -421,7 +574,15 @@ export const caseSchema = z
           ])
           .optional(),
         observations: z
-          .array(z.object({ stdoutHex: z.string(), running: z.boolean() }).strict())
+          .array(
+            z
+              .object({
+                stdoutHex: z.string(),
+                stderrHex: z.string().optional(),
+                running: z.boolean(),
+              })
+              .strict(),
+          )
           .optional(),
         state: z.array(assertionSchema).default([]),
       })

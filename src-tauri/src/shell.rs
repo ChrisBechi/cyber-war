@@ -1,5 +1,6 @@
 //! Bash 5.2-compatible virtual subset; never invokes an operating-system shell.
 pub mod control;
+pub mod cooperative;
 mod executor;
 mod expansion;
 #[cfg(test)]
@@ -7,8 +8,10 @@ mod foundation_tests;
 #[cfg(test)]
 mod performance_tests;
 pub mod signals;
+pub(crate) mod stdio;
 pub mod syntax;
 pub mod tty;
+pub mod wait;
 use crate::{
     error::GameResult,
     terminal_io::Output,

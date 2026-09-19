@@ -12,6 +12,7 @@ pub(super) struct Options {
     pub special: Option<&'static str>,
     pub flags: Vec<char>,
     pub selection: Option<super::head::Selection>,
+    pub tail: super::tail::Options,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -111,7 +112,7 @@ pub(super) fn parse(
         "basename" => long.extend([("multiple", 'a'), ("suffix", 's'), ("zero", 'z')]),
         "dirname" => long.push(("zero", 'z')),
         "printenv" => long.push(("null", '0')),
-        "head" => long.extend([
+        "head" | "tail" => long.extend([
             ("bytes", 'c'),
             ("lines", 'n'),
             ("quiet", 'q'),
@@ -129,6 +130,15 @@ pub(super) fn parse(
             ("show-all", 'A'),
         ]),
         _ => {}
+    }
+    if name == "tail" {
+        long.extend([
+            ("follow", 'f'),
+            ("retry", 'r'),
+            ("sleep-interval", 's'),
+            ("max-unchanged-stats", 'm'),
+            ("pid", 'p'),
+        ]);
     }
     long.extend([("help", 'h'), ("version", 'v')]);
     let mut index = 0;
@@ -176,9 +186,11 @@ pub(super) fn parse(
                     true,
                 )));
             };
-            let takes_value =
-                (name == "basename" && *ch == 's') || (name == "head" && matches!(*ch, 'n' | 'c'));
-            if !takes_value && attached.is_some() {
+            let takes_value = (name == "basename" && *ch == 's')
+                || (matches!(name, "head" | "tail") && matches!(*ch, 'n' | 'c'))
+                || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'));
+            let optional_value = name == "tail" && *ch == 'f';
+            if !takes_value && !optional_value && attached.is_some() {
                 return Err(Box::new(error(
                     name,
                     invocation,
@@ -186,7 +198,7 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if matches!(name, "cat" | "head")
+            if matches!(name, "cat" | "head" | "tail")
                 && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
@@ -204,7 +216,7 @@ pub(super) fn parse(
                             invocation,
                             &format!(
                                 "option '--{}' requires an argument",
-                                if name == "head" {
+                                if matches!(name, "head" | "tail") {
                                     found.unwrap().0
                                 } else {
                                     prefix
@@ -214,6 +226,8 @@ pub(super) fn parse(
                         )
                     })?
                 })
+            } else if optional_value {
+                attached.map(String::from)
             } else {
                 None
             };
@@ -226,6 +240,7 @@ pub(super) fn parse(
                     "printenv" => "0iu",
                     "cat" => "AbEnestTuv",
                     "head" => "cnqvz0123456789",
+                    "tail" => "cnqvzfFs0123456789",
                     _ => "",
                 };
                 if !allowed.contains(ch) {
@@ -243,6 +258,11 @@ pub(super) fn parse(
                         ..Default::default()
                     }));
                 }
+                if name == "tail" && ch.is_ascii_digit() {
+                    return Err(Box::new(super::tail::failure(format!(
+                        "option used in invalid context -- {ch}"
+                    ))));
+                }
                 if name == "head" && ch.is_ascii_digit() {
                     return Err(Box::new(error(
                         name,
@@ -253,7 +273,8 @@ pub(super) fn parse(
                 }
                 if (name == "basename" && ch == 's')
                     || (name == "printenv" && ch == 'u')
-                    || (name == "head" && matches!(ch, 'n' | 'c'))
+                    || (matches!(name, "head" | "tail") && matches!(ch, 'n' | 'c'))
+                    || (name == "tail" && ch == 's')
                 {
                     let rest = &arg[1 + offset + ch.len_utf8()..];
                     let value = if rest.is_empty() {
@@ -283,6 +304,18 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            if name == "tail" {
+                if matches!(ch, 'n' | 'c') {
+                    let value = value.as_deref().unwrap();
+                    out.tail.from_start = value.starts_with('+');
+                    out.selection = Some(super::head::Selection::parse_for("tail", ch, value)?);
+                } else if matches!(ch, 'f' | 'F' | 'r' | 's' | 'm' | 'p') {
+                    out.tail.parse(ch, value.as_deref(), invocation)?;
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
             if name == "head" {
                 if let Some(value) = value {
                     out.selection = Some(super::head::Selection::parse(ch, &value)?);

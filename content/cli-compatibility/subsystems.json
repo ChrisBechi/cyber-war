@@ -222,7 +222,8 @@
         "src-tauri/src/vfs/model.rs",
         "src-tauri/src/vfs/operations.rs",
         "src-tauri/src/vfs/persistence.rs",
-        "src-tauri/src/vfs/resolve.rs"
+        "src-tauri/src/vfs/resolve.rs",
+        "src-tauri/src/vfs/events.rs"
       ],
       "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
       "requiredTests": [
@@ -412,6 +413,108 @@
           "requiredTests": ["vfs/save/hardlink-roundtrip", "vfs/save/rename-roundtrip"],
           "evidenceIds": ["vfs::fidelity_tests", "vfs::integration_tests"],
           "limitations": []
+        },
+        {
+          "id": "VFS.EVENTS",
+          "state": "PARTIAL",
+          "reason": "Readiness requires current GNU differential follow evidence, linked contracts, no required gaps and Host Guard; declarations alone cannot promote it.",
+          "requiredTests": [
+            "coreutils/tail/extended-3",
+            "coreutils/tail/extended-4",
+            "coreutils/tail/follow-f-append",
+            "coreutils/tail/follow-f-truncate",
+            "coreutils/tail/follow-followdescriptor-append",
+            "coreutils/tail/follow-followdescriptor-truncate",
+            "coreutils/tail/follow-followname-append",
+            "coreutils/tail/follow-followname-truncate",
+            "coreutils/tail/follow-name-retry-short-append",
+            "coreutils/tail/follow-name-retry-short-truncate",
+            "coreutils/tail/follow-descriptor-rename",
+            "coreutils/tail/follow-name-replace",
+            "coreutils/tail/follow-retry-create",
+            "coreutils/tail/follow-retry-recreate",
+            "coreutils/tail/follow-hardlink",
+            "coreutils/tail/follow-stdin-file",
+            "coreutils/tail/follow-nul",
+            "coreutils/tail/follow-binary",
+            "coreutils/tail/follow-long-interval-event",
+            "coreutils/tail/follow-sigint",
+            "coreutils/tail/follow-multiple",
+            "coreutils/tail/follow-descriptor-unlink",
+            "coreutils/tail/follow-symlink-descriptor",
+            "coreutils/tail/follow-symlink-name",
+            "coreutils/tail/follow-permission-retry",
+            "coreutils/tail/follow-descriptor-permission",
+            "coreutils/tail/follow-remove-no-retry",
+            "coreutils/tail/follow-pid-single",
+            "coreutils/tail/follow-pid-multiple",
+            "coreutils/tail/directed-start-lines",
+            "coreutils/tail/directed-start-partial",
+            "coreutils/tail/directed-start-bytes",
+            "coreutils/tail/directed-start-binary",
+            "coreutils/tail/directed-start-nul",
+            "coreutils/tail/directed-truncate-batch-2",
+            "coreutils/tail/directed-truncate-batch-9",
+            "coreutils/tail/directed-headers-aba",
+            "coreutils/tail/directed-writers-interval-01",
+            "coreutils/tail/directed-writers-interval-1"
+          ],
+          "evidenceIds": ["vfs::event_tests", "service::cooperative_tests"],
+          "limitations": [
+            "Subscriptions are runtime-only, capped at 1024 per VFS and canceled on session reset/load."
+          ],
+          "readiness": "GNU_DIFFERENTIAL"
+        },
+        {
+          "id": "VFS.WATCH",
+          "state": "PARTIAL",
+          "reason": "Readiness requires current GNU differential follow evidence, linked contracts, no required gaps and Host Guard; declarations alone cannot promote it.",
+          "requiredTests": [
+            "coreutils/tail/extended-3",
+            "coreutils/tail/extended-4",
+            "coreutils/tail/follow-f-append",
+            "coreutils/tail/follow-f-truncate",
+            "coreutils/tail/follow-followdescriptor-append",
+            "coreutils/tail/follow-followdescriptor-truncate",
+            "coreutils/tail/follow-followname-append",
+            "coreutils/tail/follow-followname-truncate",
+            "coreutils/tail/follow-name-retry-short-append",
+            "coreutils/tail/follow-name-retry-short-truncate",
+            "coreutils/tail/follow-descriptor-rename",
+            "coreutils/tail/follow-name-replace",
+            "coreutils/tail/follow-retry-create",
+            "coreutils/tail/follow-retry-recreate",
+            "coreutils/tail/follow-hardlink",
+            "coreutils/tail/follow-stdin-file",
+            "coreutils/tail/follow-nul",
+            "coreutils/tail/follow-binary",
+            "coreutils/tail/follow-long-interval-event",
+            "coreutils/tail/follow-sigint",
+            "coreutils/tail/follow-multiple",
+            "coreutils/tail/follow-descriptor-unlink",
+            "coreutils/tail/follow-symlink-descriptor",
+            "coreutils/tail/follow-symlink-name",
+            "coreutils/tail/follow-permission-retry",
+            "coreutils/tail/follow-descriptor-permission",
+            "coreutils/tail/follow-remove-no-retry",
+            "coreutils/tail/follow-pid-single",
+            "coreutils/tail/follow-pid-multiple",
+            "coreutils/tail/directed-start-lines",
+            "coreutils/tail/directed-start-partial",
+            "coreutils/tail/directed-start-bytes",
+            "coreutils/tail/directed-start-binary",
+            "coreutils/tail/directed-start-nul",
+            "coreutils/tail/directed-truncate-batch-2",
+            "coreutils/tail/directed-truncate-batch-9",
+            "coreutils/tail/directed-headers-aba",
+            "coreutils/tail/directed-writers-interval-01",
+            "coreutils/tail/directed-writers-interval-1"
+          ],
+          "evidenceIds": ["vfs::event_tests", "service::cooperative_tests"],
+          "limitations": [
+            "Subscriptions are runtime-only, capped at 1024 per VFS and canceled on session reset/load."
+          ],
+          "readiness": "GNU_DIFFERENTIAL"
         }
       ]
     },
@@ -440,7 +543,25 @@
       "implementation": ["src-tauri/src/task_manager.rs", "src-tauri/src/world.rs"],
       "evidenceIds": [],
       "requiredTests": [],
-      "limitations": ["Virtual process list; no general process lifecycle API."]
+      "limitations": ["Virtual process list; no general process lifecycle API."],
+      "capabilities": [
+        {
+          "id": "PROCESS.LIFETIME",
+          "state": "PARTIAL",
+          "evidenceIds": ["service::cooperative_tests", "coreutils::tail_tests"],
+          "limitations": [
+            "Only world-local writer lifetime observation; general process lifecycle and job control remain partial."
+          ],
+          "readiness": "GNU_DIFFERENTIAL",
+          "reason": "Current canonical stream evidence derives readiness for this bounded capability; the general subsystem remains partial.",
+          "requiredTests": [
+            "coreutils/tail/follow-pid-single",
+            "coreutils/tail/follow-pid-multiple",
+            "coreutils/tail/directed-writers-interval-01",
+            "coreutils/tail/directed-writers-interval-1"
+          ]
+        }
+      ]
     },
     {
       "id": "TTY",
@@ -456,6 +577,28 @@
       "limitations": [
         "Interactive stdin is implemented for streaming cat/head adapters.",
         "No full terminal device or process-group model."
+      ],
+      "capabilities": [
+        {
+          "id": "TTY.CANONICAL_IO",
+          "state": "PARTIAL",
+          "evidenceIds": ["service::cooperative_tests", "coreutils::tail_tests"],
+          "limitations": [
+            "Only canonical data/EOF events in virtual streams; raw terminal discipline remains partial."
+          ],
+          "readiness": "GNU_DIFFERENTIAL",
+          "reason": "Current canonical stream evidence derives readiness for this bounded capability; the general subsystem remains partial.",
+          "requiredTests": [
+            "coreutils/tail/tty-lines",
+            "coreutils/tail/tty-bytes",
+            "coreutils/tail/tty-start-lines",
+            "coreutils/tail/tty-start-bytes",
+            "coreutils/tail/tty-follow",
+            "coreutils/tail/tty-sigint",
+            "coreutils/tail/tty-sigterm",
+            "coreutils/tail/directed-tty-repeated-eof"
+          ]
+        }
       ]
     },
     {
@@ -468,6 +611,62 @@
       "limitations": [
         "Legacy handler bodies are not preempted mid-call.",
         "No general process groups/job-control signals."
+      ],
+      "capabilities": [
+        {
+          "id": "SIGNALS.STREAMS",
+          "state": "PARTIAL",
+          "evidenceIds": ["service::cooperative_tests", "coreutils::tail_tests"],
+          "limitations": [
+            "Only process-local stream INT/TERM/PIPE handling and cleanup; general signals and process groups remain partial."
+          ],
+          "readiness": "GNU_DIFFERENTIAL",
+          "reason": "Current canonical stream evidence derives readiness for this bounded capability; the general subsystem remains partial.",
+          "requiredTests": [
+            "coreutils/tail/closed-consumer",
+            "coreutils/tail/tty-follow",
+            "coreutils/tail/tty-sigint",
+            "coreutils/tail/tty-sigterm",
+            "coreutils/tail/extended-3",
+            "coreutils/tail/extended-4",
+            "coreutils/tail/follow-closed-empty",
+            "coreutils/tail/follow-f-append",
+            "coreutils/tail/follow-f-truncate",
+            "coreutils/tail/follow-followdescriptor-append",
+            "coreutils/tail/follow-followdescriptor-truncate",
+            "coreutils/tail/follow-followname-append",
+            "coreutils/tail/follow-followname-truncate",
+            "coreutils/tail/follow-name-retry-short-append",
+            "coreutils/tail/follow-name-retry-short-truncate",
+            "coreutils/tail/follow-descriptor-rename",
+            "coreutils/tail/follow-name-replace",
+            "coreutils/tail/follow-retry-create",
+            "coreutils/tail/follow-retry-recreate",
+            "coreutils/tail/follow-hardlink",
+            "coreutils/tail/follow-stdin-file",
+            "coreutils/tail/follow-nul",
+            "coreutils/tail/follow-binary",
+            "coreutils/tail/follow-long-interval-event",
+            "coreutils/tail/follow-sigint",
+            "coreutils/tail/follow-multiple",
+            "coreutils/tail/follow-descriptor-unlink",
+            "coreutils/tail/follow-symlink-descriptor",
+            "coreutils/tail/follow-symlink-name",
+            "coreutils/tail/follow-permission-retry",
+            "coreutils/tail/follow-descriptor-permission",
+            "coreutils/tail/directed-start-lines",
+            "coreutils/tail/directed-start-partial",
+            "coreutils/tail/directed-start-bytes",
+            "coreutils/tail/directed-start-binary",
+            "coreutils/tail/directed-start-nul",
+            "coreutils/tail/directed-tty-repeated-eof",
+            "coreutils/tail/directed-truncate-batch-2",
+            "coreutils/tail/directed-truncate-batch-9",
+            "coreutils/tail/directed-headers-aba",
+            "coreutils/tail/directed-writers-interval-01",
+            "coreutils/tail/directed-writers-interval-1"
+          ]
+        }
       ]
     },
     {

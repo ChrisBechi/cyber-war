@@ -1,5 +1,10 @@
 import { coreutilsGate, coreutilsReport } from './coreutils.mjs';
 import { compareCase } from './matchers.mjs';
+import {
+  referenceCapture,
+  validateReference,
+  referenceDifference,
+} from './coreutils-reference.mjs';
 export function evaluate(
   inventory,
   cases = [],
@@ -45,10 +50,46 @@ export function evaluate(
   for (const id of actuals.keys()) if (!byCase.has(id)) errors.push(`Unknown captured case ${id}`);
   const subsystems = inventory.subsystems.map((s) => {
     const capabilities = (s.capabilities ?? []).map((capability) => {
+      const differential = capability.readiness === 'GNU_DIFFERENTIAL';
+      const references = new Map();
+      const referenceReady =
+        !differential ||
+        capability.requiredTests.every((id) => {
+          const test = byCase.get(id);
+          const command = test && commandIndex.get(test.command);
+          if (!command?.coreutils) return false;
+          if (!references.has(command.command))
+            references.set(command.command, referenceCapture(command));
+          const reference = references.get(command.command);
+          return (
+            !validateReference(command, reference) &&
+            !referenceDifference(
+              test,
+              actuals.get(id),
+              reference.cases.find((row) => row.id === id),
+            )
+          );
+        });
+      const contractsReady =
+        !differential ||
+        [...new Set(capability.requiredTests.map((id) => byCase.get(id)?.command))].every(
+          (name) => {
+            const command = commandIndex.get(name);
+            return (
+              command?.coreutils &&
+              ['COMMAND_CONTRACTS', 'GNU_REFERENCE', 'KNOWN_GAPS'].every(
+                (gate) =>
+                  coreutilsGate(command, gate, byCase, caseResults, actuals).result === 'PASS',
+              )
+            );
+          },
+        );
       const ready =
-        capability.state === 'READY' &&
+        (capability.state === 'READY' || (differential && capability.state === 'PARTIAL')) &&
         capability.requiredTests.length > 0 &&
         capability.requiredTests.every((id) => caseResults.get(id)?.result === 'PASS') &&
+        referenceReady &&
+        contractsReady &&
         host.result === 'PASS';
       if (!capability.id.startsWith(`${s.id}.`))
         errors.push(`Capability parent mismatch ${capability.id}`);

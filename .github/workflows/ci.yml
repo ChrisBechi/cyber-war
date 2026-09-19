@@ -20,6 +20,7 @@ jobs:
       - run: python3 scripts/cli/coreutils-environment.py run --verify --wave foundation
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command cat
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command head
+      - run: python3 scripts/cli/coreutils-environment.py run --verify --command tail
 
   frontend:
     runs-on: ubuntu-latest
@@ -61,6 +62,7 @@ jobs:
       - run: pnpm cli:verify --wave foundation --strict
       - run: pnpm cli:verify --command cat --strict
       - run: pnpm cli:verify --command head --strict
+      - run: pnpm cli:verify --command tail --strict
       - uses: actions/upload-artifact@v4
         if: always()
         with:

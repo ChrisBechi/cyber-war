@@ -16,6 +16,7 @@ pub enum Event {
     Stdout(String),
     Stderr(String),
     WaitingForInput,
+    WaitingForChange,
     Exited(i32),
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

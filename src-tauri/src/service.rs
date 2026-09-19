@@ -8,6 +8,9 @@ use crate::{
 };
 use rusqlite::Connection;
 use std::time::Instant;
+#[cfg(test)]
+#[path = "service_cooperative_tests.rs"]
+mod cooperative_tests;
 
 pub struct ActiveGame {
     pub slot: i64,
@@ -17,15 +20,43 @@ pub struct ActiveGame {
     pub(crate) session_ended: bool,
 }
 pub struct GameService {
+    pub(crate) runtime_epoch: u64,
     pub connection: Connection,
     pub engine: MissionEngine,
     pub active: Option<ActiveGame>,
 }
 
 impl GameService {
+    pub(crate) fn transact_cooperatively<T: Send>(
+        service: &parking_lot::Mutex<Self>,
+        registration: &crate::shell::control::Registration,
+        work: impl FnOnce(&mut WorldState) -> GameResult<T> + Send,
+    ) -> GameResult<T> {
+        let epoch = service.lock().runtime_epoch;
+        crate::shell::cooperative::drive(
+            registration,
+            work,
+            |turn| {
+                let mut game = service.lock();
+                if game.runtime_epoch != epoch {
+                    return Err(domain("virtual session changed while command was waiting"));
+                }
+                game.mutate(|_, world, _| turn(world), false)
+            },
+            |before, after| {
+                let mut game = service.lock();
+                if game.runtime_epoch == epoch {
+                    if let Some(active) = &mut game.active {
+                        active.world.release_runtime_closed(before, after);
+                    }
+                }
+            },
+        )?
+    }
     pub fn new(mut connection: Connection) -> GameResult<Self> {
         db::migrate(&mut connection)?;
         Ok(Self {
+            runtime_epoch: 0,
             connection,
             engine: MissionEngine::load()?,
             active: None,
@@ -70,6 +101,7 @@ impl GameService {
             clock: Instant::now(),
             session_ended: false,
         });
+        self.runtime_epoch += 1;
         Ok(world)
     }
     pub fn load(&mut self, slot: i64, manual: bool) -> GameResult<WorldState> {
@@ -89,6 +121,7 @@ impl GameService {
             clock: Instant::now(),
             session_ended: false,
         });
+        self.runtime_epoch += 1;
         Ok(world)
     }
     /// Clone and persist before publishing. Failed SQL never changes the live world.
@@ -139,6 +172,7 @@ impl GameService {
         if let Some(active) = &mut self.active {
             active.world = world;
             active.clock += std::time::Duration::from_secs(elapsed);
+            crate::shell::control::notify_world(&active.world);
         }
         Ok(result)
     }
@@ -179,6 +213,7 @@ impl GameService {
             active.world = world;
             active.clock = Instant::now();
             active.session_ended = true;
+            self.runtime_epoch += 1;
         }
         Ok(())
     }
@@ -219,6 +254,7 @@ impl GameService {
             active.clock = Instant::now();
             active.session_ended = false;
         }
+        self.runtime_epoch += 1;
         Ok(world)
     }
 }

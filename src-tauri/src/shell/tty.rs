@@ -47,9 +47,6 @@ impl VirtualTty {
         }
         true
     }
-    pub fn pending(&self) -> bool {
-        self.ready.is_empty()
-    }
     #[cfg(test)]
     pub fn read(&mut self) -> Read {
         self.read_limit(usize::MAX)

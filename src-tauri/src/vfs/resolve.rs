@@ -28,6 +28,26 @@ impl VirtualFileSystem {
         follow: Follow,
         missing: bool,
     ) -> GameResult<String> {
+        self.resolve_traced(path, actor, follow, missing, &mut |_| {})
+    }
+    /// Namespace dependencies include symlink entries and the first missing
+    /// component, including failed lookups. Traversal uses the same POSIX rules
+    /// as open/stat, so `..` is resolved after symlinks rather than lexically.
+    pub fn lookup_dependencies(&self, path: &str, actor: &str) -> Vec<String> {
+        let mut paths = BTreeSet::new();
+        let _ = self.resolve_traced(path, actor, Follow::Yes, false, &mut |path| {
+            paths.insert(path.to_string());
+        });
+        paths.into_iter().collect()
+    }
+    fn resolve_traced(
+        &self,
+        path: &str,
+        actor: &str,
+        follow: Follow,
+        missing: bool,
+        observe: &mut impl FnMut(&str),
+    ) -> GameResult<String> {
         validate_path(path)?;
         let mut pending: VecDeque<String> = path
             .split('/')
@@ -38,6 +58,7 @@ impl VirtualFileSystem {
         let mut followed = 0;
         let mut directory_required = path.ends_with('/');
         while let Some(part) = pending.pop_front() {
+            observe(&current);
             let dir = self
                 .nodes
                 .get(&current)
@@ -56,6 +77,7 @@ impl VirtualFileSystem {
                 continue;
             }
             let next = format!("{}/{}", current.trim_end_matches('/'), part);
+            observe(&next);
             let Some(node) = self.nodes.get(&next) else {
                 if missing && pending.is_empty() && !directory_required {
                     return Ok(next);

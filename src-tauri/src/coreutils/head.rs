@@ -20,6 +20,9 @@ impl Default for Selection {
 }
 impl Selection {
     pub fn parse(kind: char, value: &str) -> Result<Self, Box<Output>> {
+        Self::parse_for("head", kind, value)
+    }
+    pub(super) fn parse_for(name: &str, kind: char, value: &str) -> Result<Self, Box<Output>> {
         let negative = value.starts_with('-');
         let value = if negative { &value[1..] } else { value };
         let number = value.trim_start_matches(|c: char| c.is_ascii_whitespace());
@@ -55,7 +58,7 @@ impl Selection {
         let Some((base, power)) = scale.filter(|_| digits > 0) else {
             return Err(Box::new(Output {
                 stderr: format!(
-                    "head: invalid number of {}: {}\n",
+                    "{name}: invalid number of {}: {}\n",
                     if kind == 'c' { "bytes" } else { "lines" },
                     foundation_options::quote(value)
                 ),

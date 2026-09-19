@@ -194,47 +194,6 @@
   },
   {
     "schemaVersion": 2,
-    "id": "tail/stdin",
-    "softwareId": "coreutils",
-    "command": "tail",
-    "argv": ["-n1"],
-    "stdin": "a\nb\n",
-    "env": {
-      "LC_ALL": "C.UTF-8"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": true,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/tail.1.en.html"
-    },
-    "gates": ["STDIN", "SHORT_FLAGS", "STDOUT", "STDERR", "EXIT_CODE"],
-    "flags": ["-n1"],
-    "errorCase": false,
-    "fixture": {},
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "b\n"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": []
-    }
-  },
-  {
-    "schemaVersion": 2,
     "id": "bash/status",
     "softwareId": "bash",
     "command": "bash",

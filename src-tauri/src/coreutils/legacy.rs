@@ -10,7 +10,7 @@ static CONTRACTS: LazyLock<serde_json::Value> = LazyLock::new(|| {
 });
 
 pub(crate) fn help(name: &str) -> Option<String> {
-    if name == "head" {
+    if matches!(name, "head" | "tail") {
         return Some(super::foundation_messages::message(name, name, "help"));
     }
     let spec = CONTRACTS["commands"].get(name)?;

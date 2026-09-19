@@ -56,6 +56,7 @@ impl DerefMut for VfsNode {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NodeTable {
+    pub(super) events: super::events::EventBus,
     views: BTreeMap<String, VfsNode>,
     pub(super) inodes: BTreeMap<u64, Arc<Inode>>,
     pub(super) links: BTreeMap<u64, BTreeSet<String>>,
@@ -68,6 +69,7 @@ pub struct NodeTable {
 impl Default for NodeTable {
     fn default() -> Self {
         Self {
+            events: Default::default(),
             views: BTreeMap::new(),
             inodes: BTreeMap::new(),
             links: BTreeMap::new(),
@@ -141,6 +143,9 @@ impl NodeTable {
     }
     pub(super) fn replace_inode(&mut self, inode: Arc<Inode>) {
         let ino = inode.ino;
+        if let Some(old) = self.inodes.get(&ino) {
+            self.events.inode(old, &inode, self.links.get(&ino));
+        }
         if let Some(paths) = self.links.get(&ino) {
             for path in paths {
                 if let Some(node) = self.views.get_mut(path) {
@@ -205,6 +210,7 @@ impl NodeTable {
                 *self.subdirectories.entry(id).or_default() += 1;
             }
         }
+        self.events.namespace(&path);
         self.views.insert(path, node);
         self.update_links(ino);
         if let Some(id) = parent_ino {
@@ -214,6 +220,7 @@ impl NodeTable {
     }
     pub(crate) fn remove(&mut self, path: &str) -> Option<VfsNode> {
         let node = self.views.remove(path)?;
+        self.events.namespace(path);
         if let Some(paths) = self.links.get_mut(&node.ino) {
             paths.remove(path);
         }

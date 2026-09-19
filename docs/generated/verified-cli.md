@@ -7,4 +7,5 @@
 | dirname  | coreutils |               |            |
 | head     | coreutils |               |            |
 | printenv | coreutils |               |            |
+| tail     | coreutils |               |            |
 | whoami   | coreutils |               |            |

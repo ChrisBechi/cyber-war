@@ -279,7 +279,7 @@ impl VirtualFileSystem {
         Ok(bytes.len())
     }
     pub fn seek(&mut self, id: u64, offset: usize) -> GameResult<()> {
-        if offset > MAX_CONTENT {
+        if offset > crate::binary::MAX_BLOB {
             return Err(error(Errno::Invalid));
         }
         self.handles
@@ -316,5 +316,78 @@ impl VirtualFileSystem {
         let text =
             String::from_utf8(data).map_err(|_| domain("virtual text truncation splits UTF-8"))?;
         self.write(&path, &text, actor)
+    }
+    pub fn truncate_bytes(
+        &mut self,
+        path: &str,
+        size: usize,
+        actor: &str,
+        blobs: &mut crate::binary::BlobCache,
+    ) -> GameResult<()> {
+        use sha2::{Digest, Sha256};
+        if self.read_only {
+            return Err(error(Errno::ReadOnly));
+        }
+        if size > crate::binary::MAX_BLOB {
+            return Err(error(Errno::NoSpace));
+        }
+        let path = self.resolve(path, actor, Follow::Yes)?;
+        self.check_projection(&path)?;
+        let node = self.stat(&path, actor)?;
+        if node.kind != "file" {
+            return Err(error(Errno::Invalid));
+        }
+        if !self.allowed(node, actor, 2) {
+            return Err(error(Errno::Access));
+        }
+        if self
+            .used_bytes()
+            .saturating_sub(node.logical_size())
+            .saturating_add(size as u64)
+            > self.capacity_bytes
+        {
+            return Err(error(Errno::NoSpace));
+        }
+        let mut inode = node.inode.as_ref().clone();
+        let mut data = if let Some(blob) = &inode.blob {
+            blobs
+                .get(&blob.hash)
+                .ok_or_else(|| domain("binary payload unavailable"))?
+                .as_ref()
+                .clone()
+        } else {
+            inode.content.as_bytes().to_vec()
+        };
+        data.resize(size, 0);
+        if size <= MAX_CONTENT && std::str::from_utf8(&data).is_ok() {
+            inode.content = String::from_utf8(data).unwrap();
+            inode.blob = None;
+        } else {
+            let hash = format!("{:x}", Sha256::digest(&data));
+            inode.content.clear();
+            inode.blob = Some(crate::binary::BlobRef {
+                hash: hash.clone(),
+                size,
+                mime: "application/octet-stream".into(),
+            });
+            blobs.insert(hash, Arc::new(data));
+        }
+        if self.identity(actor).uid != 0 {
+            inode.mode &= !0o6000;
+        }
+        let clock = self.tick();
+        inode.modified_at = clock;
+        inode.changed_at = clock;
+        for key in [
+            "logicalSize",
+            "mediaSource",
+            "mime",
+            "archiveOriginalSize",
+            "archiveDepth",
+        ] {
+            inode.metadata.remove(key);
+        }
+        self.nodes.replace_inode(Arc::new(inode));
+        Ok(())
     }
 }

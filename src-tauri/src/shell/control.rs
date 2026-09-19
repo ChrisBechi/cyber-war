@@ -11,6 +11,14 @@ use std::{
 };
 
 const INPUT_CAPACITY: usize = 64 * 1024;
+#[cfg(test)]
+type ByteObserver = std::sync::mpsc::Sender<(u8, Vec<u8>)>;
+#[derive(Default)]
+struct ParkState {
+    epoch: u64,
+    ready: bool,
+    condition: Option<super::wait::WaitSet>,
+}
 #[derive(Default)]
 pub struct Control {
     cancelled: AtomicBool,
@@ -19,8 +27,28 @@ pub struct Control {
     processes: Mutex<BTreeMap<u32, Arc<super::signals::ProcessSignalState>>>,
     input: Mutex<super::tty::VirtualTty>,
     wake: Condvar,
+    park: Mutex<ParkState>,
+    parked: Condvar,
     output: Option<tauri::ipc::Channel<crate::cli_contract::Event>>,
     in_flight: AtomicUsize,
+    #[cfg(test)]
+    byte_observer: Mutex<Option<ByteObserver>>,
+}
+impl Control {
+    fn notify(&self) {
+        let mut state = self.park.lock();
+        state.epoch = state.epoch.wrapping_add(1);
+        state.ready = true;
+        self.parked.notify_all();
+        self.wake.notify_all();
+    }
+    fn park_until_ready(&self) {
+        let mut state = self.park.lock();
+        while !state.ready && !self.cancelled.load(Ordering::Relaxed) {
+            self.parked.wait(&mut state);
+        }
+        state.condition = None;
+    }
 }
 static CONTROLS: LazyLock<Mutex<BTreeMap<String, Arc<Control>>>> =
     LazyLock::new(|| Mutex::new(BTreeMap::new()));
@@ -48,6 +76,21 @@ pub struct Registration {
     key: String,
     control: Arc<Control>,
 }
+impl Registration {
+    #[cfg(test)]
+    pub fn observe_bytes(&self) -> std::sync::mpsc::Receiver<(u8, Vec<u8>)> {
+        let (tx, rx) = std::sync::mpsc::channel();
+        *self.control.byte_observer.lock() = Some(tx);
+        rx
+    }
+    pub(crate) fn park(&self) {
+        self.control.park_until_ready();
+    }
+    pub(crate) fn cancel(&self) {
+        self.control.cancelled.store(true, Ordering::Relaxed);
+        self.control.notify();
+    }
+}
 impl Drop for Registration {
     fn drop(&mut self) {
         let mut controls = CONTROLS.lock();
@@ -73,7 +116,7 @@ pub fn register_output(
     });
     if let Some(old) = CONTROLS.lock().insert(key.into(), control.clone()) {
         old.cancelled.store(true, Ordering::Relaxed);
-        old.wake.notify_all();
+        old.notify();
     }
     Registration {
         key: key.into(),
@@ -87,7 +130,7 @@ pub fn acknowledge(key: &str, bytes: usize) {
             .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |old| {
                 Some(old.saturating_sub(bytes))
             });
-        control.wake.notify_all();
+        control.notify();
     }
 }
 pub fn capture<T>(work: impl FnOnce() -> T) -> T {
@@ -179,7 +222,8 @@ pub fn signal(key: &str, pid: Option<u32>, signal: super::signals::VirtualSignal
                 process.send(signal);
             }
         }
-        control.wake.notify_all();
+        drop(processes);
+        control.notify();
         return true;
     }
     false
@@ -219,7 +263,7 @@ pub fn termination_signal() -> Option<super::signals::VirtualSignal> {
 pub fn cancel_all() {
     for control in CONTROLS.lock().values() {
         control.cancelled.store(true, Ordering::Relaxed);
-        control.wake.notify_all();
+        control.notify();
     }
 }
 pub fn input(key: &str, text: Option<String>) -> bool {
@@ -236,7 +280,8 @@ pub fn input(key: &str, text: Option<String>) -> bool {
         Some(text) => input.input(text.as_bytes()),
         None => input.eof(),
     };
-    control.wake.notify_all();
+    drop(input);
+    control.notify();
     accepted
 }
 pub fn cancelled() -> bool {
@@ -260,19 +305,65 @@ pub fn read_limit(limit: usize) -> Read {
         read
     })
 }
-pub fn wait() {
+/// Sample before inspecting process input and VFS conditions. A notification
+/// during that inspection makes the subsequent arm operation immediately ready.
+pub fn event_epoch() -> u64 {
+    ACTIVE.with(|a| a.borrow().as_ref().map_or(0, |c| c.park.lock().epoch))
+}
+#[cfg(test)]
+pub fn observe_bytes(fd: u8, bytes: &[u8]) {
     ACTIVE.with(|a| {
         if let Some(control) = a.borrow().as_ref() {
-            let mut input = control.input.lock();
-            if input.pending() && !control.cancelled.load(Ordering::Relaxed) {
-                if !control.waiting.swap(true, Ordering::Relaxed) {
-                    if let Some(output) = &control.output {
-                        let _ = output.send(crate::cli_contract::Event::WaitingForInput);
-                    }
-                }
-                control.wake.wait_for(&mut input, Duration::from_millis(10));
+            if let Some(tx) = control.byte_observer.lock().as_ref() {
+                let _ = tx.send((fd, bytes.to_vec()));
             }
         }
+    });
+}
+pub fn notify_world(world: &crate::world::WorldState) {
+    for control in CONTROLS.lock().values() {
+        let mut state = control.park.lock();
+        if state
+            .condition
+            .as_ref()
+            .is_some_and(|wait| wait.ready(world))
+        {
+            state.epoch = state.epoch.wrapping_add(1);
+            state.ready = true;
+            control.parked.notify_all();
+        }
+    }
+}
+pub fn wait_world(
+    world: &mut crate::world::WorldState,
+    mut condition: super::wait::WaitSet,
+    observed: u64,
+) {
+    condition.world = Some(world.runtime_id);
+    ACTIVE.with(|a| {
+        let control = a.borrow().clone();
+        let Some(control) = control else {
+            return;
+        };
+        {
+            let mut state = control.park.lock();
+            state.ready = state.epoch != observed || condition.ready(world);
+            state.condition = Some(condition.clone());
+        }
+        if !control.waiting.swap(true, Ordering::Relaxed) {
+            if let Some(output) = &control.output {
+                let event = if condition.input {
+                    crate::cli_contract::Event::WaitingForInput
+                } else {
+                    crate::cli_contract::Event::WaitingForChange
+                };
+                let _ = output.send(event);
+            }
+        }
+        if !super::cooperative::checkpoint(world, condition) {
+            control.park_until_ready();
+        }
+        control.waiting.store(false, Ordering::Relaxed);
     });
 }
 
@@ -288,6 +379,61 @@ pub fn process_ids(key: &str) -> Vec<u32> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn event_wait_filters_world_and_target_and_preserves_prearm_wakeups() {
+        use crate::{
+            shell::wait::{VfsWait, WaitSet},
+            vfs::WatchTarget,
+            world::WorldState,
+        };
+        let mut world = WorldState::new("kali", "pc").unwrap();
+        let watch = world
+            .vfs
+            .subscribe(WatchTarget::Path("/home/kali/log".into()))
+            .unwrap();
+        let registration = register("watch-filter-proof");
+        let condition = WaitSet {
+            world: Some(world.runtime_id),
+            vfs: vec![VfsWait {
+                host: None,
+                watch,
+                revision: world.vfs.watch_revision(watch).unwrap(),
+            }],
+            ..Default::default()
+        };
+        registration.control.park.lock().condition = Some(condition.clone());
+        let mut other = WorldState::new("kali", "other").unwrap();
+        other
+            .vfs
+            .write("/home/kali/log", "different-world", "kali")
+            .unwrap();
+        notify_world(&other);
+        assert!(!registration.control.park.lock().ready);
+        world
+            .vfs
+            .write("/home/kali/unrelated", "x", "kali")
+            .unwrap();
+        notify_world(&world);
+        assert!(!registration.control.park.lock().ready);
+        world.vfs.write("/home/kali/log", "x", "kali").unwrap();
+        notify_world(&world);
+        assert!(registration.control.park.lock().ready);
+        // Write before arm is detected through the revision, even with no notify.
+        run(&registration, || {
+            wait_world(&mut world, condition, event_epoch())
+        });
+        let fresh = WaitSet {
+            world: Some(world.runtime_id),
+            ..Default::default()
+        };
+        run(&registration, || {
+            let before = event_epoch();
+            input("watch-filter-proof", Some("x\n".into()));
+            wait_world(&mut world, fresh, before);
+        });
+        world.vfs.unsubscribe(watch);
+        assert_eq!(world.vfs.watcher_count(), 0);
+    }
     #[test]
     fn process_signal_wakes_output_backpressure_without_signalling_peer() {
         use super::super::signals::VirtualSignal;

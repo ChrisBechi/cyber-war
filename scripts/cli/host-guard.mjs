@@ -79,6 +79,12 @@ export function scanRuntime(entries) {
           line: index + 1,
           reason: 'Development verification dependency in runtime',
         });
+      if (
+        /\b(?:notify|inotify|chokidar)\s*::|\b(?:inotify_init\w*|inotify_add_watch|ReadDirectoryChanges[AW]?|FSEventStream\w*)\b|\b(?:kqueue|kevent)\s*\(|\bfs\s*\.\s*watch\s*\(|from\s+['"](?:chokidar|node:fs)['"]/.test(
+          line,
+        )
+      )
+        failures.push({ path, line: index + 1, reason: 'Host filesystem watcher API in runtime' });
       if (/(?:powershell|cmd\.exe|wsl\.exe)/i.test(line))
         failures.push({ path, line: index + 1, reason: 'Host shell reference in runtime' });
     }

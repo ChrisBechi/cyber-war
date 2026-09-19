@@ -17,6 +17,7 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/coreutils/foundation.rs',
     'src-tauri/src/coreutils/cat.rs',
     'src-tauri/src/coreutils/head.rs',
+    'src-tauri/src/coreutils/tail.rs',
   ]);
   const foundation = ['basename', 'dirname', 'printenv', 'whoami'].includes(test.command);
   return sources.filter((p) => {
@@ -31,12 +32,19 @@ export function caseSources(test, sources = evidenceSources()) {
     if (p.startsWith('content/cli-compatibility/')) return false;
     if (p.startsWith('src-tauri/src/coreutils/messages/'))
       return (
-        (foundation || ['cat', 'head'].includes(test.command)) &&
+        (foundation || ['cat', 'head', 'tail'].includes(test.command)) &&
         p.includes('/' + test.command + '-')
       );
     if (p.endsWith('/foundation_options.rs') || p.endsWith('/foundation_messages.rs'))
-      return foundation || ['cat', 'head'].includes(test.command);
-    return !leaf.has(p) || p === impl || (test.command === 'head' && p.endsWith('/cat.rs'));
+      return foundation || ['cat', 'head', 'tail'].includes(test.command);
+    return (
+      !leaf.has(p) ||
+      p === impl ||
+      (['head', 'tail'].includes(test.command) && p.endsWith('/cat.rs')) ||
+      (test.command === 'tail' && p.endsWith('/head.rs')) ||
+      (['head', 'cat', 'basename', 'dirname', 'printenv', 'whoami'].includes(test.command) &&
+        p.endsWith('/tail.rs'))
+    );
   });
 }
 export function caseFingerprint(test, cache = new Map(), sources = evidenceSources()) {

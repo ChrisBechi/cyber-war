@@ -36,7 +36,7 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (['cat', 'head'].includes(c.command)) {
+  if (['cat', 'head', 'tail'].includes(c.command)) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -53,7 +53,8 @@ export function validateReference(command, capture) {
   const binary = capture.environment?.binaryHashes?.[command.command];
   const lock = json('content/cli-compatibility/coreutils-environment.json');
   if (
-    capture.schemaVersion !== (['cat', 'head'].includes(command.command) ? 3 : 2) ||
+    capture.schemaVersion !==
+      (command.command === 'tail' ? 4 : ['cat', 'head'].includes(command.command) ? 3 : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
     capture.version !== command.referenceVersion ||
     capture.command !== command.command ||
@@ -68,10 +69,15 @@ export function validateReference(command, capture) {
   )
     return 'Reference harness/environment fingerprint stale';
   if (
-    ['cat', 'head'].includes(command.command) &&
+    ['cat', 'head', 'tail'].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
+  if (
+    command.command === 'tail' &&
+    capture.followHash !== sourceHash('scripts/cli/coreutils_follow.py')
+  )
+    return 'Reference follow harness fingerprint stale';
   if (
     capture.environment?.os !== 'Linux' ||
     capture.environment?.id !== lock.id ||
@@ -127,10 +133,19 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (['cat', 'head'].includes(test.command)) {
+  if (['cat', 'head', 'tail'].includes(test.command)) {
     const io = test.io ?? {};
     const endpoints = {
-      stdin: test.interaction ? 'pty-canonical-echo-off' : io.stdinPath ? 'file' : 'pipe',
+      stdin:
+        test.interaction?.schemaVersion === 2
+          ? io.stdinPath
+            ? 'file'
+            : 'null'
+          : test.interaction
+            ? 'pty-canonical-echo-off'
+            : io.stdinPath
+              ? 'file'
+              : 'pipe',
       stdout:
         io.stdoutPath || test.transport === 'redirect'
           ? 'file'
@@ -153,6 +168,10 @@ export function referenceDifference(test, actual, row) {
       if (canonical(row[field]) !== canonical(actual[field]))
         errors.push(`${field} differs from GNU`);
     const nodes = actual.after?.vfs ?? {};
+    for (const relative of Object.keys(row.before)) {
+      if (!Object.hasOwn(row.after, relative) && Object.hasOwn(nodes, '/home/kali/' + relative))
+        errors.push(`Path removed by GNU still exists: ${relative}`);
+    }
     const pairs = [];
     for (const [relative, expected] of Object.entries(row.after)) {
       const path = '/home/kali/' + relative,
@@ -178,7 +197,8 @@ export function referenceDifference(test, actual, row) {
         Object.entries(nodes)
           .filter(
             ([p]) =>
-              !Object.hasOwn(row.after, p.slice('/home/kali/'.length)) ||
+              (!Object.hasOwn(row.after, p.slice('/home/kali/'.length)) &&
+                !Object.hasOwn(row.before, p.slice('/home/kali/'.length))) ||
               !p.startsWith('/home/kali/'),
           )
           .map(([p, n]) => [

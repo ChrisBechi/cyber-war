@@ -7,6 +7,9 @@ use std::{
 };
 mod errors;
 #[cfg(test)]
+mod event_tests;
+mod events;
+#[cfg(test)]
 mod fidelity_tests;
 mod handles;
 #[cfg(test)]
@@ -19,6 +22,9 @@ mod persistence;
 mod resolve;
 use errors::error;
 pub use errors::Errno;
+#[cfg(test)]
+pub use events::VfsEvent;
+pub use events::{WatchId, WatchTarget};
 pub use handles::OpenFlags;
 use model::NodeTable;
 pub use model::{Inode, VfsNode};

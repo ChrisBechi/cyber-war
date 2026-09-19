@@ -85,6 +85,11 @@ pub fn open_at(
     Ok(session)
 }
 pub fn reset(world: &mut WorldState) {
+    world.scheduler = Default::default();
+    world.vfs.reset_watches();
+    for host in world.network.hosts.values_mut() {
+        host.files.reset_watches();
+    }
     world.package_lock = None;
     crate::archive::jobs::reset(world);
     world.terminal = fresh_session();
@@ -106,7 +111,9 @@ pub fn with_session<T>(
         .ok_or_else(|| domain("terminal session is closed"))?;
     let backup = selected.clone();
     let default = std::mem::replace(&mut world.terminal, selected);
+    let scope = crate::shell::cooperative::SessionScope::enter(id, &default);
     let result = change(world);
+    let default = scope.finish(default);
     let selected = std::mem::replace(&mut world.terminal, default);
     world
         .terminal_sessions

@@ -150,6 +150,8 @@ fn emit_bytes(
                 if !crate::shell::control::emit_chunk(fd, &display) {
                     break;
                 }
+                #[cfg(test)]
+                crate::shell::control::observe_bytes(fd, data);
                 if fd == 1 {
                     output.stdout.push_str(&display);
                     output

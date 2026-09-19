@@ -6,6 +6,11 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+fn next_runtime_id() -> u64 {
+    static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+    NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
@@ -75,6 +80,10 @@ pub struct MissionProgress {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WorldState {
+    #[serde(skip, default = "next_runtime_id")]
+    pub runtime_id: u64,
+    #[serde(skip)]
+    pub scheduler: crate::shell::wait::Runtime,
     pub schema_version: u32,
     pub nickname: String,
     pub hostname: String,
@@ -118,6 +127,25 @@ pub struct WorldState {
 }
 
 impl WorldState {
+    pub(crate) fn release_runtime_closed(&mut self, before: &Self, after: &Self) {
+        self.vfs.release_runtime_closed(&before.vfs, &after.vfs);
+        for (host, current) in &mut self.network.hosts {
+            if let (Some(before), Some(after)) = (
+                before.network.hosts.get(host),
+                after.network.hosts.get(host),
+            ) {
+                current
+                    .files
+                    .release_runtime_closed(&before.files, &after.files);
+            }
+        }
+        self.scheduler
+            .release_runtime_closed(&before.scheduler, &after.scheduler);
+        self.processes.retain(|p| {
+            !before.processes.iter().any(|old| old.pid == p.pid)
+                || after.processes.iter().any(|new| new.pid == p.pid)
+        });
+    }
     pub fn new(nickname: &str, hostname: &str) -> GameResult<Self> {
         for value in [nickname, hostname] {
             if value.is_empty()
@@ -130,6 +158,8 @@ impl WorldState {
             }
         }
         let mut world = Self {
+            runtime_id: next_runtime_id(),
+            scheduler: Default::default(),
             schema_version: 2,
             nickname: nickname.into(),
             hostname: hostname.into(),

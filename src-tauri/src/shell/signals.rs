@@ -6,6 +6,8 @@ use std::sync::atomic::{AtomicU8, Ordering};
 pub enum VirtualSignal {
     #[serde(rename = "SIGINT")]
     Int = 2,
+    #[serde(rename = "SIGKILL")]
+    Kill = 9,
     #[serde(rename = "SIGPIPE")]
     Pipe = 13,
     #[serde(rename = "SIGTERM")]
@@ -15,6 +17,7 @@ impl VirtualSignal {
     pub fn from_number(value: u8) -> Option<Self> {
         match value {
             2 => Some(Self::Int),
+            9 => Some(Self::Kill),
             13 => Some(Self::Pipe),
             15 => Some(Self::Term),
             _ => None,
