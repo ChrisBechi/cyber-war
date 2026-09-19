@@ -1,16 +1,16 @@
 # M1C.4 — VFS.EVENTS/WATCH e tail: certificação concluída
 
-**PUBLICATION_STATUS: `PENDING_PUSH`.** A certificação técnica passou: o
-pipeline derivou tail VERIFIED e VFS.EVENTS/WATCH READY. Os seis executáveis
-anteriores permanecem VERIFIED. A publicação foi retomada após a recusa externa
-anterior: o `git add` e a revisão do diff preparado passaram, sem alterar a
-evidência técnica. M1C.5 não foi iniciado.
+**PUBLICATION_STATUS: `PUBLISHED`.** A certificação técnica passou: o pipeline
+derivou tail VERIFIED e VFS.EVENTS/WATCH READY. Os seis executáveis anteriores
+permanecem VERIFIED. O commit M1C.4
+`eba49d103872932b03cb0930e5139d8fd96519b1` foi enviado sem força para
+`origin/main`, sem alterar a evidência técnica. M1C.5 não foi iniciado.
 
 A recusa anterior foi `Automatic approval review failed: You've hit your usage
 limit`, antes do `git add`. A retomada autorizada confirmou a integridade do
-fingerprint e preparou somente os arquivos M1C.4. Resta criar o commit e fazer
-push sem força. Os status abaixo continuam sendo resultados derivados, sem
-promoção ou rebaixamento manual para representar publicação.
+fingerprint, preparou somente os arquivos M1C.4 e publicou o commit acima. Os
+status abaixo continuam sendo resultados derivados, sem promoção ou
+rebaixamento manual para representar publicação.
 
 A entrega parte de `bbb1b925840dbb416b841cd31f178615d76f9a14`. A evidência foi executada em
 2026-09-19T02:11:18.112Z. [Snapshot derivado](../coreutils/evidence/m1c4-final-state.json),
@@ -182,9 +182,9 @@ GNU capture/verify, cli:test, cli:compat e cli:verify com strict por comando.
 Logs locais ficam em artifacts/m1c4-* e não fazem parte da entrega. Probes
 exploratórios, target, node_modules e o sandbox GNU também não entram no commit.
 
-O diff, o stage e a formatação final passaram. O commit do milestone está pronto
-para push sem força; a confirmação de publicação será registrada pelo histórico
-Git após o remoto aceitar o commit. Não reexecutar suítes já aprovadas sem
-alteração ou outro motivo concreto.
+O diff, o stage e a formatação final passaram. O remoto aceitou o commit
+`eba49d103872932b03cb0930e5139d8fd96519b1` em `main`; esta atualização registra
+somente a publicação. Não reexecutar suítes já aprovadas sem alteração ou outro
+motivo concreto.
 
-**PUBLICATION_STATUS: `PENDING_PUSH`.** Nenhum item posterior foi iniciado.
+**PUBLICATION_STATUS: `PUBLISHED`.** Nenhum item posterior foi iniciado.
