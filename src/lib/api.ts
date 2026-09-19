@@ -1,6 +1,7 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { z } from 'zod';
 import { developmentTransport } from './development-transport';
+import { webPageSchema, webHistorySchema } from '../features/browser/virtual-web/web-model';
 
 export const nodeSchema = z.object({
   id: z.string(),
@@ -344,6 +345,8 @@ export const pageSchema = z.object({
   title: z.string(),
   body: z.string(),
   action: z.string().nullable(),
+  virtualWeb: webPageSchema.optional(),
+  history: webHistorySchema.optional(),
 });
 export type BrowserPage = z.infer<typeof pageSchema>;
 export const desktopRuntime = isTauri();

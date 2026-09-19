@@ -405,19 +405,19 @@ describe('App session boundaries', () => {
     expect(useWindows.getState().windows).toEqual([]);
   });
 
-  it('starts a new campaign through session_start and allows retry from its narrative', async () => {
+  it('enters a new campaign directly at its session introduction and allows retry on failure', async () => {
+    startReply = () => Promise.reject(new Error('start rejected'));
     render(<App />);
     fireEvent.click(await screen.findByRole('button', { name: 'Nova campanha' }));
-    await screen.findByRole('button', { name: 'Entrar na história' });
-    startReply = () => Promise.reject(new Error('start rejected'));
-    const now = vi.spyOn(performance, 'now').mockReturnValue(performance.now() + 1000);
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar na história' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('start rejected');
     expect(screen.queryByTestId('desktop')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar na história' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: /^Sessão \d+:/ })).not.toBeInTheDocument();
     startReply = () => Promise.resolve(backendWorld);
-    now.mockReturnValue(performance.now() + 1000);
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar na história' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
     expect(await screen.findByTestId('desktop')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Sessão 1: Script Kiddie' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar na história' })).not.toBeInTheDocument();
     expect(sessionCommands()).toEqual(['session_start', 'session_start']);
   });
 });

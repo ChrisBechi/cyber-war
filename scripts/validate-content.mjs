@@ -1,8 +1,14 @@
 import { readFile, readdir } from 'node:fs/promises';
+import { validateWebPack } from './web-schema.mjs';
 import { z } from 'zod';
 import { forumSchema, missionSchema, networkSchema } from './content-schema.mjs';
+import { searchDocumentSchema } from './search-schema.mjs';
 
 const json = async (path) => JSON.parse(await readFile(path, 'utf8'));
+const webReport = validateWebPack(await json('content/web/web-core.json'));
+process.stdout.write(
+  `Virtual Web valid: ${webReport.brands} brands, ${webReport.documents} documents, ${webReport.checkedLinks} links.\n`,
+);
 const missions = [];
 for (const session of await readdir('content/missions')) {
   for (const file of await readdir(`content/missions/${session}`)) {
@@ -18,6 +24,30 @@ const unique = (ids, label) => {
     throw new Error(`Duplicate ${label}`);
   }
 };
+const searchDocuments = z
+  .array(searchDocumentSchema)
+  .parse(await json('content/search/documents.json'));
+unique(
+  searchDocuments.map((document) => document.id),
+  'search document',
+);
+unique(
+  searchDocuments.map((document) => document.url),
+  'search URL',
+);
+for (const document of searchDocuments) {
+  for (const mission of [...document.requiredMissions, ...document.missionTags]) {
+    if (!missions.some((item) => item.id === mission)) {
+      throw new Error(`Missing mission gate: ${mission}`);
+    }
+  }
+  if (document.imageId) {
+    const svg = await readFile(`public/assets/goggle/${document.imageId}.svg`, 'utf8');
+    if (/<script|<foreignObject|(?:href|src)=["'](?:https?:|\/\/)|\son\w+\s*=/i.test(svg)) {
+      throw new Error(`Unsafe search image: ${document.imageId}`);
+    }
+  }
+}
 unique(
   missions.map((m) => m.id),
   'mission',

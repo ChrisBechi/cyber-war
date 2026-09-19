@@ -77,6 +77,7 @@ describe('MainMenu', () => {
     await open(/^CONTINUAR$/);
     const entries = within(screen.getByRole('group', { name: 'Slots da campanha' })).getAllByRole(
       'button',
+      { name: /^0[1-5]/ },
     );
     expect(entries.map((entry) => entry.textContent?.slice(0, 2))).toEqual([
       '01',
@@ -97,7 +98,7 @@ describe('MainMenu', () => {
     );
     expect(onPlay).toHaveBeenCalledWith(false, true);
   });
-  it('requires confirmation before replacing an occupied campaign and enters the narrative once', async () => {
+  it('requires confirmation before replacing an occupied campaign and starts it once', async () => {
     vi.mocked(request).mockResolvedValue(
       slots().map((slot) => ({
         ...slot,
@@ -113,7 +114,14 @@ describe('MainMenu', () => {
     await open(/INICIAR HISTÓRIA/);
     fireEvent.click(screen.getByRole('button', { name: 'INICIAR HISTÓRIA →' }));
     expect(perform).not.toHaveBeenCalled();
-    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('SUBSTITUIR A CAMPANHA DO SLOT 01?');
+    expect(screen.getByRole('alertdialog')).toHaveTextContent(
+      'O save atual deste slot, incluindo seu progresso e checkpoints, será sobrescrito.',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'CANCELAR' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(perform).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'INICIAR HISTÓRIA →' }));
     fireEvent.click(screen.getByRole('button', { name: 'SUBSTITUIR E INICIAR' }));
     await act(async () => {
       await Promise.resolve();
@@ -210,6 +218,96 @@ describe('MainMenu', () => {
     );
     expect(onPlay).toHaveBeenCalledExactlyOnceWith(true);
   });
+  it('deletes only the chosen save after confirmation and keeps the other slots', async () => {
+    const data = slots().map((slot) => ({
+      ...slot,
+      occupied: [1, 3].includes(slot.slotIndex),
+      label: [1, 3].includes(slot.slotIndex) ? `Campanha ${slot.slotIndex}` : '',
+    }));
+    vi.mocked(request).mockResolvedValue(data);
+    render(<MainMenu onPlay={vi.fn()} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await open(/INICIAR HISTÓRIA/);
+    expect(screen.getAllByRole('button', { name: /^Excluir save/ })).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir save do slot 03: Campanha 3' }));
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('EXCLUIR O SAVE DO SLOT 03?');
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Campanha 3');
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('será excluído permanentemente');
+    fireEvent.click(screen.getByRole('button', { name: 'CANCELAR' }));
+    expect(request).not.toHaveBeenCalledWith(
+      'delete_save_slot',
+      expect.anything(),
+      expect.anything(),
+    );
+    expect(screen.getAllByRole('button', { name: /^Excluir save/ })).toHaveLength(2);
+
+    let finish!: (value: typeof data) => void;
+    vi.mocked(request).mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir save do slot 03: Campanha 3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'EXCLUIR SAVE' }));
+    expect(screen.getByRole('button', { name: 'AGUARDE…' })).toBeDisabled();
+    expect(request).toHaveBeenCalledWith(
+      'delete_save_slot',
+      { slotIndex: 3, confirmed: true },
+      expect.anything(),
+    );
+    await act(async () => {
+      finish(data.map((slot) => (slot.slotIndex === 3 ? slots()[2] : slot)));
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^03 Slot vazio/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getAllByRole('button', { name: /^Excluir save/ })).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: 'Excluir save do slot 01: Campanha 1' }),
+    ).toBeInTheDocument();
+    expect(perform).not.toHaveBeenCalled();
+  });
+
+  it('keeps a failed deletion available for retry and disables Continue after deleting the last save', async () => {
+    const data = slots();
+    data[0] = { ...data[0], occupied: true, label: 'kali' };
+    vi.mocked(request).mockResolvedValue(data);
+    useGame.setState({ slot: 1 });
+    render(<MainMenu onPlay={vi.fn()} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await open(/^CONTINUAR$/);
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir save do slot 01: kali' }));
+    vi.mocked(request).mockRejectedValueOnce(new Error('Falha de gravação'));
+    fireEvent.click(screen.getByRole('button', { name: 'EXCLUIR SAVE' }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(within(screen.getByRole('alertdialog')).getByRole('alert')).toHaveTextContent(
+      'Falha de gravação',
+    );
+    expect(
+      screen.getByRole('button', { name: 'Excluir save do slot 01: kali' }),
+    ).toBeInTheDocument();
+    vi.mocked(request).mockResolvedValueOnce(slots());
+    fireEvent.click(screen.getByRole('button', { name: 'EXCLUIR SAVE' }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'CONTINUAR →' })).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: /Slot vazio/ })).toHaveLength(5);
+    expect(useGame.getState().world).toBeNull();
+    await open(/Voltar ao menu/);
+    expect(screen.getByRole('button', { name: 'CONTINUAR' })).toBeDisabled();
+  });
+
   it('only exits through the native command after confirmation', async () => {
     render(<MainMenu onPlay={vi.fn()} />);
     await act(async () => {

@@ -20,7 +20,7 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
   const [selected, setSelected] = useState(1);
   const [nickname, setNickname] = useState('kali');
   const [hostname, setHostname] = useState('lifeos');
-  const [dialog, setDialog] = useState<'exit' | 'overwrite' | null>(null);
+  const [dialog, setDialog] = useState<'exit' | 'overwrite' | 'delete' | null>(null);
   const [pending, setPending] = useState(false);
   const [setup, setSetup] = useState(false);
   const [setupOverwrite, setSetupOverwrite] = useState(false);
@@ -133,6 +133,31 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
       setPending(false);
       setSetupOverwrite(false);
       setDialog(null);
+    }
+  };
+  const deleteSave = async () => {
+    if (operation.current) {
+      return;
+    }
+    operation.current = true;
+    setPending(true);
+    useGame.getState().clearError();
+    try {
+      const remaining = await request(
+        'delete_save_slot',
+        { slotIndex: selected, confirmed: true },
+        z.array(slotSchema).length(5),
+      );
+      setSlots(remaining.sort((a, b) => a.slotIndex - b.slotIndex));
+      if (useGame.getState().slot === selected) {
+        useGame.setState({ world: null, missions: [] });
+      }
+      setDialog(null);
+    } catch (reason) {
+      useGame.setState({ error: String(reason) });
+    } finally {
+      operation.current = false;
+      setPending(false);
     }
   };
   const exit = async () => {
@@ -318,34 +343,50 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
                   ) : (
                     <div className="front-slot-list" role="group" aria-label="Slots da campanha">
                       {slots.map((slot) => (
-                        <button
-                          key={slot.slotIndex}
-                          className={`front-slot ${selected === slot.slotIndex ? 'is-selected' : ''}`}
-                          aria-pressed={selected === slot.slotIndex}
-                          disabled={locked || (shown === 'load' && !slot.occupied)}
-                          onClick={() => {
-                            setSelected(slot.slotIndex);
-                            audioManager.play('menu-hover');
-                          }}
-                        >
-                          <span className="front-slot-number">0{slot.slotIndex}</span>
-                          <span className="front-slot-description">
-                            <strong>{slot.occupied ? slot.label : 'Slot vazio'}</strong>
-                            <small>
-                              {slot.occupied
-                                ? `${Math.floor(slot.playtimeSeconds / 3600)} h ${Math.floor(slot.playtimeSeconds / 60) % 60} min · Sessão ${slot.session ?? '—'} · ${slot.currentMission ?? 'Explorando'}`
-                                : 'Uma história por começar'}
-                            </small>
-                          </span>
-                          <span className="front-slot-date">
-                            {slot.updatedAt
-                              ? new Date(slot.updatedAt).toLocaleString('pt-BR', {
-                                  dateStyle: 'short',
-                                  timeStyle: 'short',
-                                })
-                              : '—'}
-                          </span>
-                        </button>
+                        <div className="front-slot-row" key={slot.slotIndex}>
+                          <button
+                            className={`front-slot ${selected === slot.slotIndex ? 'is-selected' : ''}`}
+                            aria-pressed={selected === slot.slotIndex}
+                            disabled={locked || (shown === 'load' && !slot.occupied)}
+                            onClick={() => {
+                              setSelected(slot.slotIndex);
+                              audioManager.play('menu-hover');
+                            }}
+                          >
+                            <span className="front-slot-number">0{slot.slotIndex}</span>
+                            <span className="front-slot-description">
+                              <strong>{slot.occupied ? slot.label : 'Slot vazio'}</strong>
+                              <small>
+                                {slot.occupied
+                                  ? `${Math.floor(slot.playtimeSeconds / 3600)} h ${Math.floor(slot.playtimeSeconds / 60) % 60} min · Sessão ${slot.session ?? '—'} · ${slot.currentMission ?? 'Explorando'}`
+                                  : 'Uma história por começar'}
+                              </small>
+                            </span>
+                            <span className="front-slot-date">
+                              {slot.updatedAt
+                                ? new Date(slot.updatedAt).toLocaleString('pt-BR', {
+                                    dateStyle: 'short',
+                                    timeStyle: 'short',
+                                  })
+                                : '—'}
+                            </span>
+                          </button>
+                          {slot.occupied && (
+                            <button
+                              className="front-slot-delete"
+                              disabled={locked}
+                              aria-label={`Excluir save do slot 0${slot.slotIndex}: ${slot.label}`}
+                              title="Excluir save"
+                              onClick={() => {
+                                setSelected(slot.slotIndex);
+                                useGame.getState().clearError();
+                                setDialog('delete');
+                              }}
+                            >
+                              <span aria-hidden="true" />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}
@@ -393,7 +434,7 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
           )
         }
       />
-      {(error || settingsError) && (
+      {(error || settingsError) && dialog !== 'delete' && (
         <p role="alert" className="front-error">
           {error || settingsError}
         </p>
@@ -405,20 +446,35 @@ export function MainMenu({ onPlay }: { onPlay: (newGame: boolean, needsLogin?: b
       {dialog && (
         <ConfirmDialog
           title={
-            dialog === 'exit' ? 'SAIR DO CYBER WAR?' : `SUBSTITUIR A CAMPANHA DO SLOT 0${selected}?`
+            dialog === 'exit'
+              ? 'SAIR DO CYBER WAR?'
+              : dialog === 'delete'
+                ? `EXCLUIR O SAVE DO SLOT 0${selected}?`
+                : `SUBSTITUIR A CAMPANHA DO SLOT 0${selected}?`
           }
           description={
             dialog === 'exit'
               ? 'Você voltará para a área de trabalho.'
-              : 'O progresso e os checkpoints desta campanha serão substituídos. Esta ação não pode ser desfeita.'
+              : dialog === 'delete'
+                ? `O save de “${slots.find((slot) => slot.slotIndex === selected)?.label}”, incluindo progresso, autosave e checkpoints, será excluído permanentemente. Esta ação não pode ser desfeita.`
+                : 'O save atual deste slot, incluindo seu progresso e checkpoints, será sobrescrito. Esta ação não pode ser desfeita.'
           }
-          confirmLabel={dialog === 'exit' ? 'SAIR' : 'SUBSTITUIR E INICIAR'}
+          confirmLabel={
+            dialog === 'exit'
+              ? 'SAIR'
+              : dialog === 'delete'
+                ? 'EXCLUIR SAVE'
+                : 'SUBSTITUIR E INICIAR'
+          }
           busy={pending}
+          error={dialog === 'delete' ? error : undefined}
           onCancel={() => setDialog(null)}
           onConfirm={() => {
             audioManager.play('menu-select');
             if (dialog === 'exit') {
               void exit();
+            } else if (dialog === 'delete') {
+              void deleteSave();
             } else {
               setDialog(null);
               setSetupOverwrite(true);

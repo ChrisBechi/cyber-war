@@ -7,6 +7,18 @@ const RENEWAL_CYCLE_SECONDS: u64 = 3600;
 const EXPIRING_WINDOW_SECONDS: u64 = 300;
 const EXPIRY_GRACE_SECONDS: u64 = 900;
 const SUBDOMAIN_SETUP_COST: i64 = 5;
+// NPC registrations must remain exactly representable in JavaScript IPC responses.
+const PERMANENT_REGISTRATION: u64 = 4_000_000_000;
+fn deserialize_expiration<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<u64, D::Error> {
+    let value = u64::deserialize(deserializer)?;
+    Ok(if value == u64::MAX / 2 {
+        PERMANENT_REGISTRATION
+    } else {
+        value
+    })
+}
 pub const BLACKWIRE_ONION_ADDRESS: &str =
     "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion";
 const ONION_EXTENSION: &str = ".onion";
@@ -51,6 +63,7 @@ pub struct DomainRecord {
     pub organization: String,
     pub business_type: String,
     pub registered_at_seconds: u64,
+    #[serde(deserialize_with = "deserialize_expiration")]
     pub expires_at_seconds: u64,
     pub auto_renew: bool,
     pub primary: bool,
@@ -429,6 +442,9 @@ fn current(world: &WorldState) -> u64 {
 }
 
 fn status(record: &DomainRecord, now: u64) -> &'static str {
+    if record.owner_kind == "npc" && record.expires_at_seconds == PERMANENT_REGISTRATION {
+        return "active";
+    }
     if now
         < record
             .expires_at_seconds
@@ -446,6 +462,11 @@ fn status(record: &DomainRecord, now: u64) -> &'static str {
 
 fn year(seconds: u64) -> u32 {
     2028 + (seconds / RENEWAL_CYCLE_SECONDS) as u32
+}
+
+fn expiration_year(record: &DomainRecord) -> Option<u32> {
+    (record.owner_kind != "npc" || record.expires_at_seconds != PERMANENT_REGISTRATION)
+        .then(|| year(record.expires_at_seconds))
 }
 
 fn premium(name: &str) -> bool {
@@ -511,9 +532,13 @@ fn offer(world: &WorldState, address: &str, business_type: &str) -> GameResult<D
     let parsed = parse(address)?;
     let extension = definition(&parsed.suffix)?;
     let record = world.domains.registrations.get(&parsed.address);
+    let web_brand = crate::virtual_web::repository()
+        .domain(&parsed.address)
+        .map(|entry| crate::virtual_web::repository().brand(&entry.brand_id));
     let now = current(world);
     let record_status = record.map(|item| status(item, now));
-    let available = record.is_none_or(|_| record_status == Some("available"));
+    let available =
+        web_brand.is_none() && record.is_none_or(|_| record_status == Some("available"));
     let restriction_reason = if parsed.government_namespace {
         Some("Domínios governamentais são reservados a órgãos públicos.".into())
     } else {
@@ -546,13 +571,19 @@ fn offer(world: &WorldState, address: &str, business_type: &str) -> GameResult<D
         status: if restricted {
             "restricted".into()
         } else {
-            record_status.unwrap_or("available").into()
+            if web_brand.is_some() {
+                "registered"
+            } else {
+                record_status.unwrap_or("available")
+            }
+            .into()
         },
         owner: record
             .filter(|_| record_status != Some("available"))
-            .map(|item| item.owner.clone()),
+            .map(|item| item.owner.clone())
+            .or_else(|| web_brand.map(|brand| brand.name.clone())),
         registered_at_year: record.map(|item| year(item.registered_at_seconds)),
-        expires_at_year: record.map(|item| year(item.expires_at_seconds)),
+        expires_at_year: record.and_then(expiration_year),
     })
 }
 
@@ -901,7 +932,7 @@ pub fn whois(world: &WorldState, address: &str) -> GameResult<DomainWhois> {
         status: state.into(),
         owner: record.map(|item| item.organization.clone()),
         registered_at_year: record.map(|item| year(item.registered_at_seconds)),
-        expires_at_year: record.map(|item| year(item.expires_at_seconds)),
+        expires_at_year: record.and_then(expiration_year),
         suffix: extension.suffix,
         category: extension.category,
         country: extension.country,
@@ -1021,7 +1052,7 @@ impl DomainState {
                     organization: organization.into(),
                     business_type: category.into(),
                     registered_at_seconds: 0,
-                    expires_at_seconds: u64::MAX / 2,
+                    expires_at_seconds: PERMANENT_REGISTRATION,
                     auto_renew: false,
                     primary: false,
                     redirect_to: None,

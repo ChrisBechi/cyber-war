@@ -19,6 +19,7 @@ export const defaultPreferences: BrowserPreferences = {
   zoom: 100,
   showBookmarks: true,
   bookmarks: [
+    'https://www.goggle.com',
     'https://www.wipedia.org',
     'https://www.archive.org',
     'https://www.b1.tech',

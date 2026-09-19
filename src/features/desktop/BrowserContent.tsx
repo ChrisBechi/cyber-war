@@ -4,9 +4,13 @@ import { DomainPortal } from './DomainPortal';
 import { addressKey, BLACKWIRE_ONION_ADDRESS } from './browser-model';
 import { VigiliaDownload } from './VigiliaDownload';
 import './vigilia-download.css';
+import { GoggleSite } from '../browser/sites/goggle/GoggleSite';
+import { goggleRoute } from '../browser/sites/goggle/goggle-model';
+import { VirtualWebSite } from '../browser/virtual-web/VirtualWebSite';
 
 export function BrowserContent({
   address,
+  rawAddress,
   page,
   error,
   value,
@@ -16,6 +20,7 @@ export function BrowserContent({
   action,
 }: {
   address: string;
+  rawAddress?: string;
   page: BrowserPage | null;
   error: string;
   value: string;
@@ -24,6 +29,25 @@ export function BrowserContent({
   setValue: (value: string) => void;
   action: () => void;
 }) {
+  if (page?.virtualWeb && !error) {
+    return (
+      <VirtualWebSite
+        key={rawAddress ?? address}
+        initialPage={page.virtualWeb}
+        navigate={navigate}
+      />
+    );
+  }
+  if (page && !error && goggleRoute(rawAddress ?? address)) {
+    return (
+      <GoggleSite
+        key={rawAddress ?? address}
+        address={rawAddress ?? address}
+        page={page}
+        navigate={navigate}
+      />
+    );
+  }
   const isBlackwire = address.startsWith(BLACKWIRE_ONION_ADDRESS);
   const isVigilia = addressKey(address) === 'vigilia.org';
   return (

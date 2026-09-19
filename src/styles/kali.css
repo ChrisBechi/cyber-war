@@ -41,9 +41,7 @@
   border-color: #2777ff;
 }
 
-.desktop input,
-.desktop textarea,
-.desktop select {
+.desktop :where(input, textarea, select) {
   background: #1a1c23;
   border-color: #0d0e11;
 }

@@ -48,6 +48,7 @@ import {
   Settings,
 } from './Applications';
 import { VigiliaGame } from './VigiliaGame';
+import { useWebClock } from '../browser/virtual-web/use-web-clock';
 
 export function Desktop({
   onMenu,
@@ -59,6 +60,7 @@ export function Desktop({
   inputBlocked?: boolean;
 }) {
   const { world, missions, error, clearError, sessionPending } = useGame();
+  useWebClock(!presentation && !sessionPending);
   const { windows, workspace, open } = useWindows();
   const [launcher, setLauncher] = useState(false);
   const [locked, setLocked] = useState(false);

@@ -31,6 +31,14 @@ O jogo inicia em tela cheia. `F11` alterna entre tela cheia e janela, também di
 
 O recorte jogável inclui First Boot, V1, V2 com solução alternativa, Wi-Fi, pendrive, trabalhos de VEX, hardening/incidente e A Garota. A sessão 2 possui as duas missões iniciais Orion: NO AR e EM CLARO. Os demais arcos permanecem em documentação. Apenas uma missão pode estar ativa por vez; concluir ou abandonar libera a possibilidade de aceitar outra.
 
+### Goggle — busca na internet virtual
+
+Abra `goggle.com` no navegador do jogo para pesquisar páginas, notícias e imagens do mundo. O Goggle inclui sugestões, teclado virtual, voz simulada, busca reversa no VFS e contas fictícias **@goggle.com**. O núcleo Rust controla ranking, acesso por missão e persistência. Consulte [Goggle: arquitetura, conteúdo e testes](docs/GOGGLE.md).
+
+A [internet virtual](docs/VIRTUAL-INTERNET.md) contém 210 marcas, 1.608 documentos e 4.742 links locais, incluindo LinkUp, FeiraLivre, anúncios e arquivo de páginas retiradas. Histórico, carrinho, comentários, curtidas, aulas, publicações e negociações ficam no save; o conteúdo base é separado dos deltas da campanha. O [relatório de expansão](docs/VIRTUAL-INTERNET-EXPANSION.md) distingue conteúdo autorado, variantes de produtos, resultados dos testes e homologação ainda pendente.
+
+Os [eventos da internet virtual](docs/VIRTUAL-INTERNET-EVENTS.md) fazem publicações, preços e estoque acompanharem o tempo da campanha. A oferta do NexPhone X2 demonstra promoção, esgotamento e reposição, com histórico de alterações e valores consistentes entre ShopNow, carrinho e Goggle.
+
 ### SECTOR IX — Protocolo Zero
 
 O jogo externo de `C:\Users\chris\Documentos\ultimo-magnata\artifacts\vigilia` foi incorporado integralmente em `games/vigilia/` e empacotado para a execução interna em `public/games/vigilia/`. Ele aparece em **Aplicativos > Jogos > SECTOR IX**, abre inicialmente em janela e mantém a opção de tela cheia no próprio cabeçalho do jogo. Perfil, créditos, personagens, arsenal, volumes e progresso do SECTOR IX continuam persistidos no armazenamento do runtime.

@@ -149,7 +149,7 @@
   flex-shrink: 0;
 }
 
-.browser-shell button:not(:disabled):hover {
+.browser-shell button:not(:disabled):hover:not(.goggle-site button, .virtual-web button) {
   background: #ffffff15;
 }
 

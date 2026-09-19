@@ -272,7 +272,7 @@ it('shows the server-not-found page with the failed hostname and local help', as
   fireEvent.click(screen.getByRole('button', { name: 'Saiba mais...' }));
   expect(screen.getByText('Endereço não encontrado na internet do jogo.')).toBeVisible();
   expect(perform).toHaveBeenCalledTimes(1);
-  expect(defaultPreferences.bookmarks).toHaveLength(6);
+  expect(defaultPreferences.bookmarks).toHaveLength(7);
 });
 
 it('retries the failed URL without adding history and isolates the error to its tab', async () => {
@@ -421,12 +421,12 @@ it('exposes persisted preferences and temporary session state and supports histo
   expect(screen.getByText('Nenhuma página visitada.')).toBeVisible();
   fireEvent.keyDown(address, { key: 'F5' });
   await screen.findByRole('heading', { name: 'https://www.wipedia.org' });
-  expect(perform).toHaveBeenCalledTimes(2);
+  expect(perform).toHaveBeenCalledTimes(3);
   fireEvent.keyDown(address, { ctrlKey: true, key: 'u' });
   expect(screen.getByRole('textbox', { name: 'Código fonte da página' })).toBeVisible();
   fireEvent.click(screen.getByRole('tab', { name: 'Storage' }));
   const storage = screen.getByRole('tabpanel', { name: 'Storage' });
-  expect(storage).toHaveTextContent('6 favoritos');
+  expect(storage).toHaveTextContent('7 favoritos');
   expect(storage).toHaveTextContent('Configuração padrão');
   fireEvent.click(screen.getByRole('tab', { name: 'Sessão' }));
   expect(screen.getByRole('tabpanel', { name: 'Sessão' })).toHaveTextContent('1 página(s)');

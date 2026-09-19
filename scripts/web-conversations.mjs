@@ -1,0 +1,123 @@
+// Authored discussion starters. Shared factual references remain in web-content.
+export const conversations = {
+  'rubber-duck': [
+    'mesa_desarrumada',
+    'Vocês realmente explicam bugs para um pato de borracha?',
+    'Ganhei um patinho amarelo e deixei ao lado do monitor. Hoje expliquei um loop para ele e percebi que estava lendo a variável errada. Coincidência ou hábito útil?',
+    'O meu ouvinte é uma caneca. Funciona melhor quando eu descrevo a entrada, o resultado esperado e cada passo, sem pular a parte que parece óbvia.',
+  ],
+  javascript: [
+    'mari_aprende',
+    'Minha função JavaScript calcula certo, mas devolve undefined',
+    'O console mostra o total da compra dentro da função. Quando guardo a chamada em uma variável, recebo undefined. Achei que console.log já devolvesse o valor.',
+    'São coisas diferentes: console.log mostra uma mensagem; return entrega um valor a quem chamou a função. Tente retornar o total e imprimir o resultado fora dela.',
+  ],
+  gpu: [
+    'pixel_curioso',
+    'Antes de comprar uma placa de vídeo: o que medir no gabinete?',
+    'Encontrei uma placa que cabe no orçamento, mas o anúncio só destaca a memória. Meu gabinete é curto e a fonte fica na parte de baixo. Como vocês conferem a compatibilidade?',
+    'Eu verifico comprimento, espessura, espaço junto às ventoinhas e conectores de energia. Uma foto do gabinete ajuda, mas não substitui as medidas e o manual da placa.',
+  ],
+  'carrot-cake': [
+    'bolo_de_domingo',
+    'Bolo de cenoura ficou pesado no meio. Onde errei?',
+    'O bolo cresceu nas bordas e ficou baixo no centro. Usei três cenouras enormes porque a receita dizia três unidades. Na próxima vou pesar antes de bater.',
+    'Já aconteceu aqui. Passei a seguir a medida em gramas da receita e parei de abrir o forno no começo. Também anoto o tempo porque meu forno aquece de um lado só.',
+  ],
+  phone: [
+    'lia_na_rua',
+    'Trocar o celular pela câmera ou esperar mais um ano?',
+    'Meu celular ainda atende, mas falta espaço para fotos e a bateria termina cedo. Estou separando o que é necessidade do que é vontade de ter um aparelho novo.',
+    'Eu começaria conferindo o espaço ocupado e a assistência disponível para a bateria. Se for trocar, compare também o prazo de atualizações, não só as fotos de demonstração.',
+  ],
+  wifi: [
+    'sinal_na_cozinha',
+    'Wi-Fi funciona na sala e some no quarto dos fundos',
+    'O roteador está dentro do móvel da televisão. No mesmo cômodo a conexão vai bem; depois de duas paredes ela cai. Vale testar outra posição antes de comprar equipamento?',
+    'Vale fazer esse teste. Tirei o meu de trás da TV e comparei o sinal sempre nos mesmos pontos. Descobri que o corredor atendia melhor os dois quartos.',
+  ],
+  horror: [
+    'sessao_da_meia_noite',
+    'Filme de terror precisa de susto para funcionar?',
+    'Revi um filme em que quase nada aparece na tela. O som do corredor me deixou mais tenso que qualquer monstro. Prefiro suspense acumulado a sustos em sequência.',
+    'Gosto dos dois, mas por motivos diferentes. Quando a trilha anuncia tudo, fico esperando o susto e paro de prestar atenção na história.',
+  ],
+  english: [
+    'caderno_azul',
+    'Como praticar inglês quinze minutos por dia sem só decorar listas?',
+    'Tenho um intervalo curto depois do almoço. Já reuni muitas palavras, mas travo quando preciso montar uma frase sobre meu dia. Queria uma rotina que eu consiga manter.',
+    'Eu escrevo três frases sobre algo que aconteceu e tento dizê-las sem ler. No dia seguinte reviso uma delas e mudo o sujeito ou o horário. É pequeno, mas dá para acompanhar.',
+  ],
+  'used-car': [
+    'primeira_garagem',
+    'Carro usado: o que vocês anotam durante uma visita?',
+    'Vou olhar um carro anunciado no bairro. Quero levar uma lista para não decidir só pela aparência. Já combinei de ver os registros de manutenção e fazer uma avaliação independente.',
+    'Minha lista tinha quilometragem informada, histórico, pneus, ruídos e tudo que o vendedor prometeu corrigir. Anotar na hora ajudou a comparar depois, com calma.',
+  ],
+  ai: [
+    'fonte_por_favor',
+    'Resposta de IA convincente, referência inexistente',
+    'Recebi uma explicação bem escrita com o nome de um artigo no final. Quando fui procurar o texto, não encontrei nada. O tom seguro me fez baixar a guarda.',
+    'Se a referência é essencial, eu a abro antes de usar a resposta. Também separo o que consegui conferir do que ficou como hipótese. Texto fluente não resolve essa conferência.',
+  ],
+  router: [
+    'quatro_portas',
+    'Mais antenas ou melhor posição para o roteador?',
+    'Os modelos da vitrine parecem competir no número de antenas. Meu problema é cobertura em um apartamento estreito. Que informação foi mais útil na escolha de vocês?',
+    'No meu caso, planta e posição pesaram mais. Também conferi as portas porque mantenho o computador conectado por cabo. O formato da caixa não dizia muito sobre isso.',
+  ],
+  dog: [
+    'passeio_das_sete',
+    'O cachorro trouxe a guia e mudou minha rotina',
+    'Eu adiava o passeio enquanto terminava uma tarefa. Agora ele aparece com a guia no mesmo horário e me lembra de fazer uma pausa. Vocês também têm esses pequenos rituais?',
+    'Aqui o aviso é sentar ao lado da porta. Passei a deixar a guia no mesmo lugar; a procura por ela já virava parte do passeio.',
+  ],
+  pizza: [
+    'farinha_na_bancada',
+    'Pizza caseira: massa boa, recheio escorregando',
+    'A massa ficou crocante, mas coloquei tanto molho e tomate que o centro ficou úmido. Da próxima vez vou distribuir menos cobertura e observar a primeira assadeira.',
+    'Fiz a mesma coisa na estreia. Hoje separo o recheio antes de abrir a massa para enxergar a quantidade. Duas pizzas leves deram mais certo que uma muito carregada.',
+  ],
+  linux: [
+    'terminal_primeiro_dia',
+    'Abri o terminal Linux. Como descubro em que pasta estou?',
+    'Segui uma aula, abri outra janela e perdi a referência de onde tinha criado meu arquivo. Preciso entender o caminho antes de repetir comandos.',
+    'Use pwd para ver o diretório atual e ls para listar suas entradas. Depois faça cd para mudar de pasta e rode pwd de novo. Ver a diferença ajuda a entender caminhos relativos.',
+  ],
+  nexora: [
+    'manual_primeiro',
+    'Onde fica o manual do NexPhone X2 no site da Nexora?',
+    'Cheguei à página do produto pelo buscador e queria conferir armazenamento e suporte. Encontrei a área de documentação, mas deixo o caminho aqui para quem estiver comparando modelos.',
+    'A página do X2 reúne os links de documentação. Eu abri o manual e a análise da TechByte lado a lado para separar especificação de impressão de uso.',
+  ],
+  chair: [
+    'mesa_pequena',
+    'Cadeira nova: o braço bate embaixo da mesa',
+    'Medi a largura da cadeira, mas esqueci a altura dos braços. Agora ela não entra direito sob a mesa. Que outras medidas costumam passar despercebidas?',
+    'Eu anoto altura mínima do assento, profundidade e faixa de ajuste dos braços. Também confiro o espaço para levantar e girar sem bater no móvel atrás.',
+  ],
+  radio: [
+    'sintonia_antiga',
+    'Quem ainda reconhece uma emissora pela vinheta?',
+    'Achei um rádio antigo e lembrei da vinheta que tocava antes das notícias na casa da minha avó. É curioso como poucos segundos de áudio carregam uma época inteira.',
+    'Eu lembro da abertura do programa de domingo, mas esqueci o nome do apresentador. Fui ler sobre a história do rádio e acabei anotando histórias da minha família também.',
+  ],
+  hotel: [
+    'mochila_leve',
+    'Hospedagem barata longe do centro ainda compensa?',
+    'Estou comparando duas opções para um fim de semana. Uma diária é menor, mas vou gastar mais tempo no deslocamento. Montei uma conta com transporte e horários.',
+    'Essa conta fez diferença na minha última viagem. Também conferi horário de entrada, cancelamento e o que estava incluído na diária antes de comparar os totais.',
+  ],
+  coffee: [
+    'filtro_de_papel',
+    'Anotar a proporção mudou meu café coado',
+    'Eu colocava pó e água no olho e nunca repetia a xícara de que gostava. Esta semana usei a mesma medida e mudei uma coisa por vez. Finalmente consigo comparar.',
+    'Faço isso com a moagem. Se mudo pó, quantidade e tempo ao mesmo tempo, não sei o que melhorou. Guardo uma receita de referência no armário.',
+  ],
+  usb: [
+    'cabo_sem_nome',
+    'Dois cabos USB-C iguais por fora, velocidades diferentes',
+    'Um cabo carrega meu celular, mas demora muito para copiar arquivos. O outro é bem mais rápido. Eu achava que o formato do conector definia todas as capacidades.',
+    'O conector é só uma parte. Procure o padrão de transferência e a potência declarada para cada cabo. Passei a etiquetar os meus depois de misturar tudo na mesma gaveta.',
+  ],
+};

@@ -5,6 +5,7 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   busy,
+  error,
   onCancel,
   onConfirm,
 }: {
@@ -12,6 +13,7 @@ export function ConfirmDialog({
   description: string;
   confirmLabel: string;
   busy: boolean;
+  error?: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -52,6 +54,7 @@ export function ConfirmDialog({
         <span className="front-kicker">CONFIRMAÇÃO</span>
         <h2 id="confirm-title">{title}</h2>
         <p id="confirm-description">{description}</p>
+        {error && <p role="alert">{error}</p>}
         <div className="front-modal-actions">
           <button disabled={busy} onClick={onCancel}>
             CANCELAR

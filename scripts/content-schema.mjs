@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { searchEffectSchema } from './search-schema.mjs';
 
 const text = z.string().min(1);
 const path = text.refine(
@@ -49,6 +50,7 @@ export const conditionSchema = z.discriminatedUnion('kind', [
   variant('hostService', { host: text, port: z.int().min(1).max(65535), running: z.boolean() }),
 ]);
 export const effectSchema = z.discriminatedUnion('kind', [
+  variant('search', { effect: searchEffectSchema }),
   variant('repository', {
     id: z.enum(['https://mirror.kali.game/kali', 'https://repo.blackwire.net/tools']),
     available: z.boolean(),

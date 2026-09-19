@@ -119,6 +119,14 @@ pub fn list_save_slots(service: Service<'_>) -> GameResult<Vec<save::SaveSlotSum
     save::list(&service.lock().connection)
 }
 #[tauri::command]
+pub fn delete_save_slot(
+    slot_index: i64,
+    confirmed: bool,
+    service: Service<'_>,
+) -> GameResult<Vec<save::SaveSlotSummary>> {
+    service.lock().delete_slot(slot_index, confirmed)
+}
+#[tauri::command]
 pub fn save_slot(service: Service<'_>) -> GameResult<()> {
     service.lock().save(true)
 }
@@ -932,6 +940,100 @@ pub fn browser_navigate(
 }
 
 #[tauri::command]
+pub fn web_interact(
+    id: String,
+    action: String,
+    text: String,
+    address: String,
+    service: Service<'_>,
+) -> GameResult<crate::browser::BrowserPage> {
+    service.lock().mutate(
+        |_, world, _| {
+            crate::virtual_web::interact(world, &id, &action, &text)?;
+            crate::browser::navigate(world, &address)
+        },
+        false,
+    )
+}
+#[tauri::command]
+pub fn web_tick(service: Service<'_>) -> GameResult<bool> {
+    service.lock().tick_web()
+}
+#[tauri::command]
+pub fn web_ad_click(id: String, service: Service<'_>) -> GameResult<String> {
+    service.lock().mutate(
+        |_, world, _| crate::virtual_web::discovery::click(world, &id),
+        false,
+    )
+}
+#[tauri::command]
+pub fn web_debug(
+    query: String,
+    address: String,
+    service: Service<'_>,
+) -> GameResult<serde_json::Value> {
+    #[cfg(debug_assertions)]
+    {
+        crate::virtual_web::devtools::inspect(service.lock().world()?, &query, &address)
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let _ = (query, address, service);
+        Err(crate::vfs::domain("Diagnóstico indisponível nesta build."))
+    }
+}
+#[tauri::command]
+pub fn web_qa_prepare(service: Service<'_>) -> GameResult<serde_json::Value> {
+    #[cfg(debug_assertions)]
+    {
+        crate::virtual_web::desktop_qa::prepare(&mut service.lock())
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let _ = service;
+        Err(domain("QA indisponível nesta build."))
+    }
+}
+#[tauri::command]
+pub fn web_qa_report(
+    sample: serde_json::Value,
+    service: Service<'_>,
+) -> GameResult<serde_json::Value> {
+    #[cfg(debug_assertions)]
+    {
+        crate::virtual_web::desktop_qa::report(&service.lock(), sample)
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let _ = (sample, service);
+        Err(domain("QA indisponível nesta build."))
+    }
+}
+#[tauri::command]
+pub fn web_history(
+    service: Service<'_>,
+) -> GameResult<Vec<crate::virtual_web::model::HistoryEntry>> {
+    Ok(service.lock().world()?.web.history.clone())
+}
+#[tauri::command]
+pub fn web_page(
+    address: String,
+    service: Service<'_>,
+) -> GameResult<Option<crate::virtual_web::model::Page>> {
+    crate::virtual_web::resolve(service.lock().world()?, &address)
+}
+#[tauri::command]
+pub fn web_history_clear(service: Service<'_>) -> GameResult<()> {
+    service.lock().mutate(
+        |_, world, _| {
+            world.web.history.clear();
+            Ok(())
+        },
+        false,
+    )
+}
+
+#[tauri::command]
 pub fn browser_preferences_save(
     preferences: crate::browser::Preferences,
     service: Service<'_>,
@@ -946,6 +1048,112 @@ pub fn browser_action(action: String, value: String, service: Service<'_>) -> Ga
     service
         .lock()
         .mutate(|_, w, _| crate::browser::action(w, &action, &value), false)
+}
+
+#[tauri::command]
+pub fn search_query(
+    query: String,
+    mode: String,
+    source: Option<String>,
+    offset: Option<usize>,
+    service: Service<'_>,
+) -> GameResult<crate::search::SearchResponse> {
+    let mut game = service.lock();
+    let result = crate::search::VirtualSearchEngine::new(game.world()?).search(
+        &query,
+        &mode,
+        source.as_deref(),
+        offset.unwrap_or(0),
+    )?;
+    if game.world()?.search.history_enabled {
+        game.mutate(
+            |_, world, _| {
+                crate::search::remember(world, &query);
+                Ok(())
+            },
+            false,
+        )?;
+    }
+    Ok(result)
+}
+#[tauri::command]
+pub fn search_suggestions(query: String, service: Service<'_>) -> GameResult<Vec<String>> {
+    crate::search::VirtualSearchEngine::new(service.lock().world()?).suggest(&query)
+}
+#[tauri::command]
+pub fn search_image_files(service: Service<'_>) -> GameResult<Vec<String>> {
+    Ok(crate::search::images::files(service.lock().world()?))
+}
+#[tauri::command]
+pub fn search_voice_options(service: Service<'_>) -> GameResult<Vec<String>> {
+    let game = service.lock();
+    let engine = crate::search::VirtualSearchEngine::new(game.world()?);
+    if !game.world()?.network.connected {
+        return Err(crate::vfs::domain("Sem conexão com a internet virtual."));
+    }
+    let mut docs: Vec<_> = engine
+        .documents()
+        .filter(|d| engine.visible(d) && !d.suggestions.is_empty())
+        .collect();
+    docs.sort_by_key(|d| {
+        (
+            !d.mission_tags.iter().any(|tag| {
+                game.world()
+                    .is_ok_and(|w| w.missions.get(tag).is_some_and(|m| m.status == "active"))
+            }),
+            d.id.clone(),
+        )
+    });
+    Ok(docs
+        .into_iter()
+        .filter_map(|d| d.suggestions.first().cloned())
+        .take(4)
+        .collect())
+}
+#[tauri::command]
+pub fn goggle_session(service: Service<'_>) -> GameResult<crate::search::accounts::GoggleSession> {
+    Ok(crate::search::accounts::session(service.lock().world()?))
+}
+#[tauri::command]
+pub fn goggle_authenticate(
+    email: String,
+    password: String,
+    display_name: Option<String>,
+    service: Service<'_>,
+) -> GameResult<()> {
+    service.lock().mutate(
+        |_, world, _| {
+            crate::search::accounts::authenticate(world, &email, &password, display_name.as_deref())
+        },
+        false,
+    )
+}
+#[tauri::command]
+pub fn goggle_preferences(
+    history_enabled: bool,
+    clear_history: bool,
+    service: Service<'_>,
+) -> GameResult<()> {
+    service.lock().mutate(
+        |_, world, _| {
+            world.search.history_enabled = history_enabled;
+            if clear_history {
+                world.search.history.clear();
+            }
+            Ok(())
+        },
+        false,
+    )
+}
+#[tauri::command]
+pub fn goggle_logout(service: Service<'_>) -> GameResult<()> {
+    service.lock().mutate(
+        |_, world, _| {
+            world.search.session = None;
+            Ok(())
+        },
+        false,
+    )
 }
 
 #[tauri::command]

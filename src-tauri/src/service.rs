@@ -104,9 +104,43 @@ impl GameService {
         self.runtime_epoch += 1;
         Ok(world)
     }
+    pub fn delete_slot(
+        &mut self,
+        slot: i64,
+        confirmed: bool,
+    ) -> GameResult<Vec<save::SaveSlotSummary>> {
+        db::validate_slot(slot)?;
+        if !confirmed {
+            return Err(domain("Confirme a exclusão do save antes de continuar."));
+        }
+        let tx = self.connection.transaction()?;
+        tx.execute("DELETE FROM save_checkpoints WHERE slot_index=?1", [slot])?;
+        tx.execute(
+            "UPDATE save_slots SET label='', occupied=0, current_mission=NULL, playtime_seconds=0,
+             state_json=NULL, checksum=NULL, autosave_json=NULL, autosave_checksum=NULL,
+             created_at=NULL, updated_at=NULL WHERE slot_index=?1",
+            [slot],
+        )?;
+        let slots = save::list(&tx)?;
+        tx.commit()?;
+        if self
+            .active
+            .as_ref()
+            .is_some_and(|active| active.slot == slot)
+        {
+            crate::shell::control::cancel_all();
+            if let Some(active) = &mut self.active {
+                crate::archive::jobs::reset(&mut active.world);
+            }
+            self.active = None;
+            self.runtime_epoch += 1;
+        }
+        Ok(slots)
+    }
     pub fn load(&mut self, slot: i64, manual: bool) -> GameResult<WorldState> {
         let (label, mut world) = save::load(&self.connection, slot, manual)?;
         normalize_entry(&self.engine, &self.connection, slot, &mut world)?;
+        crate::virtual_web::sync_events(&mut world);
         world.vfs.ensure_trash();
         let tx = self.connection.transaction()?;
         db::write_snapshot(&tx, slot, &label, &world, false)?;
@@ -140,6 +174,7 @@ impl GameService {
         let mut world = active.world.clone();
         let elapsed = active.clock.elapsed().as_secs();
         world.playtime_seconds += elapsed;
+        crate::virtual_web::sync_events(&mut world);
         let mut events = Vec::new();
         let anchors = world.cwd_anchors();
         let result = change(&self.engine, &mut world, &mut events)?;
@@ -147,6 +182,7 @@ impl GameService {
         terminal::observe(&mut world);
         self.engine.track_action(&active.world, &mut world)?;
         events.extend(self.engine.evaluate(&mut world)?);
+        crate::virtual_web::sync_events(&mut world);
         terminal::observe(&mut world);
         world.vfs.collect();
         for host in world.network.hosts.values_mut() {
@@ -195,6 +231,25 @@ impl GameService {
             manual,
         )
     }
+    pub fn tick_web(&mut self) -> GameResult<bool> {
+        let Some(active) = &self.active else {
+            return Ok(false);
+        };
+        if active.session_ended {
+            return Ok(false);
+        }
+        let current = active
+            .world
+            .playtime_seconds
+            .saturating_add(active.clock.elapsed().as_secs());
+        if !crate::virtual_web::events::next_change(&active.world)
+            .is_some_and(|next| next <= current)
+        {
+            return Ok(false);
+        }
+        self.mutate(|_, _, _| Ok(()), false)?;
+        Ok(true)
+    }
     pub fn end_session(&mut self) -> GameResult<()> {
         let Some(active) = &self.active else {
             return Ok(());
@@ -223,13 +278,20 @@ impl GameService {
     }
     pub fn start_session(&mut self) -> GameResult<WorldState> {
         let was_ended = self.active.as_ref().is_some_and(|a| a.session_ended);
+        let previous_clock = self.active.as_ref().map(|a| a.clock);
         if let Some(active) = &mut self.active {
             active.session_ended = false;
+            if was_ended {
+                active.clock = Instant::now();
+            }
         }
         let result = self.mutate(|_, world, _| terminal::prepare_session_start(world), false);
         if let Err(error) = result {
             if let Some(active) = &mut self.active {
                 active.session_ended = was_ended;
+                if let Some(clock) = previous_clock {
+                    active.clock = clock;
+                }
             }
             return Err(error);
         }
@@ -279,6 +341,7 @@ fn normalize_entry(
     })?;
     terminal::stop_session_runtime(world)?;
     crate::packages::state::initialize(world)?;
+    crate::virtual_web::sync_events(world);
     world.validate()
 }
 
@@ -329,6 +392,139 @@ mod tests {
         assert!(game.load(1, false).is_err());
         assert!(game.load(1, true).is_ok());
     }
+    #[test]
+    fn new_game_overwrite_requires_confirmation_and_replaces_only_the_selected_slot() {
+        let mut game = service();
+        game.new_game(2, "other", "other-pc", false).unwrap();
+        game.new_game(1, "previous", "old-pc", false).unwrap();
+        game.mutate(
+            |_, world, _| {
+                world.money = 123;
+                world.playtime_seconds = 3600;
+                world
+                    .vfs
+                    .write("/home/kali/old-save.txt", "previous campaign", "kali")?;
+                Ok(())
+            },
+            true,
+        )
+        .unwrap();
+        game.save(false).unwrap();
+
+        let snapshots = |game: &GameService, slot| {
+            [false, true].map(|manual| {
+                let (label, world) = save::load(&game.connection, slot, manual).unwrap();
+                (label, save::encode(&world).unwrap())
+            })
+        };
+        let checkpoints = |game: &GameService, slot| {
+            serde_json::to_string(&save::checkpoints(&game.connection, slot).unwrap()).unwrap()
+        };
+        let old_snapshots = snapshots(&game, 1);
+        let old_checkpoints = checkpoints(&game, 1);
+        let other_snapshots = snapshots(&game, 2);
+        let other_checkpoints = checkpoints(&game, 2);
+        let old_active = save::encode(game.world().unwrap()).unwrap();
+
+        assert!(game.new_game(1, "replacement", "new-pc", false).is_err());
+        assert_eq!(snapshots(&game, 1), old_snapshots);
+        assert_eq!(checkpoints(&game, 1), old_checkpoints);
+        assert_eq!(save::encode(game.world().unwrap()).unwrap(), old_active);
+
+        game.connection.execute_batch("CREATE TRIGGER reject_replacement BEFORE UPDATE ON save_slots WHEN OLD.slot_index=1 BEGIN SELECT RAISE(ABORT,'test failure'); END;").unwrap();
+        assert!(game.new_game(1, "replacement", "new-pc", true).is_err());
+        assert_eq!(snapshots(&game, 1), old_snapshots);
+        assert_eq!(checkpoints(&game, 1), old_checkpoints);
+        assert_eq!(save::encode(game.world().unwrap()).unwrap(), old_active);
+        game.connection
+            .execute_batch("DROP TRIGGER reject_replacement;")
+            .unwrap();
+
+        let replacement = game.new_game(1, "replacement", "new-pc", true).unwrap();
+        assert_eq!(replacement.money, 0);
+        assert_eq!(replacement.playtime_seconds, 0);
+        assert!(replacement
+            .vfs
+            .read("/home/kali/old-save.txt", "kali")
+            .is_err());
+        let expected = (
+            "replacement".to_owned(),
+            save::encode(&replacement).unwrap(),
+        );
+        assert_eq!(snapshots(&game, 1), [expected.clone(), expected]);
+        let new_checkpoints = save::checkpoints(&game.connection, 1).unwrap();
+        assert_eq!(new_checkpoints.len(), 1);
+        assert_eq!(new_checkpoints[0].checkpoint_type, "mission_start");
+        assert_eq!(new_checkpoints[0].mission_id.as_deref(), Some("first-boot"));
+        assert!(!old_checkpoints.contains(&new_checkpoints[0].id));
+        assert_eq!(snapshots(&game, 2), other_snapshots);
+        assert_eq!(checkpoints(&game, 2), other_checkpoints);
+    }
+
+    #[test]
+    fn deleting_a_save_is_confirmed_atomic_and_keeps_other_slots() {
+        let mut game = service();
+        game.new_game(1, "first", "pc", false).unwrap();
+        game.save(false).unwrap();
+        game.new_game(2, "other", "pc", false).unwrap();
+        let saved = save::load(&game.connection, 1, false).unwrap();
+        let first_checkpoints =
+            serde_json::to_string(&save::checkpoints(&game.connection, 1).unwrap()).unwrap();
+        let other = save::encode(game.world().unwrap()).unwrap();
+        let other_checkpoints =
+            serde_json::to_string(&save::checkpoints(&game.connection, 2).unwrap()).unwrap();
+        let epoch = game.runtime_epoch;
+        assert!(game.delete_slot(0, true).is_err());
+        assert!(game.delete_slot(6, true).is_err());
+        assert!(game.delete_slot(1, false).is_err());
+        assert_eq!(
+            save::encode(&save::load(&game.connection, 1, false).unwrap().1).unwrap(),
+            save::encode(&saved.1).unwrap()
+        );
+
+        game.connection.execute_batch("CREATE TRIGGER reject_delete BEFORE UPDATE ON save_slots WHEN OLD.slot_index=1 BEGIN SELECT RAISE(ABORT,'test failure'); END;").unwrap();
+        assert!(game.delete_slot(1, true).is_err());
+        assert_eq!(
+            serde_json::to_string(&save::checkpoints(&game.connection, 1).unwrap()).unwrap(),
+            first_checkpoints
+        );
+        assert_eq!(
+            save::encode(&save::load(&game.connection, 1, false).unwrap().1).unwrap(),
+            save::encode(&saved.1).unwrap()
+        );
+        assert_eq!(game.runtime_epoch, epoch);
+        game.connection
+            .execute_batch("DROP TRIGGER reject_delete;")
+            .unwrap();
+
+        let slots = game.delete_slot(1, true).unwrap();
+        assert_eq!(slots.len(), 5);
+        assert!(!slots[0].occupied);
+        assert_eq!(slots[0].label, "");
+        assert_eq!(slots[0].playtime_seconds, 0);
+        assert!(slots[0].updated_at.is_none());
+        assert!(save::load(&game.connection, 1, false).is_err());
+        assert!(save::load(&game.connection, 1, true).is_err());
+        assert!(save::checkpoints(&game.connection, 1).unwrap().is_empty());
+        assert_eq!(save::encode(game.world().unwrap()).unwrap(), other);
+        assert_eq!(game.runtime_epoch, epoch);
+        assert_eq!(
+            serde_json::to_string(&save::checkpoints(&game.connection, 2).unwrap()).unwrap(),
+            other_checkpoints
+        );
+
+        game.new_game(1, "reused", "new-pc", false).unwrap();
+        let epoch = game.runtime_epoch;
+        game.delete_slot(1, true).unwrap();
+        assert!(game.active.is_none());
+        assert_eq!(game.runtime_epoch, epoch + 1);
+        assert!(game.save(false).is_err());
+        game.end_session().unwrap();
+        assert!(!save::list(&game.connection).unwrap()[0].occupied);
+        game.load(2, true).unwrap();
+        assert_eq!(game.world().unwrap().nickname, "other");
+    }
+
     #[test]
     fn checkpoints_rotate_restore_and_isolate_slots() {
         let mut game = service();

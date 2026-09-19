@@ -1,5 +1,9 @@
 # Verificação
 
+## Internet virtual — expansão de 18/09/2026
+
+O estado atual da internet virtual e suas evidências estão em [VIRTUAL-INTERNET-EXPANSION.md](VIRTUAL-INTERNET-EXPANSION.md): 210 marcas, 1.608 documentos, 190 testes React, 139 testes Rust e ensaios explícitos de carga, fuzzing, recuperação, índice e armazenamento. O relatório separa revisão estática de páginas, persistência testada no núcleo e homologação ainda aberta no aplicativo nativo, em sessões prolongadas e por participantes humanos. Os checkpoints abaixo preservam resultados históricos de outros marcos.
+
 ## QA 0.4.2 — sites virtuais e fórum
 
 Os sites do navegador virtual foram verificados pela fronteira Rust e a regressão cobre todos os endereços implementados: `wipedia.org`, `archive.org`, `fakebook.com`, `b1.tech`, `pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion`, seu caminho `/archive`, `mercado.com.br` e `meudominio.com.br`. Os sites tradicionais possuem IP virtual; o Onion Service v3 é mantido separadamente na rede Tor, sem DNS ou IP tradicional, com disponibilidade intermitente. O teste também confirma que o FakeBook permanece bloqueado antes da missão `girl`, libera o conteúdo quando a missão está ativa e que endereços desconhecidos são recusados. Nenhum endereço é aberto no Windows ou na internet real.

@@ -42,12 +42,14 @@ pub fn save_preferences(world: &mut WorldState, preferences: Preferences) -> Gam
             .next()
             .unwrap_or("");
         let host = host.strip_prefix("www.").unwrap_or(host);
-        [
+        ([
             "nexora.support",
             "repository.kali.local",
             "mirror.kali.game",
             "repo.blackwire.net",
             "wipedia.org",
+            "goggle.com",
+            "orion.com",
             "archive.org",
             "fakebook.com",
             "b1.tech",
@@ -57,6 +59,7 @@ pub fn save_preferences(world: &mut WorldState, preferences: Preferences) -> Gam
             domains::BLACKWIRE_ONION_ADDRESS,
         ]
         .contains(&host)
+            || crate::virtual_web::repository().domain(host).is_some())
             && host
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b".-".contains(&b))
@@ -222,8 +225,77 @@ pub struct BrowserPage {
     title: String,
     body: String,
     action: Option<String>,
+    #[serde(rename = "virtualWeb", skip_serializing_if = "Option::is_none")]
+    virtual_web: Option<crate::virtual_web::model::Page>,
+    #[serde(default)]
+    history: Vec<crate::virtual_web::model::HistoryEntry>,
 }
 pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
+    crate::virtual_web::sync_events(w);
+    let mut page = navigate_page(w, address)?;
+    let (url, favicon) = page
+        .virtual_web
+        .as_ref()
+        .map(|page| (page.canonical_url.clone(), page.brand.mark.clone()))
+        .unwrap_or((address.to_owned(), String::new()));
+    crate::virtual_web::remember(w, &url, &page.title, &favicon);
+    page.history = w.web.history.clone();
+    Ok(page)
+}
+
+fn navigate_page(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
+    if let Some(page) = crate::virtual_web::resolve(w, address.trim())? {
+        let title = if page.status == 404 {
+            format!("Página não encontrada · {}", page.brand.name)
+        } else {
+            page.document
+                .as_ref()
+                .map(|document| document.title.clone())
+                .unwrap_or_else(|| page.brand.name.clone())
+        };
+        return Ok(BrowserPage {
+            title,
+            body: page.brand.tagline.clone(),
+            action: None,
+            virtual_web: Some(page),
+            history: Vec::new(),
+        });
+    }
+
+    let search_key = crate::search::virtual_url_key(address.trim())?;
+    if search_key.split('/').next() == Some("goggle.com") {
+        if !w.network.connected {
+            return Err(domain("Sem conexão com a internet virtual."));
+        }
+        let path = search_key
+            .strip_prefix("goggle.com")
+            .unwrap_or("")
+            .split('?')
+            .next()
+            .unwrap_or("");
+        let engine = crate::search::VirtualSearchEngine::new(w);
+        if let Some(document) = engine.page(address.trim()) {
+            return Ok(BrowserPage {
+                title: document.title.clone(),
+                body: document.content.clone(),
+                action: None,
+                virtual_web: None,
+                history: Vec::new(),
+            });
+        }
+        if ["", "/", "/search", "/images", "/login", "/account"].contains(&path)
+            || path.starts_with("/apps/")
+        {
+            return Ok(BrowserPage {
+                title: "Goggle".into(),
+                body: "Encontre o que conecta o seu mundo.".into(),
+                action: None,
+                virtual_web: None,
+                history: Vec::new(),
+            });
+        }
+        return Err(domain("Página Goggle não encontrada."));
+    }
     let package_address = format!(
         "https://{}",
         address
@@ -241,6 +313,8 @@ pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
             title: entry.package.name.clone(),
             body: crate::packages::deb::control(&entry.package),
             action: Some(format!("package-download:{package_address}")),
+            virtual_web: None,
+            history: Vec::new(),
         });
     }
     let repo_url = package_address.as_str();
@@ -277,6 +351,8 @@ pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
                 })
                 .collect(),
             action: None,
+            virtual_web: None,
+            history: Vec::new(),
         });
     }
     let normalized = address.trim().to_lowercase();
@@ -306,6 +382,8 @@ pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
             },
             body: body.into(),
             action: None,
+            virtual_web: None,
+            history: Vec::new(),
         });
     }
     let host = raw_host.strip_prefix("www.").unwrap_or(raw_host);
@@ -315,22 +393,139 @@ pub fn navigate(w: &mut WorldState, address: &str) -> GameResult<BrowserPage> {
             "Sem conexão. Sua Wipédia local continua disponível.",
         ));
     }
-    match host {
-            "archive.org"=>Ok(BrowserPage{title:"Archive · Cyber Siege".into(),body:w.network.request("https://archive.org")?,action:Some("download".into())}),
-            "fakebook.com"=>{
-                if !w.missions.get("girl").is_some_and(|p|p.status=="active"||p.status=="completed"){return Err(domain("Perfil ainda não conhecido. Gregory pode fornecer o contato."));}
-                w.flags.insert("GIRL_RESEARCHED".into());
-                Ok(BrowserPage{title:"FakeBook · Perfil público".into(),body:if w.flags.contains("GIRL_ACCESS"){ "Mensagens privadas\nAs conversas confirmam a traição. Gregory pede o acesso pelo mensageiro.".into()}else{"Álbum público: FOTO-17\nRegistro de recuperação associado: 17\nCorrelacione o código do álbum no laboratório da plataforma.".into()},action:Some("recover".into())})
-            }
-            "b1.tech"=>Ok(BrowserPage{title:"B1 · Notícias".into(),body:if w.flags.contains("SESSION_1_COMPLETE"){ "Privacidade: invasões de perfis voltam ao debate\nVítimas procuram respostas sobre histórico de login e dispositivos desconhecidos.\n\nOrion investiga falha em sua rede corporativa\nA empresa confirmou uma revisão de acessos após relatos de tráfego incomum. A apuração continua.\n\nComunidades preservam registros para investigação\nEspecialistas recomendam manter os arquivos originais e conferir a integridade das cópias.".into()}else{"Nova atualização de Cyber Siege corrige comportamento inesperado\nA equipe publicou uma nova revisão nesta madrugada.\n\nTecnologia: comunidades se reúnem para desafios de segurança\nParticipantes compartilham descobertas em fóruns e laboratórios locais.".into()},action:None}),
-            "wipedia.org"=>Ok(BrowserPage{title:"Wipédia · Biblioteca".into(),body:"ARQUIVOS\npwd mostra onde você está; ls lista; cd navega. echo texto > arquivo cria uma nota. cp preserva uma cópia; mv move; cat lê.\n\nREDE\nifconfig mostra sua interface. ping verifica se um host responde. Consultas usam nomes presentes no mundo: vex.local, archive.org.\n\nP2P\nPeers compartilham blocos; seeds possuem o arquivo completo.\n\nADMINISTRAÇÃO\nLeia logs antes de alterar configuração. No servidor de VEX, sudo administra o ambiente. Backup só vale se a restauração for validada.\n\nTECHNICAL JOURNEY\nConhecimento não é bloqueado por nível. Uma técnica conta quando produz resultado válido.".into(),action:None}),
-            "mercado.com.br"=>Ok(BrowserPage{title:"Mercado Aberto".into(),body:format!("Memória virtual adicional · R$ 100\nSeu saldo: R$ {}\nMelhorias integram o inventário desta campanha.",w.money),action:Some("upgrade".into())}),
-            "meudominio.com.br"=>Ok(BrowserPage{title:"MeuDomínio · Mercado de domínios".into(),body:"Pesquise, registre e administre os domínios da sua empresa.".into(),action:None}),
-            "nexora.support"=>Ok(BrowserPage{title:"Nexora Support — AXR550".into(),body:"Firmware AXR550 versão 1.4. Pacote TAR.GZ com README, atualizador e configuração padrão.".into(),action:Some("firmware-download".into())}),
-            "repository.kali.local"=>Ok(BrowserPage{title:"Software Repository".into(),body:"tool-2.1.tar.gz — pacote de código fonte virtual, incluindo binário, configuração e licença.".into(),action:Some("source-download".into())}),
-            "vigilia.org"=>Ok(BrowserPage{title:"SECTOR IX — Protocolo Zero".into(),body:"Download seguro do runtime interno. Use o terminal Linux para baixar, instalar e executar o jogo.".into(),action:Some("sector-ix-download".into())}),
-            _=>Err(domain("Endereço não encontrado na internet do jogo."))
+    if !path.is_empty() {
+        let engine = crate::search::VirtualSearchEngine::new(w);
+        if let Some(document) = engine.page(address.trim()) {
+            return Ok(BrowserPage {
+                title: document.title.clone(),
+                body: document.content.clone(),
+                action: None,
+                virtual_web: None,
+                history: Vec::new(),
+            });
         }
+        let engine = crate::search::VirtualSearchEngine::new(w);
+        if engine.documents().any(|document| {
+            crate::search::virtual_url_key(&document.url).ok().as_ref() == Some(&search_key)
+        }) || crate::search::index::base()
+            .documents
+            .values()
+            .any(|document| {
+                crate::search::virtual_url_key(&document.url).ok().as_ref() == Some(&search_key)
+            })
+        {
+            return Err(domain("Esta publicação não está disponível."));
+        }
+    }
+    match host {
+        "orion.com" => {
+            let engine = crate::search::VirtualSearchEngine::new(w);
+            let document = engine
+                .page(address.trim())
+                .ok_or_else(|| domain("Página não encontrada na internet virtual."))?;
+            Ok(BrowserPage {
+                title: document.title.clone(),
+                body: document.content.clone(),
+                action: None,
+                virtual_web: None,
+                history: Vec::new(),
+            })
+        }
+        "archive.org" => Ok(BrowserPage {
+            title: "Archive · Cyber Siege".into(),
+            body: w.network.request("https://archive.org")?,
+            action: Some("download".into()),
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "fakebook.com" => {
+            if !w
+                .missions
+                .get("girl")
+                .is_some_and(|progress| progress.status == "active" || progress.status == "completed")
+            {
+                return Err(domain("Perfil ainda não conhecido. Gregory pode fornecer o contato."));
+            }
+            w.flags.insert("GIRL_RESEARCHED".into());
+            Ok(BrowserPage {
+                title: "FakeBook · Perfil público".into(),
+                body: if w.flags.contains("GIRL_ACCESS") {
+                    "Mensagens privadas\nAs conversas confirmam a traição. Gregory pede o acesso pelo mensageiro.".into()
+                } else {
+                    "Álbum público: FOTO-17\nRegistro de recuperação associado: 17\nCorrelacione o código do álbum no laboratório da plataforma.".into()
+                },
+                action: Some("recover".into()),
+                virtual_web: None,
+                history: Vec::new(),
+            })
+        }
+        "b1.tech" => Ok(BrowserPage {
+            title: "B1 · Notícias".into(),
+            body: if w.flags.contains("SESSION_1_COMPLETE") {
+                "Privacidade: invasões de perfis voltam ao debate\nVítimas procuram respostas sobre histórico de login e dispositivos desconhecidos.\n\nOrion investiga falha em sua rede corporativa\nA empresa confirmou uma revisão de acessos após relatos de tráfego incomum. A apuração continua.\n\nComunidades preservam registros para investigação\nEspecialistas recomendam manter os arquivos originais e conferir a integridade das cópias.".into()
+            } else {
+                "Nova atualização de Cyber Siege corrige comportamento inesperado\nA equipe publicou uma nova revisão nesta madrugada.\n\nTecnologia: comunidades se reúnem para desafios de segurança\nParticipantes compartilham descobertas em fóruns e laboratórios locais.".into()
+            },
+            action: None,
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "wipedia.org" => Ok(BrowserPage {
+            title: "Wipédia · Biblioteca".into(),
+            body: "ARQUIVOS\npwd mostra onde você está; ls lista; cd navega. echo texto > arquivo cria uma nota. cp preserva uma cópia; mv move; cat lê.\n\nREDE\nifconfig mostra sua interface. ping verifica se um host responde. Consultas usam nomes presentes no mundo: vex.local, archive.org.\n\nP2P\nPeers compartilham blocos; seeds possuem o arquivo completo.\n\nADMINISTRAÇÃO\nLeia logs antes de alterar configuração. No servidor de VEX, sudo administra o ambiente. Backup só vale se a restauração for validada.\n\nTECHNICAL JOURNEY\nConhecimento não é bloqueado por nível. Uma técnica conta quando produz resultado válido.".into(),
+            action: None,
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "mercado.com.br" => Ok(BrowserPage {
+            title: "Mercado Aberto".into(),
+            body: format!("Memória virtual adicional · R$ 100\nSeu saldo: R$ {}\nMelhorias integram o inventário desta campanha.", w.money),
+            action: Some("upgrade".into()),
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "meudominio.com.br" => Ok(BrowserPage {
+            title: "MeuDomínio · Mercado de domínios".into(),
+            body: "Pesquise, registre e administre os domínios da sua empresa.".into(),
+            action: None,
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "nexora.support" => Ok(BrowserPage {
+            title: "Nexora Support — AXR550".into(),
+            body: "Firmware AXR550 versão 1.4. Pacote TAR.GZ com README, atualizador e configuração padrão.".into(),
+            action: Some("firmware-download".into()),
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "repository.kali.local" => Ok(BrowserPage {
+            title: "Software Repository".into(),
+            body: "tool-2.1.tar.gz — pacote de código fonte virtual, incluindo binário, configuração e licença.".into(),
+            action: Some("source-download".into()),
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        "vigilia.org" => Ok(BrowserPage {
+            title: "SECTOR IX — Protocolo Zero".into(),
+            body: "Download seguro do runtime interno. Use o terminal Linux para baixar, instalar e executar o jogo.".into(),
+            action: Some("sector-ix-download".into()),
+            virtual_web: None,
+            history: Vec::new(),
+        }),
+        _ => {
+            let engine = crate::search::VirtualSearchEngine::new(w);
+            let document = engine
+                .page(address.trim())
+                .ok_or_else(|| domain("Endereço não encontrado na internet do jogo."))?;
+            Ok(BrowserPage {
+                title: document.title.clone(),
+                body: document.content.clone(),
+                action: None,
+                virtual_web: None,
+                history: Vec::new(),
+            })
+        }
+    }
 }
 pub fn action(w: &mut WorldState, action: &str, value: &str) -> GameResult<()> {
     if let Some(url) = action.strip_prefix("package-download:") {

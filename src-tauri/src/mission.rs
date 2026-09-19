@@ -98,6 +98,9 @@ impl Condition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum Effect {
+    Search {
+        effect: crate::search::mission_modifiers::SearchEffect,
+    },
     Repository {
         id: String,
         available: bool,
@@ -140,6 +143,7 @@ pub enum Effect {
 impl Effect {
     fn resources(&self) -> Vec<Resource> {
         match self {
+            Self::Search { effect } => vec![effect.resource()],
             Self::Repository { .. } => Vec::new(),
             Self::Flag { key } => vec![Resource::Flag { key: key.clone() }],
             Self::File { path, .. } => vec![Resource::file(path)],
@@ -164,7 +168,7 @@ impl Effect {
             })
             .collect();
         let messages = world.messages.len();
-        self.apply(world);
+        self.apply(world)?;
         for (resource, old) in before {
             mission_runtime::record_change(world, mission, resource, old)?;
         }
@@ -183,8 +187,9 @@ impl Effect {
         }
         Ok(())
     }
-    fn apply(&self, world: &mut WorldState) {
+    fn apply(&self, world: &mut WorldState) -> GameResult<()> {
         match self {
+            Self::Search { effect } => effect.apply(world)?,
             Self::Repository {
                 id,
                 available,
@@ -226,6 +231,7 @@ impl Effect {
                 world.decisions.insert(key.clone(), value.clone());
             }
         }
+        Ok(())
     }
 }
 
@@ -725,7 +731,7 @@ impl MissionEngine {
                     if progress.stage == mission.stages.len() {
                         progress.status = "completed".into();
                         for effect in &mission.outcomes {
-                            effect.apply(world);
+                            effect.apply(world)?;
                         }
                         mission_runtime::commit(world, &mission.id);
                         world.events.push(format!("mission_end:{}", mission.id));

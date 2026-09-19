@@ -98,6 +98,10 @@ pub struct WorldState {
     pub missions: BTreeMap<String, MissionProgress>,
     #[serde(default)]
     pub mission_runtime: crate::mission_runtime::MissionRuntime,
+    #[serde(default)]
+    pub search: crate::search::SearchState,
+    #[serde(default)]
+    pub web: crate::virtual_web::model::WebState,
     pub vfs: VirtualFileSystem,
     #[serde(skip)]
     pub blobs: crate::binary::BlobCache,
@@ -173,6 +177,8 @@ impl WorldState {
             decisions: BTreeMap::new(),
             missions: BTreeMap::new(),
             mission_runtime: crate::mission_runtime::MissionRuntime::default(),
+            search: crate::search::SearchState::default(),
+            web: crate::virtual_web::model::WebState::default(),
             vfs: VirtualFileSystem::default(),
             blobs: crate::binary::BlobCache::new(),
             archive_events: Vec::new(),
@@ -356,6 +362,7 @@ impl WorldState {
         }
         self.domains.validate()?;
         crate::packages::state::validate(self)?;
+        crate::virtual_web::validate_state(&self.web)?;
         Ok(())
     }
 }

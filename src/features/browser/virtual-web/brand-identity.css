@@ -1,0 +1,111 @@
+/* Independent identity axes for small publishers, shared by every page of a brand. */
+.virtual-web[data-typography='serif'] {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.virtual-web[data-typography='mono'] {
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.virtual-web[data-header='masthead'] .web-header {
+  flex-direction: column;
+  text-align: center;
+  gap: 24px;
+  padding-block: 32px;
+}
+
+.virtual-web[data-header='masthead'] .web-brand {
+  font-size: 34px;
+}
+
+.virtual-web[data-header='band'] .web-header {
+  background: var(--web-accent);
+  color: white;
+}
+
+.virtual-web[data-header='band'] .web-brand {
+  color: white;
+}
+
+.virtual-web[data-header='band'] .web-brand small {
+  color: white;
+  opacity: 0.85;
+}
+
+.virtual-web[data-header='compact'] .web-header {
+  padding-block: 14px;
+}
+
+.virtual-web[data-cards='rows'] .web-grid {
+  grid-template-columns: 1fr;
+}
+
+.virtual-web[data-cards='rows'] .web-card {
+  display: flex;
+  gap: 20px;
+  padding-block: 16px;
+  border-bottom: 1px solid #ccd1cd;
+}
+
+.virtual-web[data-cards='rows'] .web-card-image {
+  flex: 0 0 190px;
+  width: 190px;
+}
+
+.virtual-web[data-cards='ledger'] .web-grid {
+  grid-template-columns: 1fr;
+}
+
+.virtual-web[data-cards='ledger'] .web-card {
+  padding: 20px;
+  border-left: 4px solid var(--web-accent);
+  background: #fff;
+}
+
+.virtual-web[data-cards='ledger'] .web-card-image {
+  display: none;
+}
+
+.virtual-web[data-density='dense'] .web-main {
+  max-width: 1040px;
+  padding-top: 18px;
+}
+
+.virtual-web[data-density='dense'] .web-intro {
+  padding-block: 18px;
+}
+
+.virtual-web[data-density='dense'] .web-card-copy {
+  padding: 12px;
+}
+
+.virtual-web[data-density='airy'] .web-grid {
+  gap: 30px;
+}
+
+.virtual-web[data-surface='paper'] {
+  background: #f4f0e6;
+}
+
+.virtual-web[data-surface='tinted'] {
+  background: #edf2f1;
+}
+
+.virtual-web[data-surface='lined'] .web-intro {
+  border-block: 1px solid var(--web-accent);
+  margin-block: 20px;
+}
+
+.virtual-web[data-surface='lined'] .web-footer {
+  border-top: 4px double var(--web-accent);
+}
+
+@media (width <= 700px) {
+  .virtual-web[data-cards='rows'] .web-card {
+    display: block;
+  }
+
+  .virtual-web[data-cards='rows'] .web-card-image {
+    width: 100%;
+  }
+}

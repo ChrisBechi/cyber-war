@@ -108,8 +108,29 @@ impl Default for VirtualFileSystem {
     fn default() -> Self {
         let mut fs = Self::empty();
         for path in [
-            "/", "/bin", "/boot", "/dev", "/etc", "/home", HOME, "/opt", "/root", "/tmp", "/usr",
-            "/var", "/var/log", "/srv", "/srv/www",
+            "/",
+            "/bin",
+            "/boot",
+            "/dev",
+            "/etc",
+            "/home",
+            HOME,
+            "/opt",
+            "/root",
+            "/tmp",
+            "/usr",
+            "/usr/bin",
+            "/usr/local",
+            "/usr/local/bin",
+            "/usr/local/sbin",
+            "/usr/sbin",
+            "/usr/share",
+            "/usr/share/applications",
+            "/usr/share/doc",
+            "/var",
+            "/var/log",
+            "/srv",
+            "/srv/www",
         ] {
             fs.seed(
                 path,

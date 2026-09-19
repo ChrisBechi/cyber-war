@@ -13,6 +13,9 @@ pub enum Resource {
     Technique { key: String },
     Inventory { key: String },
     Decision { key: String },
+    SearchDocument { id: String },
+    SearchSuggestion { id: String },
+    SearchRanking { id: String },
     File { host: Option<String>, path: String },
     Message { id: String },
     Contact { name: String },
@@ -42,6 +45,9 @@ impl Resource {
             Self::Technique { key } => Some(json!(w.techniques.contains(key))),
             Self::Inventory { key } => Some(json!(w.inventory.contains(key))),
             Self::Decision { key } => w.decisions.get(key).map(|v| json!(v)),
+            Self::SearchDocument { id } => w.search.documents.get(id).map(|v| json!(v)),
+            Self::SearchSuggestion { id } => w.search.suggestions.get(id).map(|v| json!(v)),
+            Self::SearchRanking { id } => w.search.ranking.get(id).map(|v| json!(v)),
             Self::File { host, path } => match host {
                 Some(host) => w
                     .network
@@ -114,6 +120,36 @@ impl Resource {
                 }
                 None => {
                     w.decisions.remove(key);
+                }
+            },
+            Self::SearchDocument { id } => match value {
+                Some(v) => {
+                    w.search
+                        .documents
+                        .insert(id.clone(), serde_json::from_value(v)?);
+                }
+                None => {
+                    w.search.documents.remove(id);
+                }
+            },
+            Self::SearchSuggestion { id } => match value {
+                Some(v) => {
+                    w.search
+                        .suggestions
+                        .insert(id.clone(), serde_json::from_value(v)?);
+                }
+                None => {
+                    w.search.suggestions.remove(id);
+                }
+            },
+            Self::SearchRanking { id } => match value {
+                Some(v) => {
+                    w.search
+                        .ranking
+                        .insert(id.clone(), serde_json::from_value(v)?);
+                }
+                None => {
+                    w.search.ranking.remove(id);
                 }
             },
             Self::File { host, path } => {

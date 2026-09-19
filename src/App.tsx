@@ -4,7 +4,6 @@ import { listen } from '@tauri-apps/api/event';
 import { Desktop } from './features/desktop/Desktop';
 import { BootFlow } from './features/boot/BootFlow';
 import { FadeTransition } from './features/boot/FadeTransition';
-import { NarrativeIntro } from './features/boot/NarrativeIntro';
 import { SessionIntro } from './features/boot/SessionIntro';
 import { preloadBranding, openingSources } from './features/boot/boot-assets';
 import { desktopRuntime } from './lib/api';
@@ -15,7 +14,7 @@ import { loadAppSettings, useAppSettings } from './lib/app-settings';
 import { audioManager } from './lib/audio-manager';
 import { LoginScreen } from './features/boot/login/LoginScreen';
 
-type Screen = 'boot' | 'menu' | 'login' | 'narrative' | 'desktop';
+type Screen = 'boot' | 'menu' | 'login' | 'desktop';
 let preload: Promise<void> | undefined;
 function preloadAssets(): Promise<void> {
   preload ??= Promise.race([
@@ -27,7 +26,7 @@ function preloadAssets(): Promise<void> {
 export function App() {
   const [screen, setScreen] = useState<Screen>('boot');
   const [assetsReady, setAssetsReady] = useState(false);
-  const [startAttempt, setStartAttempt] = useState(0);
+  const [startFailed, setStartFailed] = useState(false);
   const [showSessionIntro, setShowSessionIntro] = useState(false);
   const finishSessionIntro = useCallback(() => setShowSessionIntro(false), []);
   const [systemReduced, setSystemReduced] = useState(
@@ -36,21 +35,20 @@ export function App() {
   const { settings, ready } = useAppSettings();
   const { world, error, clearError, sessionPending } = useGame();
   const enterDesktop = () => {
+    setStartFailed(false);
     void startSession(() => {
       setShowSessionIntro(true);
       setScreen('desktop');
-    }).catch(() => setStartAttempt((attempt) => attempt + 1));
+    }).catch(() => setStartFailed(true));
   };
   const returnToMenu = () => {
     void endSession(() => setScreen('menu')).catch(() => undefined);
   };
   const play = (newGame: boolean, needsLogin?: boolean) => {
-    if (newGame) {
-      // No session has been entered yet; preserve the new First Boot attempt.
-      setScreen('narrative');
-    } else if (needsLogin) {
+    if (!newGame && needsLogin) {
       void endSession(() => setScreen('login')).catch(() => undefined);
     } else {
+      // New campaigns enter directly without discarding the First Boot attempt.
       enterDesktop();
     }
   };
@@ -139,16 +137,17 @@ export function App() {
             </div>
           ) : shown === 'login' ? (
             <LoginScreen onCancel={returnToMenu} onSuccess={enterDesktop} />
-          ) : shown === 'narrative' ? (
-            <NarrativeIntro key={startAttempt} onFinish={enterDesktop} />
           ) : (
             <BootFlow settings={settings} returnToMenu={shown === 'menu'} onPlay={play} />
           )
         }
       />
-      {error && (screen === 'login' || screen === 'narrative') && (
+      {error && (screen === 'login' || startFailed) && (
         <div className="error-toast" role="alert">
           <span>{error}</span>
+          {startFailed && screen !== 'login' && (
+            <button onClick={enterDesktop}>Tentar novamente</button>
+          )}
           <button onClick={clearError} aria-label="Fechar erro">
             ×
           </button>

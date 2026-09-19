@@ -369,6 +369,21 @@ test('host guard scans production after gated declarations and test blocks', () 
   ])
     assert.equal(scanRuntime([['src-tauri/src/example.rs', source]]).result, 'FAIL');
 });
+
+test('desktop QA host IO requires a whole-file release exclusion', () => {
+  const path = 'src-tauri/src/virtual_web/desktop_qa.rs';
+  const code = 'fn report() { std::fs::write("report", "bytes"); }';
+  assert.equal(scanRuntime([[path, '#![cfg(debug_assertions)]\n' + code]]).result, 'PASS');
+  assert.equal(scanRuntime([[path, code]]).result, 'FAIL');
+  assert.equal(
+    scanRuntime([[path, '#[cfg(debug_assertions)]\nmod test;\n' + code]]).result,
+    'FAIL',
+  );
+  assert.equal(
+    scanRuntime([['src-tauri/src/unsafe.rs', '#![cfg(debug_assertions)]\n' + code]]).result,
+    'FAIL',
+  );
+});
 test('no host reference execution fallback', async () => {
   await assert.rejects(
     new ReferenceEnvironment().execute({

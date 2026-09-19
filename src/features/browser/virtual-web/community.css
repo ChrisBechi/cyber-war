@@ -1,0 +1,405 @@
+.web-social {
+  --web-accent: #156c74;
+
+  background: #edf3f2;
+}
+
+.web-social .web-header {
+  background: #fff;
+  border-bottom: 1px solid #d0dedb;
+}
+
+.web-social .web-main {
+  max-width: 1160px;
+}
+
+.web-social .web-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.web-social .web-card {
+  border: 1px solid #d8e4e1;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.web-social .web-card-image {
+  display: none;
+}
+
+.web-social-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.web-document-socialPost .web-document-visual {
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.web-social .web-intro {
+  padding: 22px 0;
+}
+
+.web-community-panel {
+  margin: 24px 0;
+}
+
+.web-community-panel button {
+  cursor: pointer;
+}
+
+.web-community-panel h2 {
+  margin-top: 0;
+}
+
+.web-community-panel textarea {
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  border: 1px solid #9eb5af;
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+  font: inherit;
+}
+
+.web-community-panel input {
+  padding: 10px;
+  border: 1px solid #a6aaa4;
+  border-radius: 4px;
+  display: block;
+  margin: 8px 0;
+}
+
+.web-community-panel p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.web-community-panel form {
+  margin: 16px 0;
+}
+
+.web-community-panel summary {
+  font-weight: 700;
+  cursor: pointer;
+  padding: 12px 0;
+}
+
+.web-community-panel time {
+  display: block;
+  color: #566761;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.web-social-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.web-social-dashboard > section,
+.web-social-dashboard > aside,
+.web-following-feed,
+.web-social-profile {
+  background: #fff;
+  padding: 24px;
+  border: 1px solid #d0dedb;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.web-people-suggestions div {
+  padding: 8px 0;
+  border-bottom: 1px solid #dbe7e3;
+}
+
+.web-people-suggestions small {
+  display: block;
+  color: #536c65;
+  margin-top: 4px;
+}
+
+.web-social-profile {
+  display: flex;
+  gap: 24px;
+}
+
+.web-person-badge {
+  flex: 0 0 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #d5e7e1;
+  color: #214e43;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.web-personal-post,
+.web-following-feed article {
+  padding: 20px 0;
+  border-top: 1px solid #dce6e1;
+}
+
+.web-personal-post p,
+.web-messages p {
+  white-space: pre-wrap;
+}
+
+.web-classifieds {
+  background: #fffaf3;
+}
+
+.web-classifieds .web-header {
+  border-bottom: 3px solid #c47c3c;
+}
+
+.web-classifieds .web-mark {
+  background: #9a4d21;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.web-classifieds .web-card {
+  background: #fff;
+  border: 1px solid #e8d8c4;
+}
+
+.web-classifieds .web-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.web-document-listing {
+  max-width: 1120px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.web-document-listing > .web-document-heading {
+  grid-column: 1 / -1;
+}
+
+.web-document-listing > .web-prose,
+.web-document-listing > .web-sources {
+  grid-column: 1 / -1;
+}
+
+.web-document-listing .web-document-visual {
+  align-self: start;
+  margin: 0;
+}
+
+.web-document-listing .web-community-panel {
+  margin: 0;
+}
+
+.web-document-listing .web-negotiation {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.web-negotiation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid #dac7ae;
+  background: #fff;
+}
+
+.web-deal-actions button {
+  margin: 0 10px 10px 0;
+}
+
+.web-messages {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background: #fff;
+  border: 1px solid #d4ddd7;
+  border-radius: 8px;
+}
+
+.web-messages > div {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.web-messages article {
+  max-width: 85%;
+  padding: 14px 20px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background: #f1f4f1;
+}
+
+.web-messages .outgoing {
+  margin-left: auto;
+  background: #e1ede7;
+}
+
+.web-archive {
+  background: #f4f0e8;
+  font-family: Georgia, serif;
+}
+
+.web-archive .web-header {
+  border-bottom: 2px solid #786f61;
+}
+
+.web-archive .web-grid {
+  grid-template-columns: 1fr;
+}
+
+.web-archive .web-card {
+  display: flex;
+  border-bottom: 1px solid #c7bca9;
+}
+
+.web-archive .web-card-image {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.web-sponsored {
+  margin: 18px 0;
+  padding: 16px 20px;
+  border: 1px solid #d5dacd;
+  border-radius: 8px;
+  background: #fafbf7;
+  font:
+    14px Arial,
+    sans-serif;
+  color: #30342c;
+}
+
+.web-sponsored article + article {
+  margin-top: 20px;
+}
+
+.web-sponsored small {
+  font-weight: 700;
+}
+
+.web-sponsored h3 {
+  margin: 8px 0;
+}
+
+.web-sponsored button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  color: #23558a;
+  cursor: pointer;
+  font: inherit;
+}
+
+.web-sponsored p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.web-sponsored span {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.web-archive-banner {
+  padding: 20px;
+  border: 1px solid #99866a;
+  background: #fff9e9;
+  margin-bottom: 20px;
+}
+
+.web-devtools {
+  padding: 16px 24px;
+  background: #172129;
+  color: #e6edf3;
+  font: 13px monospace;
+}
+
+.web-classified-filters label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.web-classified-filters select {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px solid #bfb5a5;
+  background: #fff;
+  color: #302c26;
+}
+
+.web-devtools summary {
+  cursor: pointer;
+}
+
+.web-devtools form {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.web-devtools input {
+  margin-left: 8px;
+}
+
+.web-debug-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.web-debug-tabs button[aria-pressed='true'] {
+  background: #ccede0;
+  color: #15271f;
+}
+
+.web-debug-records {
+  max-height: 460px;
+  overflow: auto;
+  margin-top: 16px;
+}
+
+.web-debug-records > details {
+  padding: 12px 0;
+  border-bottom: 1px solid #54626c;
+}
+
+.web-devtools pre {
+  max-height: 420px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (width <= 800px) {
+  .web-document-listing {
+    grid-template-columns: 1fr;
+  }
+
+  .web-social-dashboard,
+  .web-negotiation,
+  .web-classifieds .web-grid,
+  .web-social .web-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .web-social-profile {
+    flex-wrap: wrap;
+  }
+}

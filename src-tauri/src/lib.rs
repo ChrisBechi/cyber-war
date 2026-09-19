@@ -33,6 +33,7 @@ mod network;
 mod opening_fixture;
 mod packages;
 mod save;
+mod search;
 mod service;
 mod shell;
 mod shell_pipeline;
@@ -53,6 +54,7 @@ mod terminal_sessions;
 mod terminal_text;
 mod terminal_transfer;
 mod vfs;
+mod virtual_web;
 mod world;
 
 use parking_lot::Mutex;
@@ -63,6 +65,9 @@ use tauri::{Emitter, Manager};
 pub fn run() {
     let result = tauri::Builder::default()
         .setup(|app| {
+            std::thread::spawn(|| {
+                search::index::base();
+            });
             #[cfg(debug_assertions)]
             if std::env::var("CYBER_WAR_ARCHIVE_QA").as_deref() == Ok("1") {
                 app.manage(Mutex::new(archive::qa::game()?));
@@ -74,6 +79,10 @@ pub fn run() {
                 return Ok(());
             }
             let data = app.path().app_data_dir()?;
+            #[cfg(debug_assertions)]
+            let data = option_env!("CYBER_WAR_QA_DATA_DIR")
+                .map(std::path::PathBuf::from)
+                .unwrap_or(data);
             std::fs::create_dir_all(&data)?;
             let game = GameService::new(rusqlite::Connection::open(data.join("game-hacker.db"))?)?;
             app.manage(Mutex::new(game));
@@ -117,6 +126,7 @@ pub fn run() {
             commands::world_get,
             commands::new_game,
             commands::list_save_slots,
+            commands::delete_save_slot,
             commands::save_slot,
             commands::autosave,
             commands::session_start,
@@ -163,6 +173,23 @@ pub fn run() {
             commands::launcher_favorite,
             commands::tool_run,
             commands::browser_navigate,
+            commands::web_interact,
+            commands::web_history,
+            commands::web_page,
+            commands::web_tick,
+            commands::web_ad_click,
+            commands::web_debug,
+            commands::web_qa_prepare,
+            commands::web_qa_report,
+            commands::web_history_clear,
+            commands::search_query,
+            commands::search_suggestions,
+            commands::search_image_files,
+            commands::search_voice_options,
+            commands::goggle_session,
+            commands::goggle_authenticate,
+            commands::goggle_preferences,
+            commands::goggle_logout,
             commands::browser_preferences_save,
             commands::browser_action,
             commands::domains_search,

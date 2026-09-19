@@ -56,6 +56,7 @@ export function Browser({
   const [homeDraft, setHomeDraft] = useState(preferences.home);
   const root = useRef<HTMLDivElement>(null);
   const popup = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
   const pageElement = useRef<HTMLDivElement>(null);
   const addressInput = useRef<HTMLInputElement>(null);
   const addressBox = useRef<HTMLDivElement>(null);
@@ -64,6 +65,11 @@ export function Browser({
   useEffect(() => {
     setPreferences(readPreferences(rawPreferences));
   }, [rawPreferences]);
+  useEffect(() => {
+    if (typeof viewport.current?.scrollTo === 'function') {
+      viewport.current.scrollTo({ top: 0 });
+    }
+  }, [tab.address, tab.id]);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -896,6 +902,7 @@ export function Browser({
       )}
       <div
         id="browser-current-page"
+        ref={viewport}
         role="tabpanel"
         aria-labelledby={`browser-tab-${tab.id}`}
         className="browser-viewport"
@@ -928,6 +935,7 @@ export function Browser({
             ) : (
               <BrowserContent
                 address={addressKey(tab.address)}
+                rawAddress={tab.address}
                 page={tab.page}
                 error={tab.error}
                 value={tab.value}

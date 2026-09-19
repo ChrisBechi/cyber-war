@@ -67,8 +67,8 @@ export function SessionIntro({
       }}
     >
       <div className="session-intro-band" aria-hidden="true">
-        <p className="session-intro-number">SESSÃO {session}</p>
         <h1 className="session-intro-title">{title}</h1>
+        <p className="session-intro-number">SESSÃO {session}</p>
       </div>
     </div>
   );

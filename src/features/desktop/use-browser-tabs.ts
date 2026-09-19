@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pageSchema } from '../../lib/api';
+import { emptySchema, pageSchema, request } from '../../lib/api';
 import { perform, useGame } from '../../lib/game-store';
+import { webHistorySchema } from '../browser/virtual-web/web-model';
 import { canonicalAddress, isOnionAddress, newTab, startNavigation } from './browser-model';
 import type { BrowserTab } from './browser-model';
 import type { BrowserRequest } from './browser-inspection';
@@ -117,15 +118,35 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
           }
           change((tabs) =>
             tabs.map((tab) =>
-              tab.id === tabId ? { ...tab, page, localFile, loading: false } : tab,
+              tab.id === tabId
+                ? {
+                    ...tab,
+                    page,
+                    localFile,
+                    loading: false,
+                    ...(page.virtualWeb
+                      ? {
+                          address: page.virtualWeb.canonicalUrl,
+                          draft: page.virtualWeb.canonicalUrl,
+                          history: tab.history.map((url, itemIndex) =>
+                            itemIndex === tab.index ? page.virtualWeb!.canonicalUrl : url,
+                          ),
+                        }
+                      : {}),
+                  }
+                : tab,
             ),
           );
-          setHistory((old) =>
-            [
-              { address: normalized, title: page.title },
-              ...old.filter((item) => item.address !== normalized),
-            ].slice(0, 50),
-          );
+          if (page.history) {
+            setHistory(page.history.map((entry) => ({ address: entry.url, title: entry.title })));
+          } else {
+            setHistory((old) =>
+              [
+                { address: normalized, title: page.title },
+                ...old.filter((item) => item.address !== normalized),
+              ].slice(0, 50),
+            );
+          }
         })
         .catch((error: unknown) => {
           finishRequest('error', String(error).replace(/^Error:\s*/, ''));
@@ -179,6 +200,14 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
   };
   useEffect(() => {
     mounted.current = true;
+    const initialRequest = requestId.current;
+    void Promise.resolve(request('web_history', {}, webHistorySchema))
+      .then((entries) => {
+        if (mounted.current && requestId.current === initialRequest && Array.isArray(entries)) {
+          setHistory(entries.map((entry) => ({ address: entry.url, title: entry.title })));
+        }
+      })
+      .catch(() => undefined);
     return () => {
       mounted.current = false;
     };
@@ -202,6 +231,9 @@ export function useBrowserTabs(initialAddress?: string, navigationId?: number, t
     add,
     close,
     navigate,
-    clearHistory: () => setHistory([]),
+    clearHistory: () => {
+      setHistory([]);
+      void perform('web_history_clear', {}, emptySchema).catch(() => undefined);
+    },
   };
 }

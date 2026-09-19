@@ -41,6 +41,19 @@ export function scanRuntime(entries) {
   const failures = [];
   const exceptions = [];
   for (const [path, raw] of entries) {
+    // The desktop QA reporter is outside the release compilation unit. Require
+    // its own inner compiler gate, so changing/removing the parent mod gate
+    // cannot accidentally ship host report IO. Ungated code is still scanned.
+    if (
+      path === 'src-tauri/src/virtual_web/desktop_qa.rs' &&
+      /^\s*(?:\/\/[^\n]*\n\s*)*#!\[cfg\(debug_assertions\)\]/.test(raw)
+    ) {
+      exceptions.push({
+        path,
+        reason: 'Compiler excludes the entire opted-in QA reporter from release.',
+      });
+      continue;
+    }
     // These are compiler-gated fixture/test modules, validated separately below.
     if (
       path.endsWith('_tests.rs') ||

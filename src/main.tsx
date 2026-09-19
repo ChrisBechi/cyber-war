@@ -9,7 +9,11 @@ import './styles/investigation.css';
 import './styles/install.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
-if (import.meta.env.DEV && location.hash === '#archive/qa') {
+if (import.meta.env.DEV && location.hash.startsWith('#qa/web')) {
+  void import('./features/browser/virtual-web/WebSoakQA').then(({ WebSoakQA }) =>
+    root.render(<WebSoakQA />),
+  );
+} else if (import.meta.env.DEV && location.hash === '#archive/qa') {
   void import('./features/files/ArchiveQA').then(({ ArchiveQA }) => root.render(<ArchiveQA />));
 } else if (import.meta.env.DEV && location.hash === '#opening/montage') {
   void import('./features/opening/OpeningMontage').then(({ OpeningMontage }) =>

@@ -58,7 +58,7 @@
   font-weight: 650;
   letter-spacing: 0.1em;
   text-wrap: balance;
-  transform: translateY(18px);
+  transform: translateY(-18px);
   animation: session-intro-title var(--session-intro-duration) ease both;
 }
 
@@ -90,7 +90,7 @@
   47%,
   100% {
     opacity: 1;
-    transform: translateY(-64px) scale(0.28);
+    transform: translateY(64px) scale(0.28);
   }
 }
 
@@ -107,7 +107,7 @@
 }
 
 .session-intro-reduced .session-intro-number {
-  transform: translateY(-64px) scale(0.28);
+  transform: translateY(64px) scale(0.28);
   animation: none;
 }
 

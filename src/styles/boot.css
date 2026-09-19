@@ -247,26 +247,6 @@ button.boot-screen:hover {
   opacity: 0.3;
 }
 
-.narrative-intro {
-  flex-direction: column;
-  gap: 30px;
-  text-align: center;
-}
-
-.narrative-text {
-  font-size: clamp(22px, 3vw, 40px);
-  line-height: 1.6;
-  font-weight: 300;
-}
-
-.narrative-caption {
-  font:
-    11px Consolas,
-    monospace;
-  letter-spacing: 0.22em;
-  color: #8a9d91;
-}
-
 .front-menu {
   position: relative;
   width: 100%;
@@ -530,8 +510,39 @@ button.boot-screen:hover {
   margin: 24px 0;
 }
 
+.front-slot-row {
+  display: flex;
+  gap: 8px;
+}
+
+.front-slot-delete {
+  display: grid;
+  width: 48px;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--boot-line);
+  background: #0b100d;
+  color: var(--boot-muted);
+}
+
+.front-slot-delete:hover:not(:disabled),
+.front-slot-delete:focus-visible {
+  border-color: #ed7777;
+  color: #ff9b9b;
+}
+
+.front-slot-delete span {
+  width: 20px;
+  height: 20px;
+  background: currentcolor;
+  mask: url('/assets/flat-remix/user-trash-symbolic.svg') center / contain no-repeat;
+}
+
 .front-slot {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   gap: 22px;
   min-height: 65px;
