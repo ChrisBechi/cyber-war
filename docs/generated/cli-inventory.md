@@ -1479,7 +1479,7 @@ Names include catalog dispatch names; aliases and GUI launchers are separate fro
 | sh                            | bash                     | NATIVE       | 5.2.37     | PARTIAL    | src-tauri/src/shell.rs                |
 | sha1deep                      | hashdeep                 | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sha256deep                    | hashdeep                 | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
-| sha256sum                     | coreutils                | NATIVE       | 9.7        | PARTIAL    | src-tauri/src/coreutils/bytes.rs      |
+| sha256sum                     | coreutils                | NATIVE       | 9.7        | VERIFIED   | src-tauri/src/coreutils/sha256sum.rs  |
 | sharesec                      | samba                    | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | sharkd                        | wireshark                | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |
 | showmount                     | nfs-common               | CATALOG_ONLY | NOT PINNED | UNVERIFIED | src-tauri/src/software.rs::command    |

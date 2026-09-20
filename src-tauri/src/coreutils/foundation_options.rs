@@ -56,27 +56,33 @@ pub(super) fn quote(value: &str) -> String {
 /// GNU shell-escape quoting for path diagnostics; Foundation operand errors use
 /// the C quoting style above. The two styles deliberately have separate contracts.
 pub(super) fn shell_quote(value: &str) -> String {
+    shell_quote_bytes(value.as_bytes())
+}
+pub(super) fn shell_quote_bytes(value: &[u8]) -> String {
     if !value.is_empty()
         && value
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"_+-./:=,@%".contains(&b))
+            .iter()
+            .all(|b| b.is_ascii_alphanumeric() || b"_+-./:=,@%".contains(b))
     {
-        return value.into();
+        return String::from_utf8(value.to_vec()).expect("ASCII shell word");
     }
-    shell_quote_always(value)
+    shell_quote_always_bytes(value)
 }
 
 pub(super) fn shell_quote_always(value: &str) -> String {
-    if value.contains('\'')
+    shell_quote_always_bytes(value.as_bytes())
+}
+fn shell_quote_always_bytes(value: &[u8]) -> String {
+    if value.contains(&b'\'')
         && value
-            .bytes()
-            .all(|b| (32..127).contains(&b) && !b"\"$`\\".contains(&b))
+            .iter()
+            .all(|b| (32..127).contains(b) && !b"\"$`\\".contains(b))
     {
-        return format!("\"{value}\"");
+        return format!("\"{}\"", String::from_utf8_lossy(value));
     }
     let mut out = String::from("'");
     let mut escaped = false;
-    for b in value.bytes() {
+    for &b in value {
         let needs_escape = !(32..127).contains(&b);
         if needs_escape != escaped {
             out.push_str(if needs_escape { "'$'" } else { "''" });
@@ -138,6 +144,18 @@ pub(super) fn parse(
             ("files0-from", '\u{1}'),
             ("max-line-length", 'L'),
             ("total", '\u{2}'),
+        ]),
+        "sha256sum" => long.extend([
+            ("binary", 'b'),
+            ("check", 'c'),
+            ("tag", 'g'),
+            ("text", 't'),
+            ("zero", 'z'),
+            ("ignore-missing", 'i'),
+            ("quiet", 'q'),
+            ("status", 's'),
+            ("strict", 'r'),
+            ("warn", 'w'),
         ]),
         "cat" => long.extend([
             ("number-nonblank", 'b'),
@@ -219,8 +237,10 @@ pub(super) fn parse(
                     true,
                 )));
             }
-            if matches!(name, "cat" | "head" | "tail" | "base64" | "tee" | "wc")
-                && matches!(*ch, 'h' | 'v')
+            if matches!(
+                name,
+                "cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum"
+            ) && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
                 out.special = Some(if *ch == 'h' { "help" } else { "version" });
@@ -262,6 +282,7 @@ pub(super) fn parse(
                     "base64" => "diw",
                     "tee" => "aip",
                     "wc" => "clLmw",
+                    "sha256sum" => "bctwz",
                     "cat" => "AbEnestTuv",
                     "head" => "cnqvz0123456789",
                     "tail" => "cnqvzfFs0123456789",
@@ -376,7 +397,7 @@ pub(super) fn parse(
                 }
                 continue;
             }
-            if name == "cat" {
+            if matches!(name, "cat" | "sha256sum") {
                 out.flags.push(ch);
                 continue;
             }

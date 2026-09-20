@@ -452,7 +452,16 @@ fn cli_tooling_capture() {
                 } else {
                     command
                 };
-                terminal::execute(w, &script)
+                let mut result = terminal::execute(w, &script);
+                // The oracle observes the executable, not the helper consumer.
+                // Preserve real shell pipeline semantics while capturing stage 0.
+                if case.transport.as_deref() == Some("pipe") {
+                    let termination = crate::shell_pipeline::streams::last_stage_termination(0)
+                        .expect("structured pipe executable termination");
+                    result.exit_code = termination.status();
+                    result.termination = termination;
+                }
+                result
             } else {
                 let parts = std::iter::once(case.invocation.unwrap_or(case.command))
                     .chain(case.argv)

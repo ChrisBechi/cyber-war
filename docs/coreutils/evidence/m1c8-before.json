@@ -1,0 +1,576 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "b5bb7be1d59d59eab97f04b1d0902dcdce63bfa7",
+  "fingerprint": "1d22fa44ac6868c621d1f1e857f61064327c5a81aee37273a7ea87a959600042",
+  "coreutils": {
+    "VERIFIED": 10,
+    "PARTIAL": 27,
+    "UNVERIFIED": 0
+  },
+  "summary": {
+    "commandNames": 1797,
+    "uniqueExecutables": 1526,
+    "aliases": 1,
+    "launcherNames": 270,
+    "catalogLaunchers": 303,
+    "guiLaunchers": 19,
+    "softwareGroups": 279,
+    "realCompat": 1519,
+    "fictionalNative": 7,
+    "catalogOnly": 1406,
+    "commands": {
+      "VERIFIED": 10,
+      "PARTIAL": 110,
+      "UNVERIFIED": 1406
+    },
+    "software": {
+      "VERIFIED": 0,
+      "PARTIAL": 42,
+      "UNVERIFIED": 237
+    },
+    "commandVerification": {
+      "verified": 10,
+      "total": 1519,
+      "percent": 0.6583278472679395
+    },
+    "softwareVerification": {
+      "verified": 0,
+      "total": 243,
+      "percent": 0
+    },
+    "pinnedSoftware": 12,
+    "unpinnedSoftware": 231,
+    "commandsTested": 20,
+    "gatesPassed": 3958,
+    "requiredGates": {
+      "passed": 3409,
+      "total": 35174
+    },
+    "pilotCases": {
+      "PASS": 1753,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "flagCasesPassed": 1194,
+    "errorCasesPassed": 631
+  },
+  "hostGuard": {
+    "result": "PASS",
+    "failures": [],
+    "exceptions": [
+      {
+        "path": "src-tauri/src/lib.rs",
+        "fragment": "std::fs::create_dir_all(&data)?;",
+        "reason": "Tauri creates its own application save directory."
+      },
+      {
+        "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+        "reason": "Compiler excludes the entire opted-in QA reporter from release."
+      }
+    ],
+    "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+  },
+  "sha256sum": {
+    "id": "command.coreutils.sha256sum",
+    "command": "sha256sum",
+    "softwareId": "coreutils",
+    "implementationKind": "NATIVE",
+    "implementation": "src-tauri/src/coreutils/bytes.rs",
+    "parserKind": "PROGRAM_SPECIFIC",
+    "resultContract": "LEGACY_STRING",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "aliasOf": null,
+    "gates": {
+      "ALIAS_RESOLUTION": {
+        "applicability": "NOT_APPLICABLE",
+        "reason": "Only applies to declared aliases.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Only applies to declared aliases."
+      },
+      "COMBINED_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS"
+      },
+      "COMMAND_CONTRACTS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Missing/failing required contracts: integration; flags without explicit evidence: -b, -t, --binary, --text, --check, --quiet, --status"
+      },
+      "CROSS_TOOL_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "DISCOVERY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Runtime registry and validated manifest agree"
+      },
+      "ERRORS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/failed-status", "coreutils/sha256sum/unknown-option"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/failed-status: PASS; coreutils/sha256sum/unknown-option: PASS"
+      },
+      "EXIT_CODE": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/sha256sum/binary",
+          "coreutils/sha256sum/failed-status",
+          "coreutils/sha256sum/stdin",
+          "coreutils/sha256sum/unknown-option",
+          "coreutils/sha256sum/verify",
+          "coreutils/sha256sum/version"
+        ],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/binary: PASS; coreutils/sha256sum/failed-status: PASS; coreutils/sha256sum/stdin: PASS; coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS; coreutils/sha256sum/version: PASS"
+      },
+      "GNU_REFERENCE": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+      },
+      "HELP": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "HOST_ISOLATION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Current source/build guard passed"
+      },
+      "KNOWN_GAPS": {
+        "applicability": "REQUIRED",
+        "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete"
+      },
+      "LONG_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS"
+      },
+      "PARSER": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/stdin"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/stdin: PASS"
+      },
+      "PERMISSIONS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "PIPE": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "POSITIONAL_ARGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/stdin"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/stdin: PASS"
+      },
+      "REDIRECTION": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "REFERENCE_PINNED": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "PASS",
+        "resultReason": "Version and reference metadata pinned"
+      },
+      "SHORT_FLAGS": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/unknown-option", "coreutils/sha256sum/verify"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS"
+      },
+      "SIDE_EFFECTS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "SIGNALS": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STATE_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "STDERR": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/sha256sum/binary",
+          "coreutils/sha256sum/failed-status",
+          "coreutils/sha256sum/stdin",
+          "coreutils/sha256sum/unknown-option",
+          "coreutils/sha256sum/verify",
+          "coreutils/sha256sum/version"
+        ],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/binary: PASS; coreutils/sha256sum/failed-status: PASS; coreutils/sha256sum/stdin: PASS; coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS; coreutils/sha256sum/version: PASS"
+      },
+      "STDIN": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/binary"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/binary: PASS"
+      },
+      "STDOUT": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": [
+          "coreutils/sha256sum/binary",
+          "coreutils/sha256sum/failed-status",
+          "coreutils/sha256sum/stdin",
+          "coreutils/sha256sum/unknown-option",
+          "coreutils/sha256sum/verify",
+          "coreutils/sha256sum/version"
+        ],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/binary: PASS; coreutils/sha256sum/failed-status: PASS; coreutils/sha256sum/stdin: PASS; coreutils/sha256sum/unknown-option: PASS; coreutils/sha256sum/verify: PASS; coreutils/sha256sum/version: PASS"
+      },
+      "TTY": {
+        "applicability": "REQUIRED",
+        "reason": "Unreviewed gate remains required until a documented applicability decision.",
+        "testIds": [],
+        "result": "SKIPPED",
+        "resultReason": "No linked current evidence"
+      },
+      "VERSION": {
+        "applicability": "REQUIRED",
+        "reason": "Linked executable project cases; GNU reference is required separately.",
+        "testIds": ["coreutils/sha256sum/version"],
+        "result": "PASS",
+        "resultReason": "coreutils/sha256sum/version: PASS"
+      }
+    },
+    "requirement": "REQUIRED",
+    "source": "native",
+    "sources": ["native"],
+    "classification": "REAL_COMPAT",
+    "referenceVersion": "9.7",
+    "executablePath": "/usr/bin/sha256sum",
+    "packageBindings": [
+      {
+        "packageName": "coreutils",
+        "version": "9.7",
+        "path": "/usr/bin/sha256sum",
+        "binding": "builtin"
+      }
+    ],
+    "packageName": "coreutils",
+    "availability": "BASE_SYSTEM",
+    "requirements": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "man": {
+      "command": "sha256sum",
+      "referenceSources": [
+        {
+          "kind": "OFFICIAL_DOCS",
+          "url": "https://www.gnu.org/software/coreutils/",
+          "notes": "Inherited project baseline; no reference execution attestation."
+        }
+      ]
+    },
+    "usedByMissions": [],
+    "coreutils": {
+      "area": "reading",
+      "complexity": 3,
+      "before": "PARTIAL",
+      "implementation": "src-tauri/src/coreutils/bytes.rs",
+      "flags": ["-b", "-t", "-c", "--binary", "--text", "--check", "--quiet", "--status"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual byte hashing and basic checksum list verification",
+          "evidence": ["coreutils/sha256sum/stdin"]
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": ["coreutils/sha256sum/verify", "coreutils/sha256sum/unknown-option"]
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/sha256sum/failed-status", "coreutils/sha256sum/unknown-option"]
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/sha256sum/version"]
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": []
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": ["coreutils/sha256sum/binary"]
+        }
+      ],
+      "knownGaps": [
+        "Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete"
+      ],
+      "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+      "referenceRequired": true,
+      "subsystems": [],
+      "intentionalDeviations": [
+        "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+      ]
+    },
+    "blockedBy": [],
+    "missingGates": [
+      "COMMAND_CONTRACTS",
+      "CROSS_TOOL_CONSISTENCY",
+      "GNU_REFERENCE",
+      "HELP",
+      "KNOWN_GAPS",
+      "PERMISSIONS",
+      "PIPE",
+      "REDIRECTION",
+      "SIDE_EFFECTS",
+      "SIGNALS",
+      "STATE_CONSISTENCY",
+      "TTY"
+    ],
+    "effectiveStatus": "PARTIAL",
+    "status": "PARTIAL",
+    "evidenceIds": [
+      "coreutils/sha256sum/binary",
+      "coreutils/sha256sum/failed-status",
+      "coreutils/sha256sum/stdin",
+      "coreutils/sha256sum/unknown-option",
+      "coreutils/sha256sum/verify",
+      "coreutils/sha256sum/version"
+    ]
+  },
+  "next": {
+    "command": "sha256sum",
+    "aliases": [],
+    "baseline": "9.7",
+    "implementation": "src-tauri/src/coreutils/bytes.rs",
+    "implementationKind": "NATIVE",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "flags": ["-b", "-t", "-c", "--binary", "--text", "--check", "--quiet", "--status"],
+    "contracts": [
+      {
+        "id": "invocation",
+        "applicability": "REQUIRED",
+        "description": "Virtual byte hashing and basic checksum list verification",
+        "evidence": ["coreutils/sha256sum/stdin"],
+        "result": "PASS"
+      },
+      {
+        "id": "options",
+        "applicability": "REQUIRED",
+        "description": "Supported options, combinations, --, unknown options and required operands",
+        "evidence": ["coreutils/sha256sum/verify", "coreutils/sha256sum/unknown-option"],
+        "result": "PASS"
+      },
+      {
+        "id": "errors",
+        "applicability": "REQUIRED",
+        "description": "Separate stderr, exact status, partial success and operand order",
+        "evidence": ["coreutils/sha256sum/failed-status", "coreutils/sha256sum/unknown-option"],
+        "result": "PASS"
+      },
+      {
+        "id": "help-version",
+        "applicability": "REQUIRED",
+        "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+        "evidence": ["coreutils/sha256sum/version"],
+        "result": "PASS"
+      },
+      {
+        "id": "integration",
+        "applicability": "REQUIRED",
+        "description": "Explicit packaged executable, shell argv, streams and host isolation",
+        "evidence": [],
+        "result": "NO_EVIDENCE"
+      },
+      {
+        "id": "bytes",
+        "applicability": "REQUIRED",
+        "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+        "evidence": ["coreutils/sha256sum/binary"],
+        "result": "PASS"
+      }
+    ],
+    "wave": 2,
+    "area": "reading",
+    "complexity": 3,
+    "missionUses": [],
+    "before": "PARTIAL",
+    "after": "PARTIAL",
+    "projectCases": 6,
+    "referenceCases": 0,
+    "referenceState": "SKIPPED",
+    "matchedReferenceCases": 0,
+    "requiredGates": 26,
+    "passedGates": 14,
+    "blockers": [
+      "GATE:COMMAND_CONTRACTS",
+      "GATE:CROSS_TOOL_CONSISTENCY",
+      "GATE:GNU_REFERENCE",
+      "GATE:HELP",
+      "GATE:KNOWN_GAPS",
+      "GATE:PERMISSIONS",
+      "GATE:PIPE",
+      "GATE:REDIRECTION",
+      "GATE:SIDE_EFFECTS",
+      "GATE:SIGNALS",
+      "GATE:STATE_CONSISTENCY",
+      "GATE:TTY",
+      "GAP:Escaped checksum lists, malformed-line warnings, --strict/--warn/--zero and stdin check semantics incomplete"
+    ],
+    "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+  },
+  "classification": "SMALL_SHARED_EXTENSION",
+  "references": [],
+  "previousFinal": [
+    {
+      "command": "base64",
+      "cases": 304,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:31:59.016584+00:00",
+      "sourceHash": "8deb4605620b85bdf00d6e82a78e24a6aa7fd2048cf845cb07b2f90ca1703fe0"
+    },
+    {
+      "command": "basename",
+      "cases": 48,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:25.613750+00:00",
+      "sourceHash": "765ab1226d3024f00ab9f5d53e31f9f36f45df3c4a5c0288c0342bcac402e282"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:22:46.546500+00:00",
+      "sourceHash": "d495aa219af4e5026eb60a27c3d28d2f1a1645bcde38fb4ba3d2af8bdf3492af"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:34.662882+00:00",
+      "sourceHash": "7ae4f6f03de32fad004a668db17bff1274cd623db0b8dbcafeb3b545e10d3d08"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:25:08.443022+00:00",
+      "sourceHash": "fc754d406074ce57d1ecb98855de36156f4497593d6318d46984b87f88228f6f"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:46.794123+00:00",
+      "sourceHash": "22d1622b7792b684dc6760c178ac794be347ad1182a79c8da3a263f85967244d"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:28:39.362593+00:00",
+      "sourceHash": "d50aa3f515ae2345c65cb4ee58b9042feefa536d7e5d9f0d757949e0c96a114a"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:18:03.999728+00:00",
+      "sourceHash": "313a9249f530d66e292299fc53232aecd7de75f15f551284e8e118940f5bfabc"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T20:41:07.359155+00:00",
+      "sourceHash": "3e5f3a6663254547edb4aa6de17d9b6917ba6d95918608b0f4441502c851565e"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:56.454299+00:00",
+      "sourceHash": "6d71f4ae44ab8d34d5dd8056025924b4ab23ad61dab47c03bddaef7d4805b7c6"
+    }
+  ]
+}

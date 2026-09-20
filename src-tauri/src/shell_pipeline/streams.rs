@@ -4,6 +4,7 @@ use super::*;
 use crate::shell::control;
 use crate::shell::signals::{ProcessSignalState, Termination, VirtualSignal};
 use std::sync::Arc;
+mod sha256sum;
 mod wc;
 enum Read {
     Data(Vec<u8>),
@@ -32,6 +33,12 @@ pub(crate) fn with_read_pattern<T>(pattern: &[usize], work: impl FnOnce() -> T) 
 }
 #[cfg(test)]
 thread_local! { static LAST_PEAK: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+#[cfg(test)]
+thread_local! { static LAST_TERMINATIONS: std::cell::RefCell<Vec<Termination>> = const { std::cell::RefCell::new(Vec::new()) }; }
+#[cfg(test)]
+pub(crate) fn last_stage_termination(index: usize) -> Option<Termination> {
+    LAST_TERMINATIONS.with(|values| values.borrow().get(index).copied())
+}
 #[cfg(test)]
 thread_local! { static CLOSED_CONSUMER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
 #[cfg(test)]
@@ -160,6 +167,7 @@ enum Engine {
     Head(Box<crate::coreutils::head::Head>),
     Tail(Box<crate::coreutils::tail::Tail>),
     Wc(Box<crate::coreutils::wc::Wc>),
+    Sha256sum(Box<crate::coreutils::sha256sum::Checksum>),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
@@ -193,7 +201,10 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     if name == "yes" {
         return true;
     }
-    matches!(name, "cat" | "head" | "tail" | "base64" | "tee" | "wc")
+    matches!(
+        name,
+        "cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum"
+    )
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
     let name = stage
@@ -351,13 +362,16 @@ fn prepare(
     if available
         && matches!(
             name.rsplit('/').next(),
-            Some("cat" | "head" | "tail" | "base64" | "tee" | "wc")
+            Some("cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum")
         )
         && error.is_none()
     {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        let parsed = if name.rsplit('/').next() == Some("wc") {
+        let parsed = if name.rsplit('/').next() == Some("sha256sum") {
+            crate::coreutils::sha256sum::Checksum::new(name, &stage.arguments[1..], posix)
+                .map(|s| Engine::Sha256sum(Box::new(s)))
+        } else if name.rsplit('/').next() == Some("wc") {
             crate::coreutils::wc::Wc::new(name, &stage.arguments[1..], posix, world)
                 .map(|w| Engine::Wc(Box::new(w)))
         } else if name.rsplit('/').next() == Some("tee") {
@@ -671,6 +685,7 @@ fn step(
             }
         }
         Engine::Wc(_) => return wc::step(world, process, pipes),
+        Engine::Sha256sum(_) => return sha256sum::step(world, process, pipes),
         Engine::Head(head) => {
             if head.current.is_none() {
                 let Some(file) = head.files.pop_front() else {
@@ -917,6 +932,14 @@ fn step(
 }
 
 fn close_operand(world: &mut WorldState, engine: &mut Engine) -> GameResult<()> {
+    if let Engine::Sha256sum(sum) = engine {
+        for handle in [sum.handle.take(), sum.list_handle.take()]
+            .into_iter()
+            .flatten()
+        {
+            world.fs_mut()?.close(handle)?;
+        }
+    }
     if let Engine::Wc(wc) = engine {
         for handle in [wc.handle.take(), wc.list_handle.take()]
             .into_iter()
@@ -1179,6 +1202,16 @@ pub(super) fn run(world: &mut WorldState, stages: &[Stage]) -> GameResult<Output
     world.terminal = original;
     #[cfg(test)]
     LAST_PEAK.with(|peak| peak.set(pipes.iter().map(|pipe| pipe.peak).max().unwrap_or(0)));
+    #[cfg(test)]
+    LAST_TERMINATIONS.with(|values| {
+        *values.borrow_mut() = processes
+            .iter()
+            .map(|p| {
+                p.termination
+                    .unwrap_or(Termination::Exit { code: p.status })
+            })
+            .collect();
+    });
     result?;
     Ok(output)
 }

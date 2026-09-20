@@ -1449,7 +1449,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | sgdisk                        | src-tauri/src/software.rs::command    |
 | sha1deep                      | src-tauri/src/software.rs::command    |
 | sha256deep                    | src-tauri/src/software.rs::command    |
-| sha256sum                     | src-tauri/src/coreutils/bytes.rs      |
 | sharesec                      | src-tauri/src/software.rs::command    |
 | sharkd                        | src-tauri/src/software.rs::command    |
 | showmount                     | src-tauri/src/software.rs::command    |

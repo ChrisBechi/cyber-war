@@ -1,0 +1,835 @@
+{
+  "schemaVersion": 1,
+  "stopReason": "MILESTONE_COMPLETE",
+  "publicationStatus": "PENDING",
+  "baselineCommit": "b5bb7be1d59d59eab97f04b1d0902dcdce63bfa7",
+  "executedAt": "2026-09-19T21:56:12.589Z",
+  "fingerprint": "e7c115e28430fa88f1f447c66859012108eb35fb282ed80f9b201f5c046f5764",
+  "captureHash": "0d9895593df17606b4cc01eafb61776a7ed8a7644ab763685a1c82c67884ee94",
+  "performanceHash": "affdfc8228c8d5a9871530cea42f232252d15b6015b1f9a4dc3219f3d2a805da",
+  "coreutilsPerformanceHash": "17556853923310bf6ace3b9833f4661d702972879c825c39efefb68c3c12ef9b",
+  "vfsPerformanceHash": "6a3da8363aadc4b8e8a54e0502ef1140a9b472e7bffa23d18c9484e7e799df03",
+  "before": {
+    "coreutils": {
+      "VERIFIED": 10,
+      "PARTIAL": 27,
+      "UNVERIFIED": 0
+    },
+    "sha256sumStatus": "PARTIAL",
+    "projectCases": 6,
+    "gnuCases": 0,
+    "gnuGlobal": 1641,
+    "declarative": {
+      "PASS": 1753,
+      "FAIL": 0,
+      "SKIPPED": 0
+    }
+  },
+  "coreutils": {
+    "VERIFIED": 11,
+    "PARTIAL": 26,
+    "UNVERIFIED": 0
+  },
+  "sha256sum": {
+    "status": "VERIFIED",
+    "implementation": "src-tauri/src/coreutils/sha256sum.rs",
+    "projectCases": 585,
+    "gnuCases": 585,
+    "gnuMatches": 585,
+    "contracts": [
+      {
+        "id": "invocation",
+        "result": "PASS",
+        "cases": 17
+      },
+      {
+        "id": "options",
+        "result": "PASS",
+        "cases": 48
+      },
+      {
+        "id": "errors",
+        "result": "PASS",
+        "cases": 293
+      },
+      {
+        "id": "help-version",
+        "result": "PASS",
+        "cases": 7
+      },
+      {
+        "id": "integration",
+        "result": "PASS",
+        "cases": 540
+      },
+      {
+        "id": "bytes",
+        "result": "PASS",
+        "cases": 16
+      },
+      {
+        "id": "streaming",
+        "result": "PASS",
+        "cases": 7
+      },
+      {
+        "id": "hashing",
+        "result": "PASS",
+        "cases": 40
+      },
+      {
+        "id": "checksum-output",
+        "result": "PASS",
+        "cases": 66
+      },
+      {
+        "id": "filename-escaping",
+        "result": "PASS",
+        "cases": 80
+      },
+      {
+        "id": "zero-output",
+        "result": "PASS",
+        "cases": 20
+      },
+      {
+        "id": "check-parser",
+        "result": "PASS",
+        "cases": 244
+      },
+      {
+        "id": "check-results",
+        "result": "PASS",
+        "cases": 134
+      },
+      {
+        "id": "malformed-input",
+        "result": "PASS",
+        "cases": 210
+      },
+      {
+        "id": "warn-strict",
+        "result": "PASS",
+        "cases": 216
+      },
+      {
+        "id": "stdin-check",
+        "result": "PASS",
+        "cases": 20
+      },
+      {
+        "id": "signals",
+        "result": "PASS",
+        "cases": 4
+      },
+      {
+        "id": "tty",
+        "result": "PASS",
+        "cases": 6
+      }
+    ],
+    "gates": {
+      "ALIAS_RESOLUTION": {
+        "applicability": "NOT_APPLICABLE",
+        "result": "SKIPPED"
+      },
+      "COMBINED_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "COMMAND_CONTRACTS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "CROSS_TOOL_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "DISCOVERY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "ERRORS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "EXIT_CODE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "GNU_REFERENCE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "HELP": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "HOST_ISOLATION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "KNOWN_GAPS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "LONG_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PARSER": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PERMISSIONS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "PIPE": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "POSITIONAL_ARGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "REDIRECTION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "REFERENCE_PINNED": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SHORT_FLAGS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SIDE_EFFECTS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "SIGNALS": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STATE_CONSISTENCY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDERR": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDIN": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "STDOUT": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "TTY": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      },
+      "VERSION": {
+        "applicability": "REQUIRED",
+        "result": "PASS"
+      }
+    },
+    "knownGaps": [],
+    "dependencies": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "SIGNALS.STREAMS",
+      "TTY.CANONICAL_IO",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ]
+  },
+  "references": [
+    {
+      "command": "base64",
+      "cases": 304,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:31:59.016584+00:00",
+      "sourceHash": "8deb4605620b85bdf00d6e82a78e24a6aa7fd2048cf845cb07b2f90ca1703fe0"
+    },
+    {
+      "command": "basename",
+      "cases": 48,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:25.613750+00:00",
+      "sourceHash": "765ab1226d3024f00ab9f5d53e31f9f36f45df3c4a5c0288c0342bcac402e282"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:22:46.546500+00:00",
+      "sourceHash": "d495aa219af4e5026eb60a27c3d28d2f1a1645bcde38fb4ba3d2af8bdf3492af"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:34.662882+00:00",
+      "sourceHash": "7ae4f6f03de32fad004a668db17bff1274cd623db0b8dbcafeb3b545e10d3d08"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:25:08.443022+00:00",
+      "sourceHash": "fc754d406074ce57d1ecb98855de36156f4497593d6318d46984b87f88228f6f"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:46.794123+00:00",
+      "sourceHash": "22d1622b7792b684dc6760c178ac794be347ad1182a79c8da3a263f85967244d"
+    },
+    {
+      "command": "sha256sum",
+      "cases": 585,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T21:44:43.552232+00:00",
+      "sourceHash": "dae0da23f515b6931f8c5ad37f6e4f94911d54290e2f4254ae29dbbb08b58fe9"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:28:39.362593+00:00",
+      "sourceHash": "d50aa3f515ae2345c65cb4ee58b9042feefa536d7e5d9f0d757949e0c96a114a"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:18:03.999728+00:00",
+      "sourceHash": "313a9249f530d66e292299fc53232aecd7de75f15f551284e8e118940f5bfabc"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T20:41:07.359155+00:00",
+      "sourceHash": "3e5f3a6663254547edb4aa6de17d9b6917ba6d95918608b0f4441502c851565e"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "status": "VERIFIED",
+      "capturedAt": "2026-09-19T19:20:56.454299+00:00",
+      "sourceHash": "6d71f4ae44ab8d34d5dd8056025924b4ab23ad61dab47c03bddaef7d4805b7c6"
+    }
+  ],
+  "priorGNU": [
+    {
+      "command": "basename",
+      "cases": 48,
+      "goldenBytesUnchanged": true,
+      "sha256": "4febf941c657f094e538d1aea7f90016ab7b763600948cc6735eb2eaf2db938d"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "goldenBytesUnchanged": true,
+      "sha256": "19f36491d5c71b9f1f91ea5b45a69012155451a1efb8818b955bb62370e824fd"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "goldenBytesUnchanged": true,
+      "sha256": "4b7ccb9543a81c3f0b03a8e23ea6b9e3a915aebd67896a02c669ef12b57495f3"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "goldenBytesUnchanged": true,
+      "sha256": "bca5490c6e7f857b82d495704a82595ccff2dcb6d27bd6e5e0e058095b8fd969"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "goldenBytesUnchanged": true,
+      "sha256": "291c08e6b030024090e024718434111e3e320fb96c829482ece26b851757f998"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "goldenBytesUnchanged": true,
+      "sha256": "2ba8fa455f43c6d83bd47a057cc3f2ecd31edbee8aa6076a716456aa89c428b3"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "goldenBytesUnchanged": true,
+      "sha256": "f7139f802afe3ba04d753cba07eeee369348cbf13e07becc580b5af72da08c6e"
+    },
+    {
+      "command": "base64",
+      "cases": 304,
+      "goldenBytesUnchanged": true,
+      "sha256": "499e281157c8646993cc53ebd5fa092e5be8ce3cf21a1d7d0badcf8bc8b86942"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "goldenBytesUnchanged": true,
+      "sha256": "eb5523d679cb48f7b9f7154dcc48dfb5432405a86209769ce47a0a7c96016c57"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "goldenBytesUnchanged": true,
+      "sha256": "e697f48cd4b0d4359514c73bcf6656b2c6ee0381de7085707b68f603938b5925"
+    }
+  ],
+  "validation": {
+    "rust": {
+      "passed": 287,
+      "failed": 0,
+      "optionalIgnored": 14,
+      "mode": "serial"
+    },
+    "frontend": {
+      "passed": 243,
+      "files": 40,
+      "workers": 2
+    },
+    "tooling": {
+      "passed": 54,
+      "failed": 0
+    },
+    "legacy": {
+      "passed": 76
+    },
+    "declarative": {
+      "PASS": 2332,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "normalVerify": true,
+    "strict": {
+      "foundation": "PASS",
+      "cat": "PASS",
+      "head": "PASS",
+      "tail": "PASS",
+      "base64": "PASS",
+      "tee": "PASS",
+      "wc": "PASS",
+      "sha256sum": "PASS"
+    },
+    "globalStrict": {
+      "passed": false,
+      "knownDebt": 1509,
+      "additionalErrors": 0
+    },
+    "rustfmt": "PASS",
+    "clippy": "PASS",
+    "prettier": "PASS",
+    "eslint": "PASS",
+    "stylelint": "PASS",
+    "typescript": "PASS",
+    "content": "PASS",
+    "webBuild": "PASS",
+    "windowsRelease": "PASS",
+    "hostGuard": {
+      "result": "PASS",
+      "failures": [],
+      "exceptions": [
+        {
+          "path": "src-tauri/src/lib.rs",
+          "fragment": "std::fs::create_dir_all(&data)?;",
+          "reason": "Tauri creates its own application save directory."
+        },
+        {
+          "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+          "reason": "Compiler excludes the entire opted-in QA reporter from release."
+        }
+      ],
+      "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+    }
+  },
+  "captureStorage": {
+    "schemaVersion": 3,
+    "cases": 2332,
+    "indexBytes": 274513,
+    "cacheRecords": 8,
+    "completeSnapshots": true,
+    "shardHashes": "SHA-256"
+  },
+  "builds": [
+    {
+      "path": "src-tauri/target/release/game-hacker.exe",
+      "bytes": 93357568,
+      "sha256": "10e12e5a15a08c09bd6c2969a0902d5a0b8f4e066b33ad725c38b0bb6fbc1a61"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/nsis/Cyber War_0.4.2_x64-setup.exe",
+      "bytes": 84523894,
+      "sha256": "2e1991480419dfd05e14d8728198c0daf72e53ef48ed3172f81aa4fc9ee71a9f"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/msi/Cyber War_0.4.2_x64_en-US.msi",
+      "bytes": 85311488,
+      "sha256": "8335e66368a5ec80c89542f86d3b716a423e20f09e5ae0818aad31261a5c0530"
+    }
+  ],
+  "packaging": {
+    "resources": ["resources/archive-licenses.txt"],
+    "externalBin": []
+  },
+  "next": {
+    "command": "readlink",
+    "classification": "OUT_OF_SCOPE_FAMILY",
+    "complexity": 1,
+    "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+    "knownGaps": [
+      "Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+    ],
+    "dependencies": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "blockers": [
+      "GATE:COMBINED_FLAGS",
+      "GATE:COMMAND_CONTRACTS",
+      "GATE:CROSS_TOOL_CONSISTENCY",
+      "GATE:ERRORS",
+      "GATE:EXIT_CODE",
+      "GATE:GNU_REFERENCE",
+      "GATE:HELP",
+      "GATE:KNOWN_GAPS",
+      "GATE:LONG_FLAGS",
+      "GATE:PARSER",
+      "GATE:PERMISSIONS",
+      "GATE:PIPE",
+      "GATE:POSITIONAL_ARGS",
+      "GATE:REDIRECTION",
+      "GATE:SHORT_FLAGS",
+      "GATE:SIDE_EFFECTS",
+      "GATE:SIGNALS",
+      "GATE:STATE_CONSISTENCY",
+      "GATE:STDERR",
+      "GATE:STDIN",
+      "GATE:STDOUT",
+      "GATE:TTY",
+      "GATE:VERSION",
+      "GAP:Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+    ],
+    "implemented": false
+  },
+  "waveReadiness": {
+    "status": "NOT_READY",
+    "policy": "Contiguous queue prefix of two or three SMALL_SHARED_EXTENSION commands, complexity <=3, READY runtime dependencies and no external sorting/locale database/process boundary. Bounded to one semantic wave; no command implemented.",
+    "commands": [],
+    "evaluated": [
+      {
+        "command": "readlink",
+        "classification": "OUT_OF_SCOPE_FAMILY",
+        "complexity": 1,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": [
+          "Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+        ],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+        ],
+        "implemented": false
+      },
+      {
+        "command": "rmdir",
+        "classification": "OUT_OF_SCOPE_FAMILY",
+        "complexity": 1,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": ["Parents/verbose and multiple-operand partial success not implemented"],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Parents/verbose and multiple-operand partial success not implemented"
+        ],
+        "implemented": false
+      },
+      {
+        "command": "ln",
+        "classification": "OUT_OF_SCOPE_FAMILY",
+        "complexity": 2,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": [
+          "Force, directories, target-directory, backup, verbose and follow policy incomplete"
+        ],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDIN",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Force, directories, target-directory, backup, verbose and follow policy incomplete"
+        ],
+        "implemented": false
+      },
+      {
+        "command": "mkdir",
+        "classification": "OUT_OF_SCOPE_FAMILY",
+        "complexity": 2,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": [
+          "Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+        ],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+        ],
+        "implemented": false
+      },
+      {
+        "command": "realpath",
+        "classification": "OUT_OF_SCOPE_FAMILY",
+        "complexity": 2,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": ["Missing-target policies, relative output, strip and NUL forms unsupported"],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Missing-target policies, relative output, strip and NUL forms unsupported"
+        ],
+        "implemented": false
+      }
+    ],
+    "smallSharedExtensions": 0,
+    "readyDependencySets": 5,
+    "architecturalBoundaries": 0,
+    "scopeBoundaries": 5,
+    "missingSharedSubsystems": []
+  }
+}

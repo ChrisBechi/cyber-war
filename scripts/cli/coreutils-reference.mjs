@@ -36,7 +36,7 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(c.command)) {
+  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(c.command)) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -62,7 +62,7 @@ export function verificationFresh(command, capture) {
     environmentHash: hash(
       canonical({ ...lock, binaryHashes: { [command]: lock.binaryHashes[command] } }),
     ),
-    ...(['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(command)
+    ...(['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(command)
       ? { interactionHash: sourceHash('scripts/cli/coreutils_interaction.py') }
       : {}),
     ...(command === 'tail' ? { followHash: sourceHash('scripts/cli/coreutils_follow.py') } : {}),
@@ -86,7 +86,7 @@ export function validateReference(command, capture) {
     capture.schemaVersion !==
       (command.command === 'tail'
         ? 4
-        : ['cat', 'head', 'base64', 'tee', 'wc'].includes(command.command)
+        : ['cat', 'head', 'base64', 'tee', 'wc', 'sha256sum'].includes(command.command)
           ? 3
           : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
@@ -98,7 +98,7 @@ export function validateReference(command, capture) {
     return 'Reference provenance/baseline/schema/locale mismatch';
   if (
     !refreshed &&
-    ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(command.command) &&
+    ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
@@ -170,7 +170,7 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command)) {
+  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)) {
     const io = test.io ?? {};
     const endpoints = {
       stdin:

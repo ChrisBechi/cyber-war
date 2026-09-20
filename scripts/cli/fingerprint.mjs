@@ -14,6 +14,9 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/terminal_transfer.rs',
     'src-tauri/src/terminal_remove.rs',
     'src-tauri/src/coreutils/bytes.rs',
+    'src-tauri/src/coreutils/sha256sum.rs',
+    'src-tauri/src/coreutils/sha256sum_tests.rs',
+    'src-tauri/src/shell_pipeline/streams/sha256sum.rs',
     'src-tauri/src/coreutils/base64.rs',
     'src-tauri/src/coreutils/tee.rs',
     'src-tauri/src/coreutils/tee_tests.rs',
@@ -28,6 +31,15 @@ export function caseSources(test, sources = evidenceSources()) {
   ]);
   const foundation = ['basename', 'dirname', 'printenv', 'whoami'].includes(test.command);
   return sources.filter((p) => {
+    if (
+      [
+        'scripts/cli/sha256sum-cases.mjs',
+        'scripts/cli-sha256sum-generate.mjs',
+        'scripts/cli/sha256sum.test.mjs',
+        'tests/cli/fixtures/sha256sum-records.json',
+      ].includes(p)
+    )
+      return test.command === 'sha256sum';
     if (
       [
         'scripts/cli/wc-cases.mjs',
@@ -57,15 +69,24 @@ export function caseSources(test, sources = evidenceSources()) {
     if (p.startsWith('content/cli-compatibility/')) return false;
     if (p.startsWith('src-tauri/src/coreutils/messages/'))
       return (
-        (foundation || ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command)) &&
+        (foundation ||
+          ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)) &&
         p.includes('/' + test.command + '-')
       );
     if (p.endsWith('/foundation_options.rs') || p.endsWith('/foundation_messages.rs'))
-      return foundation || ['cat', 'head', 'tail', 'base64', 'tee', 'wc'].includes(test.command);
+      return (
+        foundation ||
+        ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)
+      );
     return (
       !leaf.has(p) ||
       p === impl ||
-      (['head', 'tail', 'base64', 'tee', 'wc'].includes(test.command) && p.endsWith('/cat.rs')) ||
+      (test.command === 'sha256sum' &&
+        (p.endsWith('/sha256sum_tests.rs') ||
+          p.endsWith('/streams/sha256sum.rs') ||
+          p.endsWith('/wc.rs'))) ||
+      (['head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command) &&
+        p.endsWith('/cat.rs')) ||
       (test.command === 'wc' && (p.endsWith('/wc_tests.rs') || p.endsWith('/streams/wc.rs'))) ||
       (test.command === 'base64' && p.endsWith('/base64_tests.rs')) ||
       (test.command === 'tee' && p.endsWith('/tee_tests.rs')) ||

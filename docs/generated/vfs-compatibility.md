@@ -70,61 +70,61 @@ SUBSYSTEM:SHELL.JOBS:PARTIAL
 {
   "depth120": {
     "iterations": 1000,
-    "meanMs": 0.1843352
+    "meanMs": 0.971815
   },
   "profile": "cargo test / debug; bounded virtual VFS; wall clock; no host program execution",
   "samples": [
     {
       "actual": 1000,
-      "createMs": 46.7126,
+      "createMs": 201.6926,
       "entries": 1054,
       "enumeration": {
         "iterations": 25,
-        "meanMs": 0.11194000000000001
+        "meanMs": 0.39595199999999997
       },
       "load": {
         "iterations": 3,
-        "meanMs": 42.149166666666666
+        "meanMs": 215.72026666666667
       },
       "requested": 1000,
       "save": {
         "iterations": 3,
-        "meanMs": 11.8633
+        "meanMs": 61.01603333333333
       },
       "snapshotBytes": 249813,
       "stat": {
         "iterations": 10000,
-        "meanMs": 0.007321650000000001
+        "meanMs": 0.030807489999999996
       }
     },
     {
       "actual": 9946,
-      "createMs": 531.4391,
+      "createMs": 2310.2594,
       "entries": 10000,
       "enumeration": {
         "iterations": 25,
-        "meanMs": 1.045056
+        "meanMs": 4.950956000000001
       },
       "load": {
         "iterations": 3,
-        "meanMs": 466.6245666666667
+        "meanMs": 1888.5711333333331
       },
       "requested": 10000,
       "save": {
         "iterations": 3,
-        "meanMs": 105.2022
+        "meanMs": 404.50306666666665
       },
       "snapshotBytes": 2434648,
       "stat": {
         "iterations": 10000,
-        "meanMs": 0.007164959999999999
+        "meanMs": 0.02842325
       }
     }
   ],
   "schemaVersion": 1,
   "symlinks40": {
     "iterations": 1000,
-    "meanMs": 0.0787441
+    "meanMs": 0.3356531
   }
 }
 ```

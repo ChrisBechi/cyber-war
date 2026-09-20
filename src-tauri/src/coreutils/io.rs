@@ -68,19 +68,3 @@ pub(crate) fn write_handle(world: &mut WorldState, handle: u64, data: &[u8]) -> 
     world.blobs = blobs;
     Ok(())
 }
-pub(crate) fn send(out: &mut crate::terminal_io::Output, fd: u8, bytes: Vec<u8>) -> GameResult<()> {
-    let size: usize = out.byte_ordered.iter().map(|(_, b)| b.len()).sum();
-    if size.saturating_add(bytes.len()) > LIMIT {
-        return Err(domain("virtual command output limit: 4 MiB"));
-    }
-    if fd == 1 {
-        out.binary
-            .get_or_insert_with(Vec::new)
-            .extend_from_slice(&bytes);
-    } else {
-        out.stderr
-            .push_str(std::str::from_utf8(&bytes).map_err(|_| domain("non-text diagnostic"))?);
-    }
-    out.byte_ordered.push((fd, bytes));
-    Ok(())
-}

@@ -24,6 +24,7 @@ jobs:
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command base64
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command tee
       - run: python3 scripts/cli/coreutils-environment.py run --verify --command wc
+      - run: python3 scripts/cli/coreutils-environment.py run --verify --command sha256sum
 
   frontend:
     runs-on: ubuntu-latest
@@ -70,6 +71,7 @@ jobs:
       - run: pnpm cli:verify --command base64 --strict
       - run: pnpm cli:verify --command tee --strict
       - run: pnpm cli:verify --command wc --strict
+      - run: pnpm cli:verify --command sha256sum --strict
       - uses: actions/upload-artifact@v4
         if: always()
         with:
