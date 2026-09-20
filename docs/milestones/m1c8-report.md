@@ -1,6 +1,6 @@
 # M1C.8 — sha256sum GNU 9.7 certificado
 
-**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PENDING`.**
+**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PUBLISHED`.**
 
 | Medida                         | Antes                                                 | Depois                                       |
 | ------------------------------ | ----------------------------------------------------- | -------------------------------------------- |
@@ -87,3 +87,5 @@ Empacotamento 0.4.2: somente o recurso de licenças; nenhum externalBin.
 
 Pela política de wave herdada (reading/text), os próximos cinco itens têm 0 SMALL_SHARED_EXTENSION e 5 OUT_OF_SCOPE_FAMILY: readlink (1/5), rmdir (1/5), ln (2/5), mkdir (2/5), realpath (2/5). Há 5/5 conjuntos de dependências prontos, 0 bloqueios de subsistema e 0 fronteiras arquiteturais sinalizadas. A transição de família requer uma wave com escopo próprio; esta política não a autoriza automaticamente.
 Nenhum comando seguinte foi implementado.
+
+Publicado na main: commit `2e1562e`.

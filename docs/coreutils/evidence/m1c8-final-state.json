@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stopReason": "MILESTONE_COMPLETE",
-  "publicationStatus": "PENDING",
+  "publicationStatus": "PUBLISHED",
   "baselineCommit": "b5bb7be1d59d59eab97f04b1d0902dcdce63bfa7",
   "executedAt": "2026-09-19T21:56:12.589Z",
   "fingerprint": "e7c115e28430fa88f1f447c66859012108eb35fb282ed80f9b201f5c046f5764",
@@ -831,5 +831,6 @@
     "architecturalBoundaries": 0,
     "scopeBoundaries": 5,
     "missingSharedSubsystems": []
-  }
+  },
+  "implementationCommit": "2e1562e"
 }
