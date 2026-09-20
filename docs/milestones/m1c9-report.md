@@ -1,6 +1,6 @@
 # M1C.9 — Filesystem / Path GNU 9.7
 
-**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PENDING`.**
+**STOP_REASON: `MILESTONE_COMPLETE`. PUBLICATION_STATUS: `PUBLISHED`.**
 
 | Comando  | Status final | GNU matches | Contratos PASS | Gates obrigatórios PASS | Gaps |
 | -------- | ------------ | ----------- | -------------- | ----------------------- | ---- |
@@ -61,3 +61,5 @@ Build 0.4.2; hashes do executável e instaladores no estado final. O pacote cont
 - PROPOSED_WAVE: `stat`, `touch`, `chmod`, `chown`.
 
 A proposta agrupa metadados, timestamps, modos e ownership no mesmo modelo de inodes/permissões. As dependências declaradas estão prontas e a complexidade é até 3/5; discovery ainda precisa delimitar timestamps virtuais/statfs e traversal recursivo. READY indica preparação para essa auditoria, sem certificação antecipada. A próxima wave não foi implementada.
+
+Publicado na main: `36dca0d6e9c701f78b17ecf5547650f0ca40e677`.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "stopReason": "MILESTONE_COMPLETE",
-  "publicationStatus": "PENDING",
+  "publicationStatus": "PUBLISHED",
   "baselineCommit": "e5e79372b702ae4e29ad61b826e7ecb7838d317b",
   "executedAt": "2026-09-20T03:00:29.702Z",
   "fingerprint": "5e829269f96bcda15d6b694470b9bd146d5a17163190817a89660faa307c211a",
@@ -2800,5 +2800,6 @@
       }
     ],
     "implemented": false
-  }
+  },
+  "implementationCommit": "36dca0d6e9c701f78b17ecf5547650f0ca40e677"
 }
