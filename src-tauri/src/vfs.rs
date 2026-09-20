@@ -5,7 +5,9 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
+mod canonical;
 mod errors;
+pub use canonical::{path_prefix, relative_path, CanonicalMode};
 #[cfg(test)]
 mod event_tests;
 mod events;
@@ -14,7 +16,9 @@ mod fidelity_tests;
 mod handles;
 #[cfg(test)]
 mod integration_tests;
+mod mode;
 mod model;
+pub use mode::ModeChange;
 mod operations;
 #[cfg(test)]
 mod performance_tests;
@@ -91,12 +95,26 @@ pub fn domain(message: impl Into<String>) -> GameError {
 /// Make absolute without erasing semantic '..', '.', or trailing slash.
 pub fn normalize(path: &str, cwd: &str) -> GameResult<String> {
     resolve::validate_path(path)?;
+    let absolute = absolute(path, cwd)?;
+    resolve::validate_path(&absolute)?;
+    Ok(absolute)
+}
+/// Absolute spelling for canonical names, which may describe missing components.
+pub fn absolute(path: &str, cwd: &str) -> GameResult<String> {
+    if path.is_empty() {
+        return Err(error(Errno::NotFound));
+    }
+    if path.contains('\0') {
+        return Err(error(Errno::Invalid));
+    }
     let absolute = if path.starts_with('/') {
         path.to_owned()
     } else {
         format!("{}/{path}", cwd.trim_end_matches('/'))
     };
-    resolve::validate_path(&absolute)?;
+    if absolute.len() > 4096 {
+        return Err(error(Errno::NameTooLong));
+    }
     Ok(absolute)
 }
 pub fn parent(path: &str) -> &str {
@@ -531,6 +549,17 @@ impl VirtualFileSystem {
         actor: &str,
         mode: u16,
     ) -> GameResult<String> {
+        self.create_entry(path, kind, content, actor, mode, false)
+    }
+    fn create_entry(
+        &mut self,
+        path: &str,
+        kind: &str,
+        content: &str,
+        actor: &str,
+        mode: u16,
+        replace: bool,
+    ) -> GameResult<String> {
         let path = if kind == "directory" {
             if path.chars().all(|c| c == '/') {
                 "/"
@@ -540,12 +569,25 @@ impl VirtualFileSystem {
         } else {
             path
         };
-        let path = self.resolve_missing(path, actor, Follow::No, true)?;
-        if self.nodes.contains_key(&path) {
+        let path = if kind == "symlink" {
+            self.resolve_link_destination(path, actor, replace)?
+        } else {
+            self.resolve_missing(path, actor, Follow::No, true)?
+        };
+        let existing = self.nodes.get(&path);
+        if existing.is_some() && !replace {
             return Err(error(Errno::Exists));
         }
+        if existing.is_some_and(|n| n.kind == "directory") {
+            return Err(error(Errno::IsDirectory));
+        }
+        let replacing = existing.is_some();
         self.writable_parent(&path, actor)?;
-        if self.nodes.len() >= 10000 {
+        if replacing {
+            self.check_projection(&path)?;
+            self.sticky(&path, actor)?;
+        }
+        if !replacing && self.nodes.len() >= 10000 {
             return Err(error(Errno::NoSpace));
         }
         self.check_space(&path, content.len() as u64)?;
@@ -569,31 +611,86 @@ impl VirtualFileSystem {
         Ok(path)
     }
     pub fn symlink(&mut self, path: &str, target: &str, actor: &str) -> GameResult<()> {
-        resolve::validate_path(target)?;
-        self.create(path, "symlink", target, actor, 0o777)?;
+        self.symlink_replace(path, target, actor, false)
+    }
+    /// A link target is stored text, not a pathname to resolve at creation.
+    pub fn symlink_replace(
+        &mut self,
+        path: &str,
+        target: &str,
+        actor: &str,
+        replace: bool,
+    ) -> GameResult<()> {
+        resolve::validate_link_target(target)?;
+        self.create_entry(path, "symlink", target, actor, 0o777, replace)?;
         Ok(())
     }
     pub fn link(&mut self, source: &str, target: &str, actor: &str) -> GameResult<()> {
-        let source = self.resolve(source, actor, Follow::No)?;
-        let target = self.resolve_missing(target, actor, Follow::No, true)?;
+        self.link_replace(source, target, actor, false, false)
+    }
+    /// Atomic replacement preserves a source inode even when source and target
+    /// name the same entry. Directory hard links remain forbidden.
+    pub fn link_replace(
+        &mut self,
+        source: &str,
+        target: &str,
+        actor: &str,
+        logical: bool,
+        replace: bool,
+    ) -> GameResult<()> {
+        let source = self.resolve(
+            source,
+            actor,
+            if logical { Follow::Yes } else { Follow::No },
+        )?;
+        let target = self.resolve_link_destination(target, actor, replace)?;
         let original = self.lstat(&source, actor)?.clone();
+        self.check_projection(&source)?;
+        let existing = self.nodes.get(&target);
+        if existing.is_some() && !replace {
+            return Err(error(Errno::Exists));
+        }
+        self.writable_parent(&target, actor)?;
         if original.kind == "directory" {
             return Err(error(Errno::NotPermitted));
         }
-        self.check_projection(&source)?;
-        self.writable_parent(&target, actor)?;
-        if self.nodes.contains_key(&target) {
-            return Err(error(Errno::Exists));
+        if existing.is_some_and(|n| n.kind == "directory") {
+            return Err(error(Errno::IsDirectory));
         }
-        if self.nodes.len() >= 10000 {
+        if existing.is_some() {
+            self.check_projection(&target)?;
+            self.sticky(&target, actor)?;
+        } else if self.nodes.len() >= 10000 {
             return Err(error(Errno::NoSpace));
         }
         self.nodes.insert(target.clone(), original);
         let clock = self.tick();
-        if let Some(mut n) = self.nodes.get_mut(&source) {
+        if let Some(mut n) = self.nodes.get_mut(&target) {
             n.changed_at = clock;
         }
         self.changed_parent(&target);
+        self.collect();
+        Ok(())
+    }
+    /// Create a directory with an evaluated mode, preserving inherited set-ID
+    /// bits that the caller did not explicitly change.
+    pub fn mkdir_mode(
+        &mut self,
+        path: &str,
+        actor: &str,
+        mode: u16,
+        change: Option<ModeChange>,
+    ) -> GameResult<()> {
+        let saved = self.umask;
+        self.umask = 0;
+        let result = self.create(path, "directory", "", actor, mode);
+        self.umask = saved;
+        let created = result?;
+        if let (Some(mut node), Some(change)) = (self.nodes.get_mut(&created), change) {
+            if (node.mode ^ change.mode) & change.affected != 0 {
+                node.mode = change.mode | (node.mode & !change.affected);
+            }
+        }
         Ok(())
     }
     pub fn mkdir(&mut self, path: &str, actor: &str) -> GameResult<()> {

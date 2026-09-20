@@ -3,10 +3,10 @@
   "command": "dirname",
   "captureHash": "19f36491d5c71b9f1f91ea5b45a69012155451a1efb8818b955bb62370e824fd",
   "dependencies": {
-    "harnessHash": "0be9b12af5e9d40d6c6c1dab6c20ce21e629374db0755d23ea16754416636739",
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
     "environmentHash": "0a8ee4891e950666f708f3cb89bafea5ecb9547b77b25313e936e4bb1f82270c"
   },
   "cases": 27,
   "identicalRuns": 2,
-  "verifiedAt": "2026-09-19T21:27:09.931674+00:00"
+  "verifiedAt": "2026-09-20T00:49:19.461879+00:00"
 }

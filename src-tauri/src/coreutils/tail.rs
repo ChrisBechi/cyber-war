@@ -4,6 +4,26 @@ use crate::vfs::{OpenFlags, WatchId, WatchTarget};
 use crate::{error::GameResult, terminal_io::Output, world::WorldState};
 use std::collections::VecDeque;
 
+// Named tail operands reject directories after checking read access. Shell
+// redirections may still supply a directory descriptor and fail at read time.
+fn open_named(world: &mut WorldState, path: &str, actor: &str) -> GameResult<u64> {
+    let fs = world.fs_mut()?;
+    let handle = fs.open(
+        path,
+        OpenFlags {
+            read: true,
+            ..Default::default()
+        },
+        0,
+        actor,
+    )?;
+    if fs.stat(path, actor)?.kind == "directory" {
+        fs.close(handle)?;
+        return Err(crate::error::GameError::Vfs(crate::vfs::Errno::IsDirectory));
+    }
+    Ok(handle)
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Follow {
     Descriptor,
@@ -481,7 +501,20 @@ impl Tail {
                 self.open_initial(world, stdin_file)?;
                 return Ok(Step::Progress);
             }
-            return self.initial_read(world);
+            return match self.initial_read(world) {
+                Ok(step) => Ok(step),
+                Err(error) => {
+                    let source = &mut self.sources[self.current];
+                    self.pending
+                        .push_back((2, diagnostic(&source.name, error, false)));
+                    self.status = 1;
+                    source.position = Position::Done;
+                    source.unavailable = true;
+                    Self::release_source(world, source)?;
+                    source.handle = None;
+                    Ok(Step::Progress)
+                }
+            };
         }
         if self.options.follow.is_none() {
             self.close(world)?;
@@ -514,15 +547,7 @@ impl Tail {
             source.handle = stdin_file;
             source.tty = stdin_file.is_none() && world.terminal.io.stdin_tty;
         } else {
-            match world.fs_mut()?.open(
-                &source.path,
-                OpenFlags {
-                    read: true,
-                    ..Default::default()
-                },
-                0,
-                &actor,
-            ) {
+            match open_named(world, &source.path, &actor) {
                 Ok(handle) => {
                     source.handle = Some(handle);
                     source.owned = true;
@@ -727,15 +752,7 @@ impl Tail {
                 let existing = source
                     .handle
                     .and_then(|h| world.fs().ok()?.handle_identity(h).ok().map(|i| i.0));
-                let candidate = world.fs_mut()?.open(
-                    &source.path,
-                    OpenFlags {
-                        read: true,
-                        ..Default::default()
-                    },
-                    0,
-                    &actor,
-                );
+                let candidate = open_named(world, &source.path, &actor);
                 match candidate {
                     Ok(handle) => {
                         let ino = world.fs()?.handle_identity(handle)?.0;

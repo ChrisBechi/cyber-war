@@ -1,0 +1,2804 @@
+{
+  "schemaVersion": 1,
+  "stopReason": "MILESTONE_COMPLETE",
+  "publicationStatus": "PENDING",
+  "baselineCommit": "e5e79372b702ae4e29ad61b826e7ecb7838d317b",
+  "executedAt": "2026-09-20T03:00:29.702Z",
+  "fingerprint": "5e829269f96bcda15d6b694470b9bd146d5a17163190817a89660faa307c211a",
+  "captureHash": "9a4b65a9a3ee64c01d7ad28ab2325839c7eca3ef2598384e8310c283f9154fed",
+  "performanceHash": "77be8daba1c7c3d26fcab92d9f86795a2e202403d103c97394a85f0f5a873d89",
+  "coreutilsPerformanceHash": "2fe443eae3134849b9491ad492735429641771552eab2154f166dc4b339c0a2f",
+  "vfsPerformanceHash": "0cca4638e06f54102044bc3f85c64fa1505c7e37c76ee12c08e6d077f4bb75cf",
+  "before": {
+    "coreutils": {
+      "VERIFIED": 11,
+      "PARTIAL": 26,
+      "UNVERIFIED": 0
+    },
+    "gnuGlobal": 2226,
+    "declarative": {
+      "PASS": 2332,
+      "FAIL": 0,
+      "SKIPPED": 0
+    }
+  },
+  "coreutils": {
+    "VERIFIED": 16,
+    "PARTIAL": 21,
+    "UNVERIFIED": 0
+  },
+  "commands": [
+    {
+      "command": "readlink",
+      "status": "VERIFIED",
+      "implementation": "src-tauri/src/coreutils/pathnames.rs",
+      "projectCases": 309,
+      "gnuMatches": 309,
+      "contracts": [
+        {
+          "id": "invocation",
+          "result": "PASS",
+          "cases": 26
+        },
+        {
+          "id": "options",
+          "result": "PASS",
+          "cases": 33
+        },
+        {
+          "id": "errors",
+          "result": "PASS",
+          "cases": 132
+        },
+        {
+          "id": "help-version",
+          "result": "PASS",
+          "cases": 4
+        },
+        {
+          "id": "integration",
+          "result": "PASS",
+          "cases": 2
+        },
+        {
+          "id": "raw-target",
+          "result": "PASS",
+          "cases": 48
+        },
+        {
+          "id": "canonicalization",
+          "result": "PASS",
+          "cases": 120
+        },
+        {
+          "id": "missing-policy",
+          "result": "PASS",
+          "cases": 18
+        },
+        {
+          "id": "link-resolution",
+          "result": "PASS",
+          "cases": 37
+        },
+        {
+          "id": "output-delimiters",
+          "result": "PASS",
+          "cases": 48
+        },
+        {
+          "id": "diagnostics",
+          "result": "PASS",
+          "cases": 23
+        },
+        {
+          "id": "state",
+          "result": "PASS",
+          "cases": 309
+        }
+      ],
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        }
+      },
+      "knownGaps": [],
+      "intentionalDeviations": [
+        "Locked C locale and UTF-8 VFS names. Virtual paths are bounded to 4096 bytes; stored filesystem components to 255 bytes. Canonical missing-mode may describe nonexistent longer components. Traversal has a 10000-component and 64 KiB pending-expansion safety budget; no host execution.",
+        "Growing-target symlink cycles (e.g. grow -> grow/child) exceed GNU reference resource limits (SIGKILL/timeout); gameplay rejects cycles with bounded traversal. Canonical GNU evidence excludes these nonterminating resource-bound probes."
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ]
+    },
+    {
+      "command": "realpath",
+      "status": "VERIFIED",
+      "implementation": "src-tauri/src/coreutils/pathnames.rs",
+      "projectCases": 422,
+      "gnuMatches": 422,
+      "contracts": [
+        {
+          "id": "invocation",
+          "result": "PASS",
+          "cases": 1
+        },
+        {
+          "id": "options",
+          "result": "PASS",
+          "cases": 37
+        },
+        {
+          "id": "errors",
+          "result": "PASS",
+          "cases": 137
+        },
+        {
+          "id": "help-version",
+          "result": "PASS",
+          "cases": 5
+        },
+        {
+          "id": "integration",
+          "result": "PASS",
+          "cases": 2
+        },
+        {
+          "id": "canonicalization",
+          "result": "PASS",
+          "cases": 240
+        },
+        {
+          "id": "missing-policy",
+          "result": "PASS",
+          "cases": 18
+        },
+        {
+          "id": "link-resolution",
+          "result": "PASS",
+          "cases": 33
+        },
+        {
+          "id": "output-delimiters",
+          "result": "PASS",
+          "cases": 28
+        },
+        {
+          "id": "diagnostics",
+          "result": "PASS",
+          "cases": 23
+        },
+        {
+          "id": "state",
+          "result": "PASS",
+          "cases": 422
+        },
+        {
+          "id": "lexical-normalization",
+          "result": "PASS",
+          "cases": 80
+        },
+        {
+          "id": "logical-physical",
+          "result": "PASS",
+          "cases": 107
+        },
+        {
+          "id": "relative-output",
+          "result": "PASS",
+          "cases": 104
+        }
+      ],
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        }
+      },
+      "knownGaps": [],
+      "intentionalDeviations": [
+        "Locked C locale and UTF-8 VFS names. Virtual paths are bounded to 4096 bytes; stored filesystem components to 255 bytes. Canonical missing-mode may describe nonexistent longer components. Traversal has a 10000-component and 64 KiB pending-expansion safety budget; no host execution.",
+        "Growing-target symlink cycles (e.g. grow -> grow/child) exceed GNU reference resource limits (SIGKILL/timeout); gameplay rejects cycles with bounded traversal. Canonical GNU evidence excludes these nonterminating resource-bound probes."
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ]
+    },
+    {
+      "command": "mkdir",
+      "status": "VERIFIED",
+      "implementation": "src-tauri/src/coreutils/directories.rs",
+      "projectCases": 387,
+      "gnuMatches": 387,
+      "contracts": [
+        {
+          "id": "invocation",
+          "result": "PASS",
+          "cases": 1
+        },
+        {
+          "id": "options",
+          "result": "PASS",
+          "cases": 31
+        },
+        {
+          "id": "errors",
+          "result": "PASS",
+          "cases": 138
+        },
+        {
+          "id": "help-version",
+          "result": "PASS",
+          "cases": 6
+        },
+        {
+          "id": "integration",
+          "result": "PASS",
+          "cases": 2
+        },
+        {
+          "id": "diagnostics",
+          "result": "PASS",
+          "cases": 6
+        },
+        {
+          "id": "state",
+          "result": "PASS",
+          "cases": 387
+        },
+        {
+          "id": "creation",
+          "result": "PASS",
+          "cases": 58
+        },
+        {
+          "id": "parents",
+          "result": "PASS",
+          "cases": 132
+        },
+        {
+          "id": "modes",
+          "result": "PASS",
+          "cases": 186
+        },
+        {
+          "id": "umask",
+          "result": "PASS",
+          "cases": 122
+        },
+        {
+          "id": "partial-effects",
+          "result": "PASS",
+          "cases": 26
+        },
+        {
+          "id": "link-resolution",
+          "result": "PASS",
+          "cases": 45
+        },
+        {
+          "id": "permissions",
+          "result": "PASS",
+          "cases": 7
+        },
+        {
+          "id": "verbose",
+          "result": "PASS",
+          "cases": 58
+        },
+        {
+          "id": "context",
+          "result": "PASS",
+          "cases": 8
+        }
+      ],
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        }
+      },
+      "knownGaps": [],
+      "intentionalDeviations": [
+        "Locked C locale and UTF-8 VFS names; virtual paths are bounded to 4096 bytes and stored components to 255 bytes. No host execution. SELinux/SMACK is inactive, matching the locked reference kernel; explicit contexts produce its warning."
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ]
+    },
+    {
+      "command": "rmdir",
+      "status": "VERIFIED",
+      "implementation": "src-tauri/src/coreutils/directories.rs",
+      "projectCases": 341,
+      "gnuMatches": 341,
+      "contracts": [
+        {
+          "id": "invocation",
+          "result": "PASS",
+          "cases": 1
+        },
+        {
+          "id": "options",
+          "result": "PASS",
+          "cases": 24
+        },
+        {
+          "id": "errors",
+          "result": "PASS",
+          "cases": 260
+        },
+        {
+          "id": "help-version",
+          "result": "PASS",
+          "cases": 4
+        },
+        {
+          "id": "integration",
+          "result": "PASS",
+          "cases": 2
+        },
+        {
+          "id": "diagnostics",
+          "result": "PASS",
+          "cases": 14
+        },
+        {
+          "id": "state",
+          "result": "PASS",
+          "cases": 341
+        },
+        {
+          "id": "removal",
+          "result": "PASS",
+          "cases": 69
+        },
+        {
+          "id": "parents",
+          "result": "PASS",
+          "cases": 122
+        },
+        {
+          "id": "ignore-nonempty",
+          "result": "PASS",
+          "cases": 140
+        },
+        {
+          "id": "partial-effects",
+          "result": "PASS",
+          "cases": 124
+        },
+        {
+          "id": "link-resolution",
+          "result": "PASS",
+          "cases": 92
+        },
+        {
+          "id": "permissions",
+          "result": "PASS",
+          "cases": 36
+        },
+        {
+          "id": "verbose",
+          "result": "PASS",
+          "cases": 138
+        }
+      ],
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIGNALS": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDIN": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "TTY": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        }
+      },
+      "knownGaps": [],
+      "intentionalDeviations": [
+        "Locked C locale and UTF-8 VFS names; virtual paths are bounded to 4096 bytes and stored components to 255 bytes. No host execution.",
+        "The reference binds /home/kali as a mount point (EBUSY on removal), while gameplay models it as an ordinary virtual directory (EACCES from its parent). Mount-specific diagnostics when -p crosses the reference fixture root are outside this subset; absolute ancestor removal within the fixture tree is covered. See docs/coreutils/evidence/m1c9-oracle-boundaries.json."
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ]
+    },
+    {
+      "command": "ln",
+      "status": "VERIFIED",
+      "implementation": "src-tauri/src/coreutils/links.rs",
+      "projectCases": 591,
+      "gnuMatches": 591,
+      "contracts": [
+        {
+          "id": "invocation",
+          "result": "PASS",
+          "cases": 1
+        },
+        {
+          "id": "options",
+          "result": "PASS",
+          "cases": 71
+        },
+        {
+          "id": "errors",
+          "result": "PASS",
+          "cases": 248
+        },
+        {
+          "id": "help-version",
+          "result": "PASS",
+          "cases": 9
+        },
+        {
+          "id": "integration",
+          "result": "PASS",
+          "cases": 4
+        },
+        {
+          "id": "diagnostics",
+          "result": "PASS",
+          "cases": 11
+        },
+        {
+          "id": "state",
+          "result": "PASS",
+          "cases": 591
+        },
+        {
+          "id": "hardlinks",
+          "result": "PASS",
+          "cases": 122
+        },
+        {
+          "id": "symlinks",
+          "result": "PASS",
+          "cases": 86
+        },
+        {
+          "id": "destinations",
+          "result": "PASS",
+          "cases": 179
+        },
+        {
+          "id": "relative",
+          "result": "PASS",
+          "cases": 64
+        },
+        {
+          "id": "backup",
+          "result": "PASS",
+          "cases": 65
+        },
+        {
+          "id": "interactive",
+          "result": "PASS",
+          "cases": 58
+        },
+        {
+          "id": "signals",
+          "result": "PASS",
+          "cases": 3
+        },
+        {
+          "id": "permissions",
+          "result": "PASS",
+          "cases": 11
+        },
+        {
+          "id": "partial-effects",
+          "result": "PASS",
+          "cases": 26
+        },
+        {
+          "id": "same-file",
+          "result": "PASS",
+          "cases": 43
+        }
+      ],
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "result": "SKIPPED"
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "result": "PASS"
+        }
+      },
+      "knownGaps": [],
+      "intentionalDeviations": [
+        "Locked C locale and UTF-8 VFS names. Virtual paths are bounded to 4096 bytes; stored filesystem components to 255 bytes; raw symlink targets to 4095 bytes. Backup truncation preserves UTF-8 boundaries instead of creating invalid filename bytes.",
+        "Relative links use shared canonicalization with a 10000-component and 64 KiB pending-expansion safety budget. Growing-target cycles exceed GNU reference resource limits (SIGKILL/timeout); gameplay remains bounded. No host execution."
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "SIGNALS.STREAMS",
+        "TTY.CANONICAL_IO",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "command": "basename",
+      "cases": 48,
+      "capturedAt": "2026-09-19T19:20:25.613750+00:00",
+      "sourceHash": "765ab1226d3024f00ab9f5d53e31f9f36f45df3c4a5c0288c0342bcac402e282"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "capturedAt": "2026-09-19T19:20:34.662882+00:00",
+      "sourceHash": "7ae4f6f03de32fad004a668db17bff1274cd623db0b8dbcafeb3b545e10d3d08"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "capturedAt": "2026-09-19T19:20:46.794123+00:00",
+      "sourceHash": "22d1622b7792b684dc6760c178ac794be347ad1182a79c8da3a263f85967244d"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "capturedAt": "2026-09-19T19:20:56.454299+00:00",
+      "sourceHash": "6d71f4ae44ab8d34d5dd8056025924b4ab23ad61dab47c03bddaef7d4805b7c6"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "capturedAt": "2026-09-19T19:22:46.546500+00:00",
+      "sourceHash": "d495aa219af4e5026eb60a27c3d28d2f1a1645bcde38fb4ba3d2af8bdf3492af"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "capturedAt": "2026-09-19T19:25:08.443022+00:00",
+      "sourceHash": "fc754d406074ce57d1ecb98855de36156f4497593d6318d46984b87f88228f6f"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "capturedAt": "2026-09-19T19:28:39.362593+00:00",
+      "sourceHash": "d50aa3f515ae2345c65cb4ee58b9042feefa536d7e5d9f0d757949e0c96a114a"
+    },
+    {
+      "command": "base64",
+      "cases": 304,
+      "capturedAt": "2026-09-19T19:31:59.016584+00:00",
+      "sourceHash": "8deb4605620b85bdf00d6e82a78e24a6aa7fd2048cf845cb07b2f90ca1703fe0"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "capturedAt": "2026-09-19T19:18:03.999728+00:00",
+      "sourceHash": "313a9249f530d66e292299fc53232aecd7de75f15f551284e8e118940f5bfabc"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "capturedAt": "2026-09-19T20:41:07.359155+00:00",
+      "sourceHash": "3e5f3a6663254547edb4aa6de17d9b6917ba6d95918608b0f4441502c851565e"
+    },
+    {
+      "command": "sha256sum",
+      "cases": 585,
+      "capturedAt": "2026-09-19T21:44:43.552232+00:00",
+      "sourceHash": "dae0da23f515b6931f8c5ad37f6e4f94911d54290e2f4254ae29dbbb08b58fe9"
+    },
+    {
+      "command": "readlink",
+      "cases": 309,
+      "capturedAt": "2026-09-20T00:56:13.863459+00:00",
+      "sourceHash": "6687baa7bbdff75948a00f96b49294d5f66f06d40a42c2913c2c9aaf642994bf"
+    },
+    {
+      "command": "realpath",
+      "cases": 422,
+      "capturedAt": "2026-09-20T01:26:45.349298+00:00",
+      "sourceHash": "9ec1dc70bc695330c062086000980bf95ff48e9d2c30503c4b22de5dfd9dfa59"
+    },
+    {
+      "command": "mkdir",
+      "cases": 387,
+      "capturedAt": "2026-09-20T01:49:51.686330+00:00",
+      "sourceHash": "bf1940e522c2f856a14bc21b4c5ae548a4b8e7ac0e722455eb1ea93ecd90eae4"
+    },
+    {
+      "command": "rmdir",
+      "cases": 341,
+      "capturedAt": "2026-09-20T02:05:49.473430+00:00",
+      "sourceHash": "9523a8f186cabee82eb8e29ee23e7b8ca93cbc455dcefa62f1d505aaa77edd97"
+    },
+    {
+      "command": "ln",
+      "cases": 591,
+      "capturedAt": "2026-09-20T02:37:52.379250+00:00",
+      "sourceHash": "5228610e15f10eb94f4c1f67a41e5c6311f7605f68b539a10cd402dc67af38d6"
+    }
+  ],
+  "priorGNU": [
+    {
+      "command": "basename",
+      "cases": 48,
+      "goldenBytesUnchanged": true,
+      "sha256": "4febf941c657f094e538d1aea7f90016ab7b763600948cc6735eb2eaf2db938d"
+    },
+    {
+      "command": "dirname",
+      "cases": 27,
+      "goldenBytesUnchanged": true,
+      "sha256": "19f36491d5c71b9f1f91ea5b45a69012155451a1efb8818b955bb62370e824fd"
+    },
+    {
+      "command": "printenv",
+      "cases": 36,
+      "goldenBytesUnchanged": true,
+      "sha256": "4b7ccb9543a81c3f0b03a8e23ea6b9e3a915aebd67896a02c669ef12b57495f3"
+    },
+    {
+      "command": "whoami",
+      "cases": 31,
+      "goldenBytesUnchanged": true,
+      "sha256": "bca5490c6e7f857b82d495704a82595ccff2dcb6d27bd6e5e0e058095b8fd969"
+    },
+    {
+      "command": "cat",
+      "cases": 91,
+      "goldenBytesUnchanged": true,
+      "sha256": "291c08e6b030024090e024718434111e3e320fb96c829482ece26b851757f998"
+    },
+    {
+      "command": "head",
+      "cases": 215,
+      "goldenBytesUnchanged": true,
+      "sha256": "2ba8fa455f43c6d83bd47a057cc3f2ecd31edbee8aa6076a716456aa89c428b3"
+    },
+    {
+      "command": "tail",
+      "cases": 306,
+      "goldenBytesUnchanged": true,
+      "sha256": "f7139f802afe3ba04d753cba07eeee369348cbf13e07becc580b5af72da08c6e"
+    },
+    {
+      "command": "base64",
+      "cases": 304,
+      "goldenBytesUnchanged": true,
+      "sha256": "499e281157c8646993cc53ebd5fa092e5be8ce3cf21a1d7d0badcf8bc8b86942"
+    },
+    {
+      "command": "tee",
+      "cases": 162,
+      "goldenBytesUnchanged": true,
+      "sha256": "eb5523d679cb48f7b9f7154dcc48dfb5432405a86209769ce47a0a7c96016c57"
+    },
+    {
+      "command": "wc",
+      "cases": 421,
+      "goldenBytesUnchanged": true,
+      "sha256": "e697f48cd4b0d4359514c73bcf6656b2c6ee0381de7085707b68f603938b5925"
+    },
+    {
+      "command": "sha256sum",
+      "cases": 585,
+      "goldenBytesUnchanged": true,
+      "sha256": "4f701a02acf59d385bf8a496a9cf7fd075645541edc9cbfb10cba65be2265aad"
+    }
+  ],
+  "lnCorpusExtension": {
+    "previousCases": 581,
+    "currentCases": 591,
+    "allPreviousObservationsUnchanged": true
+  },
+  "validation": {
+    "rust": {
+      "passed": 298,
+      "failed": 0,
+      "optionalIgnored": 14,
+      "mode": "serial"
+    },
+    "frontend": {
+      "passed": 243,
+      "files": 40,
+      "workers": 2
+    },
+    "tooling": {
+      "passed": 63,
+      "failed": 0
+    },
+    "legacy": {
+      "passed": 76
+    },
+    "declarative": {
+      "PASS": 4381,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "normalVerify": true,
+    "strict": {
+      "foundation": "PASS",
+      "cat": "PASS",
+      "head": "PASS",
+      "tail": "PASS",
+      "base64": "PASS",
+      "tee": "PASS",
+      "wc": "PASS",
+      "sha256sum": "PASS",
+      "readlink": "PASS",
+      "realpath": "PASS",
+      "mkdir": "PASS",
+      "rmdir": "PASS",
+      "ln": "PASS"
+    },
+    "globalStrict": {
+      "passed": false,
+      "knownDebt": 1504,
+      "additionalErrors": 0
+    },
+    "rustfmt": "PASS",
+    "clippy": "PASS",
+    "prettier": "PASS",
+    "eslint": "PASS",
+    "stylelint": "PASS",
+    "typescript": "PASS",
+    "content": "PASS",
+    "webBuild": "PASS",
+    "windowsRelease": "PASS",
+    "hostGuard": {
+      "result": "PASS",
+      "failures": [],
+      "exceptions": [
+        {
+          "path": "src-tauri/src/lib.rs",
+          "fragment": "std::fs::create_dir_all(&data)?;",
+          "reason": "Tauri creates its own application save directory."
+        },
+        {
+          "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+          "reason": "Compiler excludes the entire opted-in QA reporter from release."
+        }
+      ],
+      "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+    }
+  },
+  "builds": [
+    {
+      "path": "src-tauri/target/release/game-hacker.exe",
+      "bytes": 94679552,
+      "sha256": "35a858ecc551f021ea2d27d4d9b8e0680397a11422cb2d5e1470cc16e18eb0db"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/nsis/Cyber War_0.4.2_x64-setup.exe",
+      "bytes": 84559975,
+      "sha256": "46dfbe8511784313050a6f2ede95260329c99c3070d0f0e4ea281fb25e078ae1"
+    },
+    {
+      "path": "src-tauri/target/release/bundle/msi/Cyber War_0.4.2_x64_en-US.msi",
+      "bytes": 85381120,
+      "sha256": "2a94b0602c5b1ad73dddf773d430676fddc87c4eef79017d89f6ff0330eb643c"
+    }
+  ],
+  "packaging": {
+    "resources": ["resources/archive-licenses.txt"],
+    "externalBin": []
+  },
+  "next": {
+    "command": "stat",
+    "area": "filesystem",
+    "complexity": 2,
+    "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+    "knownGaps": ["Filesystem mode, printf, complete formats and GNU default layout incomplete"],
+    "dependencies": [
+      "SHELL.CONTEXT",
+      "SHELL.EXPANSION",
+      "SHELL.GLOBBING",
+      "SHELL.LISTS",
+      "SHELL.PARSING",
+      "SHELL.PIPELINES",
+      "SHELL.REDIRECTION",
+      "VFS.DIRECTORIES",
+      "VFS.HARDLINKS",
+      "VFS.INODES",
+      "VFS.METADATA",
+      "VFS.PATHS",
+      "VFS.PERMISSIONS",
+      "VFS.REGULAR_FILES",
+      "VFS.SPECIAL_PERMISSIONS",
+      "VFS.SYMLINKS",
+      "VFS.TIMESTAMPS"
+    ],
+    "blockers": [
+      "GATE:COMBINED_FLAGS",
+      "GATE:COMMAND_CONTRACTS",
+      "GATE:CROSS_TOOL_CONSISTENCY",
+      "GATE:ERRORS",
+      "GATE:EXIT_CODE",
+      "GATE:GNU_REFERENCE",
+      "GATE:HELP",
+      "GATE:KNOWN_GAPS",
+      "GATE:LONG_FLAGS",
+      "GATE:PARSER",
+      "GATE:PERMISSIONS",
+      "GATE:PIPE",
+      "GATE:POSITIONAL_ARGS",
+      "GATE:REDIRECTION",
+      "GATE:SHORT_FLAGS",
+      "GATE:SIDE_EFFECTS",
+      "GATE:SIGNALS",
+      "GATE:STATE_CONSISTENCY",
+      "GATE:STDERR",
+      "GATE:STDIN",
+      "GATE:STDOUT",
+      "GATE:TTY",
+      "GATE:VERSION",
+      "GAP:Filesystem mode, printf, complete formats and GNU default layout incomplete"
+    ],
+    "classification": "SMALL_SHARED_EXTENSION",
+    "implemented": false
+  },
+  "queue": [
+    {
+      "command": "stat",
+      "area": "filesystem",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Filesystem mode, printf, complete formats and GNU default layout incomplete"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Filesystem mode, printf, complete formats and GNU default layout incomplete"
+      ],
+      "classification": "SMALL_SHARED_EXTENSION",
+      "implemented": false
+    },
+    {
+      "command": "touch",
+      "area": "filesystem",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Separate atime/mtime, reference/date/timestamp forms unsupported"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Separate atime/mtime, reference/date/timestamp forms unsupported"
+      ],
+      "classification": "SMALL_SHARED_EXTENSION",
+      "implemented": false
+    },
+    {
+      "command": "ls",
+      "area": "filesystem",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Column layout, GNU quoting, LS_COLORS, block accounting and many flags incomplete"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:ERRORS",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:REDIRECTION",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Column layout, GNU quoting, LS_COLORS, block accounting and many flags incomplete"
+      ],
+      "classification": "SMALL_SHARED_EXTENSION",
+      "implemented": false
+    },
+    {
+      "command": "chmod",
+      "area": "filesystem",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Class-copy, implicit umask, symlink traversal and partial errors need audit"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Class-copy, implicit umask, symlink traversal and partial errors need audit"
+      ],
+      "classification": "SMALL_SHARED_EXTENSION",
+      "implemented": false
+    },
+    {
+      "command": "chown",
+      "area": "filesystem",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Numeric IDs, follow policies and partial success incomplete"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Numeric IDs, follow policies and partial success incomplete"
+      ],
+      "classification": "SMALL_SHARED_EXTENSION",
+      "implemented": false
+    },
+    {
+      "command": "cp",
+      "area": "manipulation",
+      "complexity": 4,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Interactive/preserve/archive/backup/link flags and full dereference matrix incomplete"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive/preserve/archive/backup/link flags and full dereference matrix incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "mv",
+      "area": "manipulation",
+      "complexity": 4,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Interactive, backup, exchange and cross-mount moves unsupported"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive, backup, exchange and cross-mount moves unsupported"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "rm",
+      "area": "manipulation",
+      "complexity": 4,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Interactive, one-filesystem and full preserve-root option semantics unsupported"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive, one-filesystem and full preserve-root option semantics unsupported"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "seq",
+      "area": "text",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Floating precision, format, equal-width and GNU errors need audit"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Floating precision, format, equal-width and GNU errors need audit"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "uniq",
+      "area": "text",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Arbitrary bytes, complete locale folding and group separator forms incomplete"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Arbitrary bytes, complete locale folding and group separator forms incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "cut",
+      "area": "text",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Byte/character ranges, complement, output delimiter and binary input incomplete"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Byte/character ranges, complement, output delimiter and binary input incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "sort",
+      "area": "text",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Field keys, binary records, merge/external sort and additional numeric modes incomplete"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Field keys, binary records, merge/external sort and additional numeric modes incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "tr",
+      "area": "text",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Classes, ranges, squeeze, complement and binary sets incomplete"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Classes, ranges, squeeze, complement and binary sets incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "id",
+      "area": "execution",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Flags, users, supplementary group membership and GNU formatting incomplete"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Flags, users, supplementary group membership and GNU formatting incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "yes",
+      "area": "execution",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Help/version and dash-leading operands need audit",
+        "interactive terminal output has 4 MiB cap"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Help/version and dash-leading operands need audit",
+        "GAP:interactive terminal output has 4 MiB cap"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "groups",
+      "area": "execution",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Group output is legacy simulation",
+        "real identity membership not fully integrated"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Group output is legacy simulation",
+        "GAP:real identity membership not fully integrated"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "uname",
+      "area": "execution",
+      "complexity": 2,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["Values intentionally virtual", "parser, ordering and errors need evidence"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Values intentionally virtual",
+        "GAP:parser, ordering and errors need evidence"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "date",
+      "area": "execution",
+      "complexity": 3,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": ["General format/timezone/parsing and scheduler clock semantics incomplete"],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:General format/timezone/parsing and scheduler clock semantics incomplete"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "df",
+      "area": "advanced",
+      "complexity": 4,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "No real block allocation or mounts",
+        "GNU df cannot be certified from these numbers"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:No real block allocation or mounts",
+        "GAP:GNU df cannot be certified from these numbers"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "du",
+      "area": "advanced",
+      "complexity": 4,
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+      "knownGaps": [
+        "Hardlink deduplication, block sizes, dereference policies and GNU layout need audit"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Hardlink deduplication, block sizes, dereference policies and GNU layout need audit"
+      ],
+      "classification": "REQUIRES_SEPARATE_WAVE",
+      "implemented": false
+    },
+    {
+      "command": "env",
+      "area": "execution",
+      "complexity": 3,
+      "action": "NEEDS_SUBSYSTEM",
+      "knownGaps": [
+        "Split-string, chdir, signals, arbitrary environment variable names and executable-only lookup still need audit"
+      ],
+      "dependencies": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS",
+        "SHELL.JOBS"
+      ],
+      "blockers": [
+        "SUBSYSTEM:SHELL.JOBS:PARTIAL",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:REDIRECTION",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GAP:Split-string, chdir, signals, arbitrary environment variable names and executable-only lookup still need audit"
+      ],
+      "classification": "ARCHITECTURAL_BOUNDARY",
+      "implemented": false
+    }
+  ],
+  "waveReadiness": {
+    "status": "READY",
+    "policy": "Proposal only: virtual filesystem metadata, timestamps, modes and ownership over the shared inode/permission model. Complexity <=3 and no declared subsystem blockers. Each executable still needs its own GNU discovery; virtual timestamps/statfs and recursive follow policies require explicit scope decisions.",
+    "commands": ["stat", "touch", "chmod", "chown"],
+    "evaluated": [
+      {
+        "command": "stat",
+        "area": "filesystem",
+        "complexity": 2,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": [
+          "Filesystem mode, printf, complete formats and GNU default layout incomplete"
+        ],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Filesystem mode, printf, complete formats and GNU default layout incomplete"
+        ],
+        "classification": "SMALL_SHARED_EXTENSION",
+        "implemented": false
+      },
+      {
+        "command": "touch",
+        "area": "filesystem",
+        "complexity": 2,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": ["Separate atime/mtime, reference/date/timestamp forms unsupported"],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Separate atime/mtime, reference/date/timestamp forms unsupported"
+        ],
+        "classification": "SMALL_SHARED_EXTENSION",
+        "implemented": false
+      },
+      {
+        "command": "chmod",
+        "area": "filesystem",
+        "complexity": 3,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": [
+          "Class-copy, implicit umask, symlink traversal and partial errors need audit"
+        ],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Class-copy, implicit umask, symlink traversal and partial errors need audit"
+        ],
+        "classification": "SMALL_SHARED_EXTENSION",
+        "implemented": false
+      },
+      {
+        "command": "chown",
+        "area": "filesystem",
+        "complexity": 3,
+        "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE",
+        "knownGaps": ["Numeric IDs, follow policies and partial success incomplete"],
+        "dependencies": [
+          "SHELL.CONTEXT",
+          "SHELL.EXPANSION",
+          "SHELL.GLOBBING",
+          "SHELL.LISTS",
+          "SHELL.PARSING",
+          "SHELL.PIPELINES",
+          "SHELL.REDIRECTION",
+          "VFS.DIRECTORIES",
+          "VFS.HARDLINKS",
+          "VFS.INODES",
+          "VFS.METADATA",
+          "VFS.PATHS",
+          "VFS.PERMISSIONS",
+          "VFS.REGULAR_FILES",
+          "VFS.SPECIAL_PERMISSIONS",
+          "VFS.SYMLINKS",
+          "VFS.TIMESTAMPS"
+        ],
+        "blockers": [
+          "GATE:COMBINED_FLAGS",
+          "GATE:COMMAND_CONTRACTS",
+          "GATE:CROSS_TOOL_CONSISTENCY",
+          "GATE:ERRORS",
+          "GATE:EXIT_CODE",
+          "GATE:GNU_REFERENCE",
+          "GATE:HELP",
+          "GATE:KNOWN_GAPS",
+          "GATE:LONG_FLAGS",
+          "GATE:PARSER",
+          "GATE:PERMISSIONS",
+          "GATE:PIPE",
+          "GATE:POSITIONAL_ARGS",
+          "GATE:REDIRECTION",
+          "GATE:SHORT_FLAGS",
+          "GATE:SIDE_EFFECTS",
+          "GATE:SIGNALS",
+          "GATE:STATE_CONSISTENCY",
+          "GATE:STDERR",
+          "GATE:STDIN",
+          "GATE:STDOUT",
+          "GATE:TTY",
+          "GATE:VERSION",
+          "GAP:Numeric IDs, follow policies and partial success incomplete"
+        ],
+        "classification": "SMALL_SHARED_EXTENSION",
+        "implemented": false
+      }
+    ],
+    "implemented": false
+  }
+}

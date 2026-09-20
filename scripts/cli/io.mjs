@@ -60,6 +60,7 @@ export const evidenceSources = () => [
   'scripts/cli-tee-generate.mjs',
   'scripts/cli-wc-generate.mjs',
   'scripts/cli-sha256sum-generate.mjs',
+  'scripts/cli-filesystem-generate.mjs',
   'scripts/cli-coreutils-wave.mjs',
   'vite.config.ts',
 ];

@@ -131,6 +131,7 @@ enum InteractionStep {
 struct ProcessFixture {
     actor: Option<String>,
     uid: Option<u32>,
+    umask: Option<u16>,
     #[serde(default)]
     username: UsernameFixture,
     environment: Option<Vec<(String, String)>>,
@@ -167,6 +168,19 @@ struct Fixture {
 fn snapshot(w: &WorldState) -> Value {
     json!({"vfs": w.vfs.nodes, "processes": w.processes, "network": w.network,
         "packages": w.packages, "cwd": w.terminal.cwd, "user": w.terminal.user})
+}
+// Match GNU fixture provisioning, including implicit parent directories.
+// This runs before the observable snapshot; it is not a gameplay mkdir -p.
+fn fixture_directory(w: &mut WorldState, path: &str) {
+    let mut current = String::new();
+    for part in path.split('/').filter(|s| !s.is_empty()) {
+        assert!(!matches!(part, "." | ".."));
+        current.push('/');
+        current.push_str(part);
+        if !w.vfs.nodes.contains_key(&current) {
+            w.vfs.mkdir(&current, "kali").unwrap();
+        }
+    }
 }
 fn unhex(text: &str) -> Vec<u8> {
     text.as_bytes()
@@ -308,24 +322,26 @@ fn cli_tooling_capture() {
         }
         let mut w = WorldState::new("kali", "lifeos").unwrap();
         for dir in case.fixture.directories {
-            w.vfs.mkdir(&dir, "kali").unwrap();
+            fixture_directory(&mut w, &dir);
         }
         for (path, text) in case.fixture.files {
+            fixture_directory(&mut w, crate::vfs::parent(&path));
             w.vfs.write(&path, &text, "kali").unwrap();
         }
         for (path, hex) in case.fixture.bytes {
+            fixture_directory(&mut w, crate::vfs::parent(&path));
             let bytes = unhex(&hex);
             let size = bytes.len() as u64;
             crate::archive::write_bytes(&mut w, &path, bytes, "kali", size).unwrap();
-        }
-        for (path, mode) in case.fixture.modes {
-            w.vfs.chmod(&path, "kali", mode).unwrap();
         }
         for (path, target) in case.fixture.hardlinks {
             w.vfs.link(&target, &path, "kali").unwrap();
         }
         for (path, target) in case.fixture.symlinks {
             w.vfs.symlink(&path, &target, "kali").unwrap();
+        }
+        for (path, mode) in case.fixture.modes {
+            w.vfs.chmod(&path, "kali", mode).unwrap();
         }
         for setup in case.fixture.setup {
             let result = terminal::execute(&mut w, &setup);
@@ -340,6 +356,10 @@ fn cli_tooling_capture() {
             w.terminal.exported.extend(w.terminal.env.keys().cloned());
         }
         if let Some(process) = case.process {
+            if let Some(mask) = process.umask {
+                w.vfs.umask = mask;
+                w.terminal.shell.umask = mask;
+            }
             if let Some(actor) = process.actor {
                 w.terminal.user = actor;
             }

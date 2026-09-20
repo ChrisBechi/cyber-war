@@ -494,6 +494,7 @@ export const caseSchema = z
           .regex(/^[a-z][a-z0-9_-]*$/)
           .optional(),
         uid: z.number().int().min(0).max(65534).optional(),
+        umask: z.number().int().min(0).max(0o777).optional(),
         username: z
           .string()
           .regex(/^[a-z][a-z0-9_-]*$/)

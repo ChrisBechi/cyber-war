@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 1,
+  "scope": "Growing-target symbolic-link cycle: grow -> grow/child",
+  "harnessLimits": {
+    "cpuSeconds": 4,
+    "addressSpaceBytes": 536870912,
+    "communicationTimeoutSeconds": 4
+  },
+  "finiteCapture": {
+    "provenance": "GNU_PROBE",
+    "version": "9.7",
+    "command": "readlink",
+    "locale": "C",
+    "capturedAt": "2026-09-20T00:53:22.046332+00:00",
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
+    "environment": {
+      "id": "alpine-3.22.0-coreutils-9.7-r1-x86_64",
+      "lockHash": "78bb1bed25adade78920e87108396d9f46f6839c1076c86ee724ca75d4fb285c",
+      "os": "Linux",
+      "osRelease": "NAME=\"Alpine Linux\"\nID=alpine\nVERSION_ID=3.22.0\nPRETTY_NAME=\"Alpine Linux v3.22\"\nHOME_URL=\"https://alpinelinux.org/\"\nBUG_REPORT_URL=\"https://gitlab.alpinelinux.org/alpine/aports/-/issues\"\n",
+      "architecture": "x86_64",
+      "isolation": "bubblewrap/unshare-all",
+      "network": "disabled",
+      "locale": "C",
+      "binaryHashes": {
+        "readlink": {
+          "versionLine": "readlink (GNU coreutils) 9.7",
+          "sha256": "8c3d5024b3ea24ef924e50b3b1647bf1623fccacd56cca1e45a4395b6b3bc600"
+        }
+      },
+      "packages": [
+        "acl-libs-2.3.2-r1",
+        "alpine-baselayout-3.7.0-r0",
+        "alpine-baselayout-data-3.7.0-r0",
+        "alpine-keys-2.5-r0",
+        "alpine-release-3.22.0-r0",
+        "apk-tools-2.14.9-r2",
+        "bubblewrap-0.12.0-r0",
+        "busybox-1.37.0-r20",
+        "busybox-binsh-1.37.0-r20",
+        "ca-certificates-bundle-20241121-r2",
+        "coreutils-9.7-r1",
+        "coreutils-env-9.7-r1",
+        "coreutils-fmt-9.7-r1",
+        "coreutils-sha512sum-9.7-r1",
+        "gdbm-1.24-r0",
+        "libapk2-2.14.9-r2",
+        "libattr-2.5.2-r2",
+        "libbz2-1.0.8-r6",
+        "libcap2-2.78-r0",
+        "libcrypto3-3.5.8-r0",
+        "libexpat-2.8.4-r0",
+        "libffi-3.4.8-r0",
+        "libgcc-14.2.0-r6",
+        "libncursesw-6.5_p20250503-r0",
+        "libpanelw-6.5_p20250503-r0",
+        "libssl3-3.5.8-r0",
+        "libstdc++-14.2.0-r6",
+        "mpdecimal-4.0.1-r0",
+        "musl-1.2.5-r12",
+        "musl-utils-1.2.5-r10",
+        "ncurses-terminfo-base-6.5_p20250503-r0",
+        "pyc-3.12.14-r0",
+        "python3-3.12.14-r0",
+        "python3-pyc-3.12.14-r0",
+        "python3-pycache-pyc0-3.12.14-r0",
+        "readline-8.2.13-r1",
+        "scanelf-1.3.8-r1",
+        "skalibs-libs-2.14.4.0-r0",
+        "sqlite-libs-3.49.2-r1",
+        "ssl_client-1.37.0-r20",
+        "utmps-libs-0.1.3.1-r0",
+        "xz-libs-5.8.4-r0",
+        "zlib-1.3.2-r0"
+      ]
+    },
+    "cases": [
+      {
+        "id": "coreutils/readlink/symlink-expansion-0-fv",
+        "request": {
+          "id": "coreutils/readlink/symlink-expansion-0-fv",
+          "command": "readlink",
+          "invocation": "/usr/bin/readlink",
+          "argv": ["-fv", "grow"],
+          "stdinHex": "310a320a330a340a6c617374",
+          "env": {
+            "LC_ALL": "C"
+          },
+          "cwd": "/home/kali",
+          "fixture": {
+            "files": {
+              "/home/kali/file": "shared\n",
+              "/home/kali/tree/child/data": "data\n"
+            },
+            "bytes": {},
+            "directories": ["/home/kali/empty", "/home/kali/tree/child", "/home/kali/denied"],
+            "modes": {
+              "/home/kali/denied": 0
+            },
+            "setup": [],
+            "hardlinks": {
+              "/home/kali/hard": "/home/kali/file"
+            },
+            "symlinks": {
+              "/home/kali/link": "file",
+              "/home/kali/absolute": "/home/kali/file",
+              "/home/kali/dot": "./tree/../file",
+              "/home/kali/dirlink": "tree/child",
+              "/home/kali/broken": "absent",
+              "/home/kali/brokenparent": "absent/child",
+              "/home/kali/chain": "link",
+              "/home/kali/loop": "loop2",
+              "/home/kali/loop2": "loop",
+              "/home/kali/self": "self",
+              "/home/kali/tree/up": "../file",
+              "/home/kali/slashfile": "file/",
+              "/home/kali/slashdir": "tree/",
+              "/home/kali/two words": "./tree/../file",
+              "/home/kali/tab\tname": "./tree/../file",
+              "/home/kali/line\nname": "./tree/../file",
+              "/home/kali/back\\slash": "./tree/../file",
+              "/home/kali/apost'rophe": "./tree/../file",
+              "/home/kali/double\"quote": "./tree/../file",
+              "/home/kali/-dash": "./tree/../file",
+              "/home/kali/ação": "./tree/../file",
+              "/home/kali/grow": "grow/child"
+            }
+          },
+          "process": null,
+          "transport": "direct",
+          "io": null,
+          "interaction": null
+        },
+        "requestDigest": "d22267debaa5b07e6d9c79b9e0fc20c1735cd3ff864db7ecd82f6e44667f9676",
+        "stdoutHex": "",
+        "stderrHex": "",
+        "exitCode": 137,
+        "before": {
+          "-dash": {
+            "inodeGroup": 0,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "absolute": {
+            "inodeGroup": 1,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "/home/kali/file"
+          },
+          "apost'rophe": {
+            "inodeGroup": 2,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "ação": {
+            "inodeGroup": 3,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "back\\slash": {
+            "inodeGroup": 4,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "broken": {
+            "inodeGroup": 5,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "absent"
+          },
+          "brokenparent": {
+            "inodeGroup": 6,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "absent/child"
+          },
+          "chain": {
+            "inodeGroup": 7,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "link"
+          },
+          "denied": {
+            "inodeGroup": 8,
+            "mode": 0,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "dirlink": {
+            "inodeGroup": 9,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "tree/child"
+          },
+          "dot": {
+            "inodeGroup": 10,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "double\"quote": {
+            "inodeGroup": 11,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "empty": {
+            "inodeGroup": 12,
+            "mode": 493,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "file": {
+            "inodeGroup": 13,
+            "mode": 420,
+            "nlink": 2,
+            "type": "file",
+            "contentHex": "7368617265640a",
+            "size": 7
+          },
+          "grow": {
+            "inodeGroup": 14,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "grow/child"
+          },
+          "hard": {
+            "inodeGroup": 13,
+            "mode": 420,
+            "nlink": 2,
+            "type": "file",
+            "contentHex": "7368617265640a",
+            "size": 7
+          },
+          "line\nname": {
+            "inodeGroup": 15,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "link": {
+            "inodeGroup": 16,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "file"
+          },
+          "loop": {
+            "inodeGroup": 17,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "loop2"
+          },
+          "loop2": {
+            "inodeGroup": 18,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "loop"
+          },
+          "self": {
+            "inodeGroup": 19,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "self"
+          },
+          "slashdir": {
+            "inodeGroup": 20,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "tree/"
+          },
+          "slashfile": {
+            "inodeGroup": 21,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "file/"
+          },
+          "tab\tname": {
+            "inodeGroup": 22,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "tree": {
+            "inodeGroup": 23,
+            "mode": 493,
+            "nlink": 3,
+            "type": "directory"
+          },
+          "tree/child": {
+            "inodeGroup": 24,
+            "mode": 493,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "tree/child/data": {
+            "inodeGroup": 25,
+            "mode": 420,
+            "nlink": 1,
+            "type": "file",
+            "contentHex": "646174610a",
+            "size": 5
+          },
+          "tree/up": {
+            "inodeGroup": 26,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "../file"
+          },
+          "two words": {
+            "inodeGroup": 27,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          }
+        },
+        "after": {
+          "-dash": {
+            "inodeGroup": 0,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "absolute": {
+            "inodeGroup": 1,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "/home/kali/file"
+          },
+          "apost'rophe": {
+            "inodeGroup": 2,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "ação": {
+            "inodeGroup": 3,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "back\\slash": {
+            "inodeGroup": 4,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "broken": {
+            "inodeGroup": 5,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "absent"
+          },
+          "brokenparent": {
+            "inodeGroup": 6,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "absent/child"
+          },
+          "chain": {
+            "inodeGroup": 7,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "link"
+          },
+          "denied": {
+            "inodeGroup": 8,
+            "mode": 0,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "dirlink": {
+            "inodeGroup": 9,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "tree/child"
+          },
+          "dot": {
+            "inodeGroup": 10,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "double\"quote": {
+            "inodeGroup": 11,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "empty": {
+            "inodeGroup": 12,
+            "mode": 493,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "file": {
+            "inodeGroup": 13,
+            "mode": 420,
+            "nlink": 2,
+            "type": "file",
+            "contentHex": "7368617265640a",
+            "size": 7
+          },
+          "grow": {
+            "inodeGroup": 14,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "grow/child"
+          },
+          "hard": {
+            "inodeGroup": 13,
+            "mode": 420,
+            "nlink": 2,
+            "type": "file",
+            "contentHex": "7368617265640a",
+            "size": 7
+          },
+          "line\nname": {
+            "inodeGroup": 15,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "link": {
+            "inodeGroup": 16,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "file"
+          },
+          "loop": {
+            "inodeGroup": 17,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "loop2"
+          },
+          "loop2": {
+            "inodeGroup": 18,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "loop"
+          },
+          "self": {
+            "inodeGroup": 19,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "self"
+          },
+          "slashdir": {
+            "inodeGroup": 20,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "tree/"
+          },
+          "slashfile": {
+            "inodeGroup": 21,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "file/"
+          },
+          "tab\tname": {
+            "inodeGroup": 22,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          },
+          "tree": {
+            "inodeGroup": 23,
+            "mode": 493,
+            "nlink": 3,
+            "type": "directory"
+          },
+          "tree/child": {
+            "inodeGroup": 24,
+            "mode": 493,
+            "nlink": 2,
+            "type": "directory"
+          },
+          "tree/child/data": {
+            "inodeGroup": 25,
+            "mode": 420,
+            "nlink": 1,
+            "type": "file",
+            "contentHex": "646174610a",
+            "size": 5
+          },
+          "tree/up": {
+            "inodeGroup": 26,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "../file"
+          },
+          "two words": {
+            "inodeGroup": 27,
+            "mode": 511,
+            "nlink": 1,
+            "type": "symlink",
+            "target": "./tree/../file"
+          }
+        },
+        "termination": {
+          "kind": "signal",
+          "signal": "SIGKILL"
+        },
+        "observations": [],
+        "endpoints": {
+          "stdin": "pipe",
+          "stdout": "pipe",
+          "stderr": "pipe"
+        },
+        "rootLinkDelta": 0,
+        "reproducible": true
+      }
+    ]
+  },
+  "timeouts": [
+    {
+      "argv": ["-ev", "grow"],
+      "diagnostic": "Traceback (most recent call last):\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 313, in <module>\r\n    main()\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 269, in main\r\n    first, second = capture(case, shutil.which('bwrap')), capture(case, shutil.which('bwrap'))\r\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 198, in capture\r\n    raise RuntimeError(f'Sandbox/worker failed for {case[\"id\"]}: {err[:1000]!r}')\r\nRuntimeError: Sandbox/worker failed for coreutils/readlink/symlink-expansion-0-ev: b'Traceback (most recent call last):\\n  File \"/reference/worker.py\", line 311, in <module>\\n    worker(sys.argv[2])\\n  File \"/reference/worker.py\", line 111, in worker\\n    result = execute(req, shutil.which(req[\\'command\\'], path=\\'/usr/bin:/bin\\'), env)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/reference/coreutils_interaction.py\", line 130, in execute\\n    out, err = child.communicate(bytes.fromhex(req[\\'stdinHex\\']) if stdin == subprocess.PIPE else None, timeout=4)\\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.12/subprocess.py\", line 1209, in communicate\\n    stdout, stderr = self._communicate(input, endtime, timeout)\\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.12/subprocess.py\", line 2116, in _communicate\\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\\n  File \"/usr/lib/python3.12/subprocess.py\", '\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 96, in <module>\r\n    main()\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 87, in main\r\n    run(['wsl.exe', '-d', DISTRO, '--exec', '/usr/bin/python3', wsl_path(ROOT / 'scripts/cli/coreutils-reference.py'), *extra])\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 23, in run\r\n    return subprocess.run(args, check=True, **kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Python312\\Lib\\subprocess.py\", line 571, in run\r\n    raise CalledProcessError(retcode, process.args,\r\nsubprocess.CalledProcessError: Command '['wsl.exe', '-d', 'CyberWar-GNU97', '--exec', '/usr/bin/python3', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py', '--capture', '--command', 'readlink', '--probe', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/artifacts/m1c9-growth-ev.json', '--output-dir', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/artifacts/m1c9-growth-ev']' returned non-zero exit status 1.\r\n",
+      "sha256": "28d9ce6992b542811438de42b1f15d1d9b7a86c26794f3a24740714bebeaf0e1"
+    },
+    {
+      "argv": ["-mv", "grow"],
+      "diagnostic": "Traceback (most recent call last):\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 313, in <module>\r\n    main()\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 269, in main\r\n    first, second = capture(case, shutil.which('bwrap')), capture(case, shutil.which('bwrap'))\r\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py\", line 198, in capture\r\n    raise RuntimeError(f'Sandbox/worker failed for {case[\"id\"]}: {err[:1000]!r}')\r\nRuntimeError: Sandbox/worker failed for coreutils/readlink/symlink-expansion-0-mv: b'Traceback (most recent call last):\\n  File \"/reference/worker.py\", line 311, in <module>\\n    worker(sys.argv[2])\\n  File \"/reference/worker.py\", line 111, in worker\\n    result = execute(req, shutil.which(req[\\'command\\'], path=\\'/usr/bin:/bin\\'), env)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/reference/coreutils_interaction.py\", line 130, in execute\\n    out, err = child.communicate(bytes.fromhex(req[\\'stdinHex\\']) if stdin == subprocess.PIPE else None, timeout=4)\\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.12/subprocess.py\", line 1209, in communicate\\n    stdout, stderr = self._communicate(input, endtime, timeout)\\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.12/subprocess.py\", line 2116, in _communicate\\n    self._check_timeout(endtime, orig_timeout, stdout, stderr)\\n  File \"/usr/lib/python3.12/subprocess.py\", '\r\nTraceback (most recent call last):\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 96, in <module>\r\n    main()\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 87, in main\r\n    run(['wsl.exe', '-d', DISTRO, '--exec', '/usr/bin/python3', wsl_path(ROOT / 'scripts/cli/coreutils-reference.py'), *extra])\r\n  File \"C:\\Users\\chris\\OneDrive\\Documentos\\Cyber war\\scripts\\cli\\coreutils-environment.py\", line 23, in run\r\n    return subprocess.run(args, check=True, **kwargs)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Python312\\Lib\\subprocess.py\", line 571, in run\r\n    raise CalledProcessError(retcode, process.args,\r\nsubprocess.CalledProcessError: Command '['wsl.exe', '-d', 'CyberWar-GNU97', '--exec', '/usr/bin/python3', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/scripts/cli/coreutils-reference.py', '--capture', '--command', 'readlink', '--probe', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/artifacts/m1c9-growth-mv.json', '--output-dir', '/mnt/c/Users/chris/OneDrive/Documentos/Cyber war/artifacts/m1c9-growth-mv']' returned non-zero exit status 1.\r\n",
+      "sha256": "e64c5e189cc068e61a756621194661b80b4cd35ee1d17ae14a3cd74111db409c"
+    }
+  ],
+  "policy": "These resource-bound GNU probes are excluded from byte-exact canonical certification. Normal finite symlink loops remain required GNU cases. Virtual traversal is bounded and recursive link expansion fails with ELOOP; missing-mode returns a finite lexical description.",
+  "rmdirIsolationMount": {
+    "scope": "GNU sandbox bind mount /home/kali; virtual home is an ordinary directory",
+    "disposition": "Outside the committed VFS mount subset. Absolute ancestor removal is certified inside the fixture tree; reaching the reference bind mount is an environment-specific diagnostic, not a command parity claim.",
+    "probeHash": "eed27b359cbf5e834e819e1afe8054ffccb4ce4b7debbec7bd7b81eaa897b502",
+    "observations": [
+      {
+        "id": "coreutils/rmdir/ancestry-regression-0",
+        "argv": ["-pv", "/home/kali/empty"],
+        "stdoutHex": "2f7573722f62696e2f726d6469723a2072656d6f76696e67206469726563746f72792c20272f686f6d652f6b616c692f656d707479270a2f7573722f62696e2f726d6469723a2072656d6f76696e67206469726563746f72792c20272f686f6d652f6b616c69270a",
+        "stderrHex": "726d6469723a206661696c656420746f2072656d6f7665206469726563746f727920272f686f6d652f6b616c69273a205265736f7572636520627573790a",
+        "exitCode": 1,
+        "reproducible": true,
+        "projectStderr": "rmdir: failed to remove directory '/home/kali': Permission denied\n"
+      },
+      {
+        "id": "coreutils/rmdir/ancestry-regression-2",
+        "argv": ["-pv", "//home///kali/empty/"],
+        "stdoutHex": "2f7573722f62696e2f726d6469723a2072656d6f76696e67206469726563746f72792c20272f2f686f6d652f2f2f6b616c692f656d7074792f270a2f7573722f62696e2f726d6469723a2072656d6f76696e67206469726563746f72792c20272f2f686f6d652f2f2f6b616c69270a",
+        "stderrHex": "726d6469723a206661696c656420746f2072656d6f7665206469726563746f727920272f2f686f6d652f2f2f6b616c69273a205265736f7572636520627573790a",
+        "exitCode": 1,
+        "reproducible": true,
+        "projectStderr": "rmdir: failed to remove directory '//home///kali': Permission denied\n"
+      }
+    ]
+  }
+}

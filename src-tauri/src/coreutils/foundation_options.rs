@@ -17,6 +17,8 @@ pub(super) struct Options {
     pub tee_mode: super::tee::ErrorMode,
     pub wc_total: super::wc::Total,
     pub files0: Option<String>,
+    pub prelude: String,
+    pub path_values: Vec<(char, String)>,
 }
 
 pub(super) fn error(name: &str, invocation: &str, message: &str, option: bool) -> Output {
@@ -116,9 +118,90 @@ pub(super) fn parse(
     args: &[String],
     posix: bool,
 ) -> Result<Options, Box<Output>> {
+    parse_checked(name, invocation, args, posix, |_, _| Ok(()))
+}
+pub(super) fn parse_checked(
+    name: &str,
+    invocation: &str,
+    args: &[String],
+    posix: bool,
+    mut check: impl FnMut(char, Option<&str>) -> Result<(), Box<Output>>,
+) -> Result<Options, Box<Output>> {
+    let mut warnings = String::new();
+    match parse_inner(name, invocation, args, posix, &mut warnings, &mut check) {
+        Ok(mut opts) => {
+            opts.prelude = warnings;
+            Ok(opts)
+        }
+        Err(mut out) => {
+            out.stderr.insert_str(0, &warnings);
+            if !out.byte_ordered.is_empty() && !warnings.is_empty() {
+                out.byte_ordered.insert(0, (2, warnings.into_bytes()));
+            }
+            Err(out)
+        }
+    }
+}
+fn parse_inner(
+    name: &str,
+    invocation: &str,
+    args: &[String],
+    posix: bool,
+    warnings: &mut String,
+    check: &mut impl FnMut(char, Option<&str>) -> Result<(), Box<Output>>,
+) -> Result<Options, Box<Output>> {
     let mut out = Options::default();
     let mut long = Vec::new();
     match name {
+        "ln" => long.extend([
+            ("backup", 'b'),
+            ("directory", 'F'),
+            ("no-dereference", 'n'),
+            ("no-target-directory", 'T'),
+            ("force", 'f'),
+            ("interactive", 'i'),
+            ("suffix", 'S'),
+            ("target-directory", 't'),
+            ("logical", 'L'),
+            ("physical", 'P'),
+            ("relative", 'r'),
+            ("symbolic", 's'),
+            ("verbose", 'v'),
+        ]),
+        "rmdir" => long.extend([
+            ("ignore-fail-on-non-empty", '\u{1}'),
+            ("path", 'p'),
+            ("parents", 'p'),
+            ("verbose", 'v'),
+        ]),
+        "mkdir" => long.extend([
+            ("mode", 'm'),
+            ("parents", 'p'),
+            ("verbose", 'v'),
+            ("context", 'Z'),
+        ]),
+        "realpath" => long.extend([
+            ("canonicalize-existing", 'e'),
+            ("canonicalize-missing", 'm'),
+            ("relative-to", '\u{1}'),
+            ("relative-base", '\u{2}'),
+            ("quiet", 'q'),
+            ("strip", 's'),
+            ("no-symlinks", 's'),
+            ("zero", 'z'),
+            ("logical", 'L'),
+            ("physical", 'P'),
+        ]),
+        "readlink" => long.extend([
+            ("canonicalize", 'f'),
+            ("canonicalize-existing", 'e'),
+            ("canonicalize-missing", 'm'),
+            ("no-newline", 'n'),
+            ("quiet", 'q'),
+            ("silent", 's'),
+            ("verbose", 'v'),
+            ("zero", 'z'),
+        ]),
         "basename" => long.extend([("multiple", 'a'), ("suffix", 's'), ("zero", 'z')]),
         "dirname" => long.push(("zero", 'z')),
         "printenv" => long.push(("null", '0')),
@@ -199,10 +282,14 @@ pub(super) fn parse(
                 .split_once('=')
                 .map_or((value, None), |(k, v)| (k, Some(v)));
             let matches: Vec<_> = long.iter().filter(|(n, _)| n.starts_with(prefix)).collect();
-            let found = long
-                .iter()
-                .find(|(n, _)| *n == prefix)
-                .or_else(|| (matches.len() == 1).then(|| matches[0]));
+            let found = long.iter().find(|(n, _)| *n == prefix).or_else(|| {
+                (matches.len() == 1
+                    || (!matches.is_empty()
+                        && matches
+                            .iter()
+                            .all(|m| m.1 == matches[0].1 && !matches!(m.0, "help" | "version"))))
+                .then(|| matches[0])
+            });
             let Some((_, ch)) = found else {
                 if matches.len() > 1 {
                     let alternatives = matches
@@ -223,23 +310,39 @@ pub(super) fn parse(
                     true,
                 )));
             };
-            let takes_value = (name == "basename" && *ch == 's')
+            let takes_value = (name == "ln" && matches!(*ch, 't' | 'S'))
+                || (name == "mkdir" && *ch == 'm')
+                || (name == "basename" && *ch == 's')
                 || (matches!(name, "head" | "tail") && matches!(*ch, 'n' | 'c'))
                 || (name == "tail" && matches!(*ch, 's' | 'm' | 'p'))
                 || (name == "base64" && *ch == 'w')
-                || (name == "wc" && matches!(*ch, '\u{1}' | '\u{2}'));
-            let optional_value = (name == "tail" && *ch == 'f') || (name == "tee" && *ch == 'p');
+                || (matches!(name, "wc" | "realpath") && matches!(*ch, '\u{1}' | '\u{2}'));
+            let optional_value = (name == "ln" && *ch == 'b')
+                || (name == "mkdir" && *ch == 'Z')
+                || (name == "tail" && *ch == 'f')
+                || (name == "tee" && *ch == 'p');
             if !takes_value && !optional_value && attached.is_some() {
                 return Err(Box::new(error(
                     name,
                     invocation,
-                    &format!("option '--{prefix}' doesn't allow an argument"),
+                    &format!("option '--{}' doesn't allow an argument", found.unwrap().0),
                     true,
                 )));
             }
             if matches!(
                 name,
-                "cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum"
+                "cat"
+                    | "head"
+                    | "tail"
+                    | "base64"
+                    | "tee"
+                    | "wc"
+                    | "sha256sum"
+                    | "readlink"
+                    | "realpath"
+                    | "mkdir"
+                    | "rmdir"
+                    | "ln"
             ) && matches!(*ch, 'h' | 'v')
                 && matches!(found.unwrap().0, "help" | "version")
             {
@@ -257,7 +360,10 @@ pub(super) fn parse(
                             invocation,
                             &format!(
                                 "option '--{}' requires an argument",
-                                if matches!(name, "head" | "tail" | "base64" | "wc") {
+                                if matches!(
+                                    name,
+                                    "head" | "tail" | "base64" | "wc" | "realpath" | "mkdir"
+                                ) {
                                     found.unwrap().0
                                 } else {
                                     prefix
@@ -276,6 +382,11 @@ pub(super) fn parse(
         } else {
             for (offset, ch) in arg[1..].char_indices() {
                 let allowed = match name {
+                    "ln" => "bdfinrstvFLPST",
+                    "rmdir" => "pv",
+                    "mkdir" => "pmvZ",
+                    "realpath" => "eLmPqsz",
+                    "readlink" => "efmnqsvz",
                     "basename" => "asz",
                     "dirname" => "z",
                     "printenv" => "0iu",
@@ -316,7 +427,9 @@ pub(super) fn parse(
                         false,
                     )));
                 }
-                if (name == "basename" && ch == 's')
+                if (name == "ln" && matches!(ch, 't' | 'S'))
+                    || (name == "mkdir" && ch == 'm')
+                    || (name == "basename" && ch == 's')
                     || (name == "printenv" && ch == 'u')
                     || (matches!(name, "head" | "tail") && matches!(ch, 'n' | 'c'))
                     || (name == "tail" && ch == 's')
@@ -350,6 +463,32 @@ pub(super) fn parse(
             }
         }
         for (ch, value) in parsed {
+            check(ch, value.as_deref())?;
+            if name == "ln" {
+                out.flags.push(ch);
+                if let Some(value) = value {
+                    out.path_values.push((ch, value));
+                }
+                continue;
+            }
+            if name == "mkdir" {
+                if ch == 'Z' && value.is_some() {
+                    warnings.push_str("mkdir: warning: ignoring --context; it requires an SELinux/SMACK-enabled kernel\n");
+                } else if let Some(value) = value {
+                    out.path_values.push((ch, value));
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
+            if name == "realpath" {
+                if let Some(value) = value {
+                    out.path_values.push((ch, value));
+                } else {
+                    out.flags.push(ch);
+                }
+                continue;
+            }
             if name == "wc" {
                 match ch {
                     '\u{1}' => out.files0 = value,
@@ -397,7 +536,10 @@ pub(super) fn parse(
                 }
                 continue;
             }
-            if matches!(name, "cat" | "sha256sum") {
+            if matches!(
+                name,
+                "cat" | "sha256sum" | "readlink" | "realpath" | "rmdir"
+            ) {
                 out.flags.push(ch);
                 continue;
             }

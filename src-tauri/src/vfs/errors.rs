@@ -16,6 +16,7 @@ pub enum Errno {
     NotPermitted,
     BadDescriptor,
     CrossDevice,
+    Busy,
 }
 impl Errno {
     pub fn code(self) -> &'static str {
@@ -34,6 +35,7 @@ impl Errno {
             Self::NotPermitted => "EPERM",
             Self::BadDescriptor => "EBADF",
             Self::CrossDevice => "EXDEV",
+            Self::Busy => "EBUSY",
         }
     }
 }
@@ -54,6 +56,7 @@ impl std::fmt::Display for Errno {
             Self::NotPermitted => "Operation not permitted",
             Self::BadDescriptor => "Bad virtual file descriptor",
             Self::CrossDevice => "Invalid cross-device link",
+            Self::Busy => "Resource busy",
         })
     }
 }

@@ -4,6 +4,7 @@ use super::*;
 use crate::shell::control;
 use crate::shell::signals::{ProcessSignalState, Termination, VirtualSignal};
 use std::sync::Arc;
+mod links;
 mod sha256sum;
 mod wc;
 enum Read {
@@ -168,6 +169,7 @@ enum Engine {
     Tail(Box<crate::coreutils::tail::Tail>),
     Wc(Box<crate::coreutils::wc::Wc>),
     Sha256sum(Box<crate::coreutils::sha256sum::Checksum>),
+    Links(Box<crate::coreutils::links::Links>),
     Legacy { text: Vec<u8>, read: bool },
     Finished,
 }
@@ -203,7 +205,7 @@ pub(super) fn interactive_or_producer(stage: &Stage) -> bool {
     }
     matches!(
         name,
-        "cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum"
+        "cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum" | "ln"
     )
 }
 fn engine(stage: &Stage, available: bool) -> Engine {
@@ -362,13 +364,16 @@ fn prepare(
     if available
         && matches!(
             name.rsplit('/').next(),
-            Some("cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum")
+            Some("cat" | "head" | "tail" | "base64" | "tee" | "wc" | "sha256sum" | "ln")
         )
         && error.is_none()
     {
         let posix = world.terminal.exported.contains("POSIXLY_CORRECT")
             && world.terminal.env.contains_key("POSIXLY_CORRECT");
-        let parsed = if name.rsplit('/').next() == Some("sha256sum") {
+        let parsed = if name.rsplit('/').next() == Some("ln") {
+            crate::coreutils::links::Links::new(name, &stage.arguments[1..], posix, world)
+                .map(|links| Engine::Links(Box::new(links)))
+        } else if name.rsplit('/').next() == Some("sha256sum") {
             crate::coreutils::sha256sum::Checksum::new(name, &stage.arguments[1..], posix)
                 .map(|s| Engine::Sha256sum(Box::new(s)))
         } else if name.rsplit('/').next() == Some("wc") {
@@ -684,6 +689,7 @@ fn step(
                 }
             }
         }
+        Engine::Links(_) => return links::step(world, process, pipes),
         Engine::Wc(_) => return wc::step(world, process, pipes),
         Engine::Sha256sum(_) => return sha256sum::step(world, process, pipes),
         Engine::Head(head) => {

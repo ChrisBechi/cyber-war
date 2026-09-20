@@ -235,61 +235,6 @@
   },
   {
     "schemaVersion": 2,
-    "id": "coreutils/ln/inode-flow",
-    "softwareId": "coreutils",
-    "command": "ln",
-    "invocation": "/usr/bin/ln",
-    "argv": [],
-    "stdin": null,
-    "env": {
-      "LC_ALL": "C"
-    },
-    "cwd": "/home/kali",
-    "tty": {
-      "isTTY": false,
-      "columns": 80,
-      "rows": 24,
-      "ansiSupport": false,
-      "interactive": false
-    },
-    "reference": {
-      "softwareId": "coreutils",
-      "version": "9.7",
-      "kind": "MAN_PAGE",
-      "source": "https://manpages.debian.org/trixie/coreutils/ln.1.en.html"
-    },
-    "gates": ["STDOUT", "STDERR", "EXIT_CODE", "STATE_CONSISTENCY"],
-    "flags": [],
-    "errorCase": false,
-    "fixture": {
-      "files": {},
-      "bytes": {}
-    },
-    "expected": {
-      "stdout": {
-        "kind": "EXACT",
-        "value": "data\n"
-      },
-      "stderr": {
-        "kind": "EXACT",
-        "value": ""
-      },
-      "exitCode": 0,
-      "state": [
-        {
-          "path": "/vfs/~1home~1kali~1b/ino",
-          "differsPath": "/vfs/~1home~1kali~1moved/ino"
-        },
-        {
-          "path": "/vfs/~1home~1kali~1a",
-          "absent": true
-        }
-      ]
-    },
-    "script": "echo data > a; /usr/bin/ln a b; /usr/bin/cp a copy; /usr/bin/mv copy moved; /usr/bin/rm a; /usr/bin/cat b"
-  },
-  {
-    "schemaVersion": 2,
     "id": "coreutils/env/version",
     "softwareId": "coreutils",
     "command": "env",

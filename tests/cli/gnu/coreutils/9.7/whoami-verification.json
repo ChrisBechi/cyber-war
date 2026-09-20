@@ -3,10 +3,10 @@
   "command": "whoami",
   "captureHash": "bca5490c6e7f857b82d495704a82595ccff2dcb6d27bd6e5e0e058095b8fd969",
   "dependencies": {
-    "harnessHash": "0be9b12af5e9d40d6c6c1dab6c20ce21e629374db0755d23ea16754416636739",
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
     "environmentHash": "2ac2cea07d3333007694c92cf12722cd11f18d8314b8448026dd7a4fb08a00d9"
   },
   "cases": 31,
   "identicalRuns": 2,
-  "verifiedAt": "2026-09-19T21:27:21.468114+00:00"
+  "verifiedAt": "2026-09-20T00:49:41.198786+00:00"
 }

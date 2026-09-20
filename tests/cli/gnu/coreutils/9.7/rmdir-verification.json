@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "command": "rmdir",
+  "captureHash": "71335bc3f4ca796e50b3242f41647ed3ed8c354806fa0c8d69a3ad000860beb5",
+  "dependencies": {
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
+    "environmentHash": "6272df3418525ae3e92bba08b3dad81f005cda01c77832f9f787c760342ca513",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
+  },
+  "cases": 341,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-20T02:07:22.467304+00:00"
+}

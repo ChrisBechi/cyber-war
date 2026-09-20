@@ -9,6 +9,34 @@ fn errno<T: std::fmt::Debug>(value: GameResult<T>, expected: Errno) {
     );
 }
 #[test]
+fn directory_descriptors_open_read_only_but_reject_byte_reads() {
+    let mut fs = VirtualFileSystem::default();
+    fs.mkdir(&p("dir"), "kali").unwrap();
+    let reader = OpenFlags {
+        read: true,
+        ..Default::default()
+    };
+    let handle = fs.open(&p("dir"), reader, 0, "kali").unwrap();
+    errno(fs.read_handle(handle, 1), Errno::IsDirectory);
+    errno(
+        fs.open(
+            &p("dir"),
+            OpenFlags {
+                write: true,
+                ..Default::default()
+            },
+            0,
+            "kali",
+        ),
+        Errno::IsDirectory,
+    );
+    fs.chmod(&p("dir"), "kali", 0).unwrap();
+    errno(fs.open(&p("dir"), reader, 0, "kali"), Errno::Access);
+    fs.close(handle).unwrap();
+    assert_eq!(fs.open_handle_count(), 0);
+    fs.check_invariants().unwrap();
+}
+#[test]
 fn inode_identity_links_rename_copy_and_snapshot_are_consistent() {
     let mut fs = VirtualFileSystem::default();
     fs.write(&p("a"), "A", "kali").unwrap();

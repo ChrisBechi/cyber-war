@@ -1,6 +1,16 @@
 //! Observable GNU 9.7 C-locale help/version catalog. See messages/NOTICE.md.
 pub(super) fn message(name: &str, invocation: &str, kind: &str) -> String {
     let template = match (name, kind) {
+        ("rmdir", "help") => include_str!("messages/rmdir-help.txt"),
+        ("rmdir", "version") => include_str!("messages/rmdir-version.txt"),
+        ("ln", "help") => include_str!("messages/ln-help.txt"),
+        ("ln", "version") => include_str!("messages/ln-version.txt"),
+        ("mkdir", "help") => include_str!("messages/mkdir-help.txt"),
+        ("mkdir", "version") => include_str!("messages/mkdir-version.txt"),
+        ("realpath", "help") => include_str!("messages/realpath-help.txt"),
+        ("realpath", "version") => include_str!("messages/realpath-version.txt"),
+        ("readlink", "help") => include_str!("messages/readlink-help.txt"),
+        ("readlink", "version") => include_str!("messages/readlink-version.txt"),
         ("sha256sum", "help") => include_str!("messages/sha256sum-help.txt"),
         ("sha256sum", "version") => include_str!("messages/sha256sum-version.txt"),
         ("wc", "help") => include_str!("messages/wc-help.txt"),

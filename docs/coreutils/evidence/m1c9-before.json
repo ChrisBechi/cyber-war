@@ -1,0 +1,4204 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "e5e79372b702ae4e29ad61b826e7ecb7838d317b",
+  "fingerprint": "e7c115e28430fa88f1f447c66859012108eb35fb282ed80f9b201f5c046f5764",
+  "coreutils": {
+    "VERIFIED": 11,
+    "PARTIAL": 26,
+    "UNVERIFIED": 0
+  },
+  "summary": {
+    "commandNames": 1797,
+    "uniqueExecutables": 1526,
+    "aliases": 1,
+    "launcherNames": 270,
+    "catalogLaunchers": 303,
+    "guiLaunchers": 19,
+    "softwareGroups": 279,
+    "realCompat": 1519,
+    "fictionalNative": 7,
+    "catalogOnly": 1406,
+    "commands": {
+      "VERIFIED": 11,
+      "PARTIAL": 109,
+      "UNVERIFIED": 1406
+    },
+    "software": {
+      "VERIFIED": 0,
+      "PARTIAL": 42,
+      "UNVERIFIED": 237
+    },
+    "commandVerification": {
+      "verified": 11,
+      "total": 1519,
+      "percent": 0.7241606319947334
+    },
+    "softwareVerification": {
+      "verified": 0,
+      "total": 243,
+      "percent": 0
+    },
+    "pinnedSoftware": 12,
+    "unpinnedSoftware": 231,
+    "commandsTested": 20,
+    "gatesPassed": 3970,
+    "requiredGates": {
+      "passed": 3421,
+      "total": 35174
+    },
+    "pilotCases": {
+      "PASS": 2332,
+      "FAIL": 0,
+      "SKIPPED": 0
+    },
+    "flagCasesPassed": 1705,
+    "errorCasesPassed": 922
+  },
+  "hostGuard": {
+    "result": "PASS",
+    "failures": [],
+    "exceptions": [
+      {
+        "path": "src-tauri/src/lib.rs",
+        "fragment": "std::fs::create_dir_all(&data)?;",
+        "reason": "Tauri creates its own application save directory."
+      },
+      {
+        "path": "src-tauri/src/virtual_web/desktop_qa.rs",
+        "reason": "Compiler excludes the entire opted-in QA reporter from release."
+      }
+    ],
+    "note": "Source/build boundary guard, not an OS sandbox proof. Virtual command tests exercise the actual dispatch; there is no host-executor implementation in production."
+  },
+  "commands": {
+    "readlink": {
+      "id": "command.coreutils.readlink",
+      "command": "readlink",
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Only applies to declared aliases.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Only applies to declared aliases."
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version, integration, state; flags without explicit evidence: "
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Runtime registry and validated manifest agree"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Current source/build guard passed"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Version and reference metadata pinned"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        }
+      },
+      "requirement": "REQUIRED",
+      "source": "native",
+      "sources": ["native"],
+      "classification": "REAL_COMPAT",
+      "referenceVersion": "9.7",
+      "executablePath": "/usr/bin/readlink",
+      "packageBindings": [
+        {
+          "packageName": "coreutils",
+          "version": "9.7",
+          "path": "/usr/bin/readlink",
+          "binding": "builtin"
+        }
+      ],
+      "packageName": "coreutils",
+      "availability": "BASE_SYSTEM",
+      "requirements": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "man": {
+        "command": "readlink",
+        "referenceSources": [
+          {
+            "kind": "OFFICIAL_DOCS",
+            "url": "https://www.gnu.org/software/coreutils/",
+            "notes": "Inherited project baseline; no reference execution attestation."
+          }
+        ]
+      },
+      "usedByMissions": [],
+      "coreutils": {
+        "area": "filesystem",
+        "complexity": 1,
+        "before": "PARTIAL",
+        "implementation": "src-tauri/src/terminal.rs",
+        "flags": [],
+        "contracts": [
+          {
+            "id": "invocation",
+            "applicability": "REQUIRED",
+            "description": "Literal symlink target",
+            "evidence": []
+          },
+          {
+            "id": "options",
+            "applicability": "REQUIRED",
+            "description": "Supported options, combinations, --, unknown options and required operands",
+            "evidence": []
+          },
+          {
+            "id": "errors",
+            "applicability": "REQUIRED",
+            "description": "Separate stderr, exact status, partial success and operand order",
+            "evidence": []
+          },
+          {
+            "id": "help-version",
+            "applicability": "REQUIRED",
+            "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+            "evidence": []
+          },
+          {
+            "id": "integration",
+            "applicability": "REQUIRED",
+            "description": "Explicit packaged executable, shell argv, streams and host isolation",
+            "evidence": []
+          },
+          {
+            "id": "state",
+            "applicability": "REQUIRED",
+            "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+            "evidence": []
+          }
+        ],
+        "knownGaps": [
+          "Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+        ],
+        "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+        "referenceRequired": true,
+        "subsystems": [],
+        "intentionalDeviations": [
+          "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+        ]
+      },
+      "blockedBy": [],
+      "missingGates": [
+        "COMBINED_FLAGS",
+        "COMMAND_CONTRACTS",
+        "CROSS_TOOL_CONSISTENCY",
+        "ERRORS",
+        "EXIT_CODE",
+        "GNU_REFERENCE",
+        "HELP",
+        "KNOWN_GAPS",
+        "LONG_FLAGS",
+        "PARSER",
+        "PERMISSIONS",
+        "PIPE",
+        "POSITIONAL_ARGS",
+        "REDIRECTION",
+        "SHORT_FLAGS",
+        "SIDE_EFFECTS",
+        "SIGNALS",
+        "STATE_CONSISTENCY",
+        "STDERR",
+        "STDIN",
+        "STDOUT",
+        "TTY",
+        "VERSION"
+      ],
+      "effectiveStatus": "PARTIAL",
+      "status": "PARTIAL",
+      "evidenceIds": []
+    },
+    "realpath": {
+      "id": "command.coreutils.realpath",
+      "command": "realpath",
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Only applies to declared aliases.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Only applies to declared aliases."
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version, integration, state; flags without explicit evidence: "
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Runtime registry and validated manifest agree"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Current source/build guard passed"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing-target policies, relative output, strip and NUL forms unsupported"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Version and reference metadata pinned"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        }
+      },
+      "requirement": "REQUIRED",
+      "source": "native",
+      "sources": ["native"],
+      "classification": "REAL_COMPAT",
+      "referenceVersion": "9.7",
+      "executablePath": "/usr/bin/realpath",
+      "packageBindings": [
+        {
+          "packageName": "coreutils",
+          "version": "9.7",
+          "path": "/usr/bin/realpath",
+          "binding": "builtin"
+        }
+      ],
+      "packageName": "coreutils",
+      "availability": "BASE_SYSTEM",
+      "requirements": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "man": {
+        "command": "realpath",
+        "referenceSources": [
+          {
+            "kind": "OFFICIAL_DOCS",
+            "url": "https://www.gnu.org/software/coreutils/",
+            "notes": "Inherited project baseline; no reference execution attestation."
+          }
+        ]
+      },
+      "usedByMissions": [],
+      "coreutils": {
+        "area": "filesystem",
+        "complexity": 2,
+        "before": "PARTIAL",
+        "implementation": "src-tauri/src/terminal.rs",
+        "flags": [],
+        "contracts": [
+          {
+            "id": "invocation",
+            "applicability": "REQUIRED",
+            "description": "Resolve existing virtual path through symlinks",
+            "evidence": []
+          },
+          {
+            "id": "options",
+            "applicability": "REQUIRED",
+            "description": "Supported options, combinations, --, unknown options and required operands",
+            "evidence": []
+          },
+          {
+            "id": "errors",
+            "applicability": "REQUIRED",
+            "description": "Separate stderr, exact status, partial success and operand order",
+            "evidence": []
+          },
+          {
+            "id": "help-version",
+            "applicability": "REQUIRED",
+            "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+            "evidence": []
+          },
+          {
+            "id": "integration",
+            "applicability": "REQUIRED",
+            "description": "Explicit packaged executable, shell argv, streams and host isolation",
+            "evidence": []
+          },
+          {
+            "id": "state",
+            "applicability": "REQUIRED",
+            "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+            "evidence": []
+          }
+        ],
+        "knownGaps": ["Missing-target policies, relative output, strip and NUL forms unsupported"],
+        "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+        "referenceRequired": true,
+        "subsystems": [],
+        "intentionalDeviations": [
+          "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+        ]
+      },
+      "blockedBy": [],
+      "missingGates": [
+        "COMBINED_FLAGS",
+        "COMMAND_CONTRACTS",
+        "CROSS_TOOL_CONSISTENCY",
+        "ERRORS",
+        "EXIT_CODE",
+        "GNU_REFERENCE",
+        "HELP",
+        "KNOWN_GAPS",
+        "LONG_FLAGS",
+        "PARSER",
+        "PERMISSIONS",
+        "PIPE",
+        "POSITIONAL_ARGS",
+        "REDIRECTION",
+        "SHORT_FLAGS",
+        "SIDE_EFFECTS",
+        "SIGNALS",
+        "STATE_CONSISTENCY",
+        "STDERR",
+        "STDIN",
+        "STDOUT",
+        "TTY",
+        "VERSION"
+      ],
+      "effectiveStatus": "PARTIAL",
+      "status": "PARTIAL",
+      "evidenceIds": []
+    },
+    "mkdir": {
+      "id": "command.coreutils.mkdir",
+      "command": "mkdir",
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Only applies to declared aliases.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Only applies to declared aliases."
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version, integration, state; flags without explicit evidence: -p, -m, --parents, --mode"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Runtime registry and validated manifest agree"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Current source/build guard passed"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Version and reference metadata pinned"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        }
+      },
+      "requirement": "REQUIRED",
+      "source": "native",
+      "sources": ["native"],
+      "classification": "REAL_COMPAT",
+      "referenceVersion": "9.7",
+      "executablePath": "/usr/bin/mkdir",
+      "packageBindings": [
+        {
+          "packageName": "coreutils",
+          "version": "9.7",
+          "path": "/usr/bin/mkdir",
+          "binding": "builtin"
+        }
+      ],
+      "packageName": "coreutils",
+      "availability": "BASE_SYSTEM",
+      "requirements": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "man": {
+        "command": "mkdir",
+        "referenceSources": [
+          {
+            "kind": "OFFICIAL_DOCS",
+            "url": "https://www.gnu.org/software/coreutils/",
+            "notes": "Inherited project baseline; no reference execution attestation."
+          }
+        ]
+      },
+      "usedByMissions": [],
+      "coreutils": {
+        "area": "filesystem",
+        "complexity": 2,
+        "before": "PARTIAL",
+        "implementation": "src-tauri/src/terminal.rs",
+        "flags": ["-p", "-m", "--parents", "--mode"],
+        "contracts": [
+          {
+            "id": "invocation",
+            "applicability": "REQUIRED",
+            "description": "Virtual directories, parents, octal mode and umask",
+            "evidence": []
+          },
+          {
+            "id": "options",
+            "applicability": "REQUIRED",
+            "description": "Supported options, combinations, --, unknown options and required operands",
+            "evidence": []
+          },
+          {
+            "id": "errors",
+            "applicability": "REQUIRED",
+            "description": "Separate stderr, exact status, partial success and operand order",
+            "evidence": []
+          },
+          {
+            "id": "help-version",
+            "applicability": "REQUIRED",
+            "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+            "evidence": []
+          },
+          {
+            "id": "integration",
+            "applicability": "REQUIRED",
+            "description": "Explicit packaged executable, shell argv, streams and host isolation",
+            "evidence": []
+          },
+          {
+            "id": "state",
+            "applicability": "REQUIRED",
+            "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+            "evidence": []
+          }
+        ],
+        "knownGaps": [
+          "Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+        ],
+        "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+        "referenceRequired": true,
+        "subsystems": [],
+        "intentionalDeviations": [
+          "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+        ]
+      },
+      "blockedBy": [],
+      "missingGates": [
+        "COMBINED_FLAGS",
+        "COMMAND_CONTRACTS",
+        "CROSS_TOOL_CONSISTENCY",
+        "ERRORS",
+        "EXIT_CODE",
+        "GNU_REFERENCE",
+        "HELP",
+        "KNOWN_GAPS",
+        "LONG_FLAGS",
+        "PARSER",
+        "PERMISSIONS",
+        "PIPE",
+        "POSITIONAL_ARGS",
+        "REDIRECTION",
+        "SHORT_FLAGS",
+        "SIDE_EFFECTS",
+        "SIGNALS",
+        "STATE_CONSISTENCY",
+        "STDERR",
+        "STDIN",
+        "STDOUT",
+        "TTY",
+        "VERSION"
+      ],
+      "effectiveStatus": "PARTIAL",
+      "status": "PARTIAL",
+      "evidenceIds": []
+    },
+    "rmdir": {
+      "id": "command.coreutils.rmdir",
+      "command": "rmdir",
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Only applies to declared aliases.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Only applies to declared aliases."
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version, integration, state; flags without explicit evidence: "
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Runtime registry and validated manifest agree"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Current source/build guard passed"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Parents/verbose and multiple-operand partial success not implemented"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Version and reference metadata pinned"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        }
+      },
+      "requirement": "REQUIRED",
+      "source": "native",
+      "sources": ["native"],
+      "classification": "REAL_COMPAT",
+      "referenceVersion": "9.7",
+      "executablePath": "/usr/bin/rmdir",
+      "packageBindings": [
+        {
+          "packageName": "coreutils",
+          "version": "9.7",
+          "path": "/usr/bin/rmdir",
+          "binding": "builtin"
+        }
+      ],
+      "packageName": "coreutils",
+      "availability": "BASE_SYSTEM",
+      "requirements": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "man": {
+        "command": "rmdir",
+        "referenceSources": [
+          {
+            "kind": "OFFICIAL_DOCS",
+            "url": "https://www.gnu.org/software/coreutils/",
+            "notes": "Inherited project baseline; no reference execution attestation."
+          }
+        ]
+      },
+      "usedByMissions": [],
+      "coreutils": {
+        "area": "filesystem",
+        "complexity": 1,
+        "before": "PARTIAL",
+        "implementation": "src-tauri/src/terminal.rs",
+        "flags": [],
+        "contracts": [
+          {
+            "id": "invocation",
+            "applicability": "REQUIRED",
+            "description": "Empty virtual directory removal",
+            "evidence": []
+          },
+          {
+            "id": "options",
+            "applicability": "REQUIRED",
+            "description": "Supported options, combinations, --, unknown options and required operands",
+            "evidence": []
+          },
+          {
+            "id": "errors",
+            "applicability": "REQUIRED",
+            "description": "Separate stderr, exact status, partial success and operand order",
+            "evidence": []
+          },
+          {
+            "id": "help-version",
+            "applicability": "REQUIRED",
+            "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+            "evidence": []
+          },
+          {
+            "id": "integration",
+            "applicability": "REQUIRED",
+            "description": "Explicit packaged executable, shell argv, streams and host isolation",
+            "evidence": []
+          },
+          {
+            "id": "state",
+            "applicability": "REQUIRED",
+            "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+            "evidence": []
+          }
+        ],
+        "knownGaps": ["Parents/verbose and multiple-operand partial success not implemented"],
+        "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+        "referenceRequired": true,
+        "subsystems": [],
+        "intentionalDeviations": [
+          "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+        ]
+      },
+      "blockedBy": [],
+      "missingGates": [
+        "COMBINED_FLAGS",
+        "COMMAND_CONTRACTS",
+        "CROSS_TOOL_CONSISTENCY",
+        "ERRORS",
+        "EXIT_CODE",
+        "GNU_REFERENCE",
+        "HELP",
+        "KNOWN_GAPS",
+        "LONG_FLAGS",
+        "PARSER",
+        "PERMISSIONS",
+        "PIPE",
+        "POSITIONAL_ARGS",
+        "REDIRECTION",
+        "SHORT_FLAGS",
+        "SIDE_EFFECTS",
+        "SIGNALS",
+        "STATE_CONSISTENCY",
+        "STDERR",
+        "STDIN",
+        "STDOUT",
+        "TTY",
+        "VERSION"
+      ],
+      "effectiveStatus": "PARTIAL",
+      "status": "PARTIAL",
+      "evidenceIds": []
+    },
+    "ln": {
+      "id": "command.coreutils.ln",
+      "command": "ln",
+      "softwareId": "coreutils",
+      "implementationKind": "NATIVE",
+      "implementation": "src-tauri/src/terminal.rs",
+      "parserKind": "PROGRAM_SPECIFIC",
+      "resultContract": "LEGACY_STRING",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "aliasOf": null,
+      "gates": {
+        "ALIAS_RESOLUTION": {
+          "applicability": "NOT_APPLICABLE",
+          "reason": "Only applies to declared aliases.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Only applies to declared aliases."
+        },
+        "COMBINED_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "COMMAND_CONTRACTS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Missing/failing required contracts: invocation, options, errors, help-version; flags without explicit evidence: -s, --symbolic"
+        },
+        "CROSS_TOOL_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "DISCOVERY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Runtime registry and validated manifest agree"
+        },
+        "ERRORS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "EXIT_CODE": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"],
+          "result": "PASS",
+          "resultReason": "coreutils/ln/inode-flow: PASS"
+        },
+        "GNU_REFERENCE": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No captured GNU 9.7 evidence; project expectations do not qualify"
+        },
+        "HELP": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "HOST_ISOLATION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Current source/build guard passed"
+        },
+        "KNOWN_GAPS": {
+          "applicability": "REQUIRED",
+          "reason": "All committed contracts need passing project and pinned GNU reference evidence.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "Force, directories, target-directory, backup, verbose and follow policy incomplete"
+        },
+        "LONG_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PARSER": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PERMISSIONS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "PIPE": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "POSITIONAL_ARGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REDIRECTION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "REFERENCE_PINNED": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "PASS",
+          "resultReason": "Version and reference metadata pinned"
+        },
+        "SHORT_FLAGS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIDE_EFFECTS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "SIGNALS": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STATE_CONSISTENCY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDERR": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"],
+          "result": "PASS",
+          "resultReason": "coreutils/ln/inode-flow: PASS"
+        },
+        "STDIN": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "STDOUT": {
+          "applicability": "REQUIRED",
+          "reason": "Linked executable project cases; GNU reference is required separately.",
+          "testIds": ["coreutils/ln/inode-flow"],
+          "result": "PASS",
+          "resultReason": "coreutils/ln/inode-flow: PASS"
+        },
+        "TTY": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        },
+        "VERSION": {
+          "applicability": "REQUIRED",
+          "reason": "Unreviewed gate remains required until a documented applicability decision.",
+          "testIds": [],
+          "result": "SKIPPED",
+          "resultReason": "No linked current evidence"
+        }
+      },
+      "requirement": "REQUIRED",
+      "source": "native",
+      "sources": ["native"],
+      "classification": "REAL_COMPAT",
+      "referenceVersion": "9.7",
+      "executablePath": "/usr/bin/ln",
+      "packageBindings": [
+        {
+          "packageName": "coreutils",
+          "version": "9.7",
+          "path": "/usr/bin/ln",
+          "binding": "builtin"
+        }
+      ],
+      "packageName": "coreutils",
+      "availability": "BASE_SYSTEM",
+      "requirements": [
+        "SHELL.CONTEXT",
+        "SHELL.EXPANSION",
+        "SHELL.GLOBBING",
+        "SHELL.LISTS",
+        "SHELL.PARSING",
+        "SHELL.PIPELINES",
+        "SHELL.REDIRECTION",
+        "VFS.DIRECTORIES",
+        "VFS.HARDLINKS",
+        "VFS.INODES",
+        "VFS.METADATA",
+        "VFS.PATHS",
+        "VFS.PERMISSIONS",
+        "VFS.REGULAR_FILES",
+        "VFS.SPECIAL_PERMISSIONS",
+        "VFS.SYMLINKS",
+        "VFS.TIMESTAMPS"
+      ],
+      "man": {
+        "command": "ln",
+        "referenceSources": [
+          {
+            "kind": "OFFICIAL_DOCS",
+            "url": "https://www.gnu.org/software/coreutils/",
+            "notes": "Inherited project baseline; no reference execution attestation."
+          }
+        ]
+      },
+      "usedByMissions": [],
+      "coreutils": {
+        "area": "filesystem",
+        "complexity": 2,
+        "before": "PARTIAL",
+        "implementation": "src-tauri/src/terminal.rs",
+        "flags": ["-s", "--symbolic"],
+        "contracts": [
+          {
+            "id": "invocation",
+            "applicability": "REQUIRED",
+            "description": "Two-operand hardlinks and textual symlinks",
+            "evidence": []
+          },
+          {
+            "id": "options",
+            "applicability": "REQUIRED",
+            "description": "Supported options, combinations, --, unknown options and required operands",
+            "evidence": []
+          },
+          {
+            "id": "errors",
+            "applicability": "REQUIRED",
+            "description": "Separate stderr, exact status, partial success and operand order",
+            "evidence": []
+          },
+          {
+            "id": "help-version",
+            "applicability": "REQUIRED",
+            "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+            "evidence": []
+          },
+          {
+            "id": "integration",
+            "applicability": "REQUIRED",
+            "description": "Explicit packaged executable, shell argv, streams and host isolation",
+            "evidence": ["coreutils/ln/inode-flow"]
+          },
+          {
+            "id": "state",
+            "applicability": "REQUIRED",
+            "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+            "evidence": ["coreutils/ln/inode-flow"]
+          }
+        ],
+        "knownGaps": [
+          "Force, directories, target-directory, backup, verbose and follow policy incomplete"
+        ],
+        "unsupportedFlagsPolicy": "Reject unrecognized/unimplemented options; legacy parser gaps remain required blockers.",
+        "referenceRequired": true,
+        "subsystems": [],
+        "intentionalDeviations": [
+          "Bounded virtual resources, C/C.UTF-8 locale, virtual identities/ticks, subset help and baseline-only version line."
+        ]
+      },
+      "blockedBy": [],
+      "missingGates": [
+        "COMBINED_FLAGS",
+        "COMMAND_CONTRACTS",
+        "CROSS_TOOL_CONSISTENCY",
+        "ERRORS",
+        "GNU_REFERENCE",
+        "HELP",
+        "KNOWN_GAPS",
+        "LONG_FLAGS",
+        "PARSER",
+        "PERMISSIONS",
+        "PIPE",
+        "POSITIONAL_ARGS",
+        "REDIRECTION",
+        "SHORT_FLAGS",
+        "SIDE_EFFECTS",
+        "SIGNALS",
+        "STATE_CONSISTENCY",
+        "STDIN",
+        "TTY",
+        "VERSION"
+      ],
+      "effectiveStatus": "PARTIAL",
+      "status": "PARTIAL",
+      "evidenceIds": ["coreutils/ln/inode-flow"]
+    }
+  },
+  "queue": [
+    {
+      "command": "readlink",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Literal symlink target",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 1,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Canonicalization flags, quiet/verbose, no-newline and multi-operand behavior incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "rmdir",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Empty virtual directory removal",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 1,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Parents/verbose and multiple-operand partial success not implemented"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "ln",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-s", "--symbolic"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Two-operand hardlinks and textual symlinks",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/ln/inode-flow"],
+          "result": "PASS"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": ["coreutils/ln/inode-flow"],
+          "result": "PASS"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 1,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 6,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Force, directories, target-directory, backup, verbose and follow policy incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "mkdir",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-p", "-m", "--parents", "--mode"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual directories, parents, octal mode and umask",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Symbolic mode, precise intermediate-directory modes and partial operand failures need work"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "realpath",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Resolve existing virtual path through symlinks",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Missing-target policies, relative output, strip and NUL forms unsupported"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "stat",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-L", "-c", "--dereference", "--format"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Inode metadata, lstat default; %i %h %a %u %g %s %n %F %X %Y %Z %%",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Filesystem mode, printf, complete formats and GNU default layout incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "touch",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-c", "--no-create"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Create or update virtual file timestamps",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Separate atime/mtime, reference/date/timestamp forms unsupported"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "ls",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-1", "-a", "-A", "-l", "-d", "-F", "-h", "-r", "-S", "-t", "-R", "--color"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual listings, metadata, sorting, recursion and TTY color subset",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 3,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 11,
+      "blockers": [
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:ERRORS",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:REDIRECTION",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Column layout, GNU quoting, LS_COLORS, block accounting and many flags incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "chmod",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-R", "-v", "--recursive", "--verbose"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Octal and explicit symbolic classes; shared inode modes",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Class-copy, implicit umask, symlink traversal and partial errors need audit"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "chown",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_query.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-R", "-v", "--recursive", "--verbose"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Known virtual users/groups, root authorization and inode ownership",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 3,
+      "area": "filesystem",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Numeric IDs, follow policies and partial success incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "cp",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_transfer.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [
+        "-r",
+        "-R",
+        "-n",
+        "-v",
+        "-f",
+        "-u",
+        "-T",
+        "-P",
+        "-t",
+        "--recursive",
+        "--no-clobber",
+        "--verbose",
+        "--force",
+        "--no-dereference",
+        "--target-directory",
+        "--no-target-directory"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual copy, independent inode, bounded recursive merge, multiple operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 4,
+      "area": "manipulation",
+      "complexity": 4,
+      "missionUses": ["pendrive", "vex-production"],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive/preserve/archive/backup/link flags and full dereference matrix incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "mv",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_transfer.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [
+        "-n",
+        "-v",
+        "-f",
+        "-u",
+        "-T",
+        "-t",
+        "--no-clobber",
+        "--verbose",
+        "--force",
+        "--target-directory",
+        "--no-target-directory"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual rename preserves inode; multiple sources and overwrite subset",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 4,
+      "area": "manipulation",
+      "complexity": 4,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive, backup, exchange and cross-mount moves unsupported"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "rm",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_remove.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-r", "-R", "-f", "-v", "-d", "--recursive", "--force", "--verbose", "--dir"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Unlink and bounded recursive removal, permissions and sticky directories",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "state",
+          "applicability": "REQUIRED",
+          "description": "Inode relations, permissions, symlinks, metadata and partial failures",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 4,
+      "area": "manipulation",
+      "complexity": 4,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Interactive, one-filesystem and full preserve-root option semantics unsupported"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "seq",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-s", "--separator"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Bounded numeric sequence",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 5,
+      "area": "text",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Floating precision, format, equal-width and GNU errors need audit"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "uniq",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [
+        "-c",
+        "-d",
+        "-u",
+        "-i",
+        "-z",
+        "-f",
+        "-s",
+        "-w",
+        "--count",
+        "--repeated",
+        "--unique",
+        "--ignore-case",
+        "--skip-fields",
+        "--skip-chars",
+        "--check-chars",
+        "--zero-terminated"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Adjacent text grouping with counts and skip/width subset",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 5,
+      "area": "text",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Arbitrary bytes, complete locale folding and group separator forms incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "cut",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-d", "-f", "--delimiter", "--fields"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Text field selection",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 5,
+      "area": "text",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Byte/character ranges, complement, output delimiter and binary input incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "sort",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal_text.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [
+        "-b",
+        "-n",
+        "-f",
+        "-r",
+        "-u",
+        "-s",
+        "-c",
+        "-C",
+        "-z",
+        "-o",
+        "--numeric-sort",
+        "--reverse",
+        "--unique",
+        "--stable",
+        "--ignore-case",
+        "--ignore-leading-blanks",
+        "--check",
+        "--output",
+        "--zero-terminated"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Deterministic byte collation of UTF-8 text, decimal comparison and adjacent keys",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 5,
+      "area": "text",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Field keys, binary records, merge/external sort and additional numeric modes incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "tr",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-d"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Simple text replacement/deletion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "bytes",
+          "applicability": "REQUIRED",
+          "description": "NUL, invalid UTF-8, empty and bounded large input; no lossy semantic conversion",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 5,
+      "area": "text",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Classes, ranges, squeeze, complement and binary sets incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "id",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual identity display",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 2,
+      "missionUses": [
+        "first-boot",
+        "v1",
+        "v2",
+        "wifi",
+        "pendrive",
+        "forum-job",
+        "vex-setup",
+        "vex-production",
+        "vex-incident",
+        "girl",
+        "signal-no-ar",
+        "em-claro"
+      ],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Flags, users, supplementary group membership and GNU formatting incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "yes",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Incremental virtual producer with backpressure and cancellation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/yes/bounded"],
+          "result": "PASS"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 1,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 6,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Help/version and dash-leading operands need audit",
+        "GAP:interactive terminal output has 4 MiB cap"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "groups",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual group labels",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Group output is legacy simulation",
+        "GAP:real identity membership not fully integrated"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "uname",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [
+        "-a",
+        "-s",
+        "-n",
+        "-r",
+        "-v",
+        "-m",
+        "-p",
+        "-i",
+        "-o",
+        "--all",
+        "--kernel-name",
+        "--nodename",
+        "--kernel-release",
+        "--kernel-version",
+        "--machine",
+        "--processor",
+        "--hardware-platform",
+        "--operating-system"
+      ],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual kernel/platform fields",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 2,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Values intentionally virtual",
+        "GAP:parser, ordering and errors need evidence"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "date",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": [],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Virtual elapsed seconds and fixed-date display",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:General format/timezone/parsing and scheduler clock semantics incomplete"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "df",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-h", "--human-readable"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Logical virtual capacity report",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 7,
+      "area": "advanced",
+      "complexity": 4,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:No real block allocation or mounts",
+        "GAP:GNU df cannot be certified from these numbers"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "du",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/terminal.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-h", "-s", "--human-readable", "--summarize"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Logical virtual size traversal",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": [],
+          "result": "NO_EVIDENCE"
+        }
+      ],
+      "wave": 7,
+      "area": "advanced",
+      "complexity": 4,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 0,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 3,
+      "blockers": [
+        "GATE:COMBINED_FLAGS",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:ERRORS",
+        "GATE:EXIT_CODE",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:LONG_FLAGS",
+        "GATE:PARSER",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:POSITIONAL_ARGS",
+        "GATE:REDIRECTION",
+        "GATE:SHORT_FLAGS",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDERR",
+        "GATE:STDIN",
+        "GATE:STDOUT",
+        "GATE:TTY",
+        "GATE:VERSION",
+        "GAP:Hardlink deduplication, block sizes, dereference policies and GNU layout need audit"
+      ],
+      "action": "NEEDS_IMPLEMENTATION_AND_EVIDENCE"
+    },
+    {
+      "command": "env",
+      "aliases": [],
+      "baseline": "9.7",
+      "implementation": "src-tauri/src/coreutils/foundation.rs",
+      "implementationKind": "NATIVE",
+      "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+      "flags": ["-i", "-u", "--ignore-environment", "--unset"],
+      "contracts": [
+        {
+          "id": "invocation",
+          "applicability": "REQUIRED",
+          "description": "Temporary environment and virtual command execution",
+          "evidence": ["coreutils/env/assign"],
+          "result": "PASS"
+        },
+        {
+          "id": "options",
+          "applicability": "REQUIRED",
+          "description": "Supported options, combinations, --, unknown options and required operands",
+          "evidence": [
+            "coreutils/env/empty",
+            "coreutils/env/unset",
+            "coreutils/env/unknown-option",
+            "coreutils/env/child-version",
+            "coreutils/env/no-shell-builtins"
+          ],
+          "result": "PASS"
+        },
+        {
+          "id": "errors",
+          "applicability": "REQUIRED",
+          "description": "Separate stderr, exact status, partial success and operand order",
+          "evidence": ["coreutils/env/unset", "coreutils/env/unknown-option"],
+          "result": "PASS"
+        },
+        {
+          "id": "help-version",
+          "applicability": "REQUIRED",
+          "description": "Truthful subset help and manifest baseline; full GNU banners remain a documented deviation",
+          "evidence": ["coreutils/env/version"],
+          "result": "PASS"
+        },
+        {
+          "id": "integration",
+          "applicability": "REQUIRED",
+          "description": "Explicit packaged executable, shell argv, streams and host isolation",
+          "evidence": ["coreutils/env/child"],
+          "result": "PASS"
+        }
+      ],
+      "wave": 6,
+      "area": "execution",
+      "complexity": 3,
+      "missionUses": [],
+      "before": "PARTIAL",
+      "after": "PARTIAL",
+      "projectCases": 8,
+      "referenceCases": 0,
+      "referenceState": "SKIPPED",
+      "matchedReferenceCases": 0,
+      "requiredGates": 26,
+      "passedGates": 13,
+      "blockers": [
+        "SUBSYSTEM:SHELL.JOBS:PARTIAL",
+        "GATE:COMMAND_CONTRACTS",
+        "GATE:CROSS_TOOL_CONSISTENCY",
+        "GATE:GNU_REFERENCE",
+        "GATE:HELP",
+        "GATE:KNOWN_GAPS",
+        "GATE:PERMISSIONS",
+        "GATE:PIPE",
+        "GATE:REDIRECTION",
+        "GATE:SIDE_EFFECTS",
+        "GATE:SIGNALS",
+        "GATE:STATE_CONSISTENCY",
+        "GATE:STDIN",
+        "GATE:TTY",
+        "GAP:Split-string, chdir, signals, arbitrary environment variable names and executable-only lookup still need audit"
+      ],
+      "action": "NEEDS_SUBSYSTEM"
+    }
+  ],
+  "previousVerified": [
+    {
+      "command": "basename",
+      "gnuMatches": 48,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "printenv",
+      "gnuMatches": 36,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "whoami",
+      "gnuMatches": 31,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "dirname",
+      "gnuMatches": 27,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "wc",
+      "gnuMatches": 421,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "tail",
+      "gnuMatches": 306,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "base64",
+      "gnuMatches": 304,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "head",
+      "gnuMatches": 215,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "tee",
+      "gnuMatches": 162,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "cat",
+      "gnuMatches": 91,
+      "status": "VERIFIED"
+    },
+    {
+      "command": "sha256sum",
+      "gnuMatches": 585,
+      "status": "VERIFIED"
+    }
+  ],
+  "previousFingerprint": "e7c115e28430fa88f1f447c66859012108eb35fb282ed80f9b201f5c046f5764"
+}

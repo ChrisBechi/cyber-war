@@ -3,10 +3,10 @@
   "command": "basename",
   "captureHash": "4febf941c657f094e538d1aea7f90016ab7b763600948cc6735eb2eaf2db938d",
   "dependencies": {
-    "harnessHash": "0be9b12af5e9d40d6c6c1dab6c20ce21e629374db0755d23ea16754416636739",
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
     "environmentHash": "ef2282cbce5b110ef1d958eabe5c0e8b669848fe62319608d1cf4685e3e2490b"
   },
   "cases": 48,
   "identicalRuns": 2,
-  "verifiedAt": "2026-09-19T21:27:04.800597+00:00"
+  "verifiedAt": "2026-09-20T00:49:07.545482+00:00"
 }

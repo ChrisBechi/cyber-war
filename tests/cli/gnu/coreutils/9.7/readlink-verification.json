@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "command": "readlink",
+  "captureHash": "156d69728354a8d8c3298b93bb03c521a32254fd4b10e890c0579f0d2b0337b4",
+  "dependencies": {
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
+    "environmentHash": "a864c8fd7da9d4765f911b08126ffe1e01d3f1f40653840c766354bb3b552516",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
+  },
+  "cases": 309,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-20T01:30:04.196375+00:00"
+}

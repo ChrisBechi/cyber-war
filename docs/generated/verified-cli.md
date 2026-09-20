@@ -7,7 +7,12 @@
 | cat       | coreutils |               |            |
 | dirname   | coreutils |               |            |
 | head      | coreutils |               |            |
+| ln        | coreutils |               |            |
+| mkdir     | coreutils |               |            |
 | printenv  | coreutils |               |            |
+| readlink  | coreutils |               |            |
+| realpath  | coreutils |               |            |
+| rmdir     | coreutils |               |            |
 | sha256sum | coreutils |               |            |
 | tail      | coreutils |               |            |
 | tee       | coreutils |               |            |

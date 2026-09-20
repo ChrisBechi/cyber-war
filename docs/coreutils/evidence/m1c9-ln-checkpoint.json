@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "command": "ln",
+    "aliases": [],
+    "baseline": "9.7",
+    "implementation": "src-tauri/src/coreutils/links.rs",
+    "implementationKind": "NATIVE",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR", "TTY", "SIGNALS"],
+    "flags": [
+      "-b",
+      "-d",
+      "-F",
+      "-f",
+      "-i",
+      "-L",
+      "-n",
+      "-P",
+      "-r",
+      "-s",
+      "-S",
+      "-t",
+      "-T",
+      "-v",
+      "--backup",
+      "--directory",
+      "--no-dereference",
+      "--no-target-directory",
+      "--force",
+      "--interactive",
+      "--suffix",
+      "--target-directory",
+      "--logical",
+      "--physical",
+      "--relative",
+      "--symbolic",
+      "--verbose",
+      "--help",
+      "--version"
+    ],
+    "contracts": [
+      {
+        "id": "invocation",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln invocation observable behavior",
+        "result": "PASS",
+        "evidenceCount": 1
+      },
+      {
+        "id": "options",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln options observable behavior",
+        "result": "PASS",
+        "evidenceCount": 71
+      },
+      {
+        "id": "errors",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln errors observable behavior",
+        "result": "PASS",
+        "evidenceCount": 248
+      },
+      {
+        "id": "help-version",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln help-version observable behavior",
+        "result": "PASS",
+        "evidenceCount": 9
+      },
+      {
+        "id": "integration",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln integration observable behavior",
+        "result": "PASS",
+        "evidenceCount": 4
+      },
+      {
+        "id": "diagnostics",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln diagnostics observable behavior",
+        "result": "PASS",
+        "evidenceCount": 11
+      },
+      {
+        "id": "state",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln state observable behavior",
+        "result": "PASS",
+        "evidenceCount": 591
+      },
+      {
+        "id": "hardlinks",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln hardlinks observable behavior",
+        "result": "PASS",
+        "evidenceCount": 122
+      },
+      {
+        "id": "symlinks",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln symlinks observable behavior",
+        "result": "PASS",
+        "evidenceCount": 86
+      },
+      {
+        "id": "destinations",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln destinations observable behavior",
+        "result": "PASS",
+        "evidenceCount": 179
+      },
+      {
+        "id": "relative",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln relative observable behavior",
+        "result": "PASS",
+        "evidenceCount": 64
+      },
+      {
+        "id": "backup",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln backup observable behavior",
+        "result": "PASS",
+        "evidenceCount": 65
+      },
+      {
+        "id": "interactive",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln interactive observable behavior",
+        "result": "PASS",
+        "evidenceCount": 58
+      },
+      {
+        "id": "signals",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln signals observable behavior",
+        "result": "PASS",
+        "evidenceCount": 3
+      },
+      {
+        "id": "permissions",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln permissions observable behavior",
+        "result": "PASS",
+        "evidenceCount": 11
+      },
+      {
+        "id": "partial-effects",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln partial-effects observable behavior",
+        "result": "PASS",
+        "evidenceCount": 26
+      },
+      {
+        "id": "same-file",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 ln same-file observable behavior",
+        "result": "PASS",
+        "evidenceCount": 43
+      }
+    ],
+    "wave": 3,
+    "area": "filesystem",
+    "complexity": 2,
+    "missionUses": [],
+    "before": "PARTIAL",
+    "after": "VERIFIED",
+    "projectCases": 591,
+    "referenceCases": 591,
+    "referenceState": "PASS",
+    "matchedReferenceCases": 591,
+    "requiredGates": 26,
+    "passedGates": 26,
+    "blockers": [],
+    "action": "NEEDS_REMAINING_GATES"
+  },
+  "strict": {
+    "schemaVersion": 2,
+    "passed": true,
+    "strict": true,
+    "errors": [],
+    "summary": {
+      "commandNames": 1797,
+      "uniqueExecutables": 1526,
+      "aliases": 1,
+      "launcherNames": 270,
+      "catalogLaunchers": 303,
+      "guiLaunchers": 19,
+      "softwareGroups": 279,
+      "realCompat": 1519,
+      "fictionalNative": 7,
+      "catalogOnly": 1406,
+      "commands": {
+        "VERIFIED": 2,
+        "PARTIAL": 118,
+        "UNVERIFIED": 1406
+      },
+      "software": {
+        "VERIFIED": 0,
+        "PARTIAL": 42,
+        "UNVERIFIED": 237
+      },
+      "commandVerification": {
+        "verified": 2,
+        "total": 1519,
+        "percent": 0.1316655694535879
+      },
+      "softwareVerification": {
+        "verified": 0,
+        "total": 243,
+        "percent": 0
+      },
+      "pinnedSoftware": 12,
+      "unpinnedSoftware": 231,
+      "commandsTested": 3,
+      "gatesPassed": 3759,
+      "requiredGates": {
+        "passed": 3214,
+        "total": 35162
+      },
+      "pilotCases": {
+        "PASS": 982,
+        "FAIL": 0,
+        "SKIPPED": 3399
+      },
+      "flagCasesPassed": 753,
+      "errorCasesPassed": 401
+    }
+  },
+  "executedAt": "2026-09-20T02:49:31.445Z",
+  "fingerprint": null,
+  "caseFingerprintCount": 591,
+  "goldenHash": "f8fd5102d419bc8d9103f4409fe5051028110ff9221a96f69c5f4b10edd14e51",
+  "strictLogHash": "d359a8ed3fe7e5150f8fbc326957ceea8987064ea83ca1547db7c68ee0484343"
+}

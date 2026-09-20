@@ -40,7 +40,7 @@ def request(case):
             'argv': case['argv'], 'stdinHex': case.get('stdinHex', (case.get('stdin') or '').encode().hex()),
             'env': case['env'], 'cwd': case['cwd'], 'fixture': {k: case.get('fixture', {}).get(k, [] if k in ['directories', 'setup'] else {}) for k in ['files', 'bytes', 'directories', 'modes', 'setup']},
             'process': case.get('process'), 'transport': case.get('transport', 'direct')}
-    if case['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'}:
+    if case['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
         req.update(io=case.get('io'), interaction=case.get('interaction'))
         req['fixture'].update({k: case.get('fixture', {}).get(k, {}) for k in ['hardlinks', 'symlinks']})
     return req
@@ -99,8 +99,9 @@ def environment(req):
 def worker(path):
     req = json.loads(Path(path).read_text())
     env = environment(req)
+    os.umask((req.get('process') or {}).get('umask', 0o022))
     argv = [req['invocation'], *req['argv']]
-    if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'}:
+    if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
         if (req.get('interaction') or {}).get('schemaVersion') == 2:
             from coreutils_follow import execute
         else:
@@ -172,6 +173,7 @@ def capture(case, bwrap):
         request_file = sandbox / 'request.json'
         request_file.write_text(canonical(req), encoding='utf-8')
         before = snapshot(home)
+        root_links_before = home.stat().st_nlink
         cmd = [bwrap, '--unshare-all', '--die-with-parent', '--new-session', '--uid', str(uid), '--gid', str(uid)]
         for path in ['/usr', '/bin', '/lib', '/lib64']:
             if Path(path).exists():
@@ -197,10 +199,12 @@ def capture(case, bwrap):
         result = {'id': req['id'], 'request': req, 'requestDigest': sha(canonical(req).encode()),
                 'stdoutHex': out.hex(), 'stderrHex': err.hex(), 'exitCode': completed.returncode,
                 'before': before, 'after': snapshot(home)}
-        if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'}:
+        if req['command'] in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
             if completed.returncode != 0 or not out:
                 raise RuntimeError(f'Worker failed for {case["id"]}: status={completed.returncode}, stderr={err[:4000]!r}')
             result.update(json.loads(out))
+        if req['command'] in {'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
+            result['rootLinkDelta'] = home.stat().st_nlink - root_links_before
         return result
 
 
@@ -270,7 +274,7 @@ def main():
         payload = {'schemaVersion': 2, 'provenance': 'GNU_PROBE' if args.probe else 'GNU_REFERENCE', 'version': version,
                    'command': name, 'locale': 'C', 'capturedAt': datetime.now(timezone.utc).isoformat(),
                    'harnessHash': source_hash(HARNESS_PATH), 'environment': {**env, 'binaryHashes': {name: binaries[name]}}, 'cases': rows}
-        if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'}:
+        if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
             payload.update(schemaVersion=3, interactionHash=source_hash('scripts/cli/coreutils_interaction.py'))
         if name == 'tail':
             payload.update(schemaVersion=4, followHash=source_hash('scripts/cli/coreutils_follow.py'))
@@ -280,12 +284,12 @@ def main():
             receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else None
             dependencies = {'harnessHash': source_hash(HARNESS_PATH),
                             'environmentHash': sha(canonical({**lock, 'binaryHashes': {name: lock['binaryHashes'][name]}}).encode())}
-            if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'}:
+            if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'}:
                 dependencies['interactionHash'] = source_hash('scripts/cli/coreutils_interaction.py')
             if name == 'tail':
                 dependencies['followHash'] = source_hash('scripts/cli/coreutils_follow.py')
             refreshed = args.record_verification or (receipt and receipt.get('captureHash') == source_hash(str(target)) and receipt.get('dependencies') == dependencies)
-            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'} else []) + (['followHash'] if name == 'tail' else []):
+            for key in ['schemaVersion', 'provenance', 'version', 'command', 'locale', 'harnessHash', 'environment', 'cases'] + (['interactionHash'] if name in {'cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum', 'readlink', 'realpath', 'mkdir', 'rmdir', 'ln'} else []) + (['followHash'] if name == 'tail' else []):
                 before, after = original[key], payload[key]
                 if refreshed and key in ['harnessHash', 'interactionHash', 'followHash']:
                     continue

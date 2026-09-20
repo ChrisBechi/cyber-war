@@ -1018,7 +1018,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | llvm-windres                  | src-tauri/src/software.rs::command    |
 | llvm-xray                     | src-tauri/src/software.rs::command    |
 | llvm-yaml-bench               | src-tauri/src/software.rs::command    |
-| ln                            | src-tauri/src/terminal.rs             |
 | locktest                      | src-tauri/src/software.rs::command    |
 | logger                        | src-tauri/src/software.rs::command    |
 | login                         | src-tauri/src/software.rs::command    |
@@ -1077,7 +1076,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | mitmdump                      | src-tauri/src/software.rs::command    |
 | mitmproxy                     | src-tauri/src/software.rs::command    |
 | mitmweb                       | src-tauri/src/software.rs::command    |
-| mkdir                         | src-tauri/src/terminal.rs             |
 | mkfs                          | src-tauri/src/software.rs::command    |
 | mkfs.bfs                      | src-tauri/src/software.rs::command    |
 | mkfs.cramfs                   | src-tauri/src/software.rs::command    |
@@ -1337,9 +1335,7 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | rax2                          | src-tauri/src/software.rs::command    |
 | rctest                        | src-tauri/src/software.rs::command    |
 | rdesktop                      | src-tauri/src/software.rs::command    |
-| readlink                      | src-tauri/src/terminal.rs             |
 | readprofile                   | src-tauri/src/software.rs::command    |
-| realpath                      | src-tauri/src/terminal.rs             |
 | reaver                        | src-tauri/src/software.rs::command    |
 | recon-cli                     | src-tauri/src/software.rs::command    |
 | recon-ng                      | src-tauri/src/software.rs::command    |
@@ -1371,7 +1367,6 @@ These handlers still return GameResult<String>. Dispatch wraps them in the exist
 | rfcomm-tester                 | src-tauri/src/software.rs::command    |
 | rfkill                        | src-tauri/src/software.rs::command    |
 | rlogin-cwd                    | src-tauri/src/software.rs::command    |
-| rmdir                         | src-tauri/src/terminal.rs             |
 | rndc                          | src-tauri/src/software.rs::command    |
 | rndc-confgen                  | src-tauri/src/software.rs::command    |
 | root-terminal                 | src-tauri/src/software.rs::command    |

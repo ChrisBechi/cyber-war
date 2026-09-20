@@ -36,7 +36,22 @@ export function referenceRequest(c) {
     process: c.process ?? null,
     transport: c.transport ?? 'direct',
   };
-  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(c.command)) {
+  if (
+    [
+      'cat',
+      'head',
+      'tail',
+      'base64',
+      'tee',
+      'wc',
+      'sha256sum',
+      'readlink',
+      'realpath',
+      'mkdir',
+      'rmdir',
+      'ln',
+    ].includes(c.command)
+  ) {
     request.io = c.io ?? null;
     request.interaction = c.interaction ?? null;
     for (const key of ['hardlinks', 'symlinks']) request.fixture[key] = c.fixture?.[key] ?? {};
@@ -62,7 +77,20 @@ export function verificationFresh(command, capture) {
     environmentHash: hash(
       canonical({ ...lock, binaryHashes: { [command]: lock.binaryHashes[command] } }),
     ),
-    ...(['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(command)
+    ...([
+      'cat',
+      'head',
+      'tail',
+      'base64',
+      'tee',
+      'wc',
+      'sha256sum',
+      'readlink',
+      'realpath',
+      'mkdir',
+      'rmdir',
+      'ln',
+    ].includes(command)
       ? { interactionHash: sourceHash('scripts/cli/coreutils_interaction.py') }
       : {}),
     ...(command === 'tail' ? { followHash: sourceHash('scripts/cli/coreutils_follow.py') } : {}),
@@ -86,7 +114,19 @@ export function validateReference(command, capture) {
     capture.schemaVersion !==
       (command.command === 'tail'
         ? 4
-        : ['cat', 'head', 'base64', 'tee', 'wc', 'sha256sum'].includes(command.command)
+        : [
+              'cat',
+              'head',
+              'base64',
+              'tee',
+              'wc',
+              'sha256sum',
+              'readlink',
+              'realpath',
+              'mkdir',
+              'rmdir',
+              'ln',
+            ].includes(command.command)
           ? 3
           : 2) ||
     capture.provenance !== 'GNU_REFERENCE' ||
@@ -98,7 +138,20 @@ export function validateReference(command, capture) {
     return 'Reference provenance/baseline/schema/locale mismatch';
   if (
     !refreshed &&
-    ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(command.command) &&
+    [
+      'cat',
+      'head',
+      'tail',
+      'base64',
+      'tee',
+      'wc',
+      'sha256sum',
+      'readlink',
+      'realpath',
+      'mkdir',
+      'rmdir',
+      'ln',
+    ].includes(command.command) &&
     capture.interactionHash !== sourceHash('scripts/cli/coreutils_interaction.py')
   )
     return 'Reference interaction harness fingerprint stale';
@@ -170,7 +223,22 @@ export function referenceDifference(test, actual, row) {
   }
   if (row.exitCode !== actual.exitCode)
     errors.push(`status GNU=${row.exitCode} project=${actual.exitCode}`);
-  if (['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)) {
+  if (
+    [
+      'cat',
+      'head',
+      'tail',
+      'base64',
+      'tee',
+      'wc',
+      'sha256sum',
+      'readlink',
+      'realpath',
+      'mkdir',
+      'rmdir',
+      'ln',
+    ].includes(test.command)
+  ) {
     const io = test.io ?? {};
     const endpoints = {
       stdin:
@@ -229,7 +297,13 @@ export function referenceDifference(test, actual, row) {
           errors.push(`${path}/inode relationship differs from GNU`);
       pairs.push([expected.inodeGroup, observed.ino]);
     }
-    const stable = (nodes) =>
+    const fsWave = ['readlink', 'realpath', 'mkdir', 'rmdir', 'ln'].includes(test.command);
+    if (
+      fsWave &&
+      nodes['/home/kali']?.nlink - actual.before.vfs['/home/kali']?.nlink !== row.rootLinkDelta
+    )
+      errors.push('Home directory link-count delta differs from GNU');
+    const stable = (nodes, after = false) =>
       Object.fromEntries(
         Object.entries(nodes)
           .filter(
@@ -246,11 +320,11 @@ export function referenceDifference(test, actual, row) {
               blob: n.blob ?? null,
               mode: n.mode,
               ino: n.ino,
-              nlink: n.nlink,
+              nlink: n.nlink - (fsWave && after && p === '/home/kali' ? row.rootLinkDelta : 0),
             },
           ]),
       );
-    if (canonical(stable(actual.before.vfs)) !== canonical(stable(nodes)))
+    if (canonical(stable(actual.before.vfs)) !== canonical(stable(nodes, true)))
       errors.push('Unexpected project filesystem mutation');
     return errors.join('; ') || null;
   }

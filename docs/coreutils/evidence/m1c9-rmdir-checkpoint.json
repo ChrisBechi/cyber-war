@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "command": "rmdir",
+    "aliases": [],
+    "baseline": "9.7",
+    "implementation": "src-tauri/src/coreutils/directories.rs",
+    "implementationKind": "NATIVE",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "flags": [
+      "-p",
+      "-v",
+      "--parents",
+      "--path",
+      "--verbose",
+      "--ignore-fail-on-non-empty",
+      "--help",
+      "--version"
+    ],
+    "contracts": [
+      {
+        "id": "invocation",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir invocation observable behavior",
+        "result": "PASS",
+        "evidenceCount": 1
+      },
+      {
+        "id": "options",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir options observable behavior",
+        "result": "PASS",
+        "evidenceCount": 24
+      },
+      {
+        "id": "errors",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir errors observable behavior",
+        "result": "PASS",
+        "evidenceCount": 260
+      },
+      {
+        "id": "help-version",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir help-version observable behavior",
+        "result": "PASS",
+        "evidenceCount": 4
+      },
+      {
+        "id": "integration",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir integration observable behavior",
+        "result": "PASS",
+        "evidenceCount": 2
+      },
+      {
+        "id": "diagnostics",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir diagnostics observable behavior",
+        "result": "PASS",
+        "evidenceCount": 14
+      },
+      {
+        "id": "state",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir state observable behavior",
+        "result": "PASS",
+        "evidenceCount": 341
+      },
+      {
+        "id": "removal",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir removal observable behavior",
+        "result": "PASS",
+        "evidenceCount": 69
+      },
+      {
+        "id": "parents",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir parents observable behavior",
+        "result": "PASS",
+        "evidenceCount": 122
+      },
+      {
+        "id": "ignore-nonempty",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir ignore-nonempty observable behavior",
+        "result": "PASS",
+        "evidenceCount": 140
+      },
+      {
+        "id": "partial-effects",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir partial-effects observable behavior",
+        "result": "PASS",
+        "evidenceCount": 124
+      },
+      {
+        "id": "link-resolution",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir link-resolution observable behavior",
+        "result": "PASS",
+        "evidenceCount": 92
+      },
+      {
+        "id": "permissions",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir permissions observable behavior",
+        "result": "PASS",
+        "evidenceCount": 36
+      },
+      {
+        "id": "verbose",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 rmdir verbose observable behavior",
+        "result": "PASS",
+        "evidenceCount": 138
+      }
+    ],
+    "wave": 3,
+    "area": "filesystem",
+    "complexity": 1,
+    "missionUses": [],
+    "before": "PARTIAL",
+    "after": "VERIFIED",
+    "projectCases": 341,
+    "referenceCases": 341,
+    "referenceState": "PASS",
+    "matchedReferenceCases": 341,
+    "requiredGates": 23,
+    "passedGates": 23,
+    "blockers": [],
+    "action": "NEEDS_REMAINING_GATES"
+  },
+  "strict": {
+    "schemaVersion": 2,
+    "passed": true,
+    "strict": true,
+    "errors": [],
+    "summary": {
+      "commandNames": 1797,
+      "uniqueExecutables": 1526,
+      "aliases": 1,
+      "launcherNames": 270,
+      "catalogLaunchers": 303,
+      "guiLaunchers": 19,
+      "softwareGroups": 279,
+      "realCompat": 1519,
+      "fictionalNative": 7,
+      "catalogOnly": 1406,
+      "commands": {
+        "VERIFIED": 1,
+        "PARTIAL": 119,
+        "UNVERIFIED": 1406
+      },
+      "software": {
+        "VERIFIED": 0,
+        "PARTIAL": 42,
+        "UNVERIFIED": 237
+      },
+      "commandVerification": {
+        "verified": 1,
+        "total": 1519,
+        "percent": 0.06583278472679395
+      },
+      "softwareVerification": {
+        "verified": 0,
+        "total": 243,
+        "percent": 0
+      },
+      "pinnedSoftware": 12,
+      "unpinnedSoftware": 231,
+      "commandsTested": 3,
+      "gatesPassed": 3735,
+      "requiredGates": {
+        "passed": 3190,
+        "total": 35162
+      },
+      "pilotCases": {
+        "PASS": 475,
+        "FAIL": 0,
+        "SKIPPED": 3316
+      },
+      "flagCasesPassed": 304,
+      "errorCasesPassed": 316
+    }
+  },
+  "executedAt": "2026-09-20T02:08:27.364Z",
+  "fingerprint": null,
+  "caseFingerprintCount": 341,
+  "goldenHash": "71335bc3f4ca796e50b3242f41647ed3ed8c354806fa0c8d69a3ad000860beb5",
+  "strictLogHash": "74c973b8580a72f71249b89388a2b71a27de9103646ae7ba1127caac82f4d93f"
+}

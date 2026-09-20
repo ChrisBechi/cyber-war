@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "command": "mkdir",
+    "aliases": [],
+    "baseline": "9.7",
+    "implementation": "src-tauri/src/coreutils/directories.rs",
+    "implementationKind": "NATIVE",
+    "capabilities": ["VFS_READ", "VFS_WRITE", "STDIN", "STDOUT", "STDERR"],
+    "flags": [
+      "-p",
+      "-m",
+      "-v",
+      "-Z",
+      "--parents",
+      "--mode",
+      "--verbose",
+      "--context",
+      "--help",
+      "--version"
+    ],
+    "contracts": [
+      {
+        "id": "invocation",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir invocation observable behavior",
+        "result": "PASS",
+        "evidenceCount": 1
+      },
+      {
+        "id": "options",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir options observable behavior",
+        "result": "PASS",
+        "evidenceCount": 31
+      },
+      {
+        "id": "errors",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir errors observable behavior",
+        "result": "PASS",
+        "evidenceCount": 138
+      },
+      {
+        "id": "help-version",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir help-version observable behavior",
+        "result": "PASS",
+        "evidenceCount": 6
+      },
+      {
+        "id": "integration",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir integration observable behavior",
+        "result": "PASS",
+        "evidenceCount": 2
+      },
+      {
+        "id": "diagnostics",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir diagnostics observable behavior",
+        "result": "PASS",
+        "evidenceCount": 6
+      },
+      {
+        "id": "state",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir state observable behavior",
+        "result": "PASS",
+        "evidenceCount": 387
+      },
+      {
+        "id": "creation",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir creation observable behavior",
+        "result": "PASS",
+        "evidenceCount": 58
+      },
+      {
+        "id": "parents",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir parents observable behavior",
+        "result": "PASS",
+        "evidenceCount": 132
+      },
+      {
+        "id": "modes",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir modes observable behavior",
+        "result": "PASS",
+        "evidenceCount": 186
+      },
+      {
+        "id": "umask",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir umask observable behavior",
+        "result": "PASS",
+        "evidenceCount": 122
+      },
+      {
+        "id": "partial-effects",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir partial-effects observable behavior",
+        "result": "PASS",
+        "evidenceCount": 26
+      },
+      {
+        "id": "link-resolution",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir link-resolution observable behavior",
+        "result": "PASS",
+        "evidenceCount": 45
+      },
+      {
+        "id": "permissions",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir permissions observable behavior",
+        "result": "PASS",
+        "evidenceCount": 7
+      },
+      {
+        "id": "verbose",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir verbose observable behavior",
+        "result": "PASS",
+        "evidenceCount": 58
+      },
+      {
+        "id": "context",
+        "applicability": "REQUIRED",
+        "description": "GNU 9.7 mkdir context observable behavior",
+        "result": "PASS",
+        "evidenceCount": 8
+      }
+    ],
+    "wave": 3,
+    "area": "filesystem",
+    "complexity": 2,
+    "missionUses": [],
+    "before": "PARTIAL",
+    "after": "VERIFIED",
+    "projectCases": 387,
+    "referenceCases": 387,
+    "referenceState": "PASS",
+    "matchedReferenceCases": 387,
+    "requiredGates": 23,
+    "passedGates": 23,
+    "blockers": [],
+    "action": "NEEDS_REMAINING_GATES"
+  },
+  "strict": {
+    "schemaVersion": 2,
+    "passed": true,
+    "strict": true,
+    "errors": [],
+    "summary": {
+      "commandNames": 1797,
+      "uniqueExecutables": 1526,
+      "aliases": 1,
+      "launcherNames": 270,
+      "catalogLaunchers": 303,
+      "guiLaunchers": 19,
+      "softwareGroups": 279,
+      "realCompat": 1519,
+      "fictionalNative": 7,
+      "catalogOnly": 1406,
+      "commands": {
+        "VERIFIED": 1,
+        "PARTIAL": 119,
+        "UNVERIFIED": 1406
+      },
+      "software": {
+        "VERIFIED": 0,
+        "PARTIAL": 42,
+        "UNVERIFIED": 237
+      },
+      "commandVerification": {
+        "verified": 1,
+        "total": 1519,
+        "percent": 0.06583278472679395
+      },
+      "softwareVerification": {
+        "verified": 0,
+        "total": 243,
+        "percent": 0
+      },
+      "pinnedSoftware": 12,
+      "unpinnedSoftware": 231,
+      "commandsTested": 3,
+      "gatesPassed": 3734,
+      "requiredGates": {
+        "passed": 3189,
+        "total": 35165
+      },
+      "pilotCases": {
+        "PASS": 521,
+        "FAIL": 0,
+        "SKIPPED": 2929
+      },
+      "flagCasesPassed": 376,
+      "errorCasesPassed": 194
+    }
+  },
+  "executedAt": "2026-09-20T01:53:42.656Z",
+  "fingerprint": null,
+  "caseFingerprintCount": 387,
+  "goldenHash": "925c4ef782f76a8c002fbf12393f669c15e7a392448aec08fafa88470ff13baa",
+  "strictLogHash": "8b88d77fc56181da9d37bb17fbb01c25901e75e2b4a45bce4c68d177cff3d482"
+}

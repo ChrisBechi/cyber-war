@@ -55,7 +55,7 @@ impl VirtualFileSystem {
             self.create(&resolved, "file", "", actor, mode)?;
         }
         let node = self.stat(&resolved, actor)?;
-        if node.kind == "directory" {
+        if node.kind == "directory" && (flags.write || flags.create) {
             return Err(error(Errno::IsDirectory));
         }
         if flags.write {
@@ -116,6 +116,9 @@ impl VirtualFileSystem {
             .inodes
             .get(&h.ino)
             .ok_or_else(|| error(Errno::BadDescriptor))?;
+        if n.kind == "directory" {
+            return Err(error(Errno::IsDirectory));
+        }
         let data = if let Some(blob) = &n.blob {
             blobs
                 .get(&blob.hash)

@@ -3,11 +3,11 @@
   "command": "head",
   "captureHash": "2ba8fa455f43c6d83bd47a057cc3f2ecd31edbee8aa6076a716456aa89c428b3",
   "dependencies": {
-    "harnessHash": "0be9b12af5e9d40d6c6c1dab6c20ce21e629374db0755d23ea16754416636739",
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
     "environmentHash": "793b794c8d768319fe654e6d13af83d41bd81820acf4437729f470f4f2d3a2f5",
     "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
   },
   "cases": 215,
   "identicalRuns": 2,
-  "verifiedAt": "2026-09-19T21:28:33.900879+00:00"
+  "verifiedAt": "2026-09-20T00:51:18.962304+00:00"
 }

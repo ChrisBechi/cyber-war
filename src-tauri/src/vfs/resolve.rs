@@ -5,6 +5,18 @@ pub enum Follow {
     Yes,
     No,
 }
+pub(super) fn validate_link_target(target: &str) -> GameResult<()> {
+    if target.is_empty() {
+        return Err(error(Errno::NotFound));
+    }
+    if target.contains('\0') {
+        return Err(error(Errno::Invalid));
+    }
+    if target.len() >= 4096 {
+        return Err(error(Errno::NameTooLong));
+    }
+    Ok(())
+}
 pub fn validate_path(path: &str) -> GameResult<()> {
     if path.is_empty() {
         return Err(error(Errno::NotFound));
@@ -18,6 +30,26 @@ pub fn validate_path(path: &str) -> GameResult<()> {
     Ok(())
 }
 impl VirtualFileSystem {
+    /// Link creation rejects an occupied final name before following a trailing
+    /// separator. Lookup of absent names still retains syscall slash semantics.
+    pub(super) fn resolve_link_destination(
+        &self,
+        path: &str,
+        actor: &str,
+        replace: bool,
+    ) -> GameResult<String> {
+        validate_path(path)?;
+        let trimmed = path.trim_end_matches('/');
+        if !replace
+            && path.ends_with('/')
+            && !trimmed.is_empty()
+            && self.lstat(trimmed, actor).is_ok()
+        {
+            return Err(error(Errno::Exists));
+        }
+        self.resolve_missing(path, actor, Follow::No, true)
+    }
+
     pub fn resolve(&self, path: &str, actor: &str, follow: Follow) -> GameResult<String> {
         self.resolve_missing(path, actor, follow, false)
     }

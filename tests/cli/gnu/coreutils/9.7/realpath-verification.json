@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "command": "realpath",
+  "captureHash": "d32391a1e36a91063eb0af68850a5e50c2955cdd51fa5c8b0b3ec8f5b3d73013",
+  "dependencies": {
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
+    "environmentHash": "0cc5392612e2f04d9236b6d1a5ad9d4e5f79a4b03e8eae890b934fb73bd4179d",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
+  },
+  "cases": 422,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-20T01:52:33.512891+00:00"
+}

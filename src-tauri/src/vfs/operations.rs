@@ -26,10 +26,26 @@ impl VirtualFileSystem {
         self.remove(path, actor, false)
     }
     pub fn rmdir(&mut self, path: &str, actor: &str) -> GameResult<()> {
-        if self.lstat(path, actor)?.kind != "directory" {
+        resolve::validate_path(path)?;
+        // Unlike stat/open, rmdir never follows the final symlink, even with
+        // trailing separators. Interior links still use the shared resolver.
+        let trimmed = path.trim_end_matches('/');
+        let spelling = if trimmed.is_empty() { "/" } else { trimmed };
+        let resolved = self.resolve(spelling, actor, Follow::No)?;
+        let last = spelling.rsplit('/').next().unwrap_or("");
+        if last == "." {
+            return Err(error(Errno::Invalid));
+        }
+        if last == ".." {
+            return Err(error(Errno::NotEmpty));
+        }
+        if resolved == "/" {
+            return Err(error(Errno::Busy));
+        }
+        if self.lstat(&resolved, actor)?.kind != "directory" {
             return Err(error(Errno::NotDirectory));
         }
-        self.remove(path, actor, false)
+        self.remove(&resolved, actor, false)
     }
     pub fn remove(&mut self, path: &str, actor: &str, recursive: bool) -> GameResult<()> {
         let path = self.resolve(path, actor, Follow::No)?;
@@ -271,7 +287,7 @@ impl VirtualFileSystem {
                 return Err(domain("VFS invariant: unsupported kind or mode"));
             }
             if node.kind == "symlink" {
-                resolve::validate_path(&node.content)?;
+                resolve::validate_link_target(&node.content)?;
             }
             if node.kind != "file" && node.blob.is_some() {
                 return Err(domain("VFS invariant: invalid blob kind"));

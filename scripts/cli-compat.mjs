@@ -3,7 +3,7 @@ import { cargo, write, digest, evidenceSources, json, root } from './cli/io.mjs'
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadCases, pipeline, currentCapture } from './cli/pipeline.mjs';
-import { scope } from './cli/scope.mjs';
+import { scope, differentialProviders } from './cli/scope.mjs';
 import { caseFingerprints } from './cli/fingerprint.mjs';
 import { generate } from './cli/reports.mjs';
 import { readCapture, writeCapture } from './cli/capture-storage.mjs';
@@ -15,7 +15,20 @@ const closedCoreutils = new Set(
     .filter(
       ([name, s]) =>
         (s.area === 'foundation' ||
-          ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(name)) &&
+          [
+            'cat',
+            'head',
+            'tail',
+            'base64',
+            'tee',
+            'wc',
+            'sha256sum',
+            'readlink',
+            'realpath',
+            'mkdir',
+            'rmdir',
+            'ln',
+          ].includes(name)) &&
         existsSync(resolve(root, `tests/cli/gnu/coreutils/${baseline}/${name}.json`)),
     )
     .map(([name]) => name),
@@ -26,15 +39,27 @@ const requiredSubsystemCases = new Set(
     ...(s.capabilities ?? []).flatMap((c) => c.requiredTests),
   ]),
 );
-const cases = loadCases().filter(
+const allCases = loadCases();
+const providers = selected.focused
+  ? differentialProviders(
+      selected.names,
+      json('content/cli-compatibility/manifest.json').native,
+      json('content/cli-compatibility/subsystems.json').subsystems,
+      allCases,
+    )
+  : new Set();
+const cases = allCases.filter(
   (c) =>
     selected.includes(c) ||
     (selected.names &&
       (requiredSubsystemCases.has(c.id) ||
-        (c.softwareId === 'coreutils' && closedCoreutils.has(c.command)))),
+        providers.has(c.command) ||
+        (!selected.focused && c.softwareId === 'coreutils' && closedCoreutils.has(c.command)))),
 );
 const previous = selected.names ? (currentCapture()?.cases ?? []) : [];
-await generate(pipeline());
+// A wave checkpoint needs one final derived report. Full/default runs retain
+// the initial inventory report; focused runs still perform every final gate.
+if (!selected.focused) await generate(pipeline());
 const executionFingerprint = digest(evidenceSources());
 const executionCaseFingerprints = caseFingerprints(loadCases());
 write('artifacts/cli-case-request.json', {

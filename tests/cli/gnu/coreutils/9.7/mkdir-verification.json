@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "command": "mkdir",
+  "captureHash": "925c4ef782f76a8c002fbf12393f669c15e7a392448aec08fafa88470ff13baa",
+  "dependencies": {
+    "harnessHash": "a3abe0eb5a2caa745be3fad346bb8892e1bbbc82393bd59afe0ae1bc96550484",
+    "environmentHash": "244146c93c80be871a690006b7b113d0c6b428e29dbf58f30eb81b409edcfff9",
+    "interactionHash": "73b61d346d49d8599fccc604693b2247b88a9e82a848cfa6948360b7618c67be"
+  },
+  "cases": 387,
+  "identicalRuns": 2,
+  "verifiedAt": "2026-09-20T02:04:24.556885+00:00"
+}

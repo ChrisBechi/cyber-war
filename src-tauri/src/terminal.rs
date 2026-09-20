@@ -1728,28 +1728,6 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
                 format!("{text}\n")
             })
         }
-        "rmdir" => {
-            let options=crate::terminal_io::options("rmdir",args,"","",&[])?;
-            if options.help { return Ok("rmdir DIRECTORY... — remove empty virtual directories\n".into()); }
-            if options.files.is_empty() { return Err(domain("rmdir: missing operand")); }
-            for name in options.files { let p=path(world,&name)?; world.fs_mut()?.rmdir(&p,actor)?; }
-            Ok(String::new())
-        }
-        "ln" => {
-            let options = crate::terminal_io::options("ln",args,"s","",&[("symbolic",'s')])?;
-            if options.help { return Ok("ln [-s] TARGET LINK_NAME — virtual hard/symbolic links\n".into()); }
-            if options.files.len()!=2 { return Err(domain("usage: ln [-s] TARGET LINK_NAME")); }
-            let target=path(world,&options.files[1])?;
-            if options.has('s') {world.fs_mut()?.symlink(&target,&options.files[0],actor)?;}
-            else {let source=path(world,&options.files[0])?;world.fs_mut()?.link(&source,&target,actor)?;}
-            Ok(String::new())
-        }
-        "realpath" | "readlink" => {
-            let value = arg(args, 0, &format!("{name} PATH"))?;
-            let p = path(world, &value)?;
-            let value = if name == "readlink" {world.fs()?.readlink(&p, actor)?} else {world.fs()?.resolve(&p, actor, crate::vfs::Follow::Yes)?};
-            Ok(format!("{value}\n"))
-        }
         "which" | "whereis" | "type" | "command" => {
             if name == "command" && args.first().map(String::as_str) != Some("-v") { return Err(domain("usage: command -v COMMAND")); }
             let value = arg(args, usize::from(name == "command"), &format!("{name} COMMAND"))?;
@@ -1824,45 +1802,13 @@ fn run(world: &mut WorldState, parts: &[String], actor: &str) -> GameResult<Stri
             }
             Ok(out)
         }
-        "mkdir" | "touch" => {
-            let values = if name == "mkdir" {
-                operands_with_values(args, &["-m", "--mode"])
-            } else {
-                operands(args)
-            };
-            if values.is_empty() {
-                return Err(domain("missing path"));
-            }
-            let parents = has_flag(args, 'p', "--parents");
+        "touch" => {
+            let values = operands(args);
+            if values.is_empty() { return Err(domain("missing path")); }
             let no_create = has_flag(args, 'c', "--no-create");
             for a in values {
                 let p = path(world, &a)?;
-                if name == "mkdir" {
-                    if world.fs()?.nodes.contains_key(&p) {
-                        if !parents || world.fs()?.nodes.get(&p).is_some_and(|n| n.kind != "directory") {
-                            return Err(domain("file exists"));
-                        }
-                        continue;
-                    }
-                    if parents {
-                        let mut current = String::new();
-                        for part in p.split('/').filter(|part| !part.is_empty()) {
-                            current.push('/');
-                            current.push_str(part);
-                            if !world.fs()?.nodes.contains_key(&current) {
-                                world.fs_mut()?.mkdir(&current, actor)?;
-                            }
-                        }
-                    } else {
-                        world.fs_mut()?.mkdir(&p, actor)?;
-                    }
-                    if let Some(mode) = option_value(args, 'm', "--mode", "mkdir [-p] [-m MODE] DIRECTORY")? {
-                        let mode = u16::from_str_radix(&mode, 8).map_err(|_| domain("mode must be octal"))?;
-                        world.fs_mut()?.chmod(&p, actor, mode)?;
-                    }
-                } else if !no_create || world.fs()?.path_exists(&p, actor)? {
-                    world.fs_mut()?.touch(&p, actor)?;
-                }
+                if !no_create || world.fs()?.path_exists(&p, actor)? { world.fs_mut()?.touch(&p, actor)?; }
             }
             Ok(String::new())
         }

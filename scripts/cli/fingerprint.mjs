@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto';
 import { evidenceSources, digest, json } from './io.mjs';
 
-export function caseSources(test, sources = evidenceSources()) {
+export function caseSources(test, sources = evidenceSources(), context) {
   // Integration scripts conservatively depend on all handlers. Direct Coreutils
   // cases omit unrelated leaf handlers; shared shell/VFS/parser changes invalidate all.
   // env invokes another executable, so its evidence depends on the child handler.
   if (test.softwareId !== 'coreutils' || test.script || test.command === 'env') return sources;
-  const manifest = json('content/cli-compatibility/manifest.json');
+  const manifest = context?.manifest ?? json('content/cli-compatibility/manifest.json');
   const impl = manifest.native[test.command]?.implementation;
   const leaf = new Set([
     'src-tauri/src/terminal_text.rs',
@@ -14,6 +14,15 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/terminal_transfer.rs',
     'src-tauri/src/terminal_remove.rs',
     'src-tauri/src/coreutils/bytes.rs',
+    'src-tauri/src/coreutils/links.rs',
+    'src-tauri/src/coreutils/backup.rs',
+    'src-tauri/src/coreutils/links_tests.rs',
+    'src-tauri/src/shell_pipeline/streams/links.rs',
+    'src-tauri/src/coreutils/directories.rs',
+    'src-tauri/src/coreutils/directories_tests.rs',
+    'src-tauri/src/coreutils/pathnames.rs',
+    'src-tauri/src/coreutils/pathnames_tests.rs',
+    'src-tauri/src/vfs/canonical.rs',
     'src-tauri/src/coreutils/sha256sum.rs',
     'src-tauri/src/coreutils/sha256sum_tests.rs',
     'src-tauri/src/shell_pipeline/streams/sha256sum.rs',
@@ -30,7 +39,16 @@ export function caseSources(test, sources = evidenceSources()) {
     'src-tauri/src/coreutils/tail.rs',
   ]);
   const foundation = ['basename', 'dirname', 'printenv', 'whoami'].includes(test.command);
+  const filesystem = ['readlink', 'realpath', 'mkdir', 'rmdir', 'ln'].includes(test.command);
   return sources.filter((p) => {
+    if (
+      [
+        'scripts/cli/filesystem-cases.mjs',
+        'scripts/cli-filesystem-generate.mjs',
+        'scripts/cli/filesystem.test.mjs',
+      ].includes(p)
+    )
+      return filesystem;
     if (
       [
         'scripts/cli/sha256sum-cases.mjs',
@@ -70,17 +88,54 @@ export function caseSources(test, sources = evidenceSources()) {
     if (p.startsWith('src-tauri/src/coreutils/messages/'))
       return (
         (foundation ||
-          ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)) &&
+          [
+            'cat',
+            'head',
+            'tail',
+            'base64',
+            'tee',
+            'wc',
+            'sha256sum',
+            'readlink',
+            'realpath',
+            'mkdir',
+            'rmdir',
+            'ln',
+          ].includes(test.command)) &&
         p.includes('/' + test.command + '-')
       );
     if (p.endsWith('/foundation_options.rs') || p.endsWith('/foundation_messages.rs'))
       return (
         foundation ||
-        ['cat', 'head', 'tail', 'base64', 'tee', 'wc', 'sha256sum'].includes(test.command)
+        [
+          'cat',
+          'head',
+          'tail',
+          'base64',
+          'tee',
+          'wc',
+          'sha256sum',
+          'readlink',
+          'realpath',
+          'mkdir',
+          'rmdir',
+          'ln',
+        ].includes(test.command)
       );
     return (
       !leaf.has(p) ||
       p === impl ||
+      (test.command === 'ln' &&
+        (p.endsWith('/links_tests.rs') ||
+          p.endsWith('/backup.rs') ||
+          p.endsWith('/streams/links.rs'))) ||
+      (['mkdir', 'rmdir'].includes(test.command) && p.endsWith('/directories_tests.rs')) ||
+      (['readlink', 'realpath', 'ln'].includes(test.command) && p.endsWith('/vfs/canonical.rs')) ||
+      (filesystem &&
+        (p.endsWith('/pathnames_tests.rs') ||
+          p.endsWith('/pathnames.rs') ||
+          p.endsWith('/foundation.rs') ||
+          p.endsWith('/wc.rs'))) ||
       (test.command === 'sha256sum' &&
         (p.endsWith('/sha256sum_tests.rs') ||
           p.endsWith('/streams/sha256sum.rs') ||
@@ -96,14 +151,16 @@ export function caseSources(test, sources = evidenceSources()) {
     );
   });
 }
-export function caseFingerprint(test, cache = new Map(), sources = evidenceSources()) {
-  const paths = caseSources(test, sources);
+export function caseFingerprint(test, cache = new Map(), sources = evidenceSources(), context) {
+  const paths = caseSources(test, sources, context);
   const key = paths.join('\0');
   if (!cache.has(key)) cache.set(key, digest(paths));
-  const manifest = json('content/cli-compatibility/manifest.json');
+  const manifest = context?.manifest ?? json('content/cli-compatibility/manifest.json');
   const contract =
     test.softwareId === 'coreutils'
-      ? json('content/cli-compatibility/coreutils.json').commands[test.command]
+      ? (context?.coreutils ?? json('content/cli-compatibility/coreutils.json')).commands[
+          test.command
+        ]
       : null;
   return createHash('sha256')
     .update(cache.get(key))
@@ -120,5 +177,11 @@ export function caseFingerprint(test, cache = new Map(), sources = evidenceSourc
 export function caseFingerprints(cases) {
   const cache = new Map(),
     sources = evidenceSources();
-  return Object.fromEntries(cases.map((c) => [c.id, caseFingerprint(c, cache, sources)]));
+  // One immutable configuration snapshot per calculation, never a global cache.
+  // Avoid reparsing megabytes of gate metadata for every individual case.
+  const context = {
+    manifest: json('content/cli-compatibility/manifest.json'),
+    coreutils: json('content/cli-compatibility/coreutils.json'),
+  };
+  return Object.fromEntries(cases.map((c) => [c.id, caseFingerprint(c, cache, sources, context)]));
 }

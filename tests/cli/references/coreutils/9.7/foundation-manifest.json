@@ -15,7 +15,6 @@
     "coreutils/cat/transform",
     "coreutils/cat/visible",
     "coreutils/yes/bounded",
-    "coreutils/ln/inode-flow",
     "coreutils/env/version",
     "coreutils/env/unknown-option",
     "coreutils/cat/version",
