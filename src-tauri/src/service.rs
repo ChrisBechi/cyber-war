@@ -352,6 +352,89 @@ mod tests {
         GameService::new(Connection::open_in_memory().expect("db")).expect("service")
     }
     #[test]
+    fn legacy_repository_state_loads_manual_autosave_and_checkpoints_without_data_loss() {
+        use sha2::{Digest, Sha256};
+        let mut game = service();
+        game.new_game(2, "other", "other-pc", false).unwrap();
+        let other = save::encode(&save::load(&game.connection, 2, false).unwrap().1).unwrap();
+        game.new_game(1, "legacy", "legacy-pc", false).unwrap();
+        game.mutate(
+            |_, world, _| {
+                world.money = 123;
+                world.playtime_seconds = 456;
+                world
+                    .vfs
+                    .write("/home/kali/notes.txt", "keep this", "kali")?;
+                Ok(())
+            },
+            true,
+        )
+        .unwrap();
+        let mut value = serde_json::to_value(game.world().unwrap()).unwrap();
+        value["packages"]["repositories"] = serde_json::json!({
+            "legacy": {},
+            "untrusted": {"trusted": false, "release": 7},
+            "offline": {"available": false, "trusted": false, "release": 9}
+        });
+        let json = serde_json::to_string(&value).unwrap();
+        let hash = format!("{:x}", Sha256::digest(json.as_bytes()));
+        game.connection.execute(
+            "UPDATE save_slots SET state_json=?1, checksum=?2, autosave_json=?1, autosave_checksum=?2 WHERE slot_index=1",
+            rusqlite::params![json, hash],
+        ).unwrap();
+        game.connection
+            .execute(
+                "UPDATE save_checkpoints SET state_json=?1, checksum=?2 WHERE slot_index=1",
+                rusqlite::params![json, hash],
+            )
+            .unwrap();
+        assert!(save::decode(&json, "invalid checksum").is_err());
+        let check = |world: &WorldState| {
+            assert_eq!(world.nickname, "legacy");
+            assert_eq!(world.money, 123);
+            assert_eq!(world.playtime_seconds, 456);
+            assert_eq!(
+                world.vfs.read("/home/kali/notes.txt", "kali").unwrap(),
+                "keep this"
+            );
+            let repos = &world.packages.repositories;
+            assert!(repos["legacy"].available && repos["legacy"].trusted);
+            assert_eq!(repos["legacy"].release, 1);
+            assert!(repos["untrusted"].available);
+            assert!(!repos["untrusted"].trusted);
+            assert_eq!(repos["untrusted"].release, 7);
+            assert!(!repos["offline"].available && !repos["offline"].trusted);
+            assert_eq!(repos["offline"].release, 9);
+        };
+        for manual in [false, true] {
+            check(&game.load(1, manual).unwrap());
+        }
+        let id = save::checkpoints(&game.connection, 1).unwrap()[0]
+            .id
+            .clone();
+        check(&game.restore(&id).unwrap());
+        check(&game.load(1, false).unwrap());
+        let saved: String = game
+            .connection
+            .query_row(
+                "SELECT autosave_json FROM save_slots WHERE slot_index=1",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&saved).unwrap()["packages"]["repositories"]
+                ["legacy"]["available"],
+            true
+        );
+        assert_eq!(
+            save::encode(&save::load(&game.connection, 2, false).unwrap().1).unwrap(),
+            other
+        );
+        value["packages"]["repositories"]["legacy"]["available"] = serde_json::json!("invalid");
+        assert!(serde_json::from_value::<WorldState>(value).is_err());
+    }
+    #[test]
     fn five_slots_roundtrip_corruption_and_atomic_rollback() {
         let mut game = service();
         assert_eq!(save::list(&game.connection).expect("list").len(), 5);

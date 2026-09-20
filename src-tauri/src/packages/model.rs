@@ -120,7 +120,9 @@ pub struct IndexEntry {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+// Older saves may omit repository runtime fields. Apply the same defaults as
+// an unmodified repository, without replacing any explicitly saved value.
+#[serde(default, rename_all = "camelCase")]
 pub struct RepositoryState {
     pub available: bool,
     pub trusted: bool,
